@@ -3,6 +3,17 @@ from commons import (
     diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes
 )
 def analysis_diagnose_icd():
+    df = get_kidney_failure_patients()
+    print("analyzing patients")
+
+    # analyze gender statistics
+    print(
+        f"Gender statistics:\n"
+        f"{df['gender'].value_counts()}."
+    )
+
+
+def get_kidney_failure_patients():
     D = pd.read_csv(diagnose_icd_file_path)
     print(
         f"number of rows: {D.shape[0]}. number of subjects: {D['subject_id'].nunique()}"
@@ -27,13 +38,7 @@ def analysis_diagnose_icd():
         f"number of rows: {df.shape[0]}. number of subjects: {df['subject_id'].nunique()}"
     )
 
-    print("analyzing patients")
-
-    # analyze gender statistics
-    print(
-        f"Gender statistics:\n"
-        f"{df['gender'].value_counts()}."
-    )
+    return df
 
 
 if __name__ == '__main__':
