@@ -12,5 +12,5 @@ kidney_failure_icd_10_codes = ['N17', 'N170', 'N171', 'N172', 'N178', 'N179', 'N
 kidney_failure_icd_9_codes = ['5849']
 
 """
-----------MIMIC-III data paths----------
+---------------------------------------
 """
