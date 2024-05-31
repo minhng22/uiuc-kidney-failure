@@ -1,6 +1,7 @@
 import pandas as pd
 from commons import (
-    diagnose_icd_file_path, kidney_failure_icd_10_codes, kidney_failure_icd_9_codes, patients_file_path)
+    diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes
+)
 def analysis_diagnose_icd():
     D = pd.read_csv(diagnose_icd_file_path)
     print(
@@ -8,7 +9,7 @@ def analysis_diagnose_icd():
     )
 
     print("filtering for kidney failure")
-    k = kidney_failure_icd_10_codes + kidney_failure_icd_9_codes
+    k = get_kidney_failure_codes()
     df = D[D['icd_code'].isin(k)]
     print(
         f"number of rows: {df.shape[0]}. number of subjects: {df['subject_id'].nunique()}\n"
@@ -33,6 +34,7 @@ def analysis_diagnose_icd():
         f"Gender statistics:\n"
         f"{df['gender'].value_counts()}."
     )
+
 
 if __name__ == '__main__':
     analysis_diagnose_icd()
