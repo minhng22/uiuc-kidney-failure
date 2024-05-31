@@ -17,6 +17,18 @@ icd_10_kidney_failure_code_g3 = ['0904'] # Desc: Postpartum acute kidney failure
 icd_9_kidney_failure_code_g1 = ['5845', '5846', '5847', '5848', '5849'] # Desc: Acute kidney failure with ...
 icd_9_kidney_failure_code_g2 = ['6393'] # Desc: Kidney failure following abortion and ectopic and molar pregnancies
 icd_9_kidney_failure_code_g3 = ['66930', '66932', '66934'] # Desc: Acute kidney failure following labor and delivery ...
+
 """
----------------------------------------
+----------Generated data paths----------
 """
+figs_path = '../generated_data/figs'
+figs_path_gender_statistics = figs_path + '/gender_statistics.jpg'
+figs_path_age_statistics = figs_path + '/age_statistics.jpg'
+
+"""
+----------Others----------
+"""
+
+# maps to age groups: Children, Young Adults, Middle-aged Adults, Older Adults
+# E.g. https://www.semanticscholar.org/paper/Human-Age-Group-Classification-Using-Facial-Bhat-V.K.Patil/19ddb412336ce633c1fe21544605c7bd65ff8d66
+age_bins = [0, 16, 30, 45, float('inf')]
