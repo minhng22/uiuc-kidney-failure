@@ -2,7 +2,7 @@ import pandas as pd
 from commons import (
     diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
-    age_bins, figs_path_race_statistics, figs_path_race_stats
+    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats
 )
 import matplotlib.pyplot as plt
 import os
@@ -14,7 +14,8 @@ def analysis_diagnose_icd():
 
     #gender_statistics(patients_df, diagnoses_df)
     #age_statistics(patients_df, diagnoses_df)
-    race_statistics(patients_df, diagnoses_df)
+    #race_statistics(patients_df, diagnoses_df)
+    plot_icd_code_pie_chart(diagnoses_df)
 
 
 def age_statistics(patients_df, diagnoses_df):
@@ -46,6 +47,25 @@ def age_statistics(patients_df, diagnoses_df):
     if not os.path.exists(figs_path):
         os.mkdir(figs_path)
     plt.savefig(figs_path_age_statistics, bbox_inches="tight")
+    plt.clf()
+
+
+def plot_icd_code_pie_chart(diagnoses_df):
+    # Count the occurrences of each ICD code
+    icd_code_counts = diagnoses_df['icd_code'].value_counts()
+
+    # Create a pie chart
+    plt.figure(figsize=(10, 7))
+    icd_code_counts.plot.pie(
+        autopct='%1.1f%%',
+        startangle=90,
+        counterclock=False
+    )
+
+    plt.title('Distribution of ICD Codes')
+    plt.ylabel('')  # Hide the y-label for the pie chart
+
+    plt.savefig(figs_path_icd_stats, bbox_inches="tight")
     plt.clf()
 
 

@@ -26,6 +26,7 @@ figs_path_gender_statistics = figs_path + '/gender_statistics.jpg'
 figs_path_age_statistics = figs_path + '/age_statistics.jpg'
 figs_path_race_statistics = figs_path + '/race_statistics.jpg'
 figs_path_race_stats = figs_path + '/race_statistics.csv'
+figs_path_icd_stats = figs_path + '/icds.jpg'
 
 """
 ----------Others----------
