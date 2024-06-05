@@ -2,14 +2,15 @@ import pandas as pd
 from commons import (
     diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
-    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, get_target_kid_failure_codes
+    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, get_target_esrd_codes,
+    get_target_ckd_codes, admissions_file_path
 )
 import matplotlib.pyplot as plt
 import os
 import cmocean
 
-def analysis_diagnose_icd():
-    patients_df, diagnoses_df = get_kidney_failure_patients_and_diagnoses()
+def analyze_esrd():
+    patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
     print("analyzing patients")
 
     plot_icd_codes(diagnoses_df)
@@ -21,7 +22,7 @@ def analysis_diagnose_icd():
 
 
 def filter_diagnoses_df_for_target_kidney_failure_codes(df):
-    return df[df['icd_code'].isin(get_target_kid_failure_codes())]
+    return df[df['icd_code'].isin(get_target_esrd_codes())]
 
 
 def age_statistics(patients_df, diagnoses_df):
@@ -107,7 +108,7 @@ def gender_statistics(patients_df, diagnoses_df):
 # @with_processed_race - if True: (1) filters out patients with selection 'PATIENT DECLINED TO ANSWER', 'UNABLE TO OBTAIN', 'UNKNOWN'
 # (2) merge the sub options: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
 def get_admission_df(with_processed_race: bool):
-    admission_df = pd.read_csv('../data/mimic-iv-2.2/hosp/admissions.csv')
+    admission_df = pd.read_csv(admissions_file_path)
 
     if with_processed_race:
         bad_record_admission_df = admission_df[
@@ -156,21 +157,20 @@ def race_statistics(patients_df, diagnoses_df):
     plt.clf()
 
 
-def get_kidney_failure_patients_and_diagnoses():
+def get_esrd_patients_and_diagnoses():
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
     print(
         f"number of rows: {diagnoses_df.shape[0]}. number of subjects: {diagnoses_df['subject_id'].nunique()}"
     )
 
     print("filtering for kidney failure")
-    k = get_kidney_failure_codes()
-    kidney_failure_diagnose_df = diagnoses_df[diagnoses_df['icd_code'].isin(k)]
+    esrd_diagnose_df = filter_ckd_esrd_diagnose(diagnoses_df)
     print(
-        f"number of rows: {kidney_failure_diagnose_df.shape[0]}. number of subjects: {kidney_failure_diagnose_df['subject_id'].nunique()}\n"
-        f"percentage of subjects in dataset with kidney failure: {kidney_failure_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
+        f"number of rows: {esrd_diagnose_df.shape[0]}. number of subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
+        f"percentage of subjects in dataset with kidney failure: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
     )
 
-    kf_subjects = kidney_failure_diagnose_df['subject_id'].unique()
+    kf_subjects = esrd_diagnose_df['subject_id'].unique()
     print(f"number of subjects with kidney failure (for validation): {len(kf_subjects)}")
 
     patients_df = pd.read_csv(patients_file_path)
@@ -181,8 +181,15 @@ def get_kidney_failure_patients_and_diagnoses():
         f"number of rows: {patients_df.shape[0]}. number of subjects: {patients_df['subject_id'].nunique()}"
     )
 
-    return patients_df, kidney_failure_diagnose_df
+    return patients_df, esrd_diagnose_df
+
+
+def filter_ckd_esrd_diagnose(df):
+    subject_ids = df.groupby('subject_id').filter(lambda x: any(x['icd_code'].isin(get_target_esrd_codes())) and any(x['icd_code'].isin(get_target_ckd_codes())))[
+        'subject_id'].unique()
+    print(f"number of patients who have esrd (progressed from ckd) are {len(subject_ids)}")
+    return df[df['subject_id'].isin(subject_ids)]
 
 
 if __name__ == '__main__':
-    analysis_diagnose_icd()
+    analyze_esrd()
