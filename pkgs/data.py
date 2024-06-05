@@ -11,12 +11,10 @@ import cmocean
 
 def analyze_esrd():
     patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
-    print("analyzing patients")
-
     plot_icd_codes(diagnoses_df)
 
-    gender_statistics(patients_df, diagnoses_df)
     age_statistics(patients_df, diagnoses_df)
+    gender_statistics(patients_df, diagnoses_df)
     race_statistics(patients_df, diagnoses_df)
 
 
@@ -43,7 +41,7 @@ def age_statistics(patients_df, diagnoses_df):
 
     ax = pivot_df.plot(kind='bar', stacked=True)
     ax.set_ylabel('Percentage')
-    ax.set_title('Percentage of Age Groups by ICD Code')
+    ax.set_title('Proportion Of Age Groups By ICD Code')
     plt.legend(title='Age Group')
 
     if not os.path.exists(figs_path):
@@ -69,7 +67,7 @@ def plot_icd_codes(diagnoses_df):
             fontsize=8
         )
 
-    plt.title('Distribution of ICD Codes (By Number of Diagnoses)')
+    plt.title('Proportion Of ICD Codes (By Number of Diagnoses)')
     plt.ylabel('')  # Hide the y-label for the pie chart
 
     plt.savefig(figs_path_icd_stats, bbox_inches="tight")
@@ -90,7 +88,7 @@ def gender_statistics(patients_df, diagnoses_df):
 
     ax = pivot_df.plot(kind='bar', stacked=True)
     ax.set_ylabel('Percentage')
-    ax.set_title('Percentage of Genders for each ICD Code')
+    ax.set_title('Percentage Of Genders For Each ICD Code')
     plt.legend(title='Gender')
 
     if not os.path.exists(figs_path):
@@ -120,8 +118,6 @@ def get_admission_df(with_processed_race: bool):
 
 
 def race_statistics(patients_df, diagnoses_df):
-    print(f"race statistics:\n")
-
     admission_df = get_admission_df(True)
 
     merged_df = pd.merge(patients_df, admission_df, on='subject_id')
@@ -138,7 +134,7 @@ def race_statistics(patients_df, diagnoses_df):
 
     ax = pivot_df.plot(kind='bar', stacked=True, color=color_blind_palette, edgecolor='black', linewidth=1.2)
     ax.set_ylabel('Percentage')
-    ax.set_title('Percentage of Races for each ICD Code')
+    ax.set_title('Proportion of Races For Each ICD Code')
     plt.legend(title='Race', bbox_to_anchor=(1.05, 1), loc='upper left')
 
     if not os.path.exists(figs_path):
@@ -150,27 +146,18 @@ def race_statistics(patients_df, diagnoses_df):
 
 def get_esrd_patients_and_diagnoses():
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
-    print(
-        f"number of rows: {diagnoses_df.shape[0]}. number of subjects: {diagnoses_df['subject_id'].nunique()}"
-    )
 
     esrd_diagnose_df = filter_ckd_esrd_diagnose(diagnoses_df)
     esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(get_esrd_codes())]
     print(
-        f"number of rows: {esrd_diagnose_df.shape[0]}. number of subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
-        f"percentage of subjects in dataset with kidney failure: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
+        f"number of ESRD subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
+        f"percentage of subjects in dataset: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
     )
-
-    kf_subjects = esrd_diagnose_df['subject_id'].unique()
-    print(f"number of subjects with kidney failure (for validation): {len(kf_subjects)}")
 
     patients_df = pd.read_csv(patients_file_path)
-    patients_df = patients_df[patients_df['subject_id'].isin(kf_subjects)]
+    patients_df = patients_df[patients_df['subject_id'].isin(esrd_diagnose_df['subject_id'].unique())]
 
-    print(
-        f"printing number of subjects out for validation\n"
-        f"number of rows: {patients_df.shape[0]}. number of subjects: {patients_df['subject_id'].nunique()}"
-    )
+    print(f"number of subjects (for validation): {patients_df['subject_id'].nunique()}")
 
     return patients_df, esrd_diagnose_df
 
