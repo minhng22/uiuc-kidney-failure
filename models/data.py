@@ -2,18 +2,19 @@ import pandas as pd
 from commons import (
     diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
-    age_bins
+    age_bins, figs_path_race_statistics, figs_path_race_stats
 )
 import matplotlib.pyplot as plt
 import os
-
+import cmocean
 
 def analysis_diagnose_icd():
     patients_df, diagnoses_df = get_kidney_failure_patients_and_diagnoses()
     print("analyzing patients")
 
-    gender_statistics(patients_df, diagnoses_df)
-    age_statistics(patients_df, diagnoses_df)
+    #gender_statistics(patients_df, diagnoses_df)
+    #age_statistics(patients_df, diagnoses_df)
+    race_statistics(patients_df, diagnoses_df)
 
 
 def age_statistics(patients_df, diagnoses_df):
@@ -68,6 +69,58 @@ def gender_statistics(patients_df, diagnoses_df):
     if not os.path.exists(figs_path):
         os.mkdir(figs_path)
     plt.savefig(figs_path_gender_statistics, bbox_inches="tight")
+    plt.clf()
+
+
+# @with_processed_race - if True: (1) filters out patients with selection 'PATIENT DECLINED TO ANSWER', 'UNABLE TO OBTAIN', 'UNKNOWN'
+# (2) merge the sub options: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
+def get_admission_df(with_processed_race: bool):
+    admission_df = pd.read_csv('../data/mimic-iv-2.2/hosp/admissions.csv')
+
+    if with_processed_race:
+        bad_record_admission_df = admission_df[
+            admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
+        percentage_filtered = (len(bad_record_admission_df) / len(admission_df)) * 100
+
+        print(f"Percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "
+              f"'UNABLE TO OBTAIN', or 'UNKNOWN': {percentage_filtered:.2f}%")
+        print(f"Filtering out those records")
+        admission_df = admission_df[
+            ~admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
+
+        print(f"merging")
+        # merge the sub options: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
+        admission_df['race'] = admission_df['race'].str.split(' - ').str[0]
+
+    return admission_df
+
+
+def race_statistics(patients_df, diagnoses_df):
+    print(f"Race statistics:\n")
+
+    admission_df = get_admission_df(False)
+
+    merged_df = pd.merge(patients_df, admission_df, on='subject_id')
+    merged_df = pd.merge(merged_df, diagnoses_df, on='subject_id')
+    grouped = merged_df.groupby(['icd_code', 'race']).size().reset_index(name='count')
+    grouped['percentage'] = grouped.groupby('icd_code')['count'].transform(lambda x: x / x.sum() * 100)
+    pivot_df = grouped.pivot(index='icd_code', columns='race', values='percentage').fillna(0)
+
+    pivot_df.to_csv(figs_path_race_stats)
+
+    # 40 distinct colors
+    cmocean_cmap = cmocean.cm.phase
+    color_blind_palette = [cmocean_cmap(i / len(pivot_df.columns)) for i in range(len(pivot_df.columns))]
+
+    ax = pivot_df.plot(kind='bar', stacked=True, color=color_blind_palette, edgecolor='black', linewidth=1.2)
+    ax.set_ylabel('Percentage')
+    ax.set_title('Percentage of Races for each ICD Code')
+    plt.legend(title='Race', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    if not os.path.exists(figs_path):
+        os.mkdir(figs_path)
+
+    plt.savefig(figs_path_race_statistics, bbox_inches="tight")
     plt.clf()
 
 

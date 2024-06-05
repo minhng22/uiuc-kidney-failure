@@ -24,6 +24,8 @@ icd_9_kidney_failure_code_g3 = ['66930', '66932', '66934'] # Desc: Acute kidney 
 figs_path = '../generated_data/figs'
 figs_path_gender_statistics = figs_path + '/gender_statistics.jpg'
 figs_path_age_statistics = figs_path + '/age_statistics.jpg'
+figs_path_race_statistics = figs_path + '/race_statistics.jpg'
+figs_path_race_stats = figs_path + '/race_statistics.csv'
 
 """
 ----------Others----------
