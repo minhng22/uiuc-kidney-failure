@@ -1,6 +1,6 @@
 import pandas as pd
 from commons import (
-    diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes,
+    diagnose_icd_file_path, patients_file_path, get_esrd_codes,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
     age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, get_target_esrd_codes,
     get_target_ckd_codes, admissions_file_path
@@ -14,15 +14,10 @@ def analyze_esrd():
     print("analyzing patients")
 
     plot_icd_codes(diagnoses_df)
-    diagnoses_df = filter_diagnoses_df_for_target_kidney_failure_codes(diagnoses_df)
 
     gender_statistics(patients_df, diagnoses_df)
     age_statistics(patients_df, diagnoses_df)
     race_statistics(patients_df, diagnoses_df)
-
-
-def filter_diagnoses_df_for_target_kidney_failure_codes(df):
-    return df[df['icd_code'].isin(get_target_esrd_codes())]
 
 
 def age_statistics(patients_df, diagnoses_df):
@@ -58,7 +53,6 @@ def age_statistics(patients_df, diagnoses_df):
 
 
 def plot_icd_codes(diagnoses_df):
-    # Count the occurrences of each ICD code
     icd_code_counts = diagnoses_df['icd_code'].value_counts()
 
     plt.figure(figsize=(10, 7))
@@ -75,7 +69,7 @@ def plot_icd_codes(diagnoses_df):
             fontsize=8
         )
 
-    plt.title('Distribution of ICD Codes')
+    plt.title('Distribution of ICD Codes (By Number of Diagnoses)')
     plt.ylabel('')  # Hide the y-label for the pie chart
 
     plt.savefig(figs_path_icd_stats, bbox_inches="tight")
@@ -131,7 +125,7 @@ def get_admission_df(with_processed_race: bool):
 def race_statistics(patients_df, diagnoses_df):
     print(f"Race statistics:\n")
 
-    admission_df = get_admission_df(False)
+    admission_df = get_admission_df(True)
 
     merged_df = pd.merge(patients_df, admission_df, on='subject_id')
     merged_df = pd.merge(merged_df, diagnoses_df, on='subject_id')
@@ -165,6 +159,7 @@ def get_esrd_patients_and_diagnoses():
 
     print("filtering for kidney failure")
     esrd_diagnose_df = filter_ckd_esrd_diagnose(diagnoses_df)
+    esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(get_esrd_codes())]
     print(
         f"number of rows: {esrd_diagnose_df.shape[0]}. number of subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
         f"percentage of subjects in dataset with kidney failure: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
