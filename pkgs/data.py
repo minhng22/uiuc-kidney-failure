@@ -22,7 +22,7 @@ def analyze_esrd():
 
 def age_statistics(patients_df, diagnoses_df):
     print(
-        f"Age statistics:\n"
+        f"age statistics:\n"
         f"mean: {patients_df['anchor_age'].mean():.3f}, std: {patients_df['anchor_age'].std():.3f}, min: {patients_df['anchor_age'].min()}, max: {patients_df['anchor_age'].max()}"
     )
 
@@ -78,7 +78,7 @@ def plot_icd_codes(diagnoses_df):
 
 def gender_statistics(patients_df, diagnoses_df):
     print(
-        f"Gender statistics:\n"
+        f"gender statistics:\n"
         f"{patients_df['gender'].value_counts()}."
     )
 
@@ -109,13 +109,10 @@ def get_admission_df(with_processed_race: bool):
             admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
         percentage_filtered = (len(bad_record_admission_df) / len(admission_df)) * 100
 
-        print(f"Percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "
+        print(f"percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "
               f"'UNABLE TO OBTAIN', or 'UNKNOWN': {percentage_filtered:.2f}%")
-        print(f"Filtering out those records")
         admission_df = admission_df[
             ~admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
-
-        print(f"merging")
         # merge the sub options: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
         admission_df['race'] = admission_df['race'].str.split(' - ').str[0]
 
@@ -123,7 +120,7 @@ def get_admission_df(with_processed_race: bool):
 
 
 def race_statistics(patients_df, diagnoses_df):
-    print(f"Race statistics:\n")
+    print(f"race statistics:\n")
 
     admission_df = get_admission_df(True)
 
@@ -157,7 +154,6 @@ def get_esrd_patients_and_diagnoses():
         f"number of rows: {diagnoses_df.shape[0]}. number of subjects: {diagnoses_df['subject_id'].nunique()}"
     )
 
-    print("filtering for kidney failure")
     esrd_diagnose_df = filter_ckd_esrd_diagnose(diagnoses_df)
     esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(get_esrd_codes())]
     print(
