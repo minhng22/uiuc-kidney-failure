@@ -2,7 +2,7 @@ import pandas as pd
 from commons import (
     diagnose_icd_file_path, patients_file_path, get_kidney_failure_codes,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
-    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats
+    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, get_target_kid_failure_codes
 )
 import matplotlib.pyplot as plt
 import os
@@ -12,10 +12,16 @@ def analysis_diagnose_icd():
     patients_df, diagnoses_df = get_kidney_failure_patients_and_diagnoses()
     print("analyzing patients")
 
-    #gender_statistics(patients_df, diagnoses_df)
-    #age_statistics(patients_df, diagnoses_df)
-    #race_statistics(patients_df, diagnoses_df)
-    plot_icd_code_pie_chart(diagnoses_df)
+    plot_icd_codes(diagnoses_df)
+    diagnoses_df = filter_diagnoses_df_for_target_kidney_failure_codes(diagnoses_df)
+
+    gender_statistics(patients_df, diagnoses_df)
+    age_statistics(patients_df, diagnoses_df)
+    race_statistics(patients_df, diagnoses_df)
+
+
+def filter_diagnoses_df_for_target_kidney_failure_codes(df):
+    return df[df['icd_code'].isin(get_target_kid_failure_codes())]
 
 
 def age_statistics(patients_df, diagnoses_df):
@@ -50,17 +56,23 @@ def age_statistics(patients_df, diagnoses_df):
     plt.clf()
 
 
-def plot_icd_code_pie_chart(diagnoses_df):
+def plot_icd_codes(diagnoses_df):
     # Count the occurrences of each ICD code
     icd_code_counts = diagnoses_df['icd_code'].value_counts()
 
-    # Create a pie chart
     plt.figure(figsize=(10, 7))
-    icd_code_counts.plot.pie(
-        autopct='%1.1f%%',
-        startangle=90,
-        counterclock=False
-    )
+    icd_code_counts.plot.bar()
+
+    # Add numbers on top of each bar
+    for i, count in enumerate(icd_code_counts):
+        plt.text(
+            i,
+            count,
+            f'{count}',
+            ha='center',
+            va='bottom',
+            fontsize=8
+        )
 
     plt.title('Distribution of ICD Codes')
     plt.ylabel('')  # Hide the y-label for the pie chart

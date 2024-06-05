@@ -18,15 +18,18 @@ icd_9_kidney_failure_code_g1 = ['5845', '5846', '5847', '5848', '5849'] # Desc: 
 icd_9_kidney_failure_code_g2 = ['6393'] # Desc: Kidney failure following abortion and ectopic and molar pregnancies
 icd_9_kidney_failure_code_g3 = ['66930', '66932', '66934'] # Desc: Acute kidney failure following labor and delivery ...
 
+def get_target_kid_failure_codes():
+    return icd_10_kidney_failure_code_g1 + icd_10_kidney_failure_code_g2 + icd_9_kidney_failure_code_g1
+
 """
 ----------Generated data paths----------
 """
 figs_path = '../generated_data/figs'
-figs_path_gender_statistics = figs_path + '/gender_statistics.jpg'
-figs_path_age_statistics = figs_path + '/age_statistics.jpg'
-figs_path_race_statistics = figs_path + '/race_statistics.jpg'
-figs_path_race_stats = figs_path + '/race_statistics.csv'
-figs_path_icd_stats = figs_path + '/icds.jpg'
+figs_path_gender_statistics = figs_path + '/esrd_gender_statistics.jpg'
+figs_path_age_statistics = figs_path + '/esrd_age_statistics.jpg'
+figs_path_race_statistics = figs_path + '/esrd_race_statistics.jpg'
+figs_path_race_stats = figs_path + '/esrd_race_statistics.csv'
+figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
 """
 ----------Others----------
