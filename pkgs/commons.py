@@ -13,6 +13,7 @@ def project_dir():
 diagnose_icd_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/diagnoses_icd.csv"
 patients_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/patients.csv"
 admissions_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/admissions.csv"
+emar_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/emar_detail.csv"
 
 
 # Codes extracted from d_icd_diagnoses.csv

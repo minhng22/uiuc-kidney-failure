@@ -3,7 +3,8 @@ from commons import (
     diagnose_icd_file_path, patients_file_path,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
     age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, esrd_codes,
-    ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus
+    ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
+    emar_file_path
 )
 import matplotlib.pyplot as plt
 import os
@@ -18,6 +19,26 @@ def analyze_esrd():
     race_statistics(patients_df, diagnoses_df)
 
     clinical_characteristic_analysis_esrd(esrd=True, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    laboratory_params(patients_df)
+
+
+def laboratory_params(patient_df):
+    emar_df = pd.read_csv(emar_file_path)
+
+    scr_df = emar_df[emar_df['medication'] == 'Serum Creatinine']
+    scr_df = scr_df[scr_df['subject_id'].isin(patient_df['subject_id'])]
+    scr_df['dose_given'] = scr_df['dose_given'].astype(float)
+    print(f"Stats on Serum Creatinine mean {scr_df['dose_given'].mean()} sd {scr_df['dose_given'].std()}")
+
+    eGFR_df = emar_df[emar_df['medication'] == 'eGFR']
+    eGFR_df = eGFR_df[eGFR_df['subject_id'].isin(patient_df['subject_id'])]
+    eGFR_df['dose_given'] = eGFR_df['dose_given'].astype(float)
+    print(f"Stats on eGFR mean {eGFR_df['dose_given'].mean()} sd {eGFR_df['dose_given'].std()}")
+
+    proteinuria_df = emar_df[emar_df['medication'] == 'Serum Creatinine']
+    proteinuria_df = proteinuria_df[proteinuria_df['subject_id'].isin(patient_df['subject_id'])]
+    proteinuria_df['dose_given'] = proteinuria_df['dose_given'].astype(float)
+    print(f"Stats on Proteinuria mean {proteinuria_df['dose_given'].mean()} sd {proteinuria_df['dose_given'].std()}")
 
 
 def clinical_characteristic_analysis_esrd(esrd: bool, num_patient_in_cohort: int):
@@ -64,6 +85,7 @@ def analyze_ckd():
     race_statistics(patients_df, diagnoses_df)
 
     clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    laboratory_params(patients_df)
 
 
 def age_statistics(patients_df, diagnoses_df):
