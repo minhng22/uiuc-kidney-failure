@@ -40,7 +40,9 @@ icd_10_ckd_codes_g3 = ['I12', 'I120', 'I129', 'I13', 'I130', 'I131', 'I1310', 'I
                        'I132']  # Hypertensive chronic kidney disease
 icd_10_ckd_codes_g4 = ['N18', 'N181', 'N182', 'N183', 'N184', 'N185', 'N189']  # Chronic kidney disease
 
-
+ckd_codes_stage3_to_5 = ['5853', '5854', '5855', 'N183', 'N184', 'N185']
+ckd_codes_hypertension = icd_10_ckd_codes_g3 + icd_9_ckd_codes_g3
+ckd_codes_diabetes_mellitus = icd_10_ckd_codes_g2
 ckd_codes = (icd_9_ckd_codes_g1 + icd_9_ckd_codes_g2 + icd_9_ckd_codes_g3 + icd_9_ckd_codes_g4 + icd_10_ckd_codes_g1 + icd_10_ckd_codes_g2 + icd_10_ckd_codes_g3 + icd_10_ckd_codes_g4)
 
 

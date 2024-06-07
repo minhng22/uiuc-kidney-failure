@@ -3,7 +3,7 @@ from commons import (
     diagnose_icd_file_path, patients_file_path,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
     age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, esrd_codes,
-    ckd_codes, admissions_file_path
+    ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus
 )
 import matplotlib.pyplot as plt
 import os
@@ -17,6 +17,43 @@ def analyze_esrd():
     gender_statistics(patients_df, diagnoses_df)
     race_statistics(patients_df, diagnoses_df)
 
+    clinical_characteristic_analysis_esrd(esrd=True, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+
+
+def clinical_characteristic_analysis_esrd(esrd: bool, num_patient_in_cohort: int):
+    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
+
+    if esrd:
+        s_ids = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
+        print(
+            f"Number of ESRD patients with CKD stage 3-5: {s_ids['subject_id'].nunique()}," 
+            f"account for {s_ids['subject_id'].nunique()/num_patient_in_cohort*100:.3f} percent")
+
+        s_ids = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes_hypertension)
+        print(
+            f"Number of ESRD patients with hypertension: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort*100:.3f} percent")
+
+        s_ids = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes_diabetes_mellitus)
+        print(
+            f"Number of ESRD patients with diabetes mellitus: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+    else:
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5)]
+        print(
+            f"Number of CKD patients with CKD stage 3-5: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_hypertension)]
+        print(
+            f"Number of CKD patients with hypertension: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_diabetes_mellitus)]
+        print(
+            f"Number of CKD patients with diabetes mellitus: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+
 
 def analyze_ckd():
     patients_df, diagnoses_df = get_ckd_patients_and_diagnoses()
@@ -25,6 +62,8 @@ def analyze_ckd():
     age_statistics(patients_df, diagnoses_df)
     gender_statistics(patients_df, diagnoses_df)
     race_statistics(patients_df, diagnoses_df)
+
+    clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
 
 
 def age_statistics(patients_df, diagnoses_df):
