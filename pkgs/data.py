@@ -1,9 +1,9 @@
 import pandas as pd
 from commons import (
-    diagnose_icd_file_path, patients_file_path, get_esrd_codes,
+    diagnose_icd_file_path, patients_file_path,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
-    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, get_target_esrd_codes,
-    get_target_ckd_codes, admissions_file_path
+    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, esrd_codes,
+    ckd_codes, admissions_file_path
 )
 import matplotlib.pyplot as plt
 import os
@@ -11,6 +11,15 @@ import cmocean
 
 def analyze_esrd():
     patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
+    plot_icd_codes(diagnoses_df)
+
+    age_statistics(patients_df, diagnoses_df)
+    gender_statistics(patients_df, diagnoses_df)
+    race_statistics(patients_df, diagnoses_df)
+
+
+def analyze_ckd():
+    patients_df, diagnoses_df = get_ckd_patients_and_diagnoses()
     plot_icd_codes(diagnoses_df)
 
     age_statistics(patients_df, diagnoses_df)
@@ -147,8 +156,8 @@ def race_statistics(patients_df, diagnoses_df):
 def get_esrd_patients_and_diagnoses():
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
 
-    esrd_diagnose_df = filter_ckd_esrd_diagnose(diagnoses_df)
-    esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(get_esrd_codes())]
+    esrd_diagnose_df = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes)
+    esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(esrd_codes)]
     print(
         f"number of ESRD subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
         f"percentage of subjects in dataset: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
@@ -162,12 +171,33 @@ def get_esrd_patients_and_diagnoses():
     return patients_df, esrd_diagnose_df
 
 
-def filter_ckd_esrd_diagnose(df):
-    subject_ids = df.groupby('subject_id').filter(lambda x: any(x['icd_code'].isin(get_target_esrd_codes())) and any(x['icd_code'].isin(get_target_ckd_codes())))[
-        'subject_id'].unique()
-    print(f"number of patients who have esrd (progressed from ckd) are {len(subject_ids)}")
+def get_ckd_patients_and_diagnoses():
+    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
+
+    ckd_diagnose_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes)]
+    print(
+        f"number of CKD subjects: {ckd_diagnose_df['subject_id'].nunique()}\n"
+        f"percentage of subjects in dataset: {ckd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
+    )
+
+    patients_df = pd.read_csv(patients_file_path)
+    patients_df = patients_df[patients_df['subject_id'].isin(ckd_diagnose_df['subject_id'].unique())]
+
+    print(f"number of subjects (for validation): {patients_df['subject_id'].nunique()}")
+
+    return patients_df, ckd_diagnose_df
+
+
+# filter records for subjects for which there are records with 'icd_code' in arr_1 and arr_2
+def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
+    subject_ids = df.groupby('subject_id').filter(
+        lambda x:
+        any(x['icd_code'].isin(arr_1)) and
+        any(x['icd_code'].isin(arr_2))
+    )['subject_id'].unique()
     return df[df['subject_id'].isin(subject_ids)]
 
 
 if __name__ == '__main__':
     analyze_esrd()
+    analyze_ckd()

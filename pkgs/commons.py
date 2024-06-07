@@ -16,11 +16,6 @@ admissions_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/admissions.csv"
 
 
 # Codes extracted from d_icd_diagnoses.csv
-def get_esrd_codes():
-    return (icd_9_esrd_code_g1 + icd_9_esrd_code_g2 + icd_9_esrd_code_g3 +
-            icd_10_esrd_code_g1 + icd_10_esrd_code_g2 + icd_10_esrd_code_g3)
-
-
 icd_10_esrd_code_g1 = ['N17', 'N170', 'N171', 'N172', 'N178', 'N179']  # Desc: Acute kidney failure with ...
 icd_10_esrd_code_g2 = ['N19']  # Desc: Unspecified kidney failure ...
 icd_10_esrd_code_g3 = ['0904']  # Desc: Postpartum acute kidney failure
@@ -30,9 +25,7 @@ icd_9_esrd_code_g2 = ['6393']  # Desc: Kidney failure following abortion and ect
 icd_9_esrd_code_g3 = ['66930', '66932', '66934']  # Desc: Acute kidney failure following labor and delivery ...
 
 
-def get_target_esrd_codes():
-    return icd_10_esrd_code_g1 + icd_10_esrd_code_g2 + icd_9_esrd_code_g1
-
+esrd_codes = icd_10_esrd_code_g1 + icd_10_esrd_code_g2 + icd_9_esrd_code_g1
 
 icd_9_ckd_codes_g1 = ['28521']  # Anemia in chronic kidney disease
 icd_9_ckd_codes_g2 = ['40300', '40301', '40310', '40311', '40390', '40391']  # Hypertensive chronic kidney disease ...
@@ -48,9 +41,7 @@ icd_10_ckd_codes_g3 = ['I12', 'I120', 'I129', 'I13', 'I130', 'I131', 'I1310', 'I
 icd_10_ckd_codes_g4 = ['N18', 'N181', 'N182', 'N183', 'N184', 'N185', 'N189']  # Chronic kidney disease
 
 
-def get_target_ckd_codes():
-    return (icd_9_ckd_codes_g1 + icd_9_ckd_codes_g2 + icd_9_ckd_codes_g3 + icd_9_ckd_codes_g4
-            + icd_10_ckd_codes_g1 + icd_10_ckd_codes_g2 + icd_10_ckd_codes_g3 + icd_10_ckd_codes_g4)
+ckd_codes = (icd_9_ckd_codes_g1 + icd_9_ckd_codes_g2 + icd_9_ckd_codes_g3 + icd_9_ckd_codes_g4 + icd_10_ckd_codes_g1 + icd_10_ckd_codes_g2 + icd_10_ckd_codes_g3 + icd_10_ckd_codes_g4)
 
 
 """
