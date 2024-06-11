@@ -1,7 +1,7 @@
 import pandas as pd
 from pkgs.data import filter_diagnoses_for_patients_with_both_icd_codes
 
-def run_test_cases():
+def test_filter_diagnoses_for_patients_with_both_icd_codes():
     test_cases = [
         {
             "input_df": pd.DataFrame({
@@ -64,4 +64,4 @@ def run_test_cases():
 
 
 if __name__ == "__main__":
-    run_test_cases()
+    test_filter_diagnoses_for_patients_with_both_icd_codes()
