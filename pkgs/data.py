@@ -1,10 +1,12 @@
+import re
+
 import pandas as pd
 from commons import (
     diagnose_icd_file_path, patients_file_path,
     figs_path, figs_path_gender_statistics, figs_path_age_statistics,
     age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, esrd_codes,
     ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
-    emar_file_path
+    lab_events_file_path, creatinine_lab_codes, egfr_lab_codes, proteins_24hr_lab_codes, omr_file_path
 )
 import matplotlib.pyplot as plt
 import os
@@ -22,23 +24,58 @@ def analyze_esrd():
     laboratory_params(patients_df)
 
 
+# Function to extract the digit value from a string and return it as a float.
+# This is needed where, for example, a eGFR value in omr.csv is stored as ">60"
+def extract_num_from_value(value):
+    # Find all numbers in the string
+    numbers = re.findall(r'\d+\.?\d*', value)
+    # Take the last number found if any
+    if numbers:
+        return float(numbers[-1])
+    else:
+        return float('nan')
+
 def laboratory_params(patient_df):
-    emar_df = pd.read_csv(emar_file_path)
+    lab_events_df = pd.read_csv(lab_events_file_path)
+    lab_events_df['itemid'] = lab_events_df['itemid'].astype(str)
+    lab_events_df['valuenum'] = lab_events_df['valuenum'].astype(float)
 
-    scr_df = emar_df[emar_df['medication'] == 'Serum Creatinine']
-    scr_df = scr_df[scr_df['subject_id'].isin(patient_df['subject_id'])]
-    scr_df['dose_given'] = scr_df['dose_given'].astype(float)
-    print(f"Stats on Serum Creatinine mean {scr_df['dose_given'].mean()} sd {scr_df['dose_given'].std()}")
+    # serum creatinine
+    sc_df = lab_events_df[lab_events_df['itemid'].isin(creatinine_lab_codes)]
+    print(f"Number of records for Serum Creatinine: {len(sc_df)}")
+    sc_df = sc_df[sc_df['subject_id'].isin(patient_df['subject_id'])]
+    print(f"units: {sc_df['valueuom'].value_counts()}")
+    print(
+        f"Stats on Serum Creatinine:\n" 
+        f"Number of records: {len(sc_df)}\n"
+        f"mean {sc_df['valuenum'].mean():.3f} sd {sc_df['valuenum'].std():.3f}")
 
-    eGFR_df = emar_df[emar_df['medication'] == 'eGFR']
-    eGFR_df = eGFR_df[eGFR_df['subject_id'].isin(patient_df['subject_id'])]
-    eGFR_df['dose_given'] = eGFR_df['dose_given'].astype(float)
-    print(f"Stats on eGFR mean {eGFR_df['dose_given'].mean()} sd {eGFR_df['dose_given'].std()}")
+    # eGFR
+    # No eGFR value for eGFR records in labevents.csv
+    # Per MIMIC-IV release note https://physionet.org/content/mimiciv/2.2/#files-panel, we can get this value from omr.csv
+    omr_df = pd.read_csv(omr_file_path)
+    omr_df = omr_df[omr_df['subject_id'].isin(patient_df['subject_id'])]
+    omr_df = omr_df[omr_df['result_name'] == 'eGFR']
 
-    proteinuria_df = emar_df[emar_df['medication'] == 'Serum Creatinine']
-    proteinuria_df = proteinuria_df[proteinuria_df['subject_id'].isin(patient_df['subject_id'])]
-    proteinuria_df['dose_given'] = proteinuria_df['dose_given'].astype(float)
-    print(f"Stats on Proteinuria mean {proteinuria_df['dose_given'].mean()} sd {proteinuria_df['dose_given'].std()}")
+    omr_df['result_value'] = omr_df['result_value'].apply(extract_num_from_value)
+
+    print(f"Number of records for eGFR: {len(omr_df)}")
+    print(
+        f"Stats on eGFR:\n"
+        f"Number of records: {len(omr_df)}\n"
+        f"mean {omr_df['result_value'].mean():.3f} sd {omr_df['result_value'].std():.3f}")
+
+    # 24hr urine protein
+    protein_24hr_df = lab_events_df[lab_events_df['itemid'].isin(proteins_24hr_lab_codes)]
+    print(f"Number of records for 24hr urine protein: {len(protein_24hr_df)}")
+    protein_24hr_df = protein_24hr_df[protein_24hr_df['subject_id'].isin(patient_df['subject_id'])]
+    protein_24hr_df['valuenum'] = protein_24hr_df['valuenum'] / 1000 # mg/24hr to g/24hr
+
+    print(f"units: {protein_24hr_df['valueuom'].value_counts()}")
+    print(
+        f"Stats on 24hr urine protein:\n"
+        f"Number of records: {len(protein_24hr_df)}\n"
+        f"median {protein_24hr_df['valuenum'].median():.3f} IQR {(protein_24hr_df['valuenum'].quantile(0.75) - protein_24hr_df['valuenum'].quantile(0.25)):.3f}")
 
 
 def clinical_characteristic_analysis_esrd(esrd: bool, num_patient_in_cohort: int):
@@ -260,5 +297,5 @@ def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
 
 
 if __name__ == '__main__':
-    analyze_esrd()
     analyze_ckd()
+    analyze_esrd()
