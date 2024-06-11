@@ -15,6 +15,7 @@ patients_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/patients.csv"
 admissions_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/admissions.csv"
 lab_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/labevents.csv"
 omr_file_path= f"{project_dir()}/data/mimic-iv-2.2/hosp/omr.csv"
+prescription_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/prescriptions.csv"
 
 # Codes extracted from d_icd_diagnoses.csv
 icd_10_esrd_code_g1 = ['N17', 'N170', 'N171', 'N172', 'N178', 'N179']  # Desc: Acute kidney failure with ...
@@ -49,6 +50,8 @@ ckd_codes = (icd_9_ckd_codes_g1 + icd_9_ckd_codes_g2 + icd_9_ckd_codes_g3 + icd_
 creatinine_lab_codes = ['52546', '50912', '52024']
 egfr_lab_codes = ['50920', '52026']
 proteins_24hr_lab_codes = ['51068']
+
+ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']
 """
 ----------Generated data paths----------
 """
