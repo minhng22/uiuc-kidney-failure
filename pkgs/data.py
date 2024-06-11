@@ -66,6 +66,7 @@ def laboratory_params(patient_df):
     # eGFR
     # No eGFR value for eGFR records in labevents.csv
     # Per MIMIC-IV release note https://physionet.org/content/mimiciv/2.2/#files-panel, we can get this value from omr.csv
+    # uom of eGFR is (mL/min/1.73 m2) (check labevents.csv for eGFR code to validate this)
     omr_df = pd.read_csv(omr_file_path)
     omr_df = omr_df[omr_df['subject_id'].isin(patient_df['subject_id'])]
     omr_df = omr_df[omr_df['result_name'] == 'eGFR']
