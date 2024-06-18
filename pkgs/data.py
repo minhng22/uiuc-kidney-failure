@@ -133,7 +133,7 @@ def analyze_ckd():
 
     age_statistics(patients_df, diagnoses_df, False)
     gender_statistics(patients_df, diagnoses_df, False)
-    race_statistics(patients_df, diagnoses_df)
+    ethnicity_and_race_statistics(patients_df, diagnoses_df, True)
 
     # clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     # laboratory_params(patients_df)
@@ -243,8 +243,8 @@ def get_admission_df(ethnicity_to_race: bool):
     return admission_df
 
 
-def race_statistics(patients_df, diagnoses_df):
-    admission_df = get_admission_df(True)
+def ethnicity_and_race_statistics(patients_df, diagnoses_df, ethnicity_to_race: bool):
+    admission_df = get_admission_df(ethnicity_to_race)
 
     merged_df = pd.merge(patients_df, admission_df, on='subject_id')
     merged_df = pd.merge(merged_df, diagnoses_df, on='subject_id')
