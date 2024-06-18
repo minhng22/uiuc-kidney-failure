@@ -132,6 +132,7 @@ def analyze_ckd():
     age_statistics(patients_df)
     gender_statistics(patients_df)
     ethnicity_and_race_statistics(patients_df, True)
+    ethnicity_and_race_statistics(patients_df, False)
 
     # clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     # laboratory_params(patients_df)
@@ -196,17 +197,42 @@ def gender_statistics(patients_df):
 def get_admission_df(ethnicity_to_race: bool):
     admission_df = pd.read_csv(admissions_file_path)
 
-    if ethnicity_to_race:
-        bad_record_admission_df = admission_df[
-            admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
-        percentage_filtered = (len(bad_record_admission_df) / len(admission_df)) * 100
+    bad_record_admission_df = admission_df[
+        admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
+    percentage_filtered = (len(bad_record_admission_df) / len(admission_df)) * 100
 
-        print(f"percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "
-              f"'UNABLE TO OBTAIN', or 'UNKNOWN': {percentage_filtered:.2f}%")
-        admission_df = admission_df[
-            ~admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
-        # merge the sub options: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
-        admission_df['race'] = admission_df['race'].str.split(' - ').str[0]
+    print(f"percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "
+          f"'UNABLE TO OBTAIN', or 'UNKNOWN': {percentage_filtered:.2f}%")
+    admission_df = admission_df[
+        ~admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
+
+    if ethnicity_to_race:
+        ethnicity_to_race = {
+            "BLACK/AFRICAN AMERICAN": "BLACK",
+            "BLACK/CAPE VERDEAN": "BLACK",
+            "BLACK/CARIBBEAN ISLAND": "BLACK",
+            "BLACK/AFRICAN": "BLACK",
+            "WHITE - RUSSIAN": "WHITE",
+            "WHITE - OTHER EUROPEAN": "WHITE",
+            "WHITE - EASTERN EUROPEAN": "WHITE",
+            "WHITE - BRAZILIAN": "WHITE",
+            "HISPANIC/LATINO - PUERTO RICAN": "HISPANIC/LATINO",
+            "HISPANIC OR LATINO": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - DOMINICAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - GUATEMALAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - SALVADORAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - HONDURAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - CUBAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - CENTRAL AMERICAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - COLUMBIAN": "HISPANIC/LATINO",
+            "HISPANIC/LATINO - MEXICAN": "HISPANIC/LATINO",
+            "ASIAN - CHINESE": "ASIAN",
+            "ASIAN - SOUTH EAST ASIAN": "ASIAN",
+            "ASIAN - ASIAN INDIAN": "ASIAN",
+            "ASIAN - KOREAN": "ASIAN"
+        }
+
+        admission_df['race'] = admission_df['race'].replace(ethnicity_to_race)
 
     return admission_df
 
@@ -269,4 +295,3 @@ def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
 
 if __name__ == '__main__':
     analyze_ckd()
-    analyze_esrd()
