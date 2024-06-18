@@ -221,8 +221,10 @@ def gender_statistics(patients_df, diagnoses_df, graph):
         plt.clf()
 
 
-# @ethnicity_to_race - if True: (1) filters out patients with selection 'PATIENT DECLINED TO ANSWER', 'UNABLE TO OBTAIN', 'UNKNOWN'
-# (2) information in admission.csv is actually ethnicity information. Convert it to race: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
+# @ethnicity_to_race - if True:
+# (1) filters out patients with selection 'PATIENT DECLINED TO ANSWER', 'UNABLE TO OBTAIN', 'UNKNOWN'
+# (2) information in admission.csv is actually ethnicity information.
+#       Convert it to race: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
 def get_admission_df(ethnicity_to_race: bool):
     admission_df = pd.read_csv(admissions_file_path)
 
