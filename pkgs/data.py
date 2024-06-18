@@ -133,10 +133,11 @@ def analyze_ckd():
 
     age_statistics(patients_df, diagnoses_df, False)
     gender_statistics(patients_df, diagnoses_df, False)
+    race_statistics(patients_df, diagnoses_df)
 
-    clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
-    laboratory_params(patients_df)
-    medication_use(patients_df)
+    # clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    # laboratory_params(patients_df)
+    # medication_use(patients_df)
 
 
 def age_statistics(patients_df, diagnoses_df, graph):
@@ -220,12 +221,12 @@ def gender_statistics(patients_df, diagnoses_df, graph):
         plt.clf()
 
 
-# @with_processed_race - if True: (1) filters out patients with selection 'PATIENT DECLINED TO ANSWER', 'UNABLE TO OBTAIN', 'UNKNOWN'
-# (2) merge the sub options: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
-def get_admission_df(with_processed_race: bool):
+# @ethnicity_to_race - if True: (1) filters out patients with selection 'PATIENT DECLINED TO ANSWER', 'UNABLE TO OBTAIN', 'UNKNOWN'
+# (2) information in admission.csv is actually ethnicity information. Convert it to race: 'ASIAN - ASIAN INDIAN' -> 'ASIAN'
+def get_admission_df(ethnicity_to_race: bool):
     admission_df = pd.read_csv(admissions_file_path)
 
-    if with_processed_race:
+    if ethnicity_to_race:
         bad_record_admission_df = admission_df[
             admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
         percentage_filtered = (len(bad_record_admission_df) / len(admission_df)) * 100
@@ -313,4 +314,3 @@ def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
 
 if __name__ == '__main__':
     analyze_ckd()
-    analyze_esrd()
