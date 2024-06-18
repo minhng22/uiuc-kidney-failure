@@ -55,16 +55,10 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 ----------Generated data paths----------
 """
 figs_path = '../generated_data/figs'
-figs_path_gender_statistics = figs_path + '/esrd_gender_statistics.jpg'
-figs_path_age_statistics = figs_path + '/esrd_age_statistics.jpg'
-figs_path_race_statistics = figs_path + '/esrd_race_statistics.jpg'
-figs_path_race_stats = figs_path + '/esrd_race_statistics.csv'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
 """
 ----------Others----------
 """
 
-# maps to age groups: Children, Young Adults, Middle-aged Adults, Older Adults
-# E.g. https://www.semanticscholar.org/paper/Human-Age-Group-Classification-Using-Facial-Bhat-V.K.Patil/19ddb412336ce633c1fe21544605c7bd65ff8d66
-age_bins = [0, 16, 30, 45, float('inf')]
+age_bins = [0, 27, 54, 82, float('inf')]

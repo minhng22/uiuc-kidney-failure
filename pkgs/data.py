@@ -1,17 +1,15 @@
 import re
 
+import matplotlib.pyplot as plt
 import pandas as pd
+
 from commons import (
     diagnose_icd_file_path, patients_file_path,
-    figs_path, figs_path_gender_statistics, figs_path_age_statistics,
-    age_bins, figs_path_race_statistics, figs_path_race_stats, figs_path_icd_stats, esrd_codes,
+    age_bins, esrd_codes,
     ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
-    lab_events_file_path, creatinine_lab_codes, egfr_lab_codes, proteins_24hr_lab_codes, omr_file_path,
-    prescription_file_path, ace_inhibitor_drugs
+    lab_events_file_path, creatinine_lab_codes, proteins_24hr_lab_codes, omr_file_path,
+    prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats
 )
-import matplotlib.pyplot as plt
-import os
-import cmocean
 
 
 def medication_use(patient_df):
@@ -29,8 +27,8 @@ def analyze_esrd():
     patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
     plot_icd_codes(diagnoses_df)
 
-    age_statistics(patients_df, diagnoses_df, False)
-    gender_statistics(patients_df, diagnoses_df, False)
+    age_statistics(patients_df)
+    gender_statistics(patients_df)
 
     clinical_characteristic_analysis_esrd(esrd=True, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     laboratory_params(patients_df)
@@ -131,46 +129,30 @@ def analyze_ckd():
     patients_df, diagnoses_df = get_ckd_patients_and_diagnoses()
     plot_icd_codes(diagnoses_df)
 
-    age_statistics(patients_df, diagnoses_df, False)
-    gender_statistics(patients_df, diagnoses_df, False)
-    ethnicity_and_race_statistics(patients_df, diagnoses_df, True)
+    age_statistics(patients_df)
+    gender_statistics(patients_df)
+    ethnicity_and_race_statistics(patients_df, True)
 
     # clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     # laboratory_params(patients_df)
     # medication_use(patients_df)
 
 
-def age_statistics(patients_df, diagnoses_df, graph):
+def age_statistics(patients_df):
     print(
         f"age statistics:\n"
         f"mean: {patients_df['anchor_age'].mean():.3f}, std: {patients_df['anchor_age'].std():.3f}, min: {patients_df['anchor_age'].min()}, max: {patients_df['anchor_age'].max()}"
     )
 
-    if graph:
-        merged_df = pd.merge(patients_df, diagnoses_df, on='subject_id')
+    labels = ['<27', '27-54', '54-82', '82+']
 
-        labels = ['0-16', '17-30', '31-45', '45+']
+    patients_df['age_group'] = pd.cut(patients_df['anchor_age'], bins=age_bins, labels=labels, right=False)
 
-        merged_df['age_group'] = pd.cut(merged_df['anchor_age'], bins=age_bins, labels=labels, right=False)
+    vc = patients_df['age_group'].value_counts()
+    vp = round(vc / len(patients_df) * 100, 3)
+    res = pd.DataFrame({'Counts': vc, 'Percentage': vp})
 
-        # Group by icd_code and age_group and count occurrences
-        grouped = merged_df.groupby(['icd_code', 'age_group'], observed=False).size().reset_index(name='count')
-
-        # Calculate the percentage of each age group within each icd_code
-        grouped['percentage'] = grouped.groupby('icd_code')['count'].transform(lambda x: x / x.sum() * 100)
-
-        # Pivot the dataframe to get age groups as columns
-        pivot_df = grouped.pivot(index='icd_code', columns='age_group', values='percentage').fillna(0)
-
-        ax = pivot_df.plot(kind='bar', stacked=True)
-        ax.set_ylabel('Percentage')
-        ax.set_title('Proportion Of Age Groups By ICD Code')
-        plt.legend(title='Age Group')
-
-        if not os.path.exists(figs_path):
-            os.mkdir(figs_path)
-        plt.savefig(figs_path_age_statistics, bbox_inches="tight")
-        plt.clf()
+    print(f"Distribution:\n{res}")
 
 
 def plot_icd_codes(diagnoses_df):
@@ -197,28 +179,14 @@ def plot_icd_codes(diagnoses_df):
     plt.clf()
 
 
-def gender_statistics(patients_df, diagnoses_df, graph):
-    print(
-        f"gender statistics:\n"
-        f"{patients_df['gender'].value_counts()}."
-    )
+def gender_statistics(patients_df):
+    print(f"gender statistics:\n")
 
-    if graph:
-        merged_df = pd.merge(patients_df, diagnoses_df, on='subject_id')
+    vc = patients_df['gender'].value_counts()
+    vp = round(vc / len(patients_df) * 100, 3)
+    res = pd.DataFrame({'Counts': vc, 'Percentage': vp})
 
-        grouped = merged_df.groupby(['icd_code', 'gender']).size().reset_index(name='count')
-        grouped['percentage'] = grouped.groupby('icd_code')['count'].transform(lambda x: x / x.sum() * 100)
-        pivot_df = grouped.pivot(index='icd_code', columns='gender', values='percentage').fillna(0)
-
-        ax = pivot_df.plot(kind='bar', stacked=True)
-        ax.set_ylabel('Percentage')
-        ax.set_title('Percentage Of Genders For Each ICD Code')
-        plt.legend(title='Gender')
-
-        if not os.path.exists(figs_path):
-            os.mkdir(figs_path)
-        plt.savefig(figs_path_gender_statistics, bbox_inches="tight")
-        plt.clf()
+    print(f"Distribution:\n{res}")
 
 
 # @ethnicity_to_race - if True:
@@ -243,30 +211,15 @@ def get_admission_df(ethnicity_to_race: bool):
     return admission_df
 
 
-def ethnicity_and_race_statistics(patients_df, diagnoses_df, ethnicity_to_race: bool):
+def ethnicity_and_race_statistics(patients_df, ethnicity_to_race: bool):
     admission_df = get_admission_df(ethnicity_to_race)
+    admission_df = admission_df[admission_df['subject_id'].isin(patients_df['subject_id'])]
 
-    merged_df = pd.merge(patients_df, admission_df, on='subject_id')
-    merged_df = pd.merge(merged_df, diagnoses_df, on='subject_id')
-    grouped = merged_df.groupby(['icd_code', 'race']).size().reset_index(name='count')
-    grouped['percentage'] = grouped.groupby('icd_code')['count'].transform(lambda x: x / x.sum() * 100)
-    pivot_df = grouped.pivot(index='icd_code', columns='race', values='percentage').fillna(0)
+    vc = admission_df['race'].value_counts()
+    vp = round(vc / len(admission_df) * 100, 3)
+    res = pd.DataFrame({'Counts': vc, 'Percentage': vp})
 
-    pivot_df.to_csv(figs_path_race_stats)
-
-    cmocean_cmap = cmocean.cm.phase
-    color_blind_palette = [cmocean_cmap(i / len(pivot_df.columns)) for i in range(len(pivot_df.columns))]
-
-    ax = pivot_df.plot(kind='bar', stacked=True, color=color_blind_palette, edgecolor='black', linewidth=1.2)
-    ax.set_ylabel('Percentage')
-    ax.set_title('Proportion of Races For Each ICD Code')
-    plt.legend(title='Race', bbox_to_anchor=(1.05, 1), loc='upper left')
-
-    if not os.path.exists(figs_path):
-        os.mkdir(figs_path)
-
-    plt.savefig(figs_path_race_statistics, bbox_inches="tight")
-    plt.clf()
+    print(f"Distribution:\n{res}")
 
 
 def get_esrd_patients_and_diagnoses():
@@ -316,3 +269,4 @@ def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
 
 if __name__ == '__main__':
     analyze_ckd()
+    analyze_esrd()
