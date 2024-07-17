@@ -26,3 +26,6 @@ print(median_survival_times)
 
 # Plot the survival functions
 cph.plot()
+
+D = cph.predict_survival_function(df)
+print(D)
