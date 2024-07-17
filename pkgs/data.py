@@ -293,5 +293,13 @@ def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
     return df[df['subject_id'].isin(subject_ids)]
 
 
+def get_progression_df():
+    _, ckd_patients_diagnose = get_ckd_patients_and_diagnoses()
+    _, esrd_patients_diagnose = get_esrd_patients_and_diagnoses()
+
+    print(ckd_patients_diagnose.head())
+    print(esrd_patients_diagnose.head())
+
+
 if __name__ == '__main__':
-    analyze_ckd()
+    get_progression_df()
