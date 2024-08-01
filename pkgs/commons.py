@@ -58,6 +58,9 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 """
 figs_path = '../generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
+train_data_path = '../generated_data/train_data.csv'
+test_data_path = '../generated_data/test_data.csv'
+cox_model_path = '../generated_data/cox_model.pkl'
 
 """
 ----------Others----------

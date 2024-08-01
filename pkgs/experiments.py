@@ -1,10 +1,12 @@
-import pandas as pd
+import os
 
-from pkgs.commons import esrd_codes, ckd_codes_stage3_to_5, lab_codes_egfr, lab_events_file_path, lab_codes_albumin, \
-    chart_events_file_path, diagnose_icd_file_path, patients_file_path
+import joblib
+import pandas as pd
 from lifelines import CoxPHFitter
 
-from pkgs.data import filter_df_on_icd_code
+from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
+    chart_events_file_path, train_data_path, test_data_path, cox_model_path
+from pkgs.data import get_time_series_data_esrd_patients
 
 
 # No records of albumin for patients progressed from ckd 3-5 to esrd.
@@ -19,48 +21,51 @@ def verify_that_albumin_records_not_exist_for_patients(patient_ids):
     chart_albumin_df = chart_events_df[chart_events_df['itemid'].isin(lab_codes_albumin)]
     print(f'Number of records for albumin: {len(chart_albumin_df)}')
 
+
 def run_cox_model():
-    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
-    patient_ids = filter_df_on_icd_code(
-        diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)['subject_id'].unique()
-    print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(patient_ids)}')
+    if not os.path.exists(train_data_path):
+        data = get_time_series_data_esrd_patients()
 
-    patients = pd.read_csv(patients_file_path)
-    patients = patients[patients['subject_id'].isin(patient_ids)]
-    print(f'Number of dead patients are {patients['dod'].notna().sum()} '
-          f'out of total {len(patients)}')
+        # Find dead patients
+        dead_patient_ids = data.groupby('subject_id').filter(lambda x: (x['dead'] == 1).all())[
+            'subject_id'].unique().tolist()
+        alive_patient_ids = data[~data['subject_id'].isin(dead_patient_ids)]['subject_id'].unique().tolist()
+        test_data_ids = alive_patient_ids[: len(alive_patient_ids) // 5]
 
-    lab_events_df = pd.read_csv(lab_events_file_path)
-    lab_events_df = lab_events_df[lab_events_df['subject_id'].isin(patient_ids)]
-    lab_events_df['itemid'] = lab_events_df['itemid'].astype(str)
-    print(f'Number of lab events {len(lab_events_df)}')
-    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_egfr)]
-    lab_events_df = lab_events_df[lab_events_df['valuenum'].notnull()]
-    print(f'Number of eGFR events {len(lab_events_df)}')
-    print(lab_events_df.columns.tolist())
+        data_test = data[data['subject_id'].isin(test_data_ids)]  # 80/20 split
+        data_train = data[~data['subject_id'].isin(data_test['subject_id'].unique())]
 
-    # Merging the two DataFrames on 'subject_id'
-    data = pd.merge(lab_events_df, patients, on='subject_id', how='outer')
-    data['eGFR'] = data['valuenum']
-    data['dead'] = data['dod'].notna().astype(int)
-    data['age'] = data['anchor_age']
+        print(
+            f'Number of test {len(data_test['subject_id'].unique())} and train {len(data_train['subject_id'].unique())}\n'
+            f'Number of alive patients: {len(alive_patient_ids)} and test patients: {len(test_data_ids)}\n'
+            f'Number of test patients records {len(data_test)}'
+        )
 
-    # 'gender' has low variance and affects convergence
-    data = data[['subject_id', 'age', 'eGFR', 'dead']]
+        data_train.to_csv(train_data_path)
+        data_test.to_csv(test_data_path)
+    else:
+        data_train = pd.read_csv(train_data_path)
+        data_test = pd.read_csv(test_data_path)
 
-    print(data)
+    if not os.path.exists(cox_model_path):
+        # Initialize the CoxPHFitter
+        cph = CoxPHFitter()
 
-    # # Initialize the CoxPHFitter
-    # cph = CoxPHFitter()
-    #
-    # # Fit the model
-    # cph.fit(data, duration_col='age', event_col='dead', show_progress=True)
-    #
-    # # Print the summary
-    # cph.print_summary()
-    #
-    # M = cph.predict_median(data[data['dead'] == 0])
-    # print(f"predict_median\n{M}")
+        # Fit the model
+        print(f'Fitting model:\n')
+        cph.fit(data_train, duration_col='age', event_col='dead', show_progress=True)
+
+        # Print the summary
+        cph.print_summary()
+
+        joblib.dump(cph, cox_model_path)
+    else:
+        cph = joblib.load(cox_model_path)
+
+    print(f'Number of test records: {len(data_test)}')
+
+    M = cph.predict_median(data_test)
+    print(f"predict_median: \n{len(M)}")
 
 
 if __name__ == '__main__':

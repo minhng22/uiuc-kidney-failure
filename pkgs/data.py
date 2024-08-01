@@ -12,6 +12,40 @@ from commons import (
 )
 
 
+def get_time_series_data_esrd_patients():
+    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
+    patient_ids = filter_df_on_icd_code(
+        diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)['subject_id'].unique()
+    print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(patient_ids)}')
+
+    patients = pd.read_csv(patients_file_path)
+    patients = patients[patients['subject_id'].isin(patient_ids)]
+    print(f'Number of dead patients are {patients['dod'].notna().sum()} '
+          f'out of total {len(patients)}')
+
+    patients = add_race_to_patients(patients)
+    egfr_df = get_egfr_df(patients)
+    print(egfr_df.head())
+    print(
+        f"Stats on eGFR:\n"
+        f"Number of records: {len(egfr_df)}\n"
+        f"mean {egfr_df['egfr'].mean():.3f} sd {egfr_df['egfr'].std():.3f}")
+
+    # Merging the two DataFrames on 'subject_id'
+    data = egfr_df[['subject_id', 'egfr']].copy()
+    data['dead'] = egfr_df['dod'].notna().astype(int)
+    data['age'] = egfr_df['anchor_age']
+    data = data.dropna()
+
+    print(
+        f'Final data: \n{data.head()}\n'
+        f'Number of records: {len(data)}\n'
+        f'Number of patients: {len(data['subject_id'].unique())}\n'
+    )
+
+    return data
+
+
 def medication_use(patient_df):
     pres_df = pd.read_csv(prescription_file_path)
     pres_df = pres_df[pres_df['subject_id'].isin(patient_df['subject_id'])]
@@ -56,6 +90,8 @@ def calculate_eGFR(row):
     serum_creatinine = row['valuenum']
     serum_creatinine_unit = row['valueuom']
 
+    assert serum_creatinine != 0, f"bad value of serum_creatinine {row['subject_id']}"
+
     # CKD-EPI constants
     if gender == 'male':
         k = 0.9
@@ -76,15 +112,36 @@ def calculate_eGFR(row):
     return eGFR
 
 
-def laboratory_params(patient_df):
-    race_df = ethnicity_and_race_statistics(patient_df, True)
-    patient_df = pd.merge(patient_df, race_df, on='subject_id', how='outer')
-    print(f'Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}')
-
+def get_lab_events_for_patients(patient_df):
     lab_events_df = pd.read_csv(lab_events_file_path)
     lab_events_df = lab_events_df[lab_events_df['subject_id'].isin(patient_df['subject_id'])]
     lab_events_df['itemid'] = lab_events_df['itemid'].astype(str)
     lab_events_df['valuenum'] = lab_events_df['valuenum'].astype(float)
+
+    return lab_events_df
+
+def get_egfr_df(patient_df):
+    lab_events_df = get_lab_events_for_patients(patient_df)
+
+    egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
+    egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
+    print(f'Merged eGFR df:\n{egfr_df[['subject_id', 'race', 'gender', 'anchor_age', 'valuenum', 'dod']].head()}')
+    egfr_df = egfr_df[egfr_df['valuenum'] != 0]
+    egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
+
+    return egfr_df
+
+
+def add_race_to_patients(patient_df):
+    race_df = ethnicity_and_race_statistics(patient_df, True)
+    patient_df = pd.merge(patient_df, race_df, on='subject_id', how='outer')
+    print(f'Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}')
+
+    return patient_df
+
+def laboratory_params(patient_df):
+    patient_df = add_race_to_patients(patient_df)
+    lab_events_df = get_lab_events_for_patients(patient_df)
 
     # serum creatinine
     sc_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
@@ -98,10 +155,7 @@ def laboratory_params(patient_df):
     # omr.csv only has ~ 90 records.
     # all records in labevents.csv has null values for eGFR.
     # Looking at the `comment` column in labevents.csv, we get extract egfr from 'serum creatinine', 'age' and 'sex'.
-    egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
-    egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
-    print(f'Merged eGFR df:\n{egfr_df[['subject_id', 'race', 'gender', 'anchor_age', 'valuenum']].head()}')
-    egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
+    egfr_df = get_egfr_df(patient_df)
     print(
         f"Stats on eGFR:\n"
         f"Number of records: {len(egfr_df)}\n"
