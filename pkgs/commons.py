@@ -16,6 +16,7 @@ admissions_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/admissions.csv"
 lab_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/labevents.csv"
 omr_file_path= f"{project_dir()}/data/mimic-iv-2.2/hosp/omr.csv"
 prescription_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/prescriptions.csv"
+chart_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/chartevents.csv"
 
 # Codes extracted from d_icd_diagnoses.csv
 # ESRD ICD codes
@@ -46,9 +47,10 @@ ckd_codes_stage3_to_5 = ['5853', '5854', '5855', 'N183', 'N184', 'N185']
 ckd_codes_hypertension = icd_10_ckd_codes_g3 + icd_9_ckd_codes_g3
 ckd_codes_diabetes_mellitus = icd_10_ckd_codes_g2
 
-creatinine_lab_codes = ['52546', '50912', '52024']
-egfr_lab_codes = ['50920', '52026']
-proteins_24hr_lab_codes = ['51068']
+lab_codes_creatinine = ['52546', '50912', '52024']
+lab_codes_egfr = ['50920', '52026', '53176']
+lab_codes_proteins_24hr = ['51068']
+lab_codes_albumin = ['51069', '51070', '52703']
 
 ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']
 """

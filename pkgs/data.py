@@ -7,8 +7,8 @@ from commons import (
     diagnose_icd_file_path, patients_file_path,
     age_bins, esrd_codes,
     ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
-    lab_events_file_path, creatinine_lab_codes, proteins_24hr_lab_codes, omr_file_path,
-    prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats
+    lab_events_file_path, lab_codes_creatinine, lab_codes_proteins_24hr, omr_file_path,
+    prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats, lab_codes_egfr
 )
 
 
@@ -25,14 +25,15 @@ def medication_use(patient_df):
 
 def analyze_esrd():
     patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
-    plot_icd_codes(diagnoses_df)
 
-    age_statistics(patients_df)
-    gender_statistics(patients_df)
+    #plot_icd_codes(diagnoses_df)
+    # age_statistics(patients_df)
+    # gender_statistics(patients_df)
+    # ethnicity_and_race_statistics(patients_df, True, True)
 
-    clinical_characteristic_analysis_esrd(esrd=True, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    #clinical_characteristic_analysis_esrd(esrd=True, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     laboratory_params(patients_df)
-    medication_use(patients_df)
+    #medication_use(patients_df)
 
 
 # Function to extract the digit value from a string and return it as a float.
@@ -46,65 +47,93 @@ def extract_num_from_value(value):
     else:
         return float('nan')
 
+
+# calculate eGFR using the CKD-EPI formula
+def calculate_eGFR(row):
+    race = row['race']
+    gender = 'FEMALE' if row['gender'] == 'F' else 'MALE'
+    age = row['anchor_age']
+    serum_creatinine = row['valuenum']
+    serum_creatinine_unit = row['valueuom']
+
+    # CKD-EPI constants
+    if gender == 'male':
+        k = 0.9
+        alpha = -0.411
+        constant = 1.0
+    else:
+        k = 0.7
+        alpha = -0.329
+        constant = 1.018
+
+    if race == 'black':
+        constant *= 1.159
+
+    # CKD-EPI equation
+    eGFR = 141 * min(serum_creatinine / k, 1) ** alpha * max(serum_creatinine / k,
+                                                             1) ** -1.209 * 0.993 ** age * constant
+
+    return eGFR
+
+
 def laboratory_params(patient_df):
+    race_df = ethnicity_and_race_statistics(patient_df, True)
+    patient_df = pd.merge(patient_df, race_df, on='subject_id', how='outer')
+    print(f'Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}')
+
     lab_events_df = pd.read_csv(lab_events_file_path)
+    lab_events_df = lab_events_df[lab_events_df['subject_id'].isin(patient_df['subject_id'])]
     lab_events_df['itemid'] = lab_events_df['itemid'].astype(str)
     lab_events_df['valuenum'] = lab_events_df['valuenum'].astype(float)
 
     # serum creatinine
-    sc_df = lab_events_df[lab_events_df['itemid'].isin(creatinine_lab_codes)]
+    sc_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
     print(f"Number of records for Serum Creatinine: {len(sc_df)}")
-    sc_df = sc_df[sc_df['subject_id'].isin(patient_df['subject_id'])]
     print(f"units: {sc_df['valueuom'].value_counts()}")
     print(
-        f"Stats on Serum Creatinine:\n" 
+        f"Stats on Serum Creatinine:\n"
         f"Number of records: {len(sc_df)}\n"
         f"mean {sc_df['valuenum'].mean():.3f} sd {sc_df['valuenum'].std():.3f}")
 
-    # eGFR
-    # No eGFR value for eGFR records in labevents.csv
-    # Per MIMIC-IV release note https://physionet.org/content/mimiciv/2.2/#files-panel, we can get this value from omr.csv
-    # uom of eGFR is (mL/min/1.73 m2) (check labevents.csv for eGFR code to validate this)
-    omr_df = pd.read_csv(omr_file_path)
-    omr_df = omr_df[omr_df['subject_id'].isin(patient_df['subject_id'])]
-    omr_df = omr_df[omr_df['result_name'] == 'eGFR']
-
-    omr_df['result_value'] = omr_df['result_value'].apply(extract_num_from_value)
-
-    print(f"Number of records for eGFR: {len(omr_df)}")
+    # omr.csv only has ~ 90 records.
+    # all records in labevents.csv has null values for eGFR.
+    # Looking at the `comment` column in labevents.csv, we get extract egfr from 'serum creatinine', 'age' and 'sex'.
+    egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
+    egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
+    print(f'Merged eGFR df:\n{egfr_df[['subject_id', 'race', 'gender', 'anchor_age', 'valuenum']].head()}')
+    egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
     print(
         f"Stats on eGFR:\n"
-        f"Number of records: {len(omr_df)}\n"
-        f"mean {omr_df['result_value'].mean():.3f} sd {omr_df['result_value'].std():.3f}")
+        f"Number of records: {len(egfr_df)}\n"
+        f"mean {egfr_df['egfr'].mean():.3f} sd {egfr_df['egfr'].std():.3f}")
 
-    # 24hr urine protein
-    protein_24hr_df = lab_events_df[lab_events_df['itemid'].isin(proteins_24hr_lab_codes)]
-    print(f"Number of records for 24hr urine protein: {len(protein_24hr_df)}")
-    protein_24hr_df = protein_24hr_df[protein_24hr_df['subject_id'].isin(patient_df['subject_id'])]
-    protein_24hr_df['valuenum'] = protein_24hr_df['valuenum'] / 1000 # mg/24hr to g/24hr
-
-    print(f"units: {protein_24hr_df['valueuom'].value_counts()}")
-    print(
-        f"Stats on 24hr urine protein:\n"
-        f"Number of records: {len(protein_24hr_df)}\n"
-        f"median {protein_24hr_df['valuenum'].median():.3f} IQR {(protein_24hr_df['valuenum'].quantile(0.75) - protein_24hr_df['valuenum'].quantile(0.25)):.3f}")
+    # # 24hr urine protein
+    # protein_24hr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_proteins_24hr)]
+    # print(f"Number of records for 24hr urine protein: {len(protein_24hr_df)}")
+    # protein_24hr_df['valuenum'] = protein_24hr_df['valuenum'] / 1000 # mg/24hr to g/24hr
+    #
+    # print(f"units: {protein_24hr_df['valueuom'].value_counts()}")
+    # print(
+    #     f"Stats on 24hr urine protein:\n"
+    #     f"Number of records: {len(protein_24hr_df)}\n"
+    #     f"median {protein_24hr_df['valuenum'].median():.3f} IQR {(protein_24hr_df['valuenum'].quantile(0.75) - protein_24hr_df['valuenum'].quantile(0.25)):.3f}")
 
 
 def clinical_characteristic_analysis_esrd(esrd: bool, num_patient_in_cohort: int):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
 
     if esrd:
-        s_ids = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
+        s_ids = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
         print(
             f"Number of ESRD patients with CKD stage 3-5: {s_ids['subject_id'].nunique()}," 
             f"account for {s_ids['subject_id'].nunique()/num_patient_in_cohort*100:.3f} percent")
 
-        s_ids = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes_hypertension)
+        s_ids = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_hypertension)
         print(
             f"Number of ESRD patients with hypertension: {s_ids['subject_id'].nunique()},"
             f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort*100:.3f} percent")
 
-        s_ids = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes_diabetes_mellitus)
+        s_ids = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_diabetes_mellitus)
         print(
             f"Number of ESRD patients with diabetes mellitus: {s_ids['subject_id'].nunique()},"
             f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
@@ -131,12 +160,11 @@ def analyze_ckd():
 
     age_statistics(patients_df)
     gender_statistics(patients_df)
-    ethnicity_and_race_statistics(patients_df, True)
-    ethnicity_and_race_statistics(patients_df, False)
+    ethnicity_and_race_statistics(patients_df, True, True)
 
-    # clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
-    # laboratory_params(patients_df)
-    # medication_use(patients_df)
+    clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    laboratory_params(patients_df)
+    medication_use(patients_df)
 
 
 def age_statistics(patients_df):
@@ -201,8 +229,7 @@ def get_admission_df(ethnicity_to_race: bool):
         admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
     percentage_filtered = (len(bad_record_admission_df) / len(admission_df)) * 100
 
-    print(f"percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "
-          f"'UNABLE TO OBTAIN', or 'UNKNOWN': {percentage_filtered:.2f}%")
+    #print(f"percentage of patients with race selection 'PATIENT DECLINED TO ANSWER', "f"'UNABLE TO OBTAIN', or 'UNKNOWN': {percentage_filtered:.2f}%")
     admission_df = admission_df[
         ~admission_df['race'].isin(["PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN"])]
 
@@ -237,21 +264,26 @@ def get_admission_df(ethnicity_to_race: bool):
     return admission_df
 
 
-def ethnicity_and_race_statistics(patients_df, ethnicity_to_race: bool):
+# return race info
+def ethnicity_and_race_statistics(patients_df, ethnicity_to_race: bool, verbose=False):
     admission_df = get_admission_df(ethnicity_to_race)
     admission_df = admission_df[admission_df['subject_id'].isin(patients_df['subject_id'])]
+    admission_df = admission_df.drop_duplicates(subset='subject_id', keep='first')
 
-    vc = admission_df['race'].value_counts()
-    vp = round(vc / len(admission_df) * 100, 3)
-    res = pd.DataFrame({'Counts': vc, 'Percentage': vp})
+    if verbose:
+        vc = admission_df['race'].value_counts()
+        vp = round(vc / len(admission_df) * 100, 3)
+        res = pd.DataFrame({'Counts': vc, 'Percentage': vp})
 
-    print(f"Distribution:\n{res}")
+        print(f"Distribution:\n{res}")
+
+    return admission_df[['subject_id', 'race']]
 
 
 def get_esrd_patients_and_diagnoses():
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
 
-    esrd_diagnose_df = filter_diagnoses_for_patients_with_both_icd_codes(diagnoses_df, esrd_codes, ckd_codes)
+    esrd_diagnose_df = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes)
     esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(esrd_codes)]
     print(
         f"number of ESRD subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
@@ -284,7 +316,7 @@ def get_ckd_patients_and_diagnoses():
 
 
 # filter records for subjects for which there are records with 'icd_code' in arr_1 and arr_2
-def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
+def filter_df_on_icd_code(df, arr_1, arr_2):
     subject_ids = df.groupby('subject_id').filter(
         lambda x:
         any(x['icd_code'].isin(arr_1)) and
@@ -293,13 +325,5 @@ def filter_diagnoses_for_patients_with_both_icd_codes(df, arr_1, arr_2):
     return df[df['subject_id'].isin(subject_ids)]
 
 
-def get_progression_df():
-    _, ckd_patients_diagnose = get_ckd_patients_and_diagnoses()
-    _, esrd_patients_diagnose = get_esrd_patients_and_diagnoses()
-
-    print(ckd_patients_diagnose.head())
-    print(esrd_patients_diagnose.head())
-
-
 if __name__ == '__main__':
-    get_progression_df()
+    analyze_esrd()

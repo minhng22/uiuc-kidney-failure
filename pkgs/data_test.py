@@ -1,5 +1,5 @@
 import pandas as pd
-from pkgs.data import filter_diagnoses_for_patients_with_both_icd_codes
+from pkgs.data import filter_df_on_icd_code
 
 def test_filter_diagnoses_for_patients_with_both_icd_codes():
     test_cases = [
@@ -49,7 +49,7 @@ def test_filter_diagnoses_for_patients_with_both_icd_codes():
         expected_output["subject_id"] = expected_output["subject_id"].astype('int64')
         expected_output["icd_code"] = expected_output["icd_code"].astype('str')
 
-        output_df = filter_diagnoses_for_patients_with_both_icd_codes(input_df, arr_1, arr_2)
+        output_df = filter_df_on_icd_code(input_df, arr_1, arr_2)
 
         try:
             pd.testing.assert_frame_equal(output_df.reset_index(drop=True), expected_output.reset_index(drop=True))
