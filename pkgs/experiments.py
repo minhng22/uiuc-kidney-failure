@@ -2,12 +2,13 @@ import os
 
 import joblib
 import pandas as pd
-from lifelines import CoxPHFitter
+from lifelines import CoxPHFitter, CoxTimeVaryingFitter
+from lifelines.utils import to_long_format
 
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, train_data_path, test_data_path, cox_model_path
 from pkgs.data import get_time_series_data_esrd_patients
-
+from sklearn.metrics import root_mean_squared_error
 
 # No records of albumin for patients progressed from ckd 3-5 to esrd.
 def verify_that_albumin_records_not_exist_for_patients(patient_ids):
@@ -43,17 +44,26 @@ def run_cox_model():
 
         data_train.to_csv(train_data_path)
         data_test.to_csv(test_data_path)
+
+        data_test = data_test.sort_values('time').groupby('subject_id').last().reset_index()
+        print(f'Number of test patient records after group: {len(data_test)}')
     else:
         data_train = pd.read_csv(train_data_path)
         data_test = pd.read_csv(test_data_path)
 
+    data_train = to_long_format(data_train, duration_col='age')[['subject_id', 'egfr', 'dead', 'start', 'stop']].copy()
+    data_test = to_long_format(data_test, duration_col='age')[['subject_id', 'egfr', 'dead', 'start', 'stop']].copy()
+
+    print(f'data_train in long format: \n{data_train.head()}')
+    print(f'data_test in long format: \n{data_test.head()}')
+
     if not os.path.exists(cox_model_path):
         # Initialize the CoxPHFitter
-        cph = CoxPHFitter()
+        cph = CoxTimeVaryingFitter()
 
         # Fit the model
         print(f'Fitting model:\n')
-        cph.fit(data_train, duration_col='age', event_col='dead', show_progress=True)
+        cph.fit(data_train, event_col='dead')
 
         # Print the summary
         cph.print_summary()
@@ -64,8 +74,8 @@ def run_cox_model():
 
     print(f'Number of test records: {len(data_test)}')
 
-    M = cph.predict_median(data_test)
-    print(f"predict_median: \n{len(M)}")
+    M = cph.predict_partial_hazard(data_test)
+    print(f"len of predict_median: \n{len(M)}")
 
 
 if __name__ == '__main__':

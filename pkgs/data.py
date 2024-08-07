@@ -35,6 +35,7 @@ def get_time_series_data_esrd_patients():
     data = egfr_df[['subject_id', 'egfr']].copy()
     data['dead'] = egfr_df['dod'].notna().astype(int)
     data['age'] = egfr_df['anchor_age']
+    data['time'] = egfr_df['charttime']
     data = data.dropna()
 
     print(
