@@ -36,8 +36,8 @@ def get_train_test_data_regressor_model():
         data_train = pd.read_csv(regressor_model_train_data_path)
         data_test = pd.read_csv(regressor_model_test_data_path)
 
-    data_train = to_long_format(data_train, duration_col='age')[['subject_id', 'egfr', 'dead', 'start', 'stop']].copy()
-    data_test = to_long_format(data_test, duration_col='age')[['subject_id', 'egfr', 'dead', 'start', 'stop']].copy()
+    data_train = to_long_format(data_train, duration_col='age')[['subject_id', 'egfr', 'start', 'stop']].copy()
+    data_test = to_long_format(data_test, duration_col='age')[['subject_id', 'egfr', 'start', 'stop']].copy()
 
     print(f'data_train in long format: \n{data_train.head()}')
     print(f'data_test in long format: \n{data_test.head()}')
