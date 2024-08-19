@@ -1,29 +1,64 @@
+import os
 import re
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from commons import (
+from pkgs.commons import (
     diagnose_icd_file_path, patients_file_path,
     age_bins, esrd_codes,
     ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
-    lab_events_file_path, lab_codes_creatinine, lab_codes_proteins_24hr, omr_file_path,
-    prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats, lab_codes_egfr
+    lab_events_file_path, lab_codes_creatinine, prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats,
+    regressor_model_train_data_path, regressor_model_test_data_path,
 )
+from lifelines.utils import to_long_format
 
+def get_train_test_data_regressor_model():
+    if not os.path.exists(regressor_model_train_data_path):
+        data = get_time_series_data_ckd_patients()
 
-def get_time_series_data_esrd_patients():
+        test_data_ids = data['subject_id'].unique()[: data['subject_id'].nunique() // 5] # 80/20 split
+
+        data_test = data[data['subject_id'].isin(test_data_ids)]
+        data_train = data[~data['subject_id'].isin(data_test['subject_id'].unique())]
+
+        print(
+            f'Number of test {len(data_test['subject_id'].unique())} and train {len(data_train['subject_id'].unique())}\n'
+            f'Number of test patients records {len(data_test)}'
+        )
+
+        data_train.to_csv(regressor_model_train_data_path)
+        data_test.to_csv(regressor_model_test_data_path)
+
+        data_test = data_test.sort_values('time').groupby('subject_id').last().reset_index()
+        print(f'Number of test patient records after group: {len(data_test)}')
+    else:
+        data_train = pd.read_csv(regressor_model_train_data_path)
+        data_test = pd.read_csv(regressor_model_test_data_path)
+
+    data_train = to_long_format(data_train, duration_col='age')[['subject_id', 'egfr', 'dead', 'start', 'stop']].copy()
+    data_test = to_long_format(data_test, duration_col='age')[['subject_id', 'egfr', 'dead', 'start', 'stop']].copy()
+
+    print(f'data_train in long format: \n{data_train.head()}')
+    print(f'data_test in long format: \n{data_test.head()}')
+
+    return data_train, data_test
+
+# get late stage ckd patients and info of their progression to esrd.
+# only_esrd set to True returns only patients who have progressed to ESRD.
+def get_time_series_data_ckd_patients(only_esrd: bool = True):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
-    patient_ids = filter_df_on_icd_code(
-        diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)['subject_id'].unique()
-    print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(patient_ids)}')
+    diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
+
+    # filter late stage patients who progressed to esrd.
+    esrd_patients = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]['subject_id'].unique()
+    print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(esrd_patients)} '
+          f'over {diagnoses_df["subject_id"].nunique()}, accounts for {100 * len(esrd_patients)/diagnoses_df["subject_id"].nunique()}%')
 
     patients = pd.read_csv(patients_file_path)
-    patients = patients[patients['subject_id'].isin(patient_ids)]
-    print(f'Number of dead patients are {patients['dod'].notna().sum()} '
-          f'out of total {len(patients)}')
-
+    patients = patients[patients['subject_id'].isin(diagnoses_df["subject_id"].unique())]
     patients = add_race_to_patients(patients)
+
     egfr_df = get_egfr_df(patients)
     print(egfr_df.head())
     print(
@@ -33,15 +68,19 @@ def get_time_series_data_esrd_patients():
 
     # Merging the two DataFrames on 'subject_id'
     data = egfr_df[['subject_id', 'egfr']].copy()
-    data['dead'] = egfr_df['dod'].notna().astype(int)
+    data['has_esrd'] = data['subject_id'].apply(lambda x: 1 if x in esrd_patients else 0)
     data['age'] = egfr_df['anchor_age']
     data['time'] = egfr_df['charttime']
     data = data.dropna()
 
+    if only_esrd:
+        data = data[data['subject_id'].isin(esrd_patients)]
+        data.drop(columns=['has_esrd'], inplace=True)
+
     print(
         f'Final data: \n{data.head()}\n'
         f'Number of records: {len(data)}\n'
-        f'Number of patients: {len(data['subject_id'].unique())}\n'
+        f'Number of patients: {data['subject_id'].nunique()}\n'
     )
 
     return data
@@ -353,10 +392,12 @@ def get_esrd_patients_and_diagnoses():
     return patients_df, esrd_diagnose_df
 
 
-def get_ckd_patients_and_diagnoses():
+def get_ckd_patients_and_diagnoses(late_stage: bool = True):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
 
-    ckd_diagnose_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes)]
+    ckd_filter_codes = ckd_codes_stage3_to_5 if late_stage else ckd_codes
+
+    ckd_diagnose_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_filter_codes)]
     print(
         f"number of CKD subjects: {ckd_diagnose_df['subject_id'].nunique()}\n"
         f"percentage of subjects in dataset: {ckd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
@@ -381,4 +422,4 @@ def filter_df_on_icd_code(df, arr_1, arr_2):
 
 
 if __name__ == '__main__':
-    analyze_esrd()
+    get_train_test_data_regressor_model()
