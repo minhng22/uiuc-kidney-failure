@@ -52,38 +52,36 @@ def get_time_series_data_ckd_patients(only_esrd: bool = True):
 
     # filter late stage patients who progressed to esrd.
     esrd_patients = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]['subject_id'].unique()
+    print(f"Sample patients with esrd: {esrd_patients[:20]}")
     print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(esrd_patients)} '
-          f'over {diagnoses_df["subject_id"].nunique()}, accounts for {100 * len(esrd_patients)/diagnoses_df["subject_id"].nunique()}%')
+          f'over {diagnoses_df["subject_id"].nunique()}, '
+          f'accounts for {round(100 * len(esrd_patients)/diagnoses_df["subject_id"].nunique(), 3)}%')
 
     patients = pd.read_csv(patients_file_path)
     patients = patients[patients['subject_id'].isin(diagnoses_df["subject_id"].unique())]
     patients = add_race_to_patients(patients)
 
-    egfr_df = get_egfr_df(patients)
-    print(egfr_df.head())
+    lab_df = get_egfr_df(patients)
+    print(f"EGFR data layout:\n{lab_df.columns}")
     print(
         f"Stats on eGFR:\n"
-        f"Number of records: {len(egfr_df)}\n"
-        f"mean {egfr_df['egfr'].mean():.3f} sd {egfr_df['egfr'].std():.3f}")
-
-    # Merging the two DataFrames on 'subject_id'
-    data = egfr_df[['subject_id', 'egfr']].copy()
-    data['has_esrd'] = data['subject_id'].apply(lambda x: 1 if x in esrd_patients else 0)
-    data['age'] = egfr_df['anchor_age']
-    data['time'] = egfr_df['charttime']
-    data = data.dropna()
+        f"Number of records: {len(lab_df)}\n"
+        f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
+    lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
+    lab_df['has_esrd'] = lab_df['subject_id'].apply(lambda x: 1 if x in esrd_patients else 0)
+    lab_df = lab_df.dropna()
 
     if only_esrd:
-        data = data[data['subject_id'].isin(esrd_patients)]
-        data.drop(columns=['has_esrd'], inplace=True)
+        lab_df = lab_df[lab_df['subject_id'].isin(esrd_patients)]
+        lab_df.drop(columns=['has_esrd'], inplace=True)
 
     print(
-        f'Final data: \n{data.head()}\n'
-        f'Number of records: {len(data)}\n'
-        f'Number of patients: {data['subject_id'].nunique()}\n'
+        f'Final data: \n{lab_df.head()}\n'
+        f'Number of records: {len(lab_df)}\n'
+        f'Number of patients: {lab_df['subject_id'].nunique()}\n'
     )
 
-    return data
+    return lab_df
 
 
 def medication_use(patient_df):
@@ -172,10 +170,11 @@ def get_egfr_df(patient_df):
     return egfr_df
 
 
-def add_race_to_patients(patient_df):
+def add_race_to_patients(patient_df, verbose:bool=False):
     race_df = ethnicity_and_race_statistics(patient_df, True)
     patient_df = pd.merge(patient_df, race_df, on='subject_id', how='outer')
-    print(f'Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}')
+    if verbose:
+        print(f'Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}')
 
     return patient_df
 
@@ -422,4 +421,4 @@ def filter_df_on_icd_code(df, arr_1, arr_2):
 
 
 if __name__ == '__main__':
-    get_train_test_data_regressor_model()
+    get_time_series_data_ckd_patients()
