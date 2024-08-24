@@ -50,30 +50,35 @@ def get_time_series_data_ckd_patients(only_esrd: bool = True):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
     diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
 
-    # filter late stage patients who progressed to esrd.
     esrd_patients = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]['subject_id'].unique()
     print(f"Sample patients with esrd: {esrd_patients[:20]}")
     print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(esrd_patients)} '
           f'over {diagnoses_df["subject_id"].nunique()}, '
           f'accounts for {round(100 * len(esrd_patients)/diagnoses_df["subject_id"].nunique(), 3)}%')
 
+    if only_esrd:
+        # filter late stage patients who progressed to esrd.
+        diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]
+
     patients = pd.read_csv(patients_file_path)
     patients = patients[patients['subject_id'].isin(diagnoses_df["subject_id"].unique())]
+    print(f"Number of patients: {len(patients)}")
     patients = add_race_to_patients(patients)
 
     lab_df = get_egfr_df(patients)
     print(f"EGFR data layout:\n{lab_df.columns}")
     print(
         f"Stats on eGFR:\n"
-        f"Number of records: {len(lab_df)}\n"
+        f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
+
     lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
     lab_df['has_esrd'] = lab_df['subject_id'].apply(lambda x: 1 if x in esrd_patients else 0)
-    lab_df = lab_df.dropna()
-
-    if only_esrd:
-        lab_df = lab_df[lab_df['subject_id'].isin(esrd_patients)]
-        lab_df.drop(columns=['has_esrd'], inplace=True)
+    lab_df.drop(columns=[
+        'labevent_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'storetime',
+        'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments',
+        'gender', 'dod', 'race'
+    ], inplace=True)
 
     print(
         f'Final data: \n{lab_df.head()}\n'
@@ -163,9 +168,10 @@ def get_egfr_df(patient_df):
 
     egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
     egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
-    print(f'Merged eGFR df:\n{egfr_df[['subject_id', 'race', 'gender', 'anchor_age', 'valuenum', 'dod']].head()}')
     egfr_df = egfr_df[egfr_df['valuenum'] != 0]
     egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
+
+    egfr_df.dropna()
 
     return egfr_df
 
