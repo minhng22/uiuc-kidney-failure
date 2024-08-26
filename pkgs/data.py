@@ -27,7 +27,7 @@ def get_train_test_data():
         data_test.reset_index(drop=True, inplace=True)
 
         print(
-            f'Number of test {len(data_test['subject_id'].unique())} and train {len(data_train['subject_id'].unique())}\n'
+            f'Number of test {data_test['subject_id'].nunique()} and train {data_train['subject_id'].nunique()}\n'
             f'Number of test patients records {len(data_test)}'
         )
 
