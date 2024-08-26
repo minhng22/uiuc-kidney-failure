@@ -7,7 +7,7 @@ from lifelines import CoxTimeVaryingFitter
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, cox_model_path
 
-from pkgs.data import get_train_test_data_regressor_model
+from pkgs.data import get_train_test_data
 
 
 # No records of albumin for patients progressed from ckd 3-5 to esrd.
@@ -24,7 +24,7 @@ def verify_that_albumin_records_not_exist_for_patients(patient_ids):
 
 
 def run_cox_model():
-    data_train, data_test = get_train_test_data_regressor_model()
+    data_train, data_test = get_train_test_data()
 
     if not os.path.exists(cox_model_path):
         # Initialize the CoxPHFitter

@@ -3,44 +3,42 @@ import re
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from pkgs.commons import (
     diagnose_icd_file_path, patients_file_path,
     age_bins, esrd_codes,
     ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
     lab_events_file_path, lab_codes_creatinine, prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats,
-    regressor_model_train_data_path, regressor_model_test_data_path,
+    train_data_path, test_data_path,
 )
 from lifelines.utils import to_long_format
 
-def get_train_test_data_regressor_model():
-    if not os.path.exists(regressor_model_train_data_path):
+def get_train_test_data():
+    if not os.path.exists(train_data_path):
         data = get_time_series_data_ckd_patients()
 
-        test_data_ids = data['subject_id'].unique()[: data['subject_id'].nunique() // 5] # 80/20 split
+        train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
 
-        data_test = data[data['subject_id'].isin(test_data_ids)]
-        data_train = data[~data['subject_id'].isin(data_test['subject_id'].unique())]
+        data_test = data[data['subject_id'].isin(test_subjects)]
+        data_train = data[data['subject_id'].isin(train_subjects)]
+
+        data_train.reset_index(drop=True, inplace=True)
+        data_test.reset_index(drop=True, inplace=True)
 
         print(
             f'Number of test {len(data_test['subject_id'].unique())} and train {len(data_train['subject_id'].unique())}\n'
             f'Number of test patients records {len(data_test)}'
         )
 
-        data_train.to_csv(regressor_model_train_data_path)
-        data_test.to_csv(regressor_model_test_data_path)
+        data_train.to_csv(train_data_path)
+        data_test.to_csv(test_data_path)
 
         data_test = data_test.sort_values('time').groupby('subject_id').last().reset_index()
         print(f'Number of test patient records after group: {len(data_test)}')
     else:
-        data_train = pd.read_csv(regressor_model_train_data_path)
-        data_test = pd.read_csv(regressor_model_test_data_path)
-
-    data_train = to_long_format(data_train, duration_col='age')[['subject_id', 'egfr', 'start', 'stop']].copy()
-    data_test = to_long_format(data_test, duration_col='age')[['subject_id', 'egfr', 'start', 'stop']].copy()
-
-    print(f'data_train in long format: \n{data_train.head()}')
-    print(f'data_test in long format: \n{data_test.head()}')
+        data_train = pd.read_csv(train_data_path)
+        data_test = pd.read_csv(test_data_path)
 
     return data_train, data_test
 
@@ -459,4 +457,4 @@ def filter_df_on_icd_code(df, arr_1, arr_2):
 
 
 if __name__ == '__main__':
-    get_time_series_data_ckd_patients()
+    get_train_test_data()
