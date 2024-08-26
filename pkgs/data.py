@@ -44,6 +44,33 @@ def get_train_test_data_regressor_model():
 
     return data_train, data_test
 
+def get_first_time_esrd(lab_df):
+    admission_df = pd.read_csv(admissions_file_path)
+    # Initialize an empty list to store the results
+    results = []
+
+    # Loop through each patient in lab_df
+    for subject_id, group in lab_df.groupby('subject_id'):
+        # Find the first row where 'icd_code' is in ICD_CODES
+        match_row = group[group['icd_code'].isin(esrd_codes)].iloc[0]
+
+        # Get the 'hadm_id' of that row
+        hadm_id = match_row['hadm_id']
+
+        # Query admission_df to find the 'admittime' of that 'hadm_id'
+        admit_time = admission_df.loc[admission_df['hadm_id'] == hadm_id, 'admittime'].values[0]
+
+        # Append the result to the list
+        results.append({'subject_id': subject_id, 'first_diagnose_esrd_time': admit_time})
+
+    # Convert the results to a DataFrame if needed
+    results_df = pd.DataFrame(results)
+    print(f"first time having ESRD df:\n {results_df.head()}")
+
+    return results_df
+
+
+
 # get late stage ckd patients and info of their progression to esrd.
 # only_esrd set to True returns only patients who have progressed to ESRD.
 def get_time_series_data_ckd_patients(only_esrd: bool = True):
@@ -56,9 +83,11 @@ def get_time_series_data_ckd_patients(only_esrd: bool = True):
           f'over {diagnoses_df["subject_id"].nunique()}, '
           f'accounts for {round(100 * len(esrd_patients)/diagnoses_df["subject_id"].nunique(), 3)}%')
 
+    first_time_esrd_df = None
     if only_esrd:
         # filter late stage patients who progressed to esrd.
         diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]
+        first_time_esrd_df = get_first_time_esrd(diagnoses_df)
 
     patients = pd.read_csv(patients_file_path)
     patients = patients[patients['subject_id'].isin(diagnoses_df["subject_id"].unique())]
@@ -73,12 +102,18 @@ def get_time_series_data_ckd_patients(only_esrd: bool = True):
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
 
     lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
-    lab_df['has_esrd'] = lab_df['subject_id'].apply(lambda x: 1 if x in esrd_patients else 0)
+
+    if only_esrd:
+        lab_df = pd.merge(lab_df, first_time_esrd_df, on='subject_id', how='left')
+        lab_df['has_esrd'] = lab_df['time'] >= lab_df['first_diagnose_esrd_time']
+
     lab_df.drop(columns=[
         'labevent_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'storetime',
         'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments',
-        'gender', 'dod', 'race'
+        'gender', 'dod', 'race', 'anchor_year', 'anchor_year_group', 'age',
+        'first_diagnose_esrd_time' # keep this column if needed
     ], inplace=True)
+    print(f"EGFR data layout:\n{lab_df.columns}")
 
     print(
         f'Final data: \n{lab_df.head()}\n'
