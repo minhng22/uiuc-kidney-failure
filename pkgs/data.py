@@ -12,7 +12,7 @@ from pkgs.commons import (
     lab_events_file_path, lab_codes_creatinine, prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats,
     train_data_path, test_data_path,
 )
-from lifelines.utils import to_long_format
+
 
 def get_train_test_data():
     if not os.path.exists(train_data_path):
@@ -26,19 +26,17 @@ def get_train_test_data():
         data_train.reset_index(drop=True, inplace=True)
         data_test.reset_index(drop=True, inplace=True)
 
-        print(
-            f'Number of test {data_test['subject_id'].nunique()} and train {data_train['subject_id'].nunique()}\n'
-            f'Number of test patients records {len(data_test)}'
-        )
-
         data_train.to_csv(train_data_path)
         data_test.to_csv(test_data_path)
-
-        data_test = data_test.sort_values('time').groupby('subject_id').last().reset_index()
-        print(f'Number of test patient records after group: {len(data_test)}')
     else:
         data_train = pd.read_csv(train_data_path)
         data_test = pd.read_csv(test_data_path)
+
+    print(
+        f'Number of patients: '
+        f'test {data_test['subject_id'].nunique()} and train {data_train['subject_id'].nunique()}\n'
+        f'Number of records: test {len(data_test)} and train {len(data_train)}'
+    )
 
     return data_train, data_test
 
