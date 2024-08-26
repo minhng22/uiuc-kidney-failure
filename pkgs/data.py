@@ -73,7 +73,7 @@ def get_first_time_esrd(lab_df):
 
 # get late stage ckd patients and info of their progression to esrd.
 # only_esrd set to True returns only patients who have progressed to ESRD.
-def get_time_series_data_ckd_patients(only_esrd: bool = True):
+def get_time_series_data_ckd_patients():
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
     diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
 
@@ -83,11 +83,7 @@ def get_time_series_data_ckd_patients(only_esrd: bool = True):
           f'over {diagnoses_df["subject_id"].nunique()}, '
           f'accounts for {round(100 * len(esrd_patients)/diagnoses_df["subject_id"].nunique(), 3)}%')
 
-    first_time_esrd_df = None
-    if only_esrd:
-        # filter late stage patients who progressed to esrd.
-        diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]
-        first_time_esrd_df = get_first_time_esrd(diagnoses_df)
+    first_time_esrd_df = get_first_time_esrd(diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)])
 
     patients = pd.read_csv(patients_file_path)
     patients = patients[patients['subject_id'].isin(diagnoses_df["subject_id"].unique())]
@@ -103,9 +99,10 @@ def get_time_series_data_ckd_patients(only_esrd: bool = True):
 
     lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
 
-    if only_esrd:
-        lab_df = pd.merge(lab_df, first_time_esrd_df, on='subject_id', how='left')
-        lab_df['has_esrd'] = lab_df['time'] >= lab_df['first_diagnose_esrd_time']
+    lab_df = pd.merge(lab_df, first_time_esrd_df, on='subject_id', how='left')
+    lab_df['has_esrd'] = lab_df['time'] >= lab_df['first_diagnose_esrd_time']
+    lab_df['has_esrd'] = lab_df['has_esrd'].astype(int)
+    lab_df.fillna({'has_esrd': 0}, inplace=True)
 
     lab_df.drop(columns=[
         'labevent_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'storetime',
