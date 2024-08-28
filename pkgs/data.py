@@ -34,7 +34,7 @@ def get_train_test_data():
 
     print(
         f'Number of patients: '
-        f'test {data_test['subject_id'].nunique()} and train {data_train['subject_id'].nunique()}\n'
+        f'test {data_test["subject_id"].nunique()} and train {data_train["subject_id"].nunique()}\n'
         f'Number of records: test {len(data_test)} and train {len(data_train)}'
     )
 
@@ -100,18 +100,27 @@ def get_time_series_data_ckd_patients():
     lab_df['has_esrd'] = lab_df['has_esrd'].astype(int)
     lab_df.fillna({'has_esrd': 0}, inplace=True)
 
+    # for patients with esrd, discard records after the first diagnose of esrd.
+    lab_df['time'] = pd.to_datetime(lab_df['time'])
+    lab_df = lab_df[(lab_df['first_diagnose_esrd_time'].isna()) | (lab_df['time'] <= lab_df['first_diagnose_esrd_time'])]
+
     lab_df.drop(columns=[
         'labevent_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'storetime',
         'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments',
         'gender', 'dod', 'race', 'anchor_year', 'anchor_year_group', 'age',
+        'time',
         'first_diagnose_esrd_time' # keep this column if needed
     ], inplace=True)
+
+    # convert time to number of days from first observation
+    lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
+
     print(f"EGFR data layout:\n{lab_df.columns}")
 
     print(
         f'Final data: \n{lab_df.head()}\n'
         f'Number of records: {len(lab_df)}\n'
-        f'Number of patients: {lab_df['subject_id'].nunique()}\n'
+        f'Number of patients: {lab_df["subject_id"].nunique()}\n'
     )
 
     return lab_df
@@ -204,7 +213,7 @@ def add_race_to_patients(patient_df, verbose:bool=False):
     race_df = ethnicity_and_race_statistics(patient_df, True)
     patient_df = pd.merge(patient_df, race_df, on='subject_id', how='outer')
     if verbose:
-        print(f'Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}')
+        print(f"Patients df with race: \n{patient_df[['subject_id', 'race', 'gender', 'anchor_age']].head()}")
 
     return patient_df
 

@@ -67,5 +67,8 @@ def run_cox_model():
         print(sf)
 
 
+def run_survival_rf():
+    data_train, data_test = get_train_test_data()
+    
 if __name__ == '__main__':
     run_cox_model()
