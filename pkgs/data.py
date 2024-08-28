@@ -104,6 +104,9 @@ def get_time_series_data_ckd_patients():
     lab_df['time'] = pd.to_datetime(lab_df['time'])
     lab_df = lab_df[(lab_df['first_diagnose_esrd_time'].isna()) | (lab_df['time'] <= lab_df['first_diagnose_esrd_time'])]
 
+    # convert time to number of days from first observation
+    lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
+
     lab_df.drop(columns=[
         'labevent_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'storetime',
         'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments',
@@ -112,11 +115,7 @@ def get_time_series_data_ckd_patients():
         'first_diagnose_esrd_time' # keep this column if needed
     ], inplace=True)
 
-    # convert time to number of days from first observation
-    lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
-
     print(f"EGFR data layout:\n{lab_df.columns}")
-
     print(
         f'Final data: \n{lab_df.head()}\n'
         f'Number of records: {len(lab_df)}\n'

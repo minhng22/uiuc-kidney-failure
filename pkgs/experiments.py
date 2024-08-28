@@ -3,6 +3,8 @@ import os
 import joblib
 import pandas as pd
 from lifelines import CoxTimeVaryingFitter
+from lifelines import RandomSurvivalForest
+from lifelines.utils import concordance_index
 
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, cox_model_path
@@ -68,7 +70,24 @@ def run_cox_model():
 
 
 def run_survival_rf():
-    data_train, data_test = get_train_test_data()
-    
+    df, _ = get_train_test_data()
+
+    # Prepare the feature matrix (X) and the target vector (y)
+    X = df[['duration', 'egfr']]
+    y = df['has_esrd']
+
+    # Initialize and fit the Random Survival Forest model
+    rsf = RandomSurvivalForest(n_estimators=100, min_samples_split=10, max_depth=10)
+    rsf.fit(X, duration=df['duration'], event=df['has_esrd'])
+
+    # Evaluate the model
+    # Note: concordance_index is a common metric for survival models
+    c_index = concordance_index(df['duration'], -rsf.predict(X), df['has_esrd'])
+
+    print(f'Concordance Index: {c_index}')
+
+    # Display model performance
+    print(f'Feature Importances: {rsf.feature_importances_}')
+
 if __name__ == '__main__':
     run_cox_model()
