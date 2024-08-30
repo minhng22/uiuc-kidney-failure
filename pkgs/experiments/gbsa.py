@@ -2,9 +2,9 @@ from pkgs.commons import gbsa_model_path
 from pkgs.data.store_model_data import get_train_test_data, mini
 from pkgs.experiments.utils import get_y
 import joblib
-import numpy as np
 from lifelines.utils import concordance_index
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
+from pkgs.experiments.utils import report_metric
 import os
 
 
@@ -23,7 +23,7 @@ def run_gbsa():
         joblib.dump(gbsa, gbsa_model_path)
 
     print('Evaluate on training data')
-    c_index = concordance_index(df['duration_in_days'], -gbsa.predict(X), df['has_esrd'])
+    c_index = report_metric(concordance_index(df['duration_in_days'], -gbsa.predict(X), df['has_esrd']))
     print(f'Concordance Index: {c_index}')
 
     print('Evaluate on test data')
@@ -31,7 +31,7 @@ def run_gbsa():
     df_test.dropna(inplace=True)
     X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
 
-    c_index_test = concordance_index(df_test['duration_in_days'], -gbsa.predict(X_test), df_test['has_esrd'])
+    c_index_test = report_metric(concordance_index(df_test['duration_in_days'], -gbsa.predict(X_test), df_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
 
