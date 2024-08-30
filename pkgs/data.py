@@ -4,6 +4,7 @@ import re
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 from pkgs.commons import (
     diagnose_icd_file_path, patients_file_path,
@@ -12,6 +13,20 @@ from pkgs.commons import (
     lab_events_file_path, lab_codes_creatinine, prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats,
     train_data_path, test_data_path,
 )
+
+
+# Pick a small subset of the data to test the models
+def mini(df):
+    num_subjects = 100
+
+    esrd_subjects_df = df[df['has_esrd'] == True]
+    unique_subjects_with_esrd = esrd_subjects_df['subject_id'].unique()
+    random_subjects = np.random.choice(unique_subjects_with_esrd, size=num_subjects, replace=False)
+
+    res = df[df['subject_id'].isin(random_subjects)]
+    print(res.head())
+
+    return res
 
 
 def get_train_test_data():

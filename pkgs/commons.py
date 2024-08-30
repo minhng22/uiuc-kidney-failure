@@ -61,6 +61,7 @@ figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 train_data_path = f'{project_dir()}/generated_data/train_data.csv'
 test_data_path = f'{project_dir()}/generated_data/test_data.csv'
 cox_model_path = f'{project_dir()}/generated_data/cox_model.pkl'
+srf_model_path = f'{project_dir()}/generated_data/srf_model.pkl'
 
 """
 ----------Others----------
