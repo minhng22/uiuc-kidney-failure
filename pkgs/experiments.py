@@ -5,12 +5,11 @@ import pandas as pd
 from lifelines import CoxTimeVaryingFitter
 from sksurv.ensemble import RandomSurvivalForest, GradientBoostingSurvivalAnalysis
 from lifelines.utils import concordance_index
-from sksurv.metrics import brier_score
 
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, cox_model_path, srf_model_path, gbsa_model_path
 
-from pkgs.data.main import get_train_test_data, mini, eval_duration
+from pkgs.data.model_data_supply import get_train_test_data, mini
 import numpy as np
 import datetime
 
@@ -159,6 +158,12 @@ def run_gbsa():
 
     c_index_test = concordance_index(df_test['duration_in_days'], -gbsa.predict(X_test), df_test['has_esrd'])
     print(f'Concordance Index Test: {c_index_test}')    
+
+
+def eval_duration(df):
+    esrd_subjects_df = df[df['has_esrd'] == True]
+    max_duration = esrd_subjects_df['duration_in_days'].max()
+    print(f"max duration: {max_duration}")
 
 if __name__ == '__main__':
     run_gbsa()
