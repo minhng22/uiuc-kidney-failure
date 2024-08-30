@@ -1,26 +1,6 @@
 import pandas as pd
-from pkgs.commons import diagnose_icd_file_path, patients_file_path, esrd_codes, ckd_codes,\
-lab_events_file_path, lab_codes_creatinine, admissions_file_path
-from pkgs.data.df_process import filter_df_on_icd_code
+from pkgs.commons import esrd_codes, lab_events_file_path, lab_codes_creatinine, admissions_file_path
 from pkgs.data.egfr_process import calculate_eGFR
-
-
-def get_esrd_patients_and_diagnoses():
-    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
-
-    esrd_diagnose_df = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes)
-    esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(esrd_codes)]
-    print(
-        f"number of ESRD subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
-        f"percentage of subjects in dataset: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
-    )
-
-    patients_df = pd.read_csv(patients_file_path)
-    patients_df = patients_df[patients_df['subject_id'].isin(esrd_diagnose_df['subject_id'].unique())]
-
-    print(f"number of subjects (for validation): {patients_df['subject_id'].nunique()}")
-
-    return patients_df, esrd_diagnose_df
 
 
 # @ethnicity_to_race - if True:
@@ -69,7 +49,7 @@ def get_admission_df(ethnicity_to_race: bool):
     return admission_df
 
 
-def get_lab_events_for_patients(patient_df):
+def get_lab_events_df_for_patients(patient_df):
     lab_events_df = pd.read_csv(lab_events_file_path)
     lab_events_df = lab_events_df[lab_events_df['subject_id'].isin(patient_df['subject_id'])]
     lab_events_df['itemid'] = lab_events_df['itemid'].astype(str)
@@ -79,7 +59,7 @@ def get_lab_events_for_patients(patient_df):
 
 
 def get_egfr_df(patient_df):
-    lab_events_df = get_lab_events_for_patients(patient_df)
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
 
     egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
     egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
@@ -89,3 +69,36 @@ def get_egfr_df(patient_df):
     egfr_df.dropna()
 
     return egfr_df
+
+
+def get_first_time_esrd_df(diagnose_df):
+    admission_df = pd.read_csv(admissions_file_path)
+    admission_df['admittime'] = pd.to_datetime(admission_df['admittime'])
+    # Initialize an empty list to store the results
+    results = []
+
+    # Loop through each patient in lab_df
+    for subject_id, group in diagnose_df.groupby('subject_id'):
+        match_rows = group[group['icd_code'].isin(esrd_codes)].iloc
+        first_time_esrd = None
+
+        for row in match_rows:
+            hadm_id = row['hadm_id']
+            admit_time = admission_df.loc[admission_df['hadm_id'] == hadm_id, 'admittime'].values[0]
+
+            if first_time_esrd is None or admit_time < first_time_esrd:
+                first_time_esrd = admit_time
+
+        results.append({'subject_id': subject_id, 'first_diagnose_esrd_time': first_time_esrd})
+
+    # Convert the results to a DataFrame if needed
+    results_df = pd.DataFrame(results)
+    print(
+        f"first time having ESRD df:\n {results_df.head()}\n"
+        f"Number of patients: {results_df['subject_id'].nunique()}")
+
+    results_df.dropna()
+    print(
+        f"Number of patients after drop n/a: {results_df['subject_id'].nunique()}")
+
+    return results_df
