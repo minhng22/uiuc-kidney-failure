@@ -11,23 +11,39 @@ from pkgs.commons import (
     age_bins, esrd_codes,
     ckd_codes, admissions_file_path, ckd_codes_stage3_to_5, ckd_codes_hypertension, ckd_codes_diabetes_mellitus,
     lab_events_file_path, lab_codes_creatinine, prescription_file_path, ace_inhibitor_drugs, figs_path_icd_stats,
-    train_data_path, test_data_path,
+    train_data_path, test_data_path
 )
 
 
 # Pick a small subset of the data to test the models
+# Random pick censored and uncensored patients.
 def mini(df):
-    num_subjects = 100
+    num_subjects = 50
 
-    esrd_subjects_df = df[df['has_esrd'] == True]
-    unique_subjects_with_esrd = esrd_subjects_df['subject_id'].unique()
-    random_subjects = np.random.choice(unique_subjects_with_esrd, size=num_subjects, replace=False)
+    esrd_patients = df[df['has_esrd'] == True]['subject_id'].unique()
+    non_esrd_patients = df[~df['subject_id'].isin(esrd_patients)]['subject_id'].unique()
+    print(
+        f"Number of subjects with esrd: {len(esrd_patients)}\n"
+        f"Number of subjects without esrd: {len(non_esrd_patients)}\n" 
+        f"Total: {df['subject_id'].nunique()}")
 
-    res = df[df['subject_id'].isin(random_subjects)]
+    rand_subjects_esrd = np.random.choice(
+        esrd_patients, size=num_subjects, replace=False)
+    rand_subjects_no_esrd = np.random.choice(
+        non_esrd_patients, size=num_subjects, replace=False)
+    
+    print(rand_subjects_esrd.shape, rand_subjects_no_esrd.shape)
+
+    res = df[df['subject_id'].isin(np.concatenate((rand_subjects_esrd, rand_subjects_no_esrd), axis=0))]
     print(res.head())
 
     return res
 
+
+def eval_duration(df):
+    esrd_subjects_df = df[df['has_esrd'] == True]
+    max_duration = esrd_subjects_df['duration_in_days'].max()
+    print(f"max duration: {max_duration}")
 
 def get_train_test_data():
     if not os.path.exists(train_data_path):

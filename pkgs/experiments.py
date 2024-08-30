@@ -3,14 +3,14 @@ import os
 import joblib
 import pandas as pd
 from lifelines import CoxTimeVaryingFitter
-from sksurv.ensemble import RandomSurvivalForest
+from sksurv.ensemble import RandomSurvivalForest, GradientBoostingSurvivalAnalysis
 from lifelines.utils import concordance_index
 from sksurv.metrics import brier_score
 
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
-    chart_events_file_path, cox_model_path, srf_model_path
+    chart_events_file_path, cox_model_path, srf_model_path, gbsa_model_path
 
-from pkgs.data import get_train_test_data, mini
+from pkgs.data import get_train_test_data, mini, eval_duration
 import numpy as np
 import datetime
 
@@ -73,18 +73,22 @@ def run_cox_model():
 
 
 def get_y(df):
-    arr = df.to_numpy()
-    aux = [(e1,e2) for e1,e2 in arr]
-
-    return np.array(aux, dtype=[('Has_ESRD', '?'), ('Survival_in_days', '<f8')])
+    return np.array(list(zip(df['has_esrd'].astype(bool), df['duration_in_days'])), 
+              dtype=[('event', bool), ('time', np.float64)])
 
 
+# Function to check if any NaN exists in the 'time' field
+def contains_nan_in_field(array, field_name):
+    return np.isnan(array[field_name]).any()
+
+
+# Data needs to not be time-invariant setup
 def run_survival_rf():
     df, df_test = get_train_test_data()
     df['has_esrd'] = df['has_esrd'].astype(bool)
     df = mini(df)
     X = df[['duration_in_days', 'egfr']]
-    y = get_y(df[['has_esrd', 'duration_in_days']])
+    y = get_y(df)
 
     if os.path.exists(srf_model_path):
         rsf = joblib.load(srf_model_path)
@@ -105,7 +109,56 @@ def run_survival_rf():
     c_index_test = concordance_index(df_test['duration_in_days'], -rsf.predict(X_test), df_test['has_esrd'])
     print(f'Concordance Index Test: {c_index_test}')
 
-    
+    eval_duration(df_test)
+    eval_duration(df)
+
+    surv_fns = rsf.predict_survival_function(X_test)
+    # Initialize a list to store median survival times
+    median_survival_times = []
+
+    # Loop through each survival function
+    for surv_fn in surv_fns:
+        # Convert the survival function to an array of times and probabilities
+        times = np.array([time for time in surv_fn.x])
+        survival_probs = np.array([prob for prob in surv_fn.y])
+        
+        # Find the time where the survival probability drops to 0.5 or below
+        median_time = times[survival_probs <= 0.5][0] if any(survival_probs <= 0.5) else np.nan
+        
+        # Append the median survival time to the list
+        median_survival_times.append(median_time)
+
+    # Convert to numpy array or other format if needed
+    median_survival_times = np.array(median_survival_times)
+
+    # Now you have the median survival times for each subject
+    print(median_survival_times.shape)
+
+
+def run_gbsa():
+    df, df_test = get_train_test_data()
+    df = mini(df)
+    X = df[['duration_in_days', 'egfr']].to_numpy()
+    y = get_y(df)
+
+    if os.path.exists(gbsa_model_path):
+        gbsa = joblib.load(gbsa_model_path)
+    else:
+        print('Fitting Gradient Boosting Survival Analysis model')
+        gbsa = GradientBoostingSurvivalAnalysis()
+        gbsa.fit(X, y)
+        joblib.dump(gbsa, gbsa_model_path)
+
+    c_index = concordance_index(df['duration_in_days'], -gbsa.predict(X), df['has_esrd'])
+    print(f'Concordance Index: {c_index}')
+
+    df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
+    df_test.dropna(inplace=True)
+    X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
+    print(np.isnan(X_test).any())
+
+    c_index_test = concordance_index(df_test['duration_in_days'], -gbsa.predict(X_test), df_test['has_esrd'])
+    print(f'Concordance Index Test: {c_index_test}')    
 
 if __name__ == '__main__':
-    run_survival_rf()
+    run_gbsa()
