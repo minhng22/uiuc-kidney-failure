@@ -10,7 +10,7 @@ from sksurv.metrics import brier_score
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, cox_model_path, srf_model_path, gbsa_model_path
 
-from pkgs.data import get_train_test_data, mini, eval_duration
+from pkgs.data.main import get_train_test_data, mini, eval_duration
 import numpy as np
 import datetime
 
