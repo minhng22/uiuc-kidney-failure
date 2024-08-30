@@ -25,10 +25,7 @@ def mini(df):
     rand_subjects_no_esrd = np.random.choice(
         non_esrd_patients, size=num_subjects, replace=False)
     
-    print(rand_subjects_esrd.shape, rand_subjects_no_esrd.shape)
-
     res = df[df['subject_id'].isin(np.concatenate((rand_subjects_esrd, rand_subjects_no_esrd), axis=0))]
-    print(res.head())
 
     return res
 

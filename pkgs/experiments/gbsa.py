@@ -22,13 +22,14 @@ def run_gbsa():
         gbsa.fit(X, y)
         joblib.dump(gbsa, gbsa_model_path)
 
+    print('Evaluate on training data')
     c_index = concordance_index(df['duration_in_days'], -gbsa.predict(X), df['has_esrd'])
     print(f'Concordance Index: {c_index}')
 
+    print('Evaluate on test data')
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
     df_test.dropna(inplace=True)
     X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
-    print(np.isnan(X_test).any())
 
     c_index_test = concordance_index(df_test['duration_in_days'], -gbsa.predict(X_test), df_test['has_esrd'])
     print(f'Concordance Index Test: {c_index_test}')
