@@ -5,6 +5,7 @@ import pandas as pd
 from lifelines import CoxTimeVaryingFitter
 from sksurv.ensemble import RandomSurvivalForest
 from lifelines.utils import concordance_index
+from sksurv.metrics import brier_score
 
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, cox_model_path, srf_model_path
@@ -79,23 +80,32 @@ def get_y(df):
 
 
 def run_survival_rf():
-    df, _ = get_train_test_data()
+    df, df_test = get_train_test_data()
     df['has_esrd'] = df['has_esrd'].astype(bool)
-
     df = mini(df)
-
     X = df[['duration_in_days', 'egfr']]
     y = get_y(df[['has_esrd', 'duration_in_days']])
 
-    print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
-    rsf = RandomSurvivalForest(n_jobs= 10, verbose=2)
-    rsf.fit(X, y)
+    if os.path.exists(srf_model_path):
+        rsf = joblib.load(srf_model_path)
+    else:
+        print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
+        rsf = RandomSurvivalForest(n_jobs= 10, verbose=2)
+        rsf.fit(X, y)
+        joblib.dump(rsf, srf_model_path)
 
-    joblib.dump(rsf, srf_model_path)
-
+    # C-index is the most popular metric in the last 14 years by a wide margin for evaluating survival models.
+    # ref: https://journal.r-project.org/articles/RJ-2023-009/RJ-2023-009.pdf
     c_index = concordance_index(df['duration_in_days'], -rsf.predict(X), df['has_esrd'])
-
     print(f'Concordance Index: {c_index}')
+
+    df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
+    X_test = df_test[['duration_in_days', 'egfr']]
+
+    c_index_test = concordance_index(df_test['duration_in_days'], -rsf.predict(X_test), df_test['has_esrd'])
+    print(f'Concordance Index Test: {c_index_test}')
+
+    
 
 if __name__ == '__main__':
     run_survival_rf()
