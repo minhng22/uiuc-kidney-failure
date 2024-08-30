@@ -1,5 +1,5 @@
 import pandas as pd
-from pkgs.data.df_process import filter_df_on_icd_code
+from pkgs.data.store_utils import filter_df_on_icd_code
 
 def test_filter_diagnoses_for_patients_with_both_icd_codes():
     test_cases = [

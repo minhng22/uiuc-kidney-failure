@@ -1,5 +1,5 @@
 from pkgs.commons import esrd_codes, patients_file_path
-from pkgs.data.df_supply import get_egfr_df, get_first_time_esrd_df
+from pkgs.data.store import get_egfr_df, get_first_time_esrd_df
 import pandas as pd
 
 

@@ -9,7 +9,7 @@ from lifelines.utils import concordance_index
 from pkgs.commons import lab_events_file_path, lab_codes_albumin, \
     chart_events_file_path, cox_model_path, srf_model_path, gbsa_model_path
 
-from pkgs.data.model_data_supply import get_train_test_data, mini
+from pkgs.data.store_model_data import get_train_test_data, mini
 import numpy as np
 import datetime
 

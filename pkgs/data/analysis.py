@@ -1,9 +1,9 @@
-from pkgs.data.df_supply import get_admission_df, get_lab_events_df_for_patients, get_egfr_df
-from pkgs.data.patients_and_diagnosis_supply import get_ckd_patients_and_diagnoses, get_esrd_patients_and_diagnoses
-from pkgs.data.graphic import plot_icd_codes
+from pkgs.data.store import get_admission_df, get_ckd_patients_and_diagnoses, get_lab_events_df_for_patients, get_egfr_df
+from pkgs.data.store import get_esrd_patients_and_diagnoses
+from pkgs.data.graphics import plot_icd_codes
 from commons import lab_codes_creatinine, esrd_codes, ckd_codes_stage3_to_5, ckd_codes_hypertension, \
     ckd_codes_diabetes_mellitus, ace_inhibitor_drugs, diagnose_icd_file_path, age_bins, prescription_file_path
-from pkgs.data.df_process import filter_df_on_icd_code
+from pkgs.data.store_utils import filter_df_on_icd_code
 import pandas as pd
 
 
