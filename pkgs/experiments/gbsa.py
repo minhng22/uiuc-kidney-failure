@@ -1,4 +1,4 @@
-from pkgs.commons import gbsa_model_path
+from pkgs.commons import tv_gbsa_model_path
 from pkgs.data.model_data_store import get_train_test_data, mini
 from pkgs.experiments.utils import get_y
 import joblib
@@ -14,13 +14,13 @@ def run_gbsa():
     X = df[['duration_in_days', 'egfr']].to_numpy()
     y = get_y(df)
 
-    if os.path.exists(gbsa_model_path):
-        gbsa = joblib.load(gbsa_model_path)
+    if os.path.exists(tv_gbsa_model_path):
+        gbsa = joblib.load(tv_gbsa_model_path)
     else:
         print('Fitting Gradient Boosting Survival Analysis model')
         gbsa = GradientBoostingSurvivalAnalysis()
         gbsa.fit(X, y)
-        joblib.dump(gbsa, gbsa_model_path)
+        joblib.dump(gbsa, tv_gbsa_model_path)
 
     print('Evaluate on training data')
     c_index = report_metric(concordance_index(df['duration_in_days'], -gbsa.predict(X), df['has_esrd']))

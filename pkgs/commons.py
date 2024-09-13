@@ -58,11 +58,11 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 """
 figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
-train_data_path = f'{project_dir()}/generated_data/tv_train_data.csv'
-test_data_path = f'{project_dir()}/generated_data/tv_test_data.csv'
+tv_train_data_path = f'{project_dir()}/generated_data/tv_train_data.csv'
+tv_test_data_path = f'{project_dir()}/generated_data/tv_test_data.csv'
 tv_cox_model_path = f'{project_dir()}/generated_data/tv_cox_model.pkl'
 srf_model_path = f'{project_dir()}/generated_data/srf_model.pkl'
-gbsa_model_path = f'{project_dir()}/generated_data/tv_gbsa_model.pkl'
+tv_gbsa_model_path = f'{project_dir()}/generated_data/tv_gbsa_model.pkl'
 
 """
 ----------Others----------

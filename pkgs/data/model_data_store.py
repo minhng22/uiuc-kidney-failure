@@ -2,7 +2,7 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from pkgs.commons import (
-    train_data_path, test_data_path
+    tv_train_data_path, tv_test_data_path
 )
 from pkgs.data.time_series_store import get_time_series_data_ckd_patients
 import pandas as pd
@@ -31,7 +31,7 @@ def mini(df):
 
 
 def get_train_test_data():
-    if not os.path.exists(train_data_path):
+    if not os.path.exists(tv_train_data_path):
         data = get_time_series_data_ckd_patients()
 
         train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
@@ -42,11 +42,11 @@ def get_train_test_data():
         data_train.reset_index(drop=True, inplace=True)
         data_test.reset_index(drop=True, inplace=True)
 
-        data_train.to_csv(train_data_path)
-        data_test.to_csv(test_data_path)
+        data_train.to_csv(tv_train_data_path)
+        data_test.to_csv(tv_test_data_path)
     else:
-        data_train = pd.read_csv(train_data_path)
-        data_test = pd.read_csv(test_data_path)
+        data_train = pd.read_csv(tv_train_data_path)
+        data_test = pd.read_csv(tv_test_data_path)
 
     print(
         f'Number of patients: '
