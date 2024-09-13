@@ -1,6 +1,6 @@
 import pandas as pd
 from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_codes
-from pkgs.data.store_time_series_utils import process_negative_patients, process_positive_patients
+from pkgs.data.time_series_utils_store import process_negative_patients, process_positive_patients
 
 
 # get late stage ckd patients and info of their progression to esrd.

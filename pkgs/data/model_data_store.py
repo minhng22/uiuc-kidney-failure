@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from pkgs.commons import (
     train_data_path, test_data_path
 )
-from pkgs.data.store_time_series import get_time_series_data_ckd_patients
+from pkgs.data.time_series_store import get_time_series_data_ckd_patients
 import pandas as pd
 
 
