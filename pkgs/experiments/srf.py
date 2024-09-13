@@ -1,5 +1,5 @@
 from pkgs.commons import ti_srf_model_path
-from pkgs.data.model_data_store import get_tv_train_test_data, mini
+from pkgs.data.model_data_store import get_train_test_data, mini
 from pkgs.experiments.utils import get_y
 from pkgs.experiments.validation import eval_duration
 
@@ -13,7 +13,7 @@ import os
 
 # Data needs to be time-invariant setup
 def run_survival_rf():
-    df, df_test = get_tv_train_test_data()
+    df, df_test = get_train_test_data(True)
     df['has_esrd'] = df['has_esrd'].astype(bool)
     df = mini(df)
     X = df[['duration_in_days', 'egfr']]

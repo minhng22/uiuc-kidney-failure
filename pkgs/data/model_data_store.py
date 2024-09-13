@@ -30,8 +30,20 @@ def mini(df):
     return res
 
 
-def get_tv_train_test_data():
-    if not os.path.exists(tv_train_data_path):
+def prep_data(df):
+    df['start'] = df.groupby('subject_id').cumcount() * df['duration_in_days']  # Calculate start times
+    df['stop'] = df['start'] + df['duration_in_days']  # Calculate stop times
+    df.dropna(inplace=True)
+    # Adjust rows where start == stop by adding a small value to stop
+    df.loc[df['start'] == df['stop'], 'stop'] += 1e-5  # Adding a small value to ensure stop > start
+    return df
+
+
+def get_train_test_data(time_variant):
+    train_path = tv_train_data_path if time_variant else ti_train_data_path
+    test_path = tv_test_data_path if time_variant else ti_test_data_path
+
+    if not os.path.exists(train_path):
         data = get_time_series_data_ckd_patients()
 
         train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
@@ -42,11 +54,11 @@ def get_tv_train_test_data():
         data_train.reset_index(drop=True, inplace=True)
         data_test.reset_index(drop=True, inplace=True)
 
-        data_train.to_csv(tv_train_data_path)
-        data_test.to_csv(tv_test_data_path)
+        data_train.to_csv(train_path)
+        data_test.to_csv(test_path)
     else:
-        data_train = pd.read_csv(tv_train_data_path)
-        data_test = pd.read_csv(tv_test_data_path)
+        data_train = pd.read_csv(train_path)
+        data_test = pd.read_csv(test_path)
 
     print(
         f'Number of patients: '
@@ -64,40 +76,15 @@ def get_tv_train_test_data():
                 f"subject_id: {patient} is bad.\n"
                 f"data: {subjects_less_than_2_rows[subjects_less_than_2_rows['subject_id'] == patient][['subject_id', 'time', 'has_esrd']]}\n")
     
-    validate(data_train)
-    validate(data_test)
+    if time_variant:
+        validate(data_train)
+        validate(data_test)
 
-    return data_train, data_test
-
-def get_ti_train_test_data():
-    if not os.path.exists(ti_train_data_path):
-        data = get_time_series_data_ckd_patients()
-
-        train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
-
-        data_test = data[data['subject_id'].isin(test_subjects)]
-        data_train = data[data['subject_id'].isin(train_subjects)]
-
-        data_test = data_test.loc[data_test.groupby('subject_id')['duration_in_days'].idxmax()]
-        data_train = data_train.loc[data_train.groupby('subject_id')['duration_in_days'].idxmax()]
-
-        data_train.reset_index(drop=True, inplace=True)
-        data_test.reset_index(drop=True, inplace=True)
-
-        data_train.to_csv(ti_train_data_path)
-        data_test.to_csv(ti_test_data_path)
-    else:
-        data_train = pd.read_csv(ti_train_data_path)
-        data_test = pd.read_csv(ti_test_data_path)
-
-    print(
-        f'Number of patients: '
-        f'test {data_test["subject_id"].nunique()} and train {data_train["subject_id"].nunique()}\n'
-        f'Number of records: test {len(data_test)} and train {len(data_train)}'
-    )
+        data_train = prep_data(data_train)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
+        data_test = prep_data(data_test)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
 
     return data_train, data_test
 
 
 if __name__ == '__main__':
-    get_ti_train_test_data()
+    get_train_test_data(False)
