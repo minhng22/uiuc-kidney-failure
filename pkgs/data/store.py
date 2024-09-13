@@ -1,6 +1,6 @@
 import pandas as pd
 from pkgs.commons import ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_path, esrd_codes, lab_events_file_path, lab_codes_creatinine, admissions_file_path, patients_file_path
-from pkgs.data.store_utils import filter_df_on_icd_code
+from pkgs.data.utils_store import filter_df_on_icd_code
 from pkgs.data.utils import calculate_eGFR
 
 

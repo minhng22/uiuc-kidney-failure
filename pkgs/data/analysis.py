@@ -3,7 +3,7 @@ from pkgs.data.store import get_esrd_patients_and_diagnoses
 from pkgs.data.graphics import plot_icd_codes
 from commons import lab_codes_creatinine, esrd_codes, ckd_codes_stage3_to_5, ckd_codes_hypertension, \
     ckd_codes_diabetes_mellitus, ace_inhibitor_drugs, diagnose_icd_file_path, age_bins, prescription_file_path
-from pkgs.data.store_utils import filter_df_on_icd_code
+from pkgs.data.utils_store import filter_df_on_icd_code
 import pandas as pd
 
 

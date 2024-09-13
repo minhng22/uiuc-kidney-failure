@@ -1,5 +1,5 @@
 from pkgs.commons import gbsa_model_path
-from pkgs.data.store_model_data import get_train_test_data, mini
+from pkgs.data.model_data_store import get_train_test_data, mini
 from pkgs.experiments.utils import get_y
 import joblib
 from lifelines.utils import concordance_index

@@ -4,7 +4,7 @@ from lifelines import CoxTimeVaryingFitter, CoxPHFitter
 import os
 
 from pkgs.commons import tv_cox_model_path
-from pkgs.data.store_model_data import get_train_test_data
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import report_metric
 
 def prep_data(df):
