@@ -1,5 +1,5 @@
-from pkgs.commons import srf_model_path
-from pkgs.data.model_data_store import get_train_test_data, mini
+from pkgs.commons import ti_srf_model_path
+from pkgs.data.model_data_store import get_tv_train_test_data, mini
 from pkgs.experiments.utils import get_y
 from pkgs.experiments.validation import eval_duration
 
@@ -13,19 +13,19 @@ import os
 
 # Data needs to be time-invariant setup
 def run_survival_rf():
-    df, df_test = get_train_test_data()
+    df, df_test = get_tv_train_test_data()
     df['has_esrd'] = df['has_esrd'].astype(bool)
     df = mini(df)
     X = df[['duration_in_days', 'egfr']]
     y = get_y(df)
 
-    if os.path.exists(srf_model_path):
-        rsf = joblib.load(srf_model_path)
+    if os.path.exists(ti_srf_model_path):
+        rsf = joblib.load(ti_srf_model_path)
     else:
         print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
         rsf = RandomSurvivalForest(n_jobs= 10, verbose=2)
         rsf.fit(X, y)
-        joblib.dump(rsf, srf_model_path)
+        joblib.dump(rsf, ti_srf_model_path)
 
     # C-index is the most popular metric in the last 14 years by a wide margin for evaluating survival models.
     # ref: https://journal.r-project.org/articles/RJ-2023-009/RJ-2023-009.pdf

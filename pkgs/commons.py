@@ -61,8 +61,12 @@ figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 tv_train_data_path = f'{project_dir()}/generated_data/tv_train_data.csv'
 tv_test_data_path = f'{project_dir()}/generated_data/tv_test_data.csv'
 tv_cox_model_path = f'{project_dir()}/generated_data/tv_cox_model.pkl'
-srf_model_path = f'{project_dir()}/generated_data/srf_model.pkl'
+ti_srf_model_path = f'{project_dir()}/generated_data/ti_srf_model.pkl'
 tv_gbsa_model_path = f'{project_dir()}/generated_data/tv_gbsa_model.pkl'
+
+ti_cox_model_path = f'{project_dir()}/generated_data/ti_cox_model.pkl'
+ti_train_data_path = f'{project_dir()}/generated_data/ti_train_data.csv'
+ti_test_data_path = f'{project_dir()}/generated_data/ti_test_data.csv'
 
 """
 ----------Others----------

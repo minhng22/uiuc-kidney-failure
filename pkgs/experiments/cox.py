@@ -4,7 +4,7 @@ from lifelines import CoxTimeVaryingFitter, CoxPHFitter
 import os
 
 from pkgs.commons import tv_cox_model_path
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data.model_data_store import get_tv_train_test_data
 from pkgs.experiments.utils import report_metric
 
 def prep_data(df):
@@ -16,7 +16,7 @@ def prep_data(df):
     return df
 
 def run_time_varying_cox_model():
-    data_train, data_test = get_train_test_data()
+    data_train, data_test = get_tv_train_test_data()
     data_train = prep_data(data_train)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
     data_test = prep_data(data_test)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
 
@@ -42,7 +42,7 @@ def run_time_varying_cox_model():
 
 
 def run_cox_model():
-    data_train, data_test = get_train_test_data()
+    data_train, data_test = get_tv_train_test_data()
     data_train = prep_data(data_train)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
     data_test = prep_data(data_test)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
 

@@ -2,7 +2,7 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from pkgs.commons import (
-    tv_train_data_path, tv_test_data_path
+    tv_train_data_path, tv_test_data_path, ti_train_data_path, ti_test_data_path
 )
 from pkgs.data.time_series_store import get_time_series_data_ckd_patients
 import pandas as pd
@@ -30,7 +30,7 @@ def mini(df):
     return res
 
 
-def get_train_test_data():
+def get_tv_train_test_data():
     if not os.path.exists(tv_train_data_path):
         data = get_time_series_data_ckd_patients()
 
@@ -69,3 +69,35 @@ def get_train_test_data():
 
     return data_train, data_test
 
+def get_ti_train_test_data():
+    if not os.path.exists(ti_train_data_path):
+        data = get_time_series_data_ckd_patients()
+
+        train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
+
+        data_test = data[data['subject_id'].isin(test_subjects)]
+        data_train = data[data['subject_id'].isin(train_subjects)]
+
+        data_test = data_test.loc[data_test.groupby('subject_id')['duration_in_days'].idxmax()]
+        data_train = data_train.loc[data_train.groupby('subject_id')['duration_in_days'].idxmax()]
+
+        data_train.reset_index(drop=True, inplace=True)
+        data_test.reset_index(drop=True, inplace=True)
+
+        data_train.to_csv(ti_train_data_path)
+        data_test.to_csv(ti_test_data_path)
+    else:
+        data_train = pd.read_csv(ti_train_data_path)
+        data_test = pd.read_csv(ti_test_data_path)
+
+    print(
+        f'Number of patients: '
+        f'test {data_test["subject_id"].nunique()} and train {data_train["subject_id"].nunique()}\n'
+        f'Number of records: test {len(data_test)} and train {len(data_train)}'
+    )
+
+    return data_train, data_test
+
+
+if __name__ == '__main__':
+    get_ti_train_test_data()
