@@ -37,6 +37,8 @@ def get_time_series_data_ckd_patients(time_variant):
     if time_variant:
         lab_df = prep_data(lab_df)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
     else:
+        # right-censoring. similar to work done by:
+        # 1. Hagar et al.: Survival Analysis of EHR CKD Data
         lab_df = lab_df.loc[lab_df.groupby('subject_id')['duration_in_days'].idxmax()]
         lab_df.dropna(inplace=True)
 
