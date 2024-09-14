@@ -30,21 +30,14 @@ def mini(df):
     return res
 
 
-def prep_data(df):
-    df['start'] = df.groupby('subject_id').cumcount() * df['duration_in_days']  # Calculate start times
-    df['stop'] = df['start'] + df['duration_in_days']  # Calculate stop times
-    df.dropna(inplace=True)
-    # Adjust rows where start == stop by adding a small value to stop
-    df.loc[df['start'] == df['stop'], 'stop'] += 1e-5  # Adding a small value to ensure stop > start
-    return df
-
-
 def get_train_test_data(time_variant):
     train_path = tv_train_data_path if time_variant else ti_train_data_path
     test_path = tv_test_data_path if time_variant else ti_test_data_path
 
+    print(f'Train data path {train_path}\nTest data path {test_path}')
+
     if not os.path.exists(train_path):
-        data = get_time_series_data_ckd_patients()
+        data = get_time_series_data_ckd_patients(time_variant)
 
         train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
 
@@ -65,23 +58,6 @@ def get_train_test_data(time_variant):
         f'test {data_test["subject_id"].nunique()} and train {data_train["subject_id"].nunique()}\n'
         f'Number of records: test {len(data_test)} and train {len(data_train)}'
     )
-
-    def validate(D):
-        # Group by 'subject_id' and filter groups with fewer than 2 rows
-        subjects_less_than_2_rows = D.groupby('subject_id').filter(lambda x: len(x) < 2)
-
-        # Get the unique subject IDs with fewer than 2 rows
-        for patient in subjects_less_than_2_rows['subject_id'].unique()[:5]:
-            print(
-                f"subject_id: {patient} is bad.\n"
-                f"data: {subjects_less_than_2_rows[subjects_less_than_2_rows['subject_id'] == patient][['subject_id', 'time', 'has_esrd']]}\n")
-    
-    if time_variant:
-        validate(data_train)
-        validate(data_test)
-
-        data_train = prep_data(data_train)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
-        data_test = prep_data(data_test)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
 
     return data_train, data_test
 

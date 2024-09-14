@@ -3,9 +3,18 @@ from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_cod
 from pkgs.data.time_series_utils_store import process_negative_patients, process_positive_patients
 
 
+def prep_data(df):
+    df['start'] = df.groupby('subject_id').cumcount() * df['duration_in_days']  # Calculate start times
+    df['stop'] = df['start'] + df['duration_in_days']  # Calculate stop times
+    df.dropna(inplace=True)
+    # Adjust rows where start == stop by adding a small value to stop
+    df.loc[df['start'] == df['stop'], 'stop'] += 1e-5  # Adding a small value to ensure stop > start
+    return df
+
+
 # get late stage ckd patients and info of their progression to esrd.
 # only_esrd set to True returns only patients who have progressed to ESRD.
-def get_time_series_data_ckd_patients():
+def get_time_series_data_ckd_patients(time_variant):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
     diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
     diagnoses_df.dropna()
@@ -24,7 +33,13 @@ def get_time_series_data_ckd_patients():
     lab_df_2 = process_positive_patients(diagnoses_df, esrd_patients)
 
     lab_df = pd.concat([lab_df_1, lab_df_2])
-    print(f"Final data: \n{lab_df.head()}\n"
-          f"Total number of patients: {lab_df['subject_id'].nunique()}\n")
+    
+    if time_variant:
+        lab_df = prep_data(lab_df)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
+    else:
+        lab_df = lab_df.loc[lab_df.groupby('subject_id')['duration_in_days'].idxmax()]
+        lab_df.dropna(inplace=True)
 
+    print(f"Data: \n{lab_df.head()}\n"
+          f"Total number of patients: {lab_df['subject_id'].nunique()}\n")
     return lab_df

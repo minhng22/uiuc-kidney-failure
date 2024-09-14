@@ -35,12 +35,6 @@ def process_negative_patients(patient_ids):
         f"Number of patients after filtering out NaN duration_in_days: {lab_df['subject_id'].nunique()}\n"
         f"Records sample:\n{lab_df[['subject_id', 'time', 'has_esrd']].head()}")
 
-    # keep patients who have at least 2 records.
-    lab_df = lab_df.groupby('subject_id').filter(lambda x: len(x) >= 2)
-    print(
-        f"Number of patients after filtering out < 2 records: {lab_df['subject_id'].nunique()}\n"
-        f"Records sample:\n{lab_df[['subject_id', 'time', 'has_esrd']].head()}")
-
     print(
         f"Stats on eGFR:\n"
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
@@ -50,6 +44,18 @@ def process_negative_patients(patient_ids):
 
 # process patients who have progressed to ESRD
 def process_positive_patients(diagnoses_df, patient_ids):
+    def validate(D):
+        filtered_df = D[D['has_esrd'] == 1]
+        id_patients_w_lab_records_esrd = filtered_df['subject_id'].unique()
+
+        if len(id_patients_w_lab_records_esrd) != D['subject_id'].nunique():
+            print(
+                f"Difference"
+            )
+            for patient in list(set(D['subject_id'].unique()) - set(id_patients_w_lab_records_esrd)):
+                print(
+                    f"subject_id: {patient} is bad.\n"
+                    f"data: {D[D['subject_id'] == patient][['subject_id', 'time', 'has_esrd', 'first_diagnose_esrd_time']]}\n")
     print(
         f"Processing patients who have progressed to ESRD:\n"
         f"Number of patients: {len(patient_ids)}")
@@ -108,34 +114,6 @@ def process_positive_patients(diagnoses_df, patient_ids):
     print(
         f"Number of patients after filtering out records after the first 'has_esrd' == 1: {lab_df['subject_id'].nunique()}\n"
         f"Number of records: {len(lab_df)}. Records sample:\n{lab_df[['subject_id', 'time', 'has_esrd', 'first_diagnose_esrd_time']].head()}")
-
-    # keep patients who have at least 2 records.
-    lab_df = lab_df.groupby('subject_id').filter(lambda x: len(x) >= 2)
-    print(
-        f"Number of patients after filtering out < 2 records: {lab_df['subject_id'].nunique()}\n"
-        f"Records sample:\n{lab_df[['subject_id', 'time', 'has_esrd', 'first_diagnose_esrd_time']].head()}")
-
-    def validate(D):
-        filtered_df = D[D['has_esrd'] == 1]
-        id_patients_w_lab_records_esrd = filtered_df['subject_id'].unique()
-
-        if len(id_patients_w_lab_records_esrd) != D['subject_id'].nunique():
-            print(
-                f"Difference"
-            )
-            for patient in list(set(D['subject_id'].unique()) - set(id_patients_w_lab_records_esrd)):
-                print(
-                    f"subject_id: {patient} is bad.\n"
-                    f"data: {D[D['subject_id'] == patient][['subject_id', 'time', 'has_esrd', 'first_diagnose_esrd_time']]}\n")
-
-        # Group by 'subject_id' and filter groups with fewer than 2 rows
-        subjects_less_than_2_rows = D.groupby('subject_id').filter(lambda x: len(x) < 2)
-
-        # Get the unique subject IDs with fewer than 2 rows
-        for patient in subjects_less_than_2_rows['subject_id'].unique()[:5]:
-            print(
-                f"subject_id: {patient} is bad.\n"
-                f"data: {subjects_less_than_2_rows[subjects_less_than_2_rows['subject_id'] == patient][['subject_id', 'time', 'has_esrd', 'first_diagnose_esrd_time']]}\n")
 
     validate(lab_df)
 
