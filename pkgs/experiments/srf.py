@@ -13,7 +13,7 @@ import os
 
 # Data needs to be time-invariant setup
 def run_survival_rf():
-    df, df_test = get_train_test_data(True)
+    df, df_test = get_train_test_data(False)
     df['has_esrd'] = df['has_esrd'].astype(bool)
     df = mini(df)
     X = df[['duration_in_days', 'egfr']]
@@ -62,3 +62,7 @@ def run_survival_rf():
 
     # Now you have the median survival times for each subject
     print(median_survival_times.shape)
+
+
+if __name__ == '__main__':
+    run_survival_rf()
