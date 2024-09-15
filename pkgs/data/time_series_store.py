@@ -9,6 +9,7 @@ def prep_data(df):
     df.dropna(inplace=True)
     # Adjust rows where start == stop by adding a small value to stop
     df.loc[df['start'] == df['stop'], 'stop'] += 1e-5  # Adding a small value to ensure stop > start
+    df.reset_index(drop=True, inplace=True)
     return df
 
 
@@ -33,15 +34,27 @@ def get_time_series_data_ckd_patients(time_variant):
     lab_df_2 = process_positive_patients(diagnoses_df, esrd_patients)
 
     lab_df = pd.concat([lab_df_1, lab_df_2])
+    print(f"After merge:\n"
+          f"Total number of patients: {lab_df['subject_id'].nunique()}\n"
+          f"Total number of records: {len(lab_df)}")
+    
+    lab_df['subject_id'] = lab_df['subject_id'].astype(int)
+    lab_df['duration_in_days'] = lab_df['duration_in_days'].astype(float)
     
     if time_variant:
         lab_df = prep_data(lab_df)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
     else:
         # right-censoring. similar to work done by:
         # 1. Hagar et al.: Survival Analysis of EHR CKD Data
-        lab_df = lab_df.loc[lab_df.groupby('subject_id')['duration_in_days'].idxmax()]
+        d = pd.DataFrame(columns=lab_df.columns)
+        for _, group in lab_df.groupby('subject_id'):
+            max_row = group.loc[group['duration_in_days'].idxmax()]
+            d = d._append(max_row)
+        lab_df = d
         lab_df.dropna(inplace=True)
+        lab_df.reset_index(drop=True, inplace=True)
 
     print(f"Data: \n{lab_df.head()}\n"
-          f"Total number of patients: {lab_df['subject_id'].nunique()}\n")
+          f"Total number of patients: {lab_df['subject_id'].nunique()}\n"
+          f"Total number of records: {len(lab_df)}")
     return lab_df
