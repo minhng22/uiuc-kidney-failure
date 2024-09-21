@@ -42,7 +42,7 @@ def get_time_series_data_ckd_patients(time_variant):
     lab_df['duration_in_days'] = lab_df['duration_in_days'].astype(float)
     
     if time_variant:
-        lab_df = prep_data(lab_df)[['subject_id', 'start', 'stop', 'has_esrd', 'egfr']]
+        lab_df = prep_data(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'has_esrd', 'egfr']]
     else:
         # right-censoring. similar to work done by:
         # 1. Hagar et al.: Survival Analysis of EHR CKD Data
