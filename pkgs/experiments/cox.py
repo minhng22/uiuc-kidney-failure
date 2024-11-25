@@ -4,11 +4,11 @@ from lifelines import CoxTimeVaryingFitter, CoxPHFitter
 import os
 
 from pkgs.commons import tv_cox_model_path, ti_cox_model_path
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.experiments.utils import report_metric
 
 def run_tv_cox_model():
-    data_train, data_test = get_train_test_data(True)
+    data_train, data_test = get_train_test_data_egfr(True)
 
     if not os.path.exists(tv_cox_model_path):
         model = CoxTimeVaryingFitter()
@@ -32,7 +32,7 @@ def run_tv_cox_model():
 
 
 def run_ti_cox_model():
-    data_train, data_test = get_train_test_data(False)
+    data_train, data_test = get_train_test_data_egfr(False)
 
     if not os.path.exists(ti_cox_model_path):
         model = CoxPHFitter()

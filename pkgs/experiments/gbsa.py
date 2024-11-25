@@ -1,5 +1,5 @@
 from pkgs.commons import tv_gbsa_model_path
-from pkgs.data.model_data_store import get_train_test_data, mini
+from pkgs.data.model_data_store import get_train_test_data_egfr, mini
 from pkgs.experiments.utils import get_y
 import joblib
 from lifelines.utils import concordance_index
@@ -9,7 +9,7 @@ import os
 
 
 def run_gbsa():
-    df, df_test = get_train_test_data(True)
+    df, df_test = get_train_test_data_egfr(True)
     df = mini(df)
     X = df[['duration_in_days', 'egfr']].to_numpy()
     y = get_y(df)

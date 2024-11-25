@@ -30,7 +30,7 @@ def mini(df):
     return res
 
 
-def get_train_test_data(time_variant):
+def get_train_test_data_egfr(time_variant):
     train_path = tv_train_data_path if time_variant else ti_train_data_path
     test_path = tv_test_data_path if time_variant else ti_test_data_path
 
@@ -63,4 +63,4 @@ def get_train_test_data(time_variant):
 
 
 if __name__ == '__main__':
-    get_train_test_data(False)
+    get_train_test_data_egfr(False)
