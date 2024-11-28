@@ -2,6 +2,7 @@ from pathlib import Path
 
 
 def project_dir():
+    
     current_script_path = Path(__file__)
     return str(current_script_path.parent.parent)
 
@@ -16,7 +17,7 @@ admissions_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/admissions.csv"
 lab_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/labevents.csv"
 omr_file_path= f"{project_dir()}/data/mimic-iv-2.2/hosp/omr.csv"
 prescription_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/prescriptions.csv"
-chart_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/chartevents.csv"
+chart_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/icu/chartevents.csv"
 
 # Codes extracted from d_icd_diagnoses.csv
 # ESRD ICD codes
@@ -58,15 +59,15 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 """
 figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
-tv_train_data_path = f'{project_dir()}/generated_data/tv_train_data.csv'
-tv_test_data_path = f'{project_dir()}/generated_data/tv_test_data.csv'
-tv_cox_model_path = f'{project_dir()}/generated_data/tv_cox_model.pkl'
-ti_srf_model_path = f'{project_dir()}/generated_data/ti_srf_model.pkl'
-tv_gbsa_model_path = f'{project_dir()}/generated_data/tv_gbsa_model.pkl'
+egfr_tv_train_data_path = f'{project_dir()}/generated_data/egfr_tv_train_data.csv'
+egfr_tv_test_data_path = f'{project_dir()}/generated_data/egfr_tv_test_data.csv'
+egfr_tv_cox_model_path = f'{project_dir()}/generated_data/egfr_tv_cox_model.pkl'
+egfr_ti_srf_model_path = f'{project_dir()}/generated_data/egfr_ti_srf_model.pkl'
+egfr_tv_gbsa_model_path = f'{project_dir()}/generated_data/egfr_tv_gbsa_model.pkl'
 
-ti_cox_model_path = f'{project_dir()}/generated_data/ti_cox_model.pkl'
-ti_train_data_path = f'{project_dir()}/generated_data/ti_train_data.csv'
-ti_test_data_path = f'{project_dir()}/generated_data/ti_test_data.csv'
+egfr_ti_cox_model_path = f'{project_dir()}/generated_data/egfr_ti_cox_model.pkl'
+egfr_ti_train_data_path = f'{project_dir()}/generated_data/egfr_ti_train_data.csv'
+egfr_ti_test_data_path = f'{project_dir()}/generated_data/egfr_ti_test_data.csv'
 
 """
 ----------Others----------
