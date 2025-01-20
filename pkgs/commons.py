@@ -48,6 +48,8 @@ ckd_codes_stage3_to_5 = ['5853', '5854', '5855', 'N183', 'N184', 'N185']
 ckd_codes_hypertension = icd_10_ckd_codes_g3 + icd_9_ckd_codes_g3
 ckd_codes_diabetes_mellitus = icd_10_ckd_codes_g2
 
+diabete_codes = []
+
 lab_codes_creatinine = ['52546', '50912', '52024']
 lab_codes_egfr = ['50920', '52026', '53176']
 lab_codes_proteins_24hr = ['51068']
@@ -68,6 +70,16 @@ egfr_tv_gbsa_model_path = f'{project_dir()}/generated_data/egfr_tv_gbsa_model.pk
 egfr_ti_cox_model_path = f'{project_dir()}/generated_data/egfr_ti_cox_model.pkl'
 egfr_ti_train_data_path = f'{project_dir()}/generated_data/egfr_ti_train_data.csv'
 egfr_ti_test_data_path = f'{project_dir()}/generated_data/egfr_ti_test_data.csv'
+
+multiple_risk_tv_train_data_path = f'{project_dir()}/generated_data/multiple_risk_tv_train_data.csv'
+multiple_risk_tv_test_data_path = f'{project_dir()}/generated_data/multiple_risk_tv_test_data.csv'
+multiple_risk_tv_cox_model_path = f'{project_dir()}/generated_data/multiple_risk_tv_cox_model.pkl'
+multiple_risk_ti_srf_model_path = f'{project_dir()}/generated_data/multiple_risk_ti_srf_model.pkl'
+multiple_risk_tv_gbsa_model_path = f'{project_dir()}/generated_data/multiple_risk_tv_gbsa_model.pkl'
+
+multiple_risk_ti_cox_model_path = f'{project_dir()}/generated_data/multiple_risk_ti_cox_model.pkl'
+multiple_risk_ti_train_data_path = f'{project_dir()}/generated_data/multiple_risk_ti_train_data.csv'
+multiple_risk_ti_test_data_path = f'{project_dir()}/generated_data/multiple_risk_ti_test_data.csv'
 
 """
 ----------Others----------

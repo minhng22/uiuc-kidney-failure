@@ -15,7 +15,7 @@ def prep_data(df):
 
 # get late stage ckd patients and info of their progression to esrd.
 # only_esrd set to True returns only patients who have progressed to ESRD.
-def get_time_series_data_ckd_patients(time_variant):
+def get_time_series_data_ckd_patients(time_variant, icd_code = ckd_codes_stage3_to_5 + esrd_codes):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
     diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
     diagnoses_df.dropna()
@@ -58,3 +58,9 @@ def get_time_series_data_ckd_patients(time_variant):
           f"Total number of patients: {lab_df['subject_id'].nunique()}\n"
           f"Total number of records: {len(lab_df)}")
     return lab_df
+
+
+# get late stage ckd patients and info of their progression to esrd.
+# only_esrd set to True returns only patients who have progressed to ESRD.
+def get_time_series_data_ckd_patients_multiple_risk(time_variant):
+    egfr_df = get_time_series_data_ckd_patients(time_variant)

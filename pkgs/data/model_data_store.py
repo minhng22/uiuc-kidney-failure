@@ -2,9 +2,11 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 from pkgs.commons import (
-    egfr_tv_train_data_path, egfr_tv_test_data_path, egfr_ti_train_data_path, egfr_ti_test_data_path
+    egfr_tv_train_data_path, egfr_tv_test_data_path, egfr_ti_train_data_path, egfr_ti_test_data_path,
+    multiple_risk_tv_train_data_path, multiple_risk_ti_train_data_path,
+    multiple_risk_tv_test_data_path, multiple_risk_ti_test_data_path
 )
-from pkgs.data.time_series_store import get_time_series_data_ckd_patients
+from pkgs.data.time_series_store import get_time_series_data_ckd_patients, get_time_series_data_ckd_patients_multiple_risk
 import pandas as pd
 
 
@@ -63,13 +65,13 @@ def get_train_test_data_egfr(time_variant):
 
 
 def get_train_test_data_multiple_risk(time_variant):
-    train_path = egfr_tv_train_data_path if time_variant else egfr_ti_train_data_path
-    test_path = egfr_tv_test_data_path if time_variant else egfr_ti_test_data_path
+    train_path = multiple_risk_tv_train_data_path if time_variant else multiple_risk_ti_train_data_path
+    test_path = multiple_risk_tv_test_data_path if time_variant else multiple_risk_ti_test_data_path
 
     print(f'Train data path {train_path}\nTest data path {test_path}')
 
     if not os.path.exists(train_path):
-        data = get_time_series_data_ckd_patients(time_variant)
+        data = get_time_series_data_ckd_patients_multiple_risk(time_variant)
 
         train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
 
