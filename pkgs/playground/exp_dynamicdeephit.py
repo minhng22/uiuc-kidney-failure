@@ -7,7 +7,7 @@ from exp_common import batch_size, input_dim, hidden_dims, num_risks, time_bins,
 from model_dynamicdeephit import DynamicDeepHit
 
 # Generate data
-df = generate_sample_data(num_subjects=200, max_observations=30)
+df = generate_sample_data(num_subjects=10000, max_observations=30)
 
 print(f'data \n{df.head()}')
 dataset = LongitudinalDataset(df)
@@ -47,3 +47,24 @@ with torch.no_grad():
 avg_c_indices = np.mean(all_c_indices, axis=0)
 for risk_idx, c_index in enumerate(avg_c_indices):
     print(f"Risk {risk_idx + 1} C-index: {c_index:.4f}")
+
+# Evaluation loop with C-index on test data
+model.eval()
+test_c_indices = []
+
+# Generate testing data
+test_df = generate_sample_data(num_subjects=10000, max_observations=20, seed=123)  # Different seed for testing
+print(f"Testing data:\n{test_df.head()}")
+test_dataset = LongitudinalDataset(test_df)
+test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+with torch.no_grad():
+    for features, mask, time_intervals, event_indicators in test_dataloader:
+        hazard_preds, _ = model(features, mask)
+        c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
+        test_c_indices.append(c_indices)
+
+# Aggregate results
+avg_test_c_indices = np.mean(test_c_indices, axis=0)
+for risk_idx, c_index in enumerate(avg_test_c_indices):
+    print(f"Risk {risk_idx + 1} Test C-index: {c_index:.4f}")

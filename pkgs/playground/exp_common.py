@@ -6,6 +6,12 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 
+import numpy as np
+import pandas as pd
+
+import numpy as np
+import pandas as pd
+
 def generate_sample_data(num_subjects=100, max_observations=30, seed=42):
     """
     Generate sample longitudinal data with time-varying covariates.
@@ -14,47 +20,42 @@ def generate_sample_data(num_subjects=100, max_observations=30, seed=42):
     data = []
     
     for subject in range(num_subjects):
-        # Initialize subject-specific parameters
-        baseline_egfr = np.random.normal(75, 15)  # Baseline eGFR
-        egfr_slope = np.random.normal(-0.1, 0.05)  # Individual decline rate
+        baseline_egfr = np.random.normal(75, 15)
+        egfr_slope = np.random.normal(-0.1, 0.05)
         observation_points = np.random.randint(10, max_observations)
+        times = np.sort(np.random.choice(range(max_observations * 30), size=observation_points, replace=False))
         
-        # Generate observation times (not necessarily equally spaced)
-        times = np.sort(np.random.choice(range(max_observations * 30), 
-                                       size=observation_points, 
-                                       replace=False))
-        
-        # Risk of events increases as eGFR decreases
         has_esrd = False
         is_dead = False
         
         for i, t in enumerate(times):
-            # Calculate current eGFR with some random noise
             current_egfr = baseline_egfr + egfr_slope * t + np.random.normal(0, 2)
             
-            # Event probabilities based on current eGFR
-            esrd_prob = 1 / (1 + np.exp(0.1 * (current_egfr - 15)))  # Higher risk when eGFR < 15
-            death_prob = 1 / (1 + np.exp(0.05 * (current_egfr - 30)))  # Higher risk when eGFR < 30
-            
-            # Determine if events occur
-            if not has_esrd and not is_dead:
-                has_esrd = np.random.random() < esrd_prob
-                if not has_esrd:
-                    is_dead = np.random.random() < death_prob
+            has_esrd = np.random.choice([0, 1])
+            is_dead = np.random.choice([0, 1])
             
             data.append({
                 'subject_id': subject,
                 'duration_in_days': t,
-                'start': times[i-1] if i > 0 else 0,
+                'start': times[i - 1] if i > 0 else 0,
                 'stop': t,
-                'has_esrd': 1e-5 if not has_esrd else 1,
-                'dead': 1 if is_dead else 0,
+                'has_esrd': has_esrd,
+                'dead': is_dead,
                 'egfr': current_egfr
             })
             
-            if has_esrd or is_dead:
+            if is_dead:
                 break
-                
+
+    # Ensure there is a mix of censored and uncensored subjects
+    if all(d['has_esrd'] == 0 for d in data):
+        # Force at least one subject to experience the event
+        random_subject = np.random.choice(data)['subject_id']
+        for record in data:
+            if record['subject_id'] == random_subject:
+                record['has_esrd'] = 1
+                break
+
     return pd.DataFrame(data)
 
 def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks):
@@ -160,4 +161,4 @@ num_risks = 2
 time_bins = 30
 batch_size = 16
 learning_rate = 1e-3
-num_epochs = 50
+num_epochs = 1
