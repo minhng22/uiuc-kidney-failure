@@ -77,10 +77,6 @@ multiple_risk_tv_cox_model_path = f'{project_dir()}/generated_data/multiple_risk
 multiple_risk_ti_srf_model_path = f'{project_dir()}/generated_data/multiple_risk_ti_srf_model.pkl'
 multiple_risk_tv_gbsa_model_path = f'{project_dir()}/generated_data/multiple_risk_tv_gbsa_model.pkl'
 
-multiple_risk_ti_cox_model_path = f'{project_dir()}/generated_data/multiple_risk_ti_cox_model.pkl'
-multiple_risk_ti_train_data_path = f'{project_dir()}/generated_data/multiple_risk_ti_train_data.csv'
-multiple_risk_ti_test_data_path = f'{project_dir()}/generated_data/multiple_risk_ti_test_data.csv'
-
 """
 ----------Others----------
 """

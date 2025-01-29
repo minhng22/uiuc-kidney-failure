@@ -62,7 +62,6 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
     """
     Calculate the concordance index (C-index) for survival predictions.
     """
-    batch_size = hazard_preds.size(0)
     c_index_per_risk = []
 
     for risk in range(num_risks):

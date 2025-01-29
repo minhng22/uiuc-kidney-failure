@@ -3,14 +3,38 @@ from pkgs.data.store import get_egfr_df, get_first_time_esrd_df
 import pandas as pd
 
 
+def get_dead_status(row, patients):
+    pid = row['subject_id']
+    
+    # Check if the patient exists in the patients DataFrame
+    patient_dod = patients.loc[patients['subject_id'] == pid, 'dod']
+    
+    if patient_dod.empty:
+        # Raise an exception if the patient ID doesn't exist in the patients table
+        raise ValueError(f"Patient with subject_id {pid} not found in patients table")
+    
+    # If dod is missing, consider the patient alive
+    if pd.isna(patient_dod.values[0]):
+        return 0  # Alive
+    
+    # If dod is present, compare time with dod
+    return int(row['time'] >= pd.to_datetime(patient_dod.values[0]))
+
 # process patients who have not progressed to ESRD
-def process_negative_patients(patient_ids):
+def process_negative_patients(patient_ids, multiple_risk = False):
     print(
         f"Processing patients who have not progressed to ESRD:\n"
         f"Number of patients: {len(patient_ids)}")
 
     patients = pd.read_csv(patients_file_path)
     patients = patients[patients['subject_id'].isin(patient_ids)]
+
+    print(
+        f"Stats on patients:\n"
+        f"Total patients: {len(patients)}\n"
+        f"Dead patients: {patients['dod'].isna().sum()}\n"
+        f"Alive patients: {patients['dod'].notna().sum()}"
+    )
     lab_df = get_egfr_df(patients)
 
     lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
@@ -39,11 +63,16 @@ def process_negative_patients(patient_ids):
         f"Stats on eGFR:\n"
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
+    
+    if multiple_risk:
+        lab_df['dead'] = lab_df.apply(get_dead_status, axis=1, patients=patients)
+        return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd', 'dead']]
+    
     return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
 
 
 # process patients who have progressed to ESRD
-def process_positive_patients(diagnoses_df, patient_ids):
+def process_positive_patients(diagnoses_df, patient_ids, multiple_risk = False):
     def validate(D):
         filtered_df = D[D['has_esrd'] == 1]
         id_patients_w_lab_records_esrd = filtered_df['subject_id'].unique()
@@ -65,6 +94,14 @@ def process_positive_patients(diagnoses_df, patient_ids):
 
     patients = pd.read_csv(patients_file_path)
     patients = patients[patients['subject_id'].isin(patient_ids)]
+
+    print(
+        f"Stats on patients:\n"
+        f"Total patients: {len(patients)}\n"
+        f"Dead patients: {patients['dod'].isna().sum()}\n"
+        f"Alive patients: {patients['dod'].notna().sum()}"
+    )
+
     lab_df = get_egfr_df(patients)
 
     lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
@@ -121,5 +158,9 @@ def process_positive_patients(diagnoses_df, patient_ids):
         f"Stats on eGFR:\n"
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
+    
+    if multiple_risk:
+        lab_df['dead'] = lab_df.apply(get_dead_status, axis=1, patients=patients)
+        return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd', 'dead']]
 
     return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
