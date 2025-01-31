@@ -124,34 +124,60 @@ class LongitudinalDataset(Dataset):
                 torch.LongTensor([time_to_event]),
                 torch.FloatTensor(events))
 
-def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks):
+def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alpha=0.5, sigma=0.1):
     """
-    Compute the loss for competing risks in the survival setting.
+    Compute the Dynamic-DeepHit loss for competing risks in the survival setting.
+
+    Args:
+        alpha (float): Weight for the ranking loss component.
+        sigma (float): Parameter for the ranking loss function.
     """
     batch_size = hazard_preds.size(0)
-    loss = 0
+    num_timepoints = hazard_preds.size(2)
+
+    # Initialize total loss
+    total_loss = 0
 
     for risk in range(num_risks):
-        # Extract relevant hazard predictions for the current risk
+        # Extract relevant hazard predictions and event indicators for the current risk
         risk_hazard_preds = hazard_preds[:, risk, :]
         risk_event_indicators = event_indicators[:, risk]
 
-        # Event log probability
-        time_indices = time_intervals[:, 0].clamp(max=risk_hazard_preds.size(1) - 1).long()
+        # Ensure time indices are within valid range
+        time_indices = time_intervals[:, 0].clamp(max=num_timepoints - 1).long()
+
+        # Log-likelihood loss
         event_log_prob = torch.log(risk_hazard_preds[torch.arange(batch_size), time_indices]) * risk_event_indicators
 
-        # Censoring log probability
         censor_log_prob = torch.zeros(batch_size, device=risk_hazard_preds.device)
         for i in range(batch_size):
-            t = time_indices[i].item()  # Ensure t is scalar
-            censor_log_prob[i] = torch.sum(torch.log(1 - risk_hazard_preds[i, :t + 1]))
+            t = time_indices[i].item()
+            if t > 0:
+                censor_log_prob[i] = torch.sum(torch.log(1 - risk_hazard_preds[i, :t]))
 
         censor_log_prob = censor_log_prob * (1 - risk_event_indicators)
 
-        # Add to total loss
-        loss += -torch.mean(event_log_prob + censor_log_prob)
+        log_likelihood_loss = -torch.mean(event_log_prob + censor_log_prob)
 
-    return loss
+        # Ranking loss
+        ranking_loss = 0
+        count = 0
+        for i in range(batch_size):
+            for j in range(batch_size):
+                if time_intervals[i] < time_intervals[j] and risk_event_indicators[i] == 1:
+                    t_i = time_indices[i].item()
+                    F_i = torch.sum(risk_hazard_preds[i, :t_i])
+                    F_j = torch.sum(risk_hazard_preds[j, :t_i])
+                    ranking_loss += torch.exp(-(F_i - F_j) / sigma)
+                    count += 1
+
+        if count > 0:
+            ranking_loss /= count
+
+        # Combine log-likelihood and ranking loss
+        total_loss += log_likelihood_loss + alpha * ranking_loss
+
+    return total_loss / num_risks
 
 # Hyperparameters
 input_dim = 3  # Start, stop, and normalized eGFR
