@@ -14,6 +14,8 @@ def run_gbsa():
     X = df[['duration_in_days', 'egfr']].to_numpy()
     y = get_y(df)
 
+    print(X.shape, y.shape)
+
     if os.path.exists(egfr_tv_gbsa_model_path):
         gbsa = joblib.load(egfr_tv_gbsa_model_path)
     else:

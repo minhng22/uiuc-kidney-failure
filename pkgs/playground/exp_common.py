@@ -85,13 +85,14 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 
 class LongitudinalDataset(Dataset):
     """Dataset for handling longitudinal data with time-varying covariates"""
-    def __init__(self, df, max_seq_length=None):
+    def __init__(self, df, max_seq_length=None, multiple_risk=True):
         self.subject_groups = list(df.groupby('subject_id'))
         self.max_seq_length = max_seq_length or max(df.groupby('subject_id').size())
         
         # Normalize numerical features
         self.egfr_mean = df['egfr'].mean()
         self.egfr_std = df['egfr'].std()
+        self.multiple_risk = multiple_risk
         
     def __len__(self):
         return len(self.subject_groups)
@@ -114,10 +115,15 @@ class LongitudinalDataset(Dataset):
         
         # Get time to event and event indicators
         time_to_event = subject_data['duration_in_days'].iloc[-1]
-        events = np.array([
-            subject_data['has_esrd'].iloc[-1],
-            subject_data['dead'].iloc[-1]
-        ])
+        if self.multiple_risk:
+            events = np.array([
+                subject_data['has_esrd'].iloc[-1],
+                subject_data['dead'].iloc[-1]
+            ])
+        else:
+            events = np.array([
+                subject_data['has_esrd'].iloc[-1],
+            ])
         
         return (torch.FloatTensor(features),
                 torch.FloatTensor(mask),

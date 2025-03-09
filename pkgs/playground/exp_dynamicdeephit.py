@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 
 from exp_common import generate_sample_data, LongitudinalDataset
 from exp_common import batch_size, input_dim, hidden_dims, num_risks, time_bins, learning_rate, num_epochs, calculate_c_index, survival_loss
-from model_dynamicdeephit import DynamicDeepHit
+from pkgs.models.dynamicdeephit import DynamicDeepHit
 
 # Generate data
 df = generate_sample_data(num_subjects=10000, max_observations=30)
