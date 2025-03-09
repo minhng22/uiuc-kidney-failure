@@ -188,7 +188,7 @@ def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alp
 # Hyperparameters
 input_dim = 3  # Start, stop, and normalized eGFR
 hidden_dims = [64, 32]
-num_risks = 2
+num_risks_multiple_risks = 2
 time_bins = 30
 batch_size = 16
 learning_rate = 1e-3

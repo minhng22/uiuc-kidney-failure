@@ -3,7 +3,7 @@ import numpy as np
 from torch.utils.data import DataLoader
 
 from exp_common import generate_sample_data, LongitudinalDataset
-from exp_common import batch_size, input_dim, hidden_dims, num_risks, time_bins, learning_rate, num_epochs, calculate_c_index, survival_loss
+from exp_common import batch_size, input_dim, hidden_dims, num_risks_multiple_risks, time_bins, learning_rate, num_epochs, calculate_c_index, survival_loss
 from model_transformer import DynamicTransformer
 
 # Generate data
@@ -17,7 +17,7 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 model = DynamicTransformer(
     input_dim=input_dim,
     hidden_dim=hidden_dims[0],
-    num_risks=num_risks,
+    num_risks=num_risks_multiple_risks,
     time_bins=time_bins,
     num_heads=3,
     num_transformer_layers=2,
@@ -32,7 +32,7 @@ for epoch in range(num_epochs):
     for features, mask, time_intervals, event_indicators in dataloader:
         optimizer.zero_grad()
         hazard_preds = model(features, mask)
-        loss = survival_loss(hazard_preds, time_intervals, event_indicators, num_risks)
+        loss = survival_loss(hazard_preds, time_intervals, event_indicators, num_risks_multiple_risks)
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
@@ -48,7 +48,7 @@ all_c_indices = []
 with torch.no_grad():
     for features, mask, time_intervals, event_indicators in dataloader:
         hazard_preds = model(features, mask)
-        c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
+        c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks_multiple_risks)
         all_c_indices.append(c_indices)
 
 # Aggregate results
@@ -73,7 +73,7 @@ test_c_indices = []
 with torch.no_grad():
     for features, mask, time_intervals, event_indicators in test_dataloader:
         hazard_preds = model(features, mask)
-        c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
+        c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks_multiple_risks)
         test_c_indices.append(c_indices)
 
 # Aggregate results
