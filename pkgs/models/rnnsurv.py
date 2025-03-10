@@ -32,7 +32,5 @@ class RNNSurv(nn.Module):
         # Assuming input x is already in the shape (batch, seq_len, input_size)
         out, _ = self.rnn(x)
 
-        # Use the output of the last time step for prediction (many-to-one RNN)
-        # out[:, -1, :] selects the output from the last time step
-        risk_scores = self.fc(out[:, -1, :])
+        risk_scores = self.fc(out)
         return risk_scores

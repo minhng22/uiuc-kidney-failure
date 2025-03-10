@@ -40,8 +40,8 @@ def neg_log_partial_likelihood(risk, durations, events):
     Returns:
         loss (Tensor): Scalar loss value.
     """
-    risk = risk.view(-1) # Ensure risk is a 1D tensor
-    # Sort data by descending durations
+    risk = risk.view(-1) 
+
     durations_sorted, indices = torch.sort(durations, descending=True)
     risk_sorted = risk[indices]
     events_sorted = events[indices]
@@ -49,10 +49,10 @@ def neg_log_partial_likelihood(risk, durations, events):
     loss = 0.0
     for i in range(len(durations_sorted)):
         event_i = events_sorted[i]
-        if event_i == 1: # only calculate loss for observed events
-            risk_set = risk_sorted[i:] # Risk set includes all subjects with duration >= current duration
-            log_sum_risk = torch.logsumexp(risk_set, dim=0) # Numerically stable log(sum(exp(risk_set)))
-            loss -= (risk_sorted[i] - log_sum_risk) # Add negative log likelihood for this event
+        if event_i == 1:
+            risk_set = risk_sorted[i:] 
+            log_sum_risk = torch.logsumexp(risk_set, dim=0) 
+            loss -= (risk_sorted[i] - log_sum_risk)
 
     return loss
 
@@ -91,7 +91,6 @@ def run():
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {loss.item():.4f}")
 
     # Evaluate on test data
-    # We assume test data only contains features; the survival outcomes are unknown.
     X_test = torch.tensor(df_test[features].values, dtype=torch.float32)
     model.eval()
     with torch.no_grad():
