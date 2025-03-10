@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from torch.utils.data import DataLoader
 
-from exp_common import generate_sample_data, LongitudinalDataset
+from exp_common import generate_sample_data, RNNAttentionDataset
 from exp_common import batch_size, input_dim, hidden_dims, num_risks_multiple_risks, time_bins, learning_rate, num_epochs, calculate_c_index, survival_loss
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 
@@ -10,7 +10,7 @@ from pkgs.models.dynamicdeephit import DynamicDeepHit
 df = generate_sample_data(num_subjects=10000, max_observations=30)
 
 print(f'data \n{df.head()}')
-dataset = LongitudinalDataset(df)
+dataset = RNNAttentionDataset(df)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 # Model initialization
@@ -55,7 +55,7 @@ test_c_indices = []
 # Generate testing data
 test_df = generate_sample_data(num_subjects=10000, max_observations=20, seed=123)  # Different seed for testing
 print(f"Testing data:\n{test_df.head()}")
-test_dataset = LongitudinalDataset(test_df)
+test_dataset = RNNAttentionDataset(test_df)
 test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
 with torch.no_grad():

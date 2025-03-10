@@ -14,6 +14,9 @@ def run_gbsa():
     X = df[['duration_in_days', 'egfr']].to_numpy()
     y = get_y(df)
 
+    print(df.head)
+    print(X.shape, y.shape)
+
     if os.path.exists(egfr_tv_gbsa_model_path):
         gbsa = joblib.load(egfr_tv_gbsa_model_path)
     else:
@@ -30,6 +33,7 @@ def run_gbsa():
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
     df_test.dropna(inplace=True)
     X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
+    print(X_test.shape)
 
     c_index_test = report_metric(concordance_index(df_test['duration_in_days'], -gbsa.predict(X_test), df_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')

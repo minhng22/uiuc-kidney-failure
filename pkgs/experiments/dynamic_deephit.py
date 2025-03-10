@@ -4,7 +4,7 @@ from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader
 
-from pkgs.playground.exp_common import LongitudinalDataset
+from pkgs.playground.exp_common import RNNAttentionDataset
 from pkgs.playground.exp_common import batch_size, input_dim, hidden_dims, time_bins, learning_rate, calculate_c_index, survival_loss
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import numpy as np
@@ -15,7 +15,7 @@ def run_ddh():
     df, df_test = get_train_test_data_egfr(True)
     df = mini(df)
     
-    dataset = LongitudinalDataset(df, multiple_risk=False)
+    dataset = RNNAttentionDataset(df, multiple_risk=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     num_risks = 1
@@ -57,12 +57,12 @@ def run_ddh():
 
     avg_c_indices = np.mean(all_c_indices, axis=0)
     for risk_idx, c_index in enumerate(avg_c_indices):
-        print(f"Risk {risk_idx + 1} C-index: {c_index:.4f}")
+        print(f"Risk {risk_idx + 1} C-index: {c_index:.2f}")
 
     model.eval()
     test_c_indices = []
 
-    test_dataset = LongitudinalDataset(df_test, multiple_risk=False)
+    test_dataset = RNNAttentionDataset(df_test, multiple_risk=False)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     with torch.no_grad():
@@ -73,7 +73,7 @@ def run_ddh():
 
     avg_test_c_indices = np.mean(test_c_indices, axis=0)
     for risk_idx, c_index in enumerate(avg_test_c_indices):
-        print(f"Risk {risk_idx + 1} Test C-index: {c_index:.4f}")
+        print(f"Risk {risk_idx + 1} Test C-index: {c_index:.2f}")
 
 
 if __name__ == '__main__':

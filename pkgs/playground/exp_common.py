@@ -83,7 +83,8 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 
     return c_index_per_risk
 
-class LongitudinalDataset(Dataset):
+# Dataset that supports RNN and attention models
+class RNNAttentionDataset(Dataset):
     """Dataset for handling longitudinal data with time-varying covariates"""
     def __init__(self, df, max_seq_length=None, multiple_risk=True):
         self.subject_groups = list(df.groupby('subject_id'))
