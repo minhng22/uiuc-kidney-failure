@@ -43,6 +43,7 @@ def run_ddh():
 
             print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {total_loss:.4f}")
 
+        torch.save(model.state_dict(), egfr_tv_dynamic_deep_hit_model_path)
         print("Training complete.")
 
     model.eval()
