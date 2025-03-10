@@ -25,7 +25,7 @@ def run_ddh():
 
     if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
         print("Loading from saved weights")
-        model.load_state_dict(torch.load(egfr_tv_dynamic_deep_hit_model_path))
+        model.load_state_dict(torch.load(egfr_tv_dynamic_deep_hit_model_path, weights_only=True))
     else:
         print("Start training")
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
