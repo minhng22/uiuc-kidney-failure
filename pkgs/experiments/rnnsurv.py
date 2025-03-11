@@ -4,10 +4,10 @@ import torch.optim as optim
 
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data.model_data_store import get_train_test_data_egfr
-from pkgs.playground.exp_common import batch_size
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 from pkgs.experiments.utils import report_metric
+from pkgs.data.model_data_store import mini
 
 class DeepSurvDataset(Dataset):
     def __init__(self, df, features, duration_col, event_col):
@@ -60,6 +60,7 @@ def run():
     event_col = 'has_esrd'
 
     df, df_test = get_train_test_data_egfr(True)
+    df = mini(df)
 
     # Prepare the training dataset and use full-batch training for proper risk set computation.
     train_dataset = DeepSurvDataset(df, features, duration_col, event_col)
