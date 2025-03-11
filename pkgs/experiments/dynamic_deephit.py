@@ -13,13 +13,12 @@ import os
 
 def run_ddh():
     df, df_test = get_train_test_data_egfr(True)
-    df = mini(df)
     
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     num_risks = 1
-    num_epochs = 50
+    num_epochs = 25
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, time_bins)
 
