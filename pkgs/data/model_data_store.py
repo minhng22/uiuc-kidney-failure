@@ -12,7 +12,7 @@ import pandas as pd
 # Pick a small subset of the data to test the models
 # Random pick censored and uncensored patients.
 def mini(df):
-    num_subjects = 500
+    num_subjects = 2000
 
     esrd_patients = df[df['has_esrd'] == True]['subject_id'].unique()
     non_esrd_patients = df[~df['subject_id'].isin(esrd_patients)]['subject_id'].unique()
