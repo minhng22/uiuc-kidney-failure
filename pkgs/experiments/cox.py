@@ -80,5 +80,5 @@ def run_ti_cox_model():
 
 
 if __name__ == '__main__':
-    run_tv_cox_model()
+    run_ti_cox_model()
 
