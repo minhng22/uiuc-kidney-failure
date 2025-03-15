@@ -13,11 +13,11 @@ def run_transformer():
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     num_risks = 1
-    num_epochs = 25
+    num_epochs = 10
     model = HazardTransformer(input_dim, hidden_dims[0], time_bins, num_risks)
     if os.path.exists(egfr_tv_hazard_transformer_model_path):
         print("Loading from saved weights")
-        model.load_state_dict(torch.load(egfr_tv_hazard_transformer_model_path, map_location=torch.device('cpu')))
+        model.load_state_dict(torch.load(egfr_tv_hazard_transformer_model_path, map_location=torch.device('cpu'), weights_only=True))
     else:
         print("Start training")
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)

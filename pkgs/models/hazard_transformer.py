@@ -26,17 +26,18 @@ class HazardTransformer(nn.Module):
         self.time_embedding = nn.Embedding(time_bins, d_model)
         self.pos_encoder = PositionalEncoding(d_model, time_bins)
         encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, dropout=dropout)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers, enable_nested_tensor=False)
         self.decoder = nn.Linear(d_model, num_risks)
     
     def forward(self, features, mask):
         batch_size = features.size(0)
-        seq_len = features.size(1)
         feat_emb = self.input_embedding(features)
         mask = mask.unsqueeze(-1)
+
         pooled = torch.sum(feat_emb * mask, dim=1) / (mask.sum(dim=1) + 1e-8)
         pooled_expanded = pooled.unsqueeze(1).repeat(1, self.time_bins, 1)
         time_indices = torch.arange(self.time_bins, device=features.device).unsqueeze(0).repeat(batch_size, 1)
+        
         t_emb = self.time_embedding(time_indices)
         src = pooled_expanded + t_emb
         src = self.pos_encoder(src)
