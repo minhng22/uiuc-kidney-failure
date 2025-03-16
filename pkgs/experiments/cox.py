@@ -5,7 +5,12 @@ import os
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr, get_train_test_data_multiple_risk
-from pkgs.experiments.utils import report_metric
+from pkgs.experiments.utils import report_metric, evaluate
+from scipy.interpolate import interp1d
+import numpy as np
+
+def get_callable_survival_functions(cox_model: CoxTimeVaryingFitter, data):
+    pass
 
 def run_tv_cox_model():
     data_train, data_test = get_train_test_data_egfr(True)
@@ -20,15 +25,10 @@ def run_tv_cox_model():
     else:
         model = joblib.load(egfr_tv_cox_model_path)
 
-    print('Evaluate on training data')
-    risk_scores = model.predict_partial_hazard(data_train)
-    c_index = report_metric(concordance_index(data_train['stop'], -risk_scores, data_train['has_esrd']))
-    print(f'Concordance Index: {c_index}')
-
     print('Evaluate on test data')
-    risk_scores_test = model.predict_partial_hazard(data_test)
-    c_index_test = report_metric(concordance_index(data_test['stop'], -risk_scores_test, data_test['has_esrd']))
-    print(f'Concordance Index Test: {c_index_test}')
+    evaluate(
+        data_test, model.predict_partial_hazard(data_test), get_callable_survival_functions(model, data_test), 
+        data_train['has_esrd'], "cox")
 
 
 def run_tv_multiple_risk_cox_model():
@@ -80,5 +80,5 @@ def run_ti_cox_model():
 
 
 if __name__ == '__main__':
-    run_ti_cox_model()
+    run_tv_cox_model()
 

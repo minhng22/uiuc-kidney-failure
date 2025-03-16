@@ -1,11 +1,8 @@
 from pkgs.commons import egfr_tv_gbsa_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr
-from pkgs.experiments.utils import get_y, report_metric, evaluate
+from pkgs.experiments.utils import get_y, evaluate
 import joblib
-from lifelines.utils import concordance_index
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
-from sksurv.metrics import integrated_brier_score
-import numpy as np
 import os
 
 
@@ -34,7 +31,7 @@ def run_gbsa():
     X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
     print(X_test.shape)
 
-    evaluate(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), y)
+    evaluate(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), y, "gbsa")
 
 if __name__ == '__main__':
     run_gbsa()
