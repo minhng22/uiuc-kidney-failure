@@ -28,7 +28,7 @@ def run_tv_cox_model():
     print('Evaluate on test data')
     evaluate(
         data_test, model.predict_partial_hazard(data_test), get_callable_survival_functions(model, data_test), 
-        data_train['has_esrd'], "cox")
+        data_train['has_esrd'])
 
 
 def run_tv_multiple_risk_cox_model():

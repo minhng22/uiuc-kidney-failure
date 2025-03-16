@@ -31,7 +31,7 @@ def run_gbsa():
     X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
     print(X_test.shape)
 
-    evaluate(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), y, "gbsa")
+    evaluate(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), y)
 
 if __name__ == '__main__':
     run_gbsa()
