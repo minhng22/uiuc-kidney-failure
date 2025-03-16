@@ -43,11 +43,6 @@ def run_ti():
     else:
         model = joblib.load(egfr_tv_aah_model_path)
 
-    print('Evaluate on training data')
-    risk_scores = model.predict_cumulative_hazard(data_train).iloc[-1, :]
-    c_index = report_metric(concordance_index(data_train['duration_in_days'], -risk_scores, data_train['has_esrd']))
-    print(f'Concordance Index: {c_index}')
-
     print('Evaluate on test data')
     risk_scores_test = model.predict_cumulative_hazard(data_test).iloc[-1, :]
     c_index_test = report_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
