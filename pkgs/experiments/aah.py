@@ -23,12 +23,12 @@ def run_tv():
 
     print('Evaluate on training data')
     risk_scores = model.predict_cumulative_hazard(data_train).iloc[-1, :]
-    c_index = report_metric(concordance_index(data_train['stop'], -risk_scores, data_train['has_esrd']))
+    c_index = report_metric(concordance_index(data_train['duration_in_days'], -risk_scores, data_train['has_esrd']))
     print(f'Concordance Index: {c_index}')
 
     print('Evaluate on test data')
     risk_scores_test = model.predict_cumulative_hazard(data_test).iloc[-1, :]
-    c_index_test = report_metric(concordance_index(data_test['stop'], -risk_scores_test, data_test['has_esrd']))
+    c_index_test = report_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
 
@@ -54,4 +54,4 @@ def run_ti():
     print(f'Concordance Index Test: {c_index_test}')
 
 if __name__ == '__main__':
-    run_ti()
+    run_tv()

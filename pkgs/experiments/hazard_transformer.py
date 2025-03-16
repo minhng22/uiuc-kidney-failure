@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_hazard_transformer_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, mini
+from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
 from torch.utils.data import DataLoader
@@ -9,11 +9,11 @@ import os
 
 def run_transformer():
     df, df_test = get_train_test_data_egfr(True)
-    df = mini(df)
+
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     num_risks = 1
-    num_epochs = 10
+    num_epochs = 25
     model = HazardTransformer(input_dim, hidden_dims[0], time_bins, num_risks)
     if os.path.exists(egfr_tv_hazard_transformer_model_path):
         print("Loading from saved weights")
