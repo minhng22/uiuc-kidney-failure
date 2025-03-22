@@ -10,7 +10,7 @@ from lifelines.utils import concordance_index
 from pkgs.experiments.utils import report_metric
 
 import os
-from pkgs.commons import egfr_tv_deepsurv_model_path
+from pkgs.commons import egfr_ti_deepsurv_model_path
 
 class DeepSurvDataset(Dataset):
     def __init__(self, df, features, duration_col, event_col):
@@ -42,27 +42,27 @@ def neg_log_partial_likelihood(risk, durations, events):
     return loss
 
 def run():
-    features = ['duration_in_days', 'egfr']
+    features = ['egfr']
     duration_col = 'duration_in_days'
     event_col = 'has_esrd'
 
-    df, df_test = get_train_test_data_egfr(True)
+    df, df_test = get_train_test_data_egfr(False)
 
     train_dataset = DeepSurvDataset(df, features, duration_col, event_col)
 
     # use full batch to preven neg log likehood loss crash on no positive datapoint in batch
     train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
 
-    input_dim = 2
+    input_dim = 1
     hidden_dims = [128, 64, 16]
     learning_rate = 0.001
     num_epochs = 25
 
     model = DeepSurv(input_dim, hidden_dims)
 
-    if os.path.exists(egfr_tv_deepsurv_model_path):
+    if os.path.exists(egfr_ti_deepsurv_model_path):
         print("Loading from saved weights")
-        model.load_state_dict(torch.load(egfr_tv_deepsurv_model_path, weights_only=True))
+        model.load_state_dict(torch.load(egfr_ti_deepsurv_model_path, weights_only=True))
     
     else:
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -79,7 +79,7 @@ def run():
                 optimizer.step()
             print(f"Epoch {epoch+1}/{num_epochs}, Loss: {loss.item():.4f}")
         
-        torch.save(model.state_dict(), egfr_tv_deepsurv_model_path)
+        torch.save(model.state_dict(), egfr_ti_deepsurv_model_path)
         print("Training complete.")
 
     X_test = torch.tensor(df_test[features].values, dtype=torch.float32)

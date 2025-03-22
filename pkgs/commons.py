@@ -71,7 +71,7 @@ egfr_tv_srf_model_path = f'{project_dir()}/generated_data/egfr_tv_srf_model.pkl'
 egfr_tv_gbsa_model_path = f'{project_dir()}/generated_data/egfr_tv_gbsa_model.pkl'
 egfr_tv_dynamic_deep_hit_model_path = f'{project_dir()}/generated_data/egfr_tv_ddh_model.pt'
 egfr_tv_hazard_transformer_model_path = f'{project_dir()}/generated_data/egfr_tv_hazard_transformer_model.pt'
-egfr_tv_deepsurv_model_path = f'{project_dir()}/generated_data/egfr_tv_deepsurv_model.pt'
+egfr_ti_deepsurv_model_path = f'{project_dir()}/generated_data/egfr_ti_deepsurv_model.pt'
 egfr_tv_rnn_surv_model_path = f'{project_dir()}/generated_data/egfr_tv_rnn_surv_model.pt'
 
 egfr_ti_cox_model_path = f'{project_dir()}/generated_data/egfr_ti_cox_model.pkl'
