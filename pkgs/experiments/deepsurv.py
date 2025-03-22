@@ -1,12 +1,11 @@
 import torch
 import torch.optim as optim
-import optuna
 
 from pkgs.models.deepsurv import DeepSurv
 from pkgs.data.model_data_store import get_train_test_data_egfr
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
-from pkgs.experiments.utils import evaluate_rnn_model
+from pkgs.experiments.utils import evaluate_rnn_model, ex_optuna
 
 import os
 from pkgs.commons import egfr_ti_deepsurv_model_path
@@ -82,19 +81,6 @@ def objective(trial):
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def ex_optuna():
-    study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=25)
-
-    print("Number of finished trials: ", len(study.trials))
-    print("Best trial:")
-    trial = study.best_trial
-
-    print(f"Best hyperparameters: {study.best_params}")
-    best_model = trial.user_attrs["model"]
-
-    return best_model
-
 def run():
     _, df_test = get_train_test_data_egfr(False)
 
@@ -102,7 +88,7 @@ def run():
         print("Loading from saved weights")
         model = torch.load(egfr_ti_deepsurv_model_path, weights_only=False)
     else:
-        model = ex_optuna()
+        model = ex_optuna(objective)
         torch.save(model, egfr_ti_deepsurv_model_path)
 
     evaluate_rnn_model(model, df_test, deep_surv_features)

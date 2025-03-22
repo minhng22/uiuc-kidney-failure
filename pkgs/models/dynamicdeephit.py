@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class DynamicDeepHit(nn.Module):
-    def __init__(self, input_dim, hidden_dims, num_risks, time_bins, dropout_rate=0.2):
+    def __init__(self, input_dim, hidden_dims, num_risks, time_bins, dropout_lstm=0.2, dropout_cause=0.2):
         super(DynamicDeepHit, self).__init__()
         self.num_risks = num_risks
         self.time_bins = time_bins
@@ -13,7 +13,7 @@ class DynamicDeepHit(nn.Module):
             hidden_size=hidden_dims[0],
             num_layers=2,
             batch_first=True,
-            dropout=dropout_rate,
+            dropout=dropout_lstm,
             bidirectional=True
         )
 
@@ -37,7 +37,7 @@ class DynamicDeepHit(nn.Module):
                     nn.Linear(prev_dim, hidden_dim),
                     nn.BatchNorm1d(hidden_dim),
                     nn.ReLU(),
-                    nn.Dropout(dropout_rate)
+                    nn.Dropout(dropout_cause)
                 ])
                 prev_dim = hidden_dim
 

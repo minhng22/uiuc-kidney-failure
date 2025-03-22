@@ -103,13 +103,12 @@ class RNNAttentionDataset(Dataset):
         seq_length = len(subject_data)
         
         # Create feature matrix
-        features = np.zeros((self.max_seq_length, 3))  # [start, stop, egfr]
+        features = np.zeros((self.max_seq_length, 2))  # ['duration_in_days', 'egfr']. 'duration_in_days' is better than 'start', 'stop' since admission time can be vastly different between patients.
         mask = np.zeros(self.max_seq_length)
         
         # Fill in features
-        features[:seq_length, 0] = subject_data['start'].values
-        features[:seq_length, 1] = subject_data['stop'].values
-        features[:seq_length, 2] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
+        features[:seq_length, 0] = subject_data['duration_in_days'].values
+        features[:seq_length, 1] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
         
         # Create mask for valid timesteps
         mask[:seq_length] = 1
@@ -187,7 +186,7 @@ def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alp
     return total_loss / num_risks
 
 # Hyperparameters
-input_dim = 3  # Start, stop, and normalized eGFR
+input_dim = 2 #['duration_in_days', 'egfr']
 hidden_dims = [64, 32]
 num_risks_multiple_risks = 2
 time_bins = 30

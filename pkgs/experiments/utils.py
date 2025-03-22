@@ -2,7 +2,7 @@ import numpy as np
 from lifelines.utils import concordance_index
 from sksurv.metrics import integrated_brier_score
 import torch
-
+import optuna
 
 def get_y(df):
     return np.array(list(zip(df['has_esrd'].astype(bool), df['duration_in_days'])),
@@ -34,3 +34,16 @@ def evaluate_rnn_model(model, df_test, features):
 
     c_index = report_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.squeeze().numpy(), df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
+
+def ex_optuna(objective):
+    study = optuna.create_study(direction='maximize')
+    study.optimize(objective, n_trials=25)
+
+    print("Number of finished trials: ", len(study.trials))
+    print("Best trial:")
+    trial = study.best_trial
+
+    print(f"Best hyperparameters: {study.best_params}")
+    best_model = trial.user_attrs["model"]
+
+    return best_model
