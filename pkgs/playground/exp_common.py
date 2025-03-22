@@ -99,7 +99,7 @@ class RNNAttentionDataset(Dataset):
         return len(self.subject_groups)
     
     def __getitem__(self, idx):
-        subject_id, subject_data = self.subject_groups[idx]
+        _, subject_data = self.subject_groups[idx]
         seq_length = len(subject_data)
         
         # Create feature matrix
