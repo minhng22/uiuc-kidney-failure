@@ -8,7 +8,7 @@ import optuna
 
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data.model_data_store import get_train_test_data_egfr
-from pkgs.experiments.utils import report_metric
+from pkgs.experiments.utils import evaluate_rnn_model
 from pkgs.commons import egfr_tv_rnn_surv_model_path
 
 class RNNSurvDataset(Dataset):
@@ -107,16 +107,6 @@ def train_with_best_params(best_params):
     print("Training complete with best parameters.")
     return model
 
-def evaluate_model(model, df_test, features):
-    X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
-    model.eval()
-    with torch.no_grad():
-        test_risk_scores = model(X_test)
-        test_risk_scores = test_risk_scores[:, -1, :]
-
-    c_index = report_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.squeeze().numpy(), df_test['has_esrd']))
-    print("C-Index on Test Data:", c_index)
-
 def run():
     study = optuna.create_study(direction='minimize')
     study.optimize(objective, n_trials=10)
@@ -132,7 +122,7 @@ def run():
     trained_model = train_with_best_params(best_params)
 
     _, df_test = get_train_test_data_egfr(True)
-    evaluate_model(trained_model, df_test, ['duration_in_days', 'egfr'])
+    evaluate_rnn_model(trained_model, df_test, ['duration_in_days', 'egfr'])
 
 if __name__ == '__main__':
     run()

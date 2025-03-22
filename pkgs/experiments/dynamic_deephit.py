@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from pkgs.playground.exp_common import RNNAttentionDataset
 from pkgs.playground.exp_common import batch_size, input_dim, hidden_dims, time_bins, learning_rate, calculate_c_index, survival_loss
 from pkgs.models.dynamicdeephit import DynamicDeepHit
+from pkgs.experiments.utils import evaluate_rnn_model
 import numpy as np
 import os
 
@@ -14,21 +15,26 @@ import os
 def run_ddh():
     df, df_test = get_train_test_data_egfr(True)
     df = mini(df)
-    
+
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     num_risks = 1
-    num_epochs = 25
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, time_bins)
 
     if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
-        print("Loading from saved weights")
+        print("Loading existing model for testing...")
         model.load_state_dict(torch.load(egfr_tv_dynamic_deep_hit_model_path, weights_only=True))
+        model.eval()
+        print("Model loaded successfully.")
+
+        evaluate_rnn_model(model, df_test, ['duration_in_days', 'egfr'])
+
     else:
-        print("Start training")
+        print("No saved model found. Starting training...")
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        num_epochs = 2
 
         for epoch in range(num_epochs):
             model.train()
@@ -46,34 +52,8 @@ def run_ddh():
         torch.save(model.state_dict(), egfr_tv_dynamic_deep_hit_model_path)
         print("Training complete.")
 
-    model.eval()
-    all_c_indices = []
-
-    with torch.no_grad():
-        for features, mask, time_intervals, event_indicators in dataloader:
-            hazard_preds, _ = model(features, mask)
-            c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
-            all_c_indices.append(c_indices)
-
-    avg_c_indices = np.mean(all_c_indices, axis=0)
-    for risk_idx, c_index in enumerate(avg_c_indices):
-        print(f"Risk {risk_idx + 1} C-index: {c_index:.2f}")
-
-    model.eval()
-    test_c_indices = []
-
-    test_dataset = RNNAttentionDataset(df_test, multiple_risk=False)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-    with torch.no_grad():
-        for features, mask, time_intervals, event_indicators in test_dataloader:
-            hazard_preds, _ = model(features, mask)
-            c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
-            test_c_indices.append(c_indices)
-
-    avg_test_c_indices = np.mean(test_c_indices, axis=0)
-    for risk_idx, c_index in enumerate(avg_test_c_indices):
-        print(f"Risk {risk_idx + 1} Test C-index: {c_index:.2f}")
+        model.eval()
+        evaluate_rnn_model(model, df_test, ['duration_in_days', 'egfr'])
 
 
 if __name__ == '__main__':

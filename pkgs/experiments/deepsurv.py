@@ -7,7 +7,7 @@ from pkgs.models.deepsurv import DeepSurv
 from pkgs.data.model_data_store import get_train_test_data_egfr
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
-from pkgs.experiments.utils import report_metric
+from pkgs.experiments.utils import report_metric, evaluate_rnn_model
 
 import os
 from pkgs.commons import egfr_ti_deepsurv_model_path

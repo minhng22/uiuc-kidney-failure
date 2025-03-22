@@ -1,6 +1,7 @@
 import numpy as np
 from lifelines.utils import concordance_index
 from sksurv.metrics import integrated_brier_score
+import torch
 
 
 def get_y(df):
@@ -23,3 +24,13 @@ def evaluate(df_test, risk_scores, surv_funcs, y_train):
 
     bs_test = integrated_brier_score(y_train, get_y(df_test), pred_surv_test, times_test)
     print(f'Integrated Brier Score (Test): {report_metric(bs_test)}')
+
+def evaluate_rnn_model(model, df_test, features):
+    X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
+    model.eval()
+    with torch.no_grad():
+        test_risk_scores = model(X_test)
+        test_risk_scores = test_risk_scores[:, -1, :]
+
+    c_index = report_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.squeeze().numpy(), df_test['has_esrd']))
+    print("C-Index on Test Data:", c_index)
