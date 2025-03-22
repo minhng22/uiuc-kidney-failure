@@ -54,11 +54,13 @@ def objective(trial):
     train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
 
     input_dim = 1
-    hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 256) for i in range(10)]
+    num_layers = trial.suggest_int("num_layer", 1, 20)
+    hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 256) for i in range(num_layers)]
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
-    num_epochs = 25
+    drop_out = [trial.suggest_float(f"drop_out_rate_{i}", 0.1, 0.5) for i in range(num_layers)]
+    num_epochs = 50
 
-    model = DeepSurv(input_dim, hidden_dims)
+    model = DeepSurv(input_dim, hidden_dims, drop_out)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     model.train()
@@ -82,7 +84,7 @@ def objective(trial):
 
 def ex_optuna():
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=100)
+    study.optimize(objective, n_trials=25)
 
     print("Number of finished trials: ", len(study.trials))
     print("Best trial:")

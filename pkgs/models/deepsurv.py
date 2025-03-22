@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 class DeepSurv(nn.Module):
-    def __init__(self, input_dim, hidden_dims):
+    def __init__(self, input_dim, hidden_dims, drop_outs):
         """
         Args:
             input_dim (int): Number of input features.
@@ -13,10 +13,10 @@ class DeepSurv(nn.Module):
         layers = []
         prev_dim = input_dim
 
-        for hidden_dim in hidden_dims:
+        for i, hidden_dim in enumerate(hidden_dims):
             layers.append(nn.Linear(prev_dim, hidden_dim))
             layers.append(nn.ReLU())
-            layers.append(nn.Dropout(p=0.1))
+            layers.append(nn.Dropout(drop_outs[i]))
             prev_dim = hidden_dim
         layers.append(nn.Linear(prev_dim, 1))
         self.net = nn.Sequential(*layers)
