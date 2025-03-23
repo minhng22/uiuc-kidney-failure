@@ -2,13 +2,10 @@ from lifelines.utils import concordance_index
 import joblib
 from lifelines import AalenAdditiveFitter
 import os
-import numpy as np
-from sksurv.metrics import brier_score
 
 from pkgs.commons import egfr_tv_aah_model_path, egfr_ti_aah_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.experiments.utils import report_metric
-from pkgs.data.model_data_store import mini
 
 def run_tv():
     data_train, data_test = get_train_test_data_egfr(True)

@@ -20,7 +20,7 @@ def run_survival_rf():
         rsf = joblib.load(egfr_tv_srf_model_path)
     else:
         print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
-        rsf = RandomSurvivalForest(n_jobs= 1, verbose=2)
+        rsf = RandomSurvivalForest(n_jobs= 2, verbose=2)
         rsf.fit(X, y)
         joblib.dump(rsf, egfr_tv_srf_model_path)
 
