@@ -18,7 +18,7 @@ def run_gbsa():
         gbsa = joblib.load(egfr_tv_gbsa_model_path)
     else:
         print('Fitting Gradient Boosting Survival Analysis model')
-        gbsa = GradientBoostingSurvivalAnalysis()
+        gbsa = GradientBoostingSurvivalAnalysis(verbose=2)
         gbsa.fit(X, y)
         joblib.dump(gbsa, egfr_tv_gbsa_model_path)
     
