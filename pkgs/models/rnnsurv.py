@@ -2,10 +2,7 @@ import torch
 import torch.nn as nn
 
 class RNNSurv(nn.Module):
-    """
-    RNNSurv model implementation based on the provided description.
-    """
-    def __init__(self, input_size, embedding_size, num_embedding_layers, hidden_size, num_recurrent_layers):
+    def __init__(self, input_size, embedding_size, num_embedding_layers, hidden_size, num_recurrent_layers, num_time_intervals):
         """
         Initializes the RNNSurv model.
 
@@ -15,6 +12,7 @@ class RNNSurv(nn.Module):
             num_embedding_layers (int): Number of embedding layers (N1).
             hidden_size (int): Size of the LSTM hidden state.
             num_recurrent_layers (int): Number of LSTM layers (N2).
+            num_time_intervals (int): Number of discrete time intervals (K) for survival prediction.
         """
         super(RNNSurv, self).__init__()
         self.embedding_layers = nn.Sequential()
@@ -25,25 +23,25 @@ class RNNSurv(nn.Module):
                 self.embedding_layers.add_module(f'relu_embedding_{i}', nn.ReLU())
 
         self.rnn = nn.LSTM(embedding_size, hidden_size, num_recurrent_layers, batch_first=True)
+        
+        # Output layer to predict survival probability for each time interval
+        self.output_layer = nn.Linear(hidden_size, num_time_intervals)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        """
-        Forward pass of the RNNSurv network.
-
-        Args:
-            x (torch.Tensor): Input features of shape (batch, seq_len, input_size),
-                                        where input_size includes the features and time interval.
-
-        Returns:
-            torch.Tensor: Predicted risk scores (hazard scores) of shape (batch, seq_len, 1) after sigmoid.
-        """
         # Pass the input through the embedding layers
         embedded = self.embedding_layers(x)
 
-        # Pass the embedded input through the recurrent layers (LSTM)
+        # The recurrent layers (LSTM)
         out, _ = self.rnn(embedded)
 
-        # Apply sigmoid non-linearity to the output of the recurrent layers
-        risk_scores = self.sigmoid(out)
-        return risk_scores
+        # Predict survival probabilities for each time interval
+        survival_probabilities_logits = self.output_layer(out)
+        survival_probabilities = self.sigmoid(survival_probabilities_logits)
+
+        # The paper suggests the risk score is a linear combination of the survival
+        # function estimates. where wk for k= 1,...,K are the parameters of the last layer of rnn-surv.
+        last_time_step_survival_probs = survival_probabilities[:, -1, :]
+        risk_scores = torch.sum(1 - last_time_step_survival_probs, dim=1, keepdim=True)
+
+        return survival_probabilities, risk_scores
