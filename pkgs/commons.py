@@ -65,7 +65,6 @@ egfr_tv_train_data_path = f'{project_dir()}/generated_data/egfr_tv_train_data.cs
 egfr_tv_test_data_path = f'{project_dir()}/generated_data/egfr_tv_test_data.csv'
 egfr_tv_cox_model_path = f'{project_dir()}/generated_data/egfr_tv_cox_model.pkl'
 egfr_tv_aah_model_path = f'{project_dir()}/generated_data/egfr_tv_aah_model.pkl'
-egfr_ti_aah_model_path = f'{project_dir()}/generated_data/egfr_ti_aah_model.pkl'
 egfr_ti_srf_model_path = f'{project_dir()}/generated_data/egfr_ti_srf_model.pkl'
 egfr_tv_srf_model_path = f'{project_dir()}/generated_data/egfr_tv_srf_model.pkl'
 egfr_tv_gbsa_model_path = f'{project_dir()}/generated_data/egfr_tv_gbsa_model.pkl'

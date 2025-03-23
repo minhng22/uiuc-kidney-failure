@@ -5,7 +5,7 @@ import os
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr, get_train_test_data_multiple_risk
-from pkgs.experiments.utils import report_metric, evaluate_sc_and_cox_survival
+from pkgs.experiments.utils import round_metric, evaluate_sc_and_cox_survival
 from scipy.interpolate import interp1d
 import numpy as np
 
@@ -46,12 +46,12 @@ def run_tv_multiple_risk_cox_model():
 
     print('Evaluate on training data')
     risk_scores = model.predict_partial_hazard(data_train)
-    c_index = report_metric(concordance_index(data_train['stop'], -risk_scores, data_train['has_esrd']))
+    c_index = round_metric(concordance_index(data_train['stop'], -risk_scores, data_train['has_esrd']))
     print(f'Concordance Index: {c_index}')
 
     print('Evaluate on test data')
     risk_scores_test = model.predict_partial_hazard(data_test)
-    c_index_test = report_metric(concordance_index(data_test['stop'], -risk_scores_test, data_test['has_esrd']))
+    c_index_test = round_metric(concordance_index(data_test['stop'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
 
@@ -70,12 +70,12 @@ def run_ti_cox_model():
 
     print('Evaluate on training data')
     risk_scores = model.predict_partial_hazard(data_train)
-    c_index = report_metric(concordance_index(data_train['duration_in_days'], -risk_scores, data_train['has_esrd']))
+    c_index = round_metric(concordance_index(data_train['duration_in_days'], -risk_scores, data_train['has_esrd']))
     print(f'Concordance Index: {c_index}')
 
     print('Evaluate on test data')
     risk_scores_test = model.predict_partial_hazard(data_test)
-    c_index_test = report_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
+    c_index_test = round_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
 

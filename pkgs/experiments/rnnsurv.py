@@ -5,7 +5,7 @@ from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data.model_data_store import get_train_test_data_egfr, mini
-from pkgs.experiments.utils import report_metric, ex_optuna
+from pkgs.experiments.utils import round_metric, ex_optuna
 from pkgs.commons import egfr_tv_rnn_surv_model_path
 
 import os
@@ -129,7 +129,7 @@ def evaluate(model, df, features):
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = report_metric(concordance_index(df['duration_in_days'], test_risk_scores.numpy(), df['has_esrd']))
+    c_index = round_metric(concordance_index(df['duration_in_days'], test_risk_scores.numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
     return c_index
 
