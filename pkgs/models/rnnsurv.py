@@ -4,8 +4,6 @@ import torch.nn as nn
 class RNNSurv(nn.Module):
     def __init__(self, input_size, embedding_size, num_embedding_layers, hidden_size, num_recurrent_layers, num_time_intervals):
         """
-        Initializes the RNNSurv model.
-
         Args:
             input_size (int): Number of input features (including time interval identifier).
             embedding_size (int): Dimensionality of the embedding layers.

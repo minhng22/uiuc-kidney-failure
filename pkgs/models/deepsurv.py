@@ -4,11 +4,6 @@ import torch.optim as optim
 
 class DeepSurv(nn.Module):
     def __init__(self, input_dim, hidden_dims, drop_outs):
-        """
-        Args:
-            input_dim (int): Number of input features.
-            hidden_dims (list of int): List with sizes for hidden layers.
-        """
         super(DeepSurv, self).__init__()
         layers = []
         prev_dim = input_dim

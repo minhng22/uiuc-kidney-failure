@@ -1,11 +1,8 @@
 from pkgs.commons import egfr_tv_srf_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.experiments.utils import get_y, evaluate_sc_and_cox_survival
-from pkgs.experiments.validation import eval_duration
 
 import joblib
-import numpy as np
-from lifelines.utils import concordance_index
 from sksurv.ensemble import RandomSurvivalForest
 
 import datetime

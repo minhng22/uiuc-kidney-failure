@@ -45,7 +45,7 @@ def objective(trial):
     duration_col = 'duration_in_days'
     event_col = 'has_esrd'
 
-    df, df_test = get_train_test_data_egfr(False)
+    df, _ = get_train_test_data_egfr(False)
 
     train_dataset = DeepSurvDataset(df, deep_surv_features, duration_col, event_col)
     
@@ -72,12 +72,12 @@ def objective(trial):
             loss.backward()
             optimizer.step()
 
-    X_test = torch.tensor(df_test[deep_surv_features].values, dtype=torch.float32)
+    X_test = torch.tensor(df[deep_surv_features].values, dtype=torch.float32)
     model.eval()
     with torch.no_grad():
         test_risk_scores = model(X_test)
 
-    c_index = concordance_index(df_test['duration_in_days'], test_risk_scores, df_test['has_esrd'])
+    c_index = concordance_index(df['duration_in_days'], test_risk_scores, df['has_esrd'])
     trial.set_user_attr(key="model", value=model)
     return c_index
 

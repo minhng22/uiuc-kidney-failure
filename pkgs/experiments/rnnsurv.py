@@ -24,7 +24,7 @@ class RNNSurvDataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.durations[idx], self.events[idx]
 
-def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_intervals):
+def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_intervals, cross_entropy_loss_weight):
     """
     Loss function based on the original RNNSurv paper.
 
@@ -43,7 +43,6 @@ def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_i
     n_time_intervals = survival_probabilities.size(2)
     max_observed_time = time_intervals[-1]
 
-    # Loss component 1: Modified Cross-Entropy for Survival Probabilities
     loss_1 = 0.0
     for i in range(n_patients):
         observed_time = durations[i]
@@ -57,11 +56,10 @@ def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_i
                 term = (event * torch.log(torch.clamp(1 - survival_prob, 1e-7, 1.0)) +
                         (1 - event) * torch.log(torch.clamp(survival_prob, 1e-7, 1.0)))
                 loss_1 -= indicator * term
-                break # Move to the next patient
+                break 
 
     loss_1 /= n_patients
 
-    # Loss component 2: Mean Squared Error for Risk Score Consistency
     loss_2 = 0.0
     for i in range(n_patients):
         observed_time = durations[i]
@@ -80,8 +78,7 @@ def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_i
 
     loss_2 /= n_patients
 
-    # Combine the losses (you might want to add weights here)
-    total_loss = loss_1 + loss_2
+    total_loss = cross_entropy_loss_weight * loss_1 + (1 - cross_entropy_loss_weight) * loss_2
     return total_loss
 
 def objective(trial):
@@ -90,7 +87,6 @@ def objective(trial):
     num_time_intervals = trial.suggest_int('num_time_intervals', 10, 50)
 
     df, _ = get_train_test_data_egfr(True)
-    df = mini(df)
 
     train_dataset = RNNSurvDataset(df, rnn_surv_features, duration_col, event_col)
     train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
@@ -101,7 +97,9 @@ def objective(trial):
     hidden_dims = trial.suggest_int('hidden_dims', 64, 256)
     num_recurrent_layers = trial.suggest_int('num_recurrent_layers', 1, 3)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
-    num_epochs = 2
+    cross_entropy_loss_weight = trial.suggest_float('cross_entropy_loss_weight', 0.1, 0.9)
+
+    num_epochs = 25
 
     # Define time intervals based on the training data
     max_duration = df[duration_col].max()
@@ -116,22 +114,22 @@ def objective(trial):
             X_batch, durations_batch, events_batch = batch
             optimizer.zero_grad()
             survival_probabilities, risk_scores = model(X_batch)
-            loss = rnn_surv_loss(survival_probabilities, risk_scores, durations_batch, events_batch, time_intervals)
+            loss = rnn_surv_loss(survival_probabilities, risk_scores, durations_batch, events_batch, time_intervals, cross_entropy_loss_weight)
             loss.backward()
             optimizer.step()
-    
-    trial.set_user_attr(key="model", value=model)
-    _, df_test = get_train_test_data_egfr(False)
-    return evaluate(model, df_test, rnn_surv_features)
 
-def evaluate(model, df_test, features):
-    X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
+    trial.set_user_attr(key="model", value=model)
+
+    return evaluate(model, df, rnn_surv_features)
+
+def evaluate(model, df, features):
+    X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1)
     model.eval()
     with torch.no_grad():
         _, test_risk_scores = model(X_test)
-        test_risk_scores = test_risk_scores[:, -1, :]
+        test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = report_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.squeeze().numpy(), df_test['has_esrd']))
+    c_index = report_metric(concordance_index(df['duration_in_days'], test_risk_scores.numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
     return c_index
 

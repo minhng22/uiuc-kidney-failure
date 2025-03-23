@@ -11,8 +11,7 @@ from pkgs.experiments.utils import ex_optuna
 num_risks = 1
 
 def objective(trial):
-    df, df_test = get_train_test_data_egfr(True)
-    df = mini(df)
+    df, _ = get_train_test_data_egfr(True)
 
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -43,13 +42,13 @@ def objective(trial):
             loss.backward()
             optimizer.step()
 
-    c_index = eval_ht(model, df_test)
+    c_index = eval_ht(model, df)
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def eval_ht(model, df_test):
+def eval_ht(model, df):
     test_c_indices = []
-    test_dataset = RNNAttentionDataset(df_test, multiple_risk=False)
+    test_dataset = RNNAttentionDataset(df, multiple_risk=False)
     test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     model.eval()
