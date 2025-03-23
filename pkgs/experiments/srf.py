@@ -1,6 +1,6 @@
 from pkgs.commons import egfr_tv_srf_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr
-from pkgs.experiments.utils import get_y, evaluate
+from pkgs.experiments.utils import get_y, evaluate_sc_and_cox_survival
 from pkgs.experiments.validation import eval_duration
 
 import joblib
@@ -30,7 +30,7 @@ def run_survival_rf():
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
     X_test = df_test[['duration_in_days', 'egfr']]
 
-    evaluate(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), y)
+    evaluate_sc_and_cox_survival(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), y)
 
 
 if __name__ == '__main__':

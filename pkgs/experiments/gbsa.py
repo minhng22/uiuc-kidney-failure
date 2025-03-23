@@ -1,6 +1,6 @@
 from pkgs.commons import egfr_tv_gbsa_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr
-from pkgs.experiments.utils import get_y, evaluate
+from pkgs.experiments.utils import get_y, evaluate_sc_and_cox_survival
 import joblib
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
 import os
@@ -31,7 +31,7 @@ def run_gbsa():
     X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
     print(X_test.shape)
 
-    evaluate(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), y)
+    evaluate_sc_and_cox_survival(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), y)
 
 if __name__ == '__main__':
     run_gbsa()

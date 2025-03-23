@@ -13,7 +13,7 @@ def report_metric(metric_num):
     return round(metric_num, 3)
 
 
-def evaluate(df_test, risk_scores, surv_funcs, y_train):
+def evaluate_sc_and_cox_survival(df_test, risk_scores, surv_funcs, y_train):
     # Concordance Index on test data
     c_index_test = report_metric(concordance_index(df_test['duration_in_days'], risk_scores, df_test['has_esrd']))
     print(f'Concordance Index Test: {report_metric(c_index_test)}')
