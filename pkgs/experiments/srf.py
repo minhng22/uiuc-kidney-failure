@@ -13,7 +13,7 @@ import os
 
 # Data needs to be time-invariant setup
 def run_survival_rf():
-    df, df_test = get_train_test_data_egfr(False)
+    df, df_test = get_train_test_data_egfr(True)
     df['has_esrd'] = df['has_esrd'].astype(bool)
 
     X = df[['duration_in_days', 'egfr']]
