@@ -14,7 +14,7 @@ dataset = RNNAttentionDataset(df)
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 # Model initialization
-model = DynamicDeepHit(input_dim, hidden_dims, num_risks_multiple_risks, time_bins)
+model = DynamicDeepHit(input_dim, hidden_dims, num_risks_multiple_risks)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Training loop
