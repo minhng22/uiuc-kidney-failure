@@ -60,7 +60,7 @@ def objective(trial):
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     model.train()
-    for epoch in range(num_epochs):
+    for _ in range(num_epochs):
         for batch in train_loader:
             X_batch, durations_batch, events_batch = batch
             optimizer.zero_grad()
