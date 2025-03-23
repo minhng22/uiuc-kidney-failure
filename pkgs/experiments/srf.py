@@ -1,6 +1,6 @@
 from pkgs.commons import egfr_tv_srf_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr
-from pkgs.experiments.utils import get_y, evaluate_sc_and_cox_survival
+from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
 
 import joblib
 from sksurv.ensemble import RandomSurvivalForest
@@ -14,7 +14,7 @@ def run_survival_rf():
     df['has_esrd'] = df['has_esrd'].astype(bool)
 
     X = df[['duration_in_days', 'egfr']]
-    y = get_y(df)
+    y = get_y_for_sckit_survival_model(df)
 
     if os.path.exists(egfr_tv_srf_model_path):
         rsf = joblib.load(egfr_tv_srf_model_path)
@@ -27,7 +27,7 @@ def run_survival_rf():
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
     X_test = df_test[['duration_in_days', 'egfr']]
 
-    evaluate_sc_and_cox_survival(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), y)
+    evaluate_scikit_survival_model(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), y)
 
 
 if __name__ == '__main__':

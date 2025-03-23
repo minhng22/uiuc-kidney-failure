@@ -5,9 +5,7 @@ import os
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data_egfr, get_train_test_data_multiple_risk
-from pkgs.experiments.utils import round_metric, evaluate_sc_and_cox_survival
-from scipy.interpolate import interp1d
-import numpy as np
+from pkgs.experiments.utils import round_metric, evaluate_scikit_survival_model
 
 def get_callable_survival_functions(cox_model: CoxTimeVaryingFitter, data):
     pass
@@ -26,9 +24,9 @@ def run_tv_cox_model():
         model = joblib.load(egfr_tv_cox_model_path)
 
     print('Evaluate on test data')
-    evaluate_sc_and_cox_survival(
+    evaluate_scikit_survival_model(
         data_test, model.predict_partial_hazard(data_test), get_callable_survival_functions(model, data_test), 
-        data_train['has_esrd'])
+        data_train)
 
 
 def run_tv_multiple_risk_cox_model():
