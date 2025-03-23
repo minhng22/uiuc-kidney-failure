@@ -17,7 +17,7 @@ class PositionalEncoding(nn.Module):
         return x + self.pe[:, :x.size(1)]
 
 class HazardTransformer(nn.Module):
-    def __init__(self, input_dim, d_model, time_bins, num_risks=1, num_layers=128, nhead=4, dropout=0.1):
+    def __init__(self, input_dim, d_model, time_bins, num_risks, num_layers, nhead, dropout):
         super(HazardTransformer, self).__init__()
         self.time_bins = time_bins
         self.num_risks = num_risks

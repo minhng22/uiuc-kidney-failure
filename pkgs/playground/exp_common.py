@@ -189,7 +189,7 @@ def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alp
 input_dim = 2 #['duration_in_days', 'egfr']
 hidden_dims = [64, 32]
 num_risks_multiple_risks = 2
-time_bins = 30
+time_bins = 300
 batch_size = 16
 learning_rate = 1e-3
 num_epochs = 1
