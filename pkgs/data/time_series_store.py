@@ -3,12 +3,13 @@ from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_cod
 from pkgs.data.time_series_utils_store import process_negative_patients, process_positive_patients
 
 
-def prep_data(df):
-    df['start'] = df.groupby('subject_id').cumcount() * df['duration_in_days']
-    df['stop'] = df['start'] + df['duration_in_days']
-    df.dropna(inplace=True)
+def add_time_variant_support(df):
+    df = df.sort_values(by=['subject_id', 'duration_in_days'])
 
-    df.loc[df['start'] == df['stop'], 'stop'] += 1e-5
+    df['start'] = df['duration_in_days']
+    df['stop'] = df.groupby('subject_id')['duration_in_days'].shift(-1) - 1e-5
+    df['stop'] = df['stop'].fillna(df['start'] + 1e-5)
+
     df.reset_index(drop=True, inplace=True)
     return df
 
@@ -42,7 +43,10 @@ def get_time_series_data_ckd_patients(time_variant, multiple_risk = False):
     lab_df['duration_in_days'] = lab_df['duration_in_days'].astype(float)
     
     if time_variant:
-        lab_df = prep_data(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'has_esrd', 'dead']]
+        if multiple_risk:
+            lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'has_esrd', 'dead']]
+        else:
+            lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'has_esrd']]
     else:
         # right-censoring. similar to work done by:
         # 1. Hagar et al.: Survival Analysis of EHR CKD Data
