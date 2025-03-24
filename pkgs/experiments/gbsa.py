@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_gbsa_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, sample
+from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
 import joblib
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
@@ -8,7 +8,6 @@ import os
 
 def run_gbsa():
     df, df_test = get_train_test_data_egfr(True)
-    df = sample(df)
     
     X = df[['start', 'stop', 'egfr']].to_numpy()
     y = get_y_for_sckit_survival_model(df)
@@ -26,8 +25,6 @@ def run_gbsa():
     print('Evaluate on test data')
     
     X_test = df_test[['start', 'stop', 'egfr']].to_numpy()
-    print(X_test.shape)
-
     evaluate_scikit_survival_model(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), df)
 
 if __name__ == '__main__':

@@ -11,7 +11,6 @@ import os
 # Data needs to be time-invariant setup
 def run_survival_rf():
     df, df_test = get_train_test_data_egfr(True)
-    df = sample(df)
     df['has_esrd'] = df['has_esrd'].astype(bool)
 
     X = df[['start', 'stop', 'egfr']]
@@ -28,7 +27,7 @@ def run_survival_rf():
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
     X_test = df_test[['start', 'stop', 'egfr']]
 
-    evaluate_scikit_survival_model(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), y)
+    evaluate_scikit_survival_model(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), df)
 
 
 if __name__ == '__main__':

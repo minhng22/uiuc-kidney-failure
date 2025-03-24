@@ -22,7 +22,12 @@ def evaluate_scikit_survival_model(df_test, risk_scores, surv_funcs, df_train):
     times_test = np.linspace(0, df_test['duration_in_days'].max(), 100, endpoint=False)
     pred_surv_test = np.asarray([fn(times_test) for fn in surv_funcs])
 
-    bs_test = integrated_brier_score(df_train['duration_in_days'], df_test['duration_in_days'], pred_surv_test, times_test)
+    df_train['has_esrd'] = df_train['has_esrd'].astype(bool)
+    df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
+
+    bs_test = integrated_brier_score(
+        df_train[['has_esrd', 'duration_in_days']].to_records(index=False), 
+        df_test[['has_esrd', 'duration_in_days']].to_records(index=False), pred_surv_test, times_test)
     print(f'Integrated Brier Score (Test): {round_metric(bs_test)}')
 
 def evaluate_rnn_model(model, df_test, features):
