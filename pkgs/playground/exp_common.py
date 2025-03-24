@@ -59,9 +59,6 @@ def generate_sample_data(num_subjects=100, max_observations=30, seed=42):
     return pd.DataFrame(data)
 
 def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks):
-    """
-    Calculate the concordance index (C-index) for survival predictions.
-    """
     c_index_per_risk = []
 
     for risk in range(num_risks):
@@ -69,16 +66,10 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
         risk_event_indicators = event_indicators[:, risk]
         observed_times = time_intervals[:, 0]
 
-        # Compute risk scores as the cumulative hazard
+        # Cumulative hazard
         risk_scores = -torch.sum(torch.log(1 - risk_hazard_preds + 1e-8), dim=1).detach().cpu().numpy()
-
-        # Only include cases where an event occurred for the risk
         mask = risk_event_indicators > 0
 
-        print(f"observed time {observed_times.shape}")
-        print(f"risk scores {risk_scores.shape}")
-        print(f"event observed {risk_event_indicators.shape}")
-        print(f"mask {mask.shape}")
         c_index = concordance_index(
                 observed_times[mask].detach().cpu().numpy(),
                 risk_scores[mask],
@@ -92,31 +83,47 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 class RNNAttentionDataset(Dataset):
     def __init__(self, df, multiple_risk=False):
         self.df = df
-
+        self.subject_groups = list(df.groupby('subject_id'))
         # Normalize numerical features based on the entire DataFrame
         self.egfr_mean = df['egfr'].mean()
         self.egfr_std = df['egfr'].std()
         self.multiple_risk = multiple_risk
 
+        self.max_seq_length = max(df.groupby('subject_id').size())
+
     def __len__(self):
-        return len(self.df)
+        return len(self.subject_groups)
 
     def __getitem__(self, idx):
-        row = self.df.iloc[idx]
-
-        # Extract single time-step features
-        egfr = (row['egfr'] - self.egfr_mean) / self.egfr_std
-        features = torch.FloatTensor([[egfr]])  # Shape (1, 1) - sequence of length 1
-
-        mask = torch.FloatTensor([])  # Single valid timestep
-
-        time_to_event = torch.LongTensor([row['duration_in_days']])
+        _, subject_data = self.subject_groups[idx]
+        seq_length = len(subject_data)
+        
+        # Create feature matrix
+        features = np.zeros((self.max_seq_length, 1))  # ['egfr']
+        mask = np.zeros(self.max_seq_length)
+        
+        # Fill in features
+        features[:seq_length, 0] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
+        
+        # Create mask for valid timesteps
+        mask[:seq_length] = 1
+        
+        # Get time to event and event indicators
+        time_to_event = subject_data['duration_in_days'].iloc[-1]
         if self.multiple_risk:
-            events = torch.FloatTensor([[row['has_esrd'], row['dead']]])
+            events = np.array([
+                subject_data['has_esrd'].iloc[-1],
+                subject_data['dead'].iloc[-1]
+            ])
         else:
-            events = torch.FloatTensor([[row['has_esrd']]])
-
-        return features, mask, time_to_event, events
+            events = np.array([
+                subject_data['has_esrd'].iloc[-1],
+            ])
+        
+        return (torch.FloatTensor(features),
+                torch.FloatTensor(mask),
+                torch.LongTensor([time_to_event]),
+                torch.FloatTensor(events))
 
 def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alpha=0.5, sigma=0.1):
     """
