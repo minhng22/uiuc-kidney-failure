@@ -1,6 +1,7 @@
 import pandas as pd
 from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_codes
 from pkgs.data.time_series_utils_store import process_negative_patients, process_positive_patients
+import numpy as np
 
 
 def add_time_variant_support(df):
@@ -55,8 +56,11 @@ def get_time_series_data_ckd_patients(time_variant, multiple_risk = False):
             max_row = group.loc[group['duration_in_days'].idxmax()]
             d = d._append(max_row)
         lab_df = d
-        lab_df.dropna(inplace=True)
-        lab_df.reset_index(drop=True, inplace=True)
+    
+    lab_df.dropna(inplace=True)
+    lab_df = lab_df.replace('', np.nan).dropna()
+    
+    lab_df.reset_index(drop=True, inplace=True)
 
     print(f"Data: \n{lab_df.head()}\n"
           f"Total number of patients: {lab_df['subject_id'].nunique()}\n"
