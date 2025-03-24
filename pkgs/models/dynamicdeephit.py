@@ -8,10 +8,11 @@ class DynamicDeepHit(nn.Module):
         self.num_risks = num_risks
         self.time_bins = 30 # discrete time of one month as the original paper
         
+        num_layer_lstm = 2
         self.lstm = nn.LSTM(
             input_size=input_dim,
             hidden_size=hidden_dims[0],
-            num_layers=2,
+            num_layers=num_layer_lstm,
             batch_first=True,
             dropout=dropout_lstm,
             bidirectional=True
@@ -19,7 +20,7 @@ class DynamicDeepHit(nn.Module):
         
         # FC layer after LSTM
         self.fc = nn.Sequential(
-            nn.Linear(hidden_dims[0] * 2, hidden_dims[0]),  # Input is output of bidirectional LSTM
+            nn.Linear(hidden_dims[0] * num_layer_lstm, hidden_dims[0]),  # Input is output of bidirectional LSTM
             nn.Tanh()
         )
         
