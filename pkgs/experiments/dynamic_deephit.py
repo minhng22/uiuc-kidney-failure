@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, sample
+from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader
@@ -26,7 +26,7 @@ def objective(trial):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 1
+    num_epochs = 25
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)

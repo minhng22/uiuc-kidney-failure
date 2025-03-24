@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_srf_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, sample
+from pkgs.data.model_data_store import get_train_test_data_egfr
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
 
 import joblib
