@@ -8,6 +8,7 @@ import os
 
 def run_gbsa():
     df, df_test = get_train_test_data_egfr(True)
+    df = sample(df)
     
     X = df[['start', 'stop', 'egfr']].to_numpy()
     y = get_y_for_sckit_survival_model(df)

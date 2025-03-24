@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_srf_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data_egfr, sample
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
 
 import joblib
@@ -11,6 +11,7 @@ import os
 # Data needs to be time-invariant setup
 def run_survival_rf():
     df, df_test = get_train_test_data_egfr(True)
+    df = sample(df)
     df['has_esrd'] = df['has_esrd'].astype(bool)
 
     X = df[['start', 'stop', 'egfr']]
@@ -20,7 +21,7 @@ def run_survival_rf():
         rsf = joblib.load(egfr_tv_srf_model_path)
     else:
         print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
-        rsf = RandomSurvivalForest(n_jobs= 2, verbose=2)
+        rsf = RandomSurvivalForest(n_jobs= 1, verbose=2)
         rsf.fit(X, y)
         joblib.dump(rsf, egfr_tv_srf_model_path)
 

@@ -74,19 +74,16 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 
         # Only include cases where an event occurred for the risk
         mask = risk_event_indicators > 0
-        try:
-            c_index = concordance_index(
+
+        print(f"observed time {observed_times.shape}")
+        print(f"risk scores {risk_scores.shape}")
+        print(f"event observed {risk_event_indicators.shape}")
+        print(f"mask {mask.shape}")
+        c_index = concordance_index(
                 observed_times[mask].detach().cpu().numpy(),
                 risk_scores[mask],
                 event_observed=risk_event_indicators[mask].detach().cpu().numpy()
             )
-        except Exception as e:
-            print(f"Error calculating C-index: {e}")
-            print(f"observed time {observed_times}")
-            print(f"risk scores {risk_scores}")
-            print(f"event observed {risk_event_indicators}")
-            print(f"mask {mask}")
-            c_index = np.nan
         c_index_per_risk.append(c_index)
 
     return c_index_per_risk
@@ -118,8 +115,6 @@ class RNNAttentionDataset(Dataset):
             events = torch.FloatTensor([[row['has_esrd'], row['dead']]])
         else:
             events = torch.FloatTensor([[row['has_esrd']]])
-
-        assert not pd.isna(row['egfr']), f"Panic: NaN value found in 'egfr' at index {idx} for subject {row['subject_id']} {row['duration_in_days']} row:\n {row}"
 
         return features, mask, time_to_event, events
 
