@@ -74,60 +74,54 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 
         # Only include cases where an event occurred for the risk
         mask = risk_event_indicators > 0
-        c_index = concordance_index(
-            observed_times[mask].detach().cpu().numpy(),
-            risk_scores[mask],
-            event_observed=risk_event_indicators[mask].detach().cpu().numpy()
-        )
+        try:
+            c_index = concordance_index(
+                observed_times[mask].detach().cpu().numpy(),
+                risk_scores[mask],
+                event_observed=risk_event_indicators[mask].detach().cpu().numpy()
+            )
+        except Exception as e:
+            print(f"Error calculating C-index: {e}")
+            print(f"observed time {observed_times}")
+            print(f"risk scores {risk_scores}")
+            print(f"event observed {risk_event_indicators}")
+            print(f"mask {mask}")
+            c_index = np.nan
         c_index_per_risk.append(c_index)
 
     return c_index_per_risk
 
 # Dataset that supports RNN and attention models
 class RNNAttentionDataset(Dataset):
-    """Dataset for handling longitudinal data with time-varying covariates"""
-    def __init__(self, df, max_seq_length=None, multiple_risk=True):
-        self.subject_groups = list(df.groupby('subject_id'))
-        self.max_seq_length = max_seq_length or max(df.groupby('subject_id').size())
-        
-        # Normalize numerical features
+    def __init__(self, df, multiple_risk=False):
+        self.df = df
+
+        # Normalize numerical features based on the entire DataFrame
         self.egfr_mean = df['egfr'].mean()
         self.egfr_std = df['egfr'].std()
         self.multiple_risk = multiple_risk
-        
+
     def __len__(self):
-        return len(self.subject_groups)
-    
+        return len(self.df)
+
     def __getitem__(self, idx):
-        _, subject_data = self.subject_groups[idx]
-        seq_length = len(subject_data)
-        
-        # Create feature matrix
-        features = np.zeros((self.max_seq_length, 1))  # ['egfr']
-        mask = np.zeros(self.max_seq_length)
-        
-        # Fill in features
-        features[:seq_length, 0] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
-        
-        # Create mask for valid timesteps
-        mask[:seq_length] = 1
-        
-        # Get time to event and event indicators
-        time_to_event = subject_data['duration_in_days'].iloc[-1]
+        row = self.df.iloc[idx]
+
+        # Extract single time-step features
+        egfr = (row['egfr'] - self.egfr_mean) / self.egfr_std
+        features = torch.FloatTensor([[egfr]])  # Shape (1, 1) - sequence of length 1
+
+        mask = torch.FloatTensor([])  # Single valid timestep
+
+        time_to_event = torch.LongTensor([row['duration_in_days']])
         if self.multiple_risk:
-            events = np.array([
-                subject_data['has_esrd'].iloc[-1],
-                subject_data['dead'].iloc[-1]
-            ])
+            events = torch.FloatTensor([[row['has_esrd'], row['dead']]])
         else:
-            events = np.array([
-                subject_data['has_esrd'].iloc[-1],
-            ])
-        
-        return (torch.FloatTensor(features),
-                torch.FloatTensor(mask),
-                torch.LongTensor([time_to_event]),
-                torch.FloatTensor(events))
+            events = torch.FloatTensor([[row['has_esrd']]])
+
+        assert not pd.isna(row['egfr']), f"Panic: NaN value found in 'egfr' at index {idx} for subject {row['subject_id']} {row['duration_in_days']} row:\n {row}"
+
+        return features, mask, time_to_event, events
 
 def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alpha=0.5, sigma=0.1):
     """
