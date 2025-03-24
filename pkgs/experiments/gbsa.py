@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_gbsa_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data_egfr, sample
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
 import joblib
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
@@ -19,7 +19,7 @@ def run_gbsa():
         gbsa = joblib.load(egfr_tv_gbsa_model_path)
     else:
         print('Fitting Gradient Boosting Survival Analysis model')
-        gbsa = GradientBoostingSurvivalAnalysis(verbose=2)
+        gbsa = GradientBoostingSurvivalAnalysis(verbose=2, n_estimators=10)
         gbsa.fit(X, y)
         joblib.dump(gbsa, egfr_tv_gbsa_model_path)
     
