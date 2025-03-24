@@ -4,11 +4,11 @@ from pkgs.data.time_series_utils_store import process_negative_patients, process
 
 
 def prep_data(df):
-    df['start'] = df.groupby('subject_id').cumcount() * df['duration_in_days']  # Calculate start times
-    df['stop'] = df['start'] + df['duration_in_days']  # Calculate stop times
+    df['start'] = df.groupby('subject_id').cumcount() * df['duration_in_days']
+    df['stop'] = df['start'] + df['duration_in_days']
     df.dropna(inplace=True)
-    # Adjust rows where start == stop by adding a small value to stop
-    df.loc[df['start'] == df['stop'], 'stop'] += 1e-5  # Adding a small value to ensure stop > start
+
+    df.loc[df['start'] == df['stop'], 'stop'] += 1e-5
     df.reset_index(drop=True, inplace=True)
     return df
 

@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, mini
+from pkgs.data.model_data_store import get_train_test_data_egfr, sample
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader

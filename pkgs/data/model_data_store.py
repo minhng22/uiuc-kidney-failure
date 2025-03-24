@@ -11,7 +11,7 @@ import pandas as pd
 
 # Pick a small subset of the data to test the models
 # Random pick censored and uncensored patients.
-def mini(df):
+def sample(df):
     num_subjects = 200
 
     esrd_patients = df[df['has_esrd'] == True]['subject_id'].unique()

@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_hazard_transformer_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, mini
+from pkgs.data.model_data_store import get_train_test_data_egfr, sample
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
 from torch.utils.data import DataLoader

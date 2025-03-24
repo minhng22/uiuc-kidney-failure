@@ -41,6 +41,7 @@ def process_negative_patients(patient_ids, multiple_risk = False):
     lab_df['has_esrd'] = 0
 
     lab_df['time'] = pd.to_datetime(lab_df['time'])
+    # `duration_in_days` is the time from the first lab record to the current lab record.
     lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
 
     # drop subject where there are missing values in duration_in_days
@@ -129,6 +130,7 @@ def process_positive_patients(diagnoses_df, patient_ids, multiple_risk = False):
     lab_df['has_esrd'] = lab_df['time'] >= lab_df['first_diagnose_esrd_time']
     lab_df['has_esrd'] = lab_df['has_esrd'].astype(int)
 
+    # `duration_in_days` is the time from the first lab record to the current lab record.
     lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
 
     # empty value means they only have one record.

@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
-from pkgs.data.model_data_store import get_train_test_data_egfr, mini
+from pkgs.data.model_data_store import get_train_test_data_egfr, sample
 from pkgs.experiments.utils import round_metric, ex_optuna
 from pkgs.commons import egfr_tv_rnn_surv_model_path
 
