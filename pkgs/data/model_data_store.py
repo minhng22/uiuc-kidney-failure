@@ -97,4 +97,4 @@ def get_train_test_data_multiple_risk():
 
 
 if __name__ == '__main__':
-    get_train_test_data_egfr(False)
+    get_train_test_data_egfr(True)
