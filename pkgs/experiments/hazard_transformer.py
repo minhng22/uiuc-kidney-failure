@@ -42,18 +42,16 @@ def objective(trial):
             loss.backward()
             optimizer.step()
 
-    c_index = eval_ht(model, df)
+    c_index = eval_ht(model, train_loader)
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def eval_ht(model, df):
+def eval_ht(model, data_loader):
     test_c_indices = []
-    test_dataset = RNNAttentionDataset(df, multiple_risk=False)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     model.eval()
     with torch.no_grad():
-        for features, mask, time_intervals, event_indicators in test_dataloader:
+        for features, mask, time_intervals, event_indicators in data_loader:
             eval_times = torch.linspace(0, model.max_time, 100)
             eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
             

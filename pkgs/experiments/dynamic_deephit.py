@@ -16,6 +16,7 @@ num_risks = 1
 
 def objective(trial):
     df, _ = get_train_test_data_egfr(True)
+    df = sample(df)
 
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -26,13 +27,14 @@ def objective(trial):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 25
+    num_epochs = 2
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     model.train()
-    for _ in range(num_epochs):
+    for epoch in range(num_epochs):
+        print(f'Epoch {epoch + 1}')
         total_loss = 0
         for features, mask, time_intervals, event_indicators in train_loader:
             optimizer.zero_grad()
@@ -42,20 +44,17 @@ def objective(trial):
             optimizer.step()
             total_loss += loss.item()
 
-    c_index = eval_ddh(model, df)
+    c_index = eval_ddh(model, train_loader)
 
     trial.set_user_attr(key="model", value=model)
     return c_index
 
 
-def eval_ddh(model, df):
+def eval_ddh(model, data_loader):
     test_c_indices = []
 
-    test_dataset = RNNAttentionDataset(df, multiple_risk=False)
-    test_dataloader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
     with torch.no_grad():
-        for features, mask, time_intervals, event_indicators in test_dataloader:
+        for features, mask, time_intervals, event_indicators in data_loader:
             hazard_preds, _ = model(features, mask)
 
             c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
