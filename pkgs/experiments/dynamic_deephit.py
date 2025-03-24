@@ -11,7 +11,7 @@ from pkgs.experiments.utils import ex_optuna
 import os
 import numpy as np
 
-ddh_features = ['duration_in_days', 'egfr']
+ddh_features = ['egfr']
 num_risks = 1
 
 def objective(trial):
@@ -20,7 +20,7 @@ def objective(trial):
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    input_dim = 2
+    input_dim = len(ddh_features)
     num_layers = trial.suggest_int("num_layer", 1, 20)
     hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 256) for i in range(num_layers)]
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)

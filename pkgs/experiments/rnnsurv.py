@@ -10,7 +10,7 @@ from pkgs.commons import egfr_tv_rnn_surv_model_path
 
 import os
 
-rnn_surv_features = ['duration_in_days', 'egfr']
+rnn_surv_features = ['egfr']
 
 class RNNSurvDataset(Dataset):
     def __init__(self, df, features, duration_col, event_col):

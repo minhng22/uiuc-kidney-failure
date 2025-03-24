@@ -16,7 +16,7 @@ def objective(trial):
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    input_dim = 2
+    input_dim = 1 # 'egfr'
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)

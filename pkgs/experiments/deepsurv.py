@@ -57,7 +57,7 @@ def objective(trial):
     hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 256) for i in range(num_layers)]
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = [trial.suggest_float(f"drop_out_rate_{i}", 0.1, 0.5) for i in range(num_layers)]
-    num_epochs = 50
+    num_epochs = 25
 
     model = DeepSurv(input_dim, hidden_dims, drop_out)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)

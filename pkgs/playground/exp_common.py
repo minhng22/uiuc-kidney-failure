@@ -103,12 +103,11 @@ class RNNAttentionDataset(Dataset):
         seq_length = len(subject_data)
         
         # Create feature matrix
-        features = np.zeros((self.max_seq_length, 2))  # ['duration_in_days', 'egfr']. 'duration_in_days' is better than 'start', 'stop' since admission time can be vastly different between patients.
+        features = np.zeros((self.max_seq_length, 1))  # ['egfr']
         mask = np.zeros(self.max_seq_length)
         
         # Fill in features
-        features[:seq_length, 0] = subject_data['duration_in_days'].values
-        features[:seq_length, 1] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
+        features[:seq_length, 0] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
         
         # Create mask for valid timesteps
         mask[:seq_length] = 1

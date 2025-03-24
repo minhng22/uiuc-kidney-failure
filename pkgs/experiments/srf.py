@@ -13,7 +13,7 @@ def run_survival_rf():
     df, df_test = get_train_test_data_egfr(True)
     df['has_esrd'] = df['has_esrd'].astype(bool)
 
-    X = df[['duration_in_days', 'egfr']]
+    X = df[['start', 'stop', 'egfr']]
     y = get_y_for_sckit_survival_model(df)
 
     if os.path.exists(egfr_tv_srf_model_path):
@@ -25,7 +25,7 @@ def run_survival_rf():
         joblib.dump(rsf, egfr_tv_srf_model_path)
 
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
-    X_test = df_test[['duration_in_days', 'egfr']]
+    X_test = df_test[['start', 'stop', 'egfr']]
 
     evaluate_scikit_survival_model(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), y)
 

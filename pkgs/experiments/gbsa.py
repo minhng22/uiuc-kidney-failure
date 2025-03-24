@@ -9,7 +9,7 @@ import os
 def run_gbsa():
     df, df_test = get_train_test_data_egfr(True)
     
-    X = df[['duration_in_days', 'egfr']].to_numpy()
+    X = df[['start', 'stop', 'egfr']].to_numpy()
     y = get_y_for_sckit_survival_model(df)
     
     print(df.head())
@@ -24,7 +24,7 @@ def run_gbsa():
     
     print('Evaluate on test data')
     
-    X_test = df_test[['duration_in_days', 'egfr']].to_numpy()
+    X_test = df_test[['start', 'stop', 'egfr']].to_numpy()
     print(X_test.shape)
 
     evaluate_scikit_survival_model(df_test, -gbsa.predict(X_test), gbsa.predict_survival_function(X_test), df)
