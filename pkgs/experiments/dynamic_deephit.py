@@ -16,7 +16,6 @@ num_risks = 1
 
 def objective(trial):
     df, _ = get_train_test_data_egfr(True)
-    df = sample(df)
 
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -27,7 +26,7 @@ def objective(trial):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 2
+    num_epochs = 1
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
