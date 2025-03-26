@@ -1,6 +1,7 @@
 from pkgs.commons import esrd_codes, patients_file_path
-from pkgs.data.store import get_egfr_df, get_first_time_esrd_df
+from pkgs.data.store import get_egfr_df, get_first_time_esrd_df, get_protein_df
 import pandas as pd
+import numpy as np
 
 
 def get_dead_status(row, patients):
@@ -21,7 +22,7 @@ def get_dead_status(row, patients):
     return int(row['time'] >= pd.to_datetime(patient_dod.values[0]))
 
 # process patients who have not progressed to ESRD
-def process_negative_patients(patient_ids, multiple_risk = False):
+def process_negative_patients(patient_ids, scenario_name):
     print(
         f"Processing patients who have not progressed to ESRD:\n"
         f"Number of patients: {len(patient_ids)}")
@@ -35,9 +36,8 @@ def process_negative_patients(patient_ids, multiple_risk = False):
         f"Dead patients: {patients['dod'].isna().sum()}\n"
         f"Alive patients: {patients['dod'].notna().sum()}"
     )
-    lab_df = get_egfr_df(patients)
+    lab_df = get_lab_df_for_scenario_name(patients, scenario_name)
 
-    lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
     lab_df['has_esrd'] = 0
 
     lab_df['time'] = pd.to_datetime(lab_df['time'])
@@ -65,15 +65,37 @@ def process_negative_patients(patient_ids, multiple_risk = False):
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
     
-    if multiple_risk:
-        lab_df['dead'] = lab_df.apply(get_dead_status, axis=1, patients=patients)
-        return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd', 'dead']]
-    
     return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
 
+def get_lab_df_for_scenario_name(patients, scenario_name):
+    if scenario_name == 'time_variant':
+        lab_df = get_egfr_df(patients)
+    elif scenario_name == 'heterogeneous':
+        egfr_df = get_egfr_df(patients)
+        egfr_df['egfr_missing'] = 0
+        egfr_df['protein_missing'] = 1
+        egfr_df['protein'] = 0
 
+        protein_df = get_protein_df(patients)
+        protein_df['egfr_missing'] = 1
+        protein_df['protein_missing'] = 0
+        protein_df['egfr'] = 0
+        
+        lab_df = pd.concat([egfr_df, protein_df])
+    else:
+        assert scenario_name == 'egfr_components'
+        lab_df = get_egfr_df(patients)
+        lab_df['gender'] = lab_df['gender'].map({'M': 1, 'F': 0})
+    
+    lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
+
+    print('Finished getting raw lab records for scenario:', scenario_name)
+    print(lab_df.head())
+
+    return lab_df
+        
 # process patients who have progressed to ESRD
-def process_positive_patients(diagnoses_df, patient_ids, multiple_risk):
+def process_positive_patients(diagnoses_df, patient_ids, scenario_name):
     def validate(D):
         filtered_df = D[D['has_esrd'] == 1]
         id_patients_w_lab_records_esrd = filtered_df['subject_id'].unique()
@@ -103,9 +125,8 @@ def process_positive_patients(diagnoses_df, patient_ids, multiple_risk):
         f"Alive patients: {patients['dod'].notna().sum()}"
     )
 
-    lab_df = get_egfr_df(patients)
+    lab_df = get_lab_df_for_scenario_name(patients, scenario_name)
 
-    lab_df.rename(columns={'anchor_age': 'age', 'charttime': 'time'}, inplace=True)
     lab_df = pd.merge(lab_df, first_time_esrd_df, on='subject_id', how='left')
     print(
         f'Number of patients after merging: {lab_df["subject_id"].nunique()}\n'
@@ -160,9 +181,19 @@ def process_positive_patients(diagnoses_df, patient_ids, multiple_risk):
         f"Stats on eGFR:\n"
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
-    
-    if multiple_risk:
-        lab_df['dead'] = lab_df.apply(get_dead_status, axis=1, patients=patients)
-        return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd', 'dead']]
 
     return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
+
+def sample_raw_df(df):
+    unique_subjects = df['subject_id'].unique()
+
+    n_sample = min(len(unique_subjects), 100)
+    sampled_subjects = np.random.choice(unique_subjects, size=n_sample, replace=False)
+
+    sampled_df = df[df['subject_id'].isin(sampled_subjects)]
+
+    return sampled_df
+
+if __name__ == '__main__':
+    patients = pd.read_csv(patients_file_path)
+    get_lab_df_for_scenario_name(patients, "heterogeneous")

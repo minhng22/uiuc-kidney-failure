@@ -31,7 +31,6 @@ def sample(df):
 
     return res
 
-
 def get_train_test_data_egfr(time_variant):
     train_path = egfr_tv_train_data_path if time_variant else egfr_ti_train_data_path
     test_path = egfr_tv_test_data_path if time_variant else egfr_ti_test_data_path
