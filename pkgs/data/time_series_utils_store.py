@@ -73,7 +73,7 @@ def process_negative_patients(patient_ids, multiple_risk = False):
 
 
 # process patients who have progressed to ESRD
-def process_positive_patients(diagnoses_df, patient_ids, multiple_risk = False):
+def process_positive_patients(diagnoses_df, patient_ids, multiple_risk):
     def validate(D):
         filtered_df = D[D['has_esrd'] == 1]
         id_patients_w_lab_records_esrd = filtered_df['subject_id'].unique()
