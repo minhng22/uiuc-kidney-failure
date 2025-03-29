@@ -75,4 +75,4 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
 
 if __name__ == '__main__':
     # get_time_series_data_ckd_patients('egfr_components')
-    get_time_series_data_ckd_patients('heterogeneous')
+    get_time_series_data_ckd_patients(ExperimentScenario.HETEROGENEOUS)
