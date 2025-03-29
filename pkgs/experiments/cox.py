@@ -4,14 +4,15 @@ from lifelines import CoxTimeVaryingFitter, CoxPHFitter
 import os
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr, get_train_test_data_multiple_risk
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import round_metric, evaluate_scikit_survival_model
+from pkgs.data.types import ExperimentScenario
 
 def get_callable_survival_functions(cox_model: CoxTimeVaryingFitter, data):
     pass
 
 def run_tv_cox_model():
-    data_train, data_test = get_train_test_data_egfr(True)
+    data_train, data_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     if not os.path.exists(egfr_tv_cox_model_path):
         model = CoxTimeVaryingFitter()
@@ -29,32 +30,8 @@ def run_tv_cox_model():
         data_train)
 
 
-def run_tv_multiple_risk_cox_model():
-    data_train, data_test = get_train_test_data_multiple_risk()
-
-    if not os.path.exists(egfr_tv_cox_model_path):
-        model = CoxTimeVaryingFitter()
-
-        print(f'Fitting model:\n')
-        model.fit(data_train, event_col='has_esrd', id_col='subject_id')
-
-        joblib.dump(model, egfr_tv_cox_model_path)
-    else:
-        model = joblib.load(egfr_tv_cox_model_path)
-
-    print('Evaluate on training data')
-    risk_scores = model.predict_partial_hazard(data_train)
-    c_index = round_metric(concordance_index(data_train['stop'], -risk_scores, data_train['has_esrd']))
-    print(f'Concordance Index: {c_index}')
-
-    print('Evaluate on test data')
-    risk_scores_test = model.predict_partial_hazard(data_test)
-    c_index_test = round_metric(concordance_index(data_test['stop'], -risk_scores_test, data_test['has_esrd']))
-    print(f'Concordance Index Test: {c_index_test}')
-
-
 def run_ti_cox_model():
-    data_train, data_test = get_train_test_data_egfr(False)
+    data_train, data_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
 
     if not os.path.exists(egfr_ti_cox_model_path):
         model = CoxPHFitter()

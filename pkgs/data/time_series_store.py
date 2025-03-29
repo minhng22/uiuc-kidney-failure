@@ -2,7 +2,7 @@ import pandas as pd
 from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_codes
 from pkgs.data.time_series_utils_store import process_negative_patients, process_positive_patients
 import numpy as np
-
+from pkgs.data.types import ExperimentScenario
 
 def add_time_variant_support(df):
     df = df.sort_values(by=['subject_id', 'duration_in_days'])
@@ -22,9 +22,7 @@ def add_time_variant_support(df):
 # 2. 'time_variant'
 # 3. 'heterogeneous': a variation of time_variant where the lab measurements are contains [egfr, proteinuria]
 # 4. 'egfr_components': a variation of time_variant where the features are components of egfr [age, sex, serum_creatinine]
-def get_time_series_data_ckd_patients(scenario: str):
-    assert scenario in ['time_invariant', 'time_variant', 'heterogeneous', 'egfr_components']
-
+def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
     diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
     diagnoses_df.dropna()
@@ -39,8 +37,8 @@ def get_time_series_data_ckd_patients(scenario: str):
           f'over {diagnoses_df["subject_id"].nunique()}, '
           f'accounts for {round(100 * len(non_esrd_patients)/diagnoses_df["subject_id"].nunique(), 3)}%')
     
-    lab_df_1 = process_negative_patients(non_esrd_patients, True if scenario == 'heterogeneous' else False)
-    lab_df_2 = process_positive_patients(diagnoses_df, esrd_patients, True if scenario == 'heterogeneous' else False)
+    lab_df_1 = process_negative_patients(non_esrd_patients, scenario)
+    lab_df_2 = process_positive_patients(diagnoses_df, esrd_patients, scenario)
 
     lab_df = pd.concat([lab_df_1, lab_df_2])
     print(f"After merge:\n"
@@ -50,7 +48,7 @@ def get_time_series_data_ckd_patients(scenario: str):
     lab_df['subject_id'] = lab_df['subject_id'].astype(int)
     lab_df['duration_in_days'] = lab_df['duration_in_days'].astype(float)
 
-    if scenario == 'time_invariant':
+    if scenario == ExperimentScenario.TIME_INVARIANT:
         # right-censoring. similar to work done by:
         # 1. Hagar et al.: Survival Analysis of EHR CKD Data
         d = pd.DataFrame(columns=lab_df.columns)
@@ -58,11 +56,11 @@ def get_time_series_data_ckd_patients(scenario: str):
             max_row = group.loc[group['duration_in_days'].idxmax()]
             d = d._append(max_row)
         lab_df = d
-    elif scenario == 'time_variant':
+    elif scenario == ExperimentScenario.TIME_VARIANT:
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'has_esrd']]
-    elif scenario == 'heterogeneous':
-        lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'protein', 'protein_missing', 'has_esrd']]
-    elif scenario == 'egfr_components':
+    elif scenario == ExperimentScenario.HETEROGENEOUS:
+        lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing', 'has_esrd']]
+    elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']]
     
     lab_df.dropna(inplace=True)
@@ -74,3 +72,7 @@ def get_time_series_data_ckd_patients(scenario: str):
           f"Total number of patients: {lab_df['subject_id'].nunique()}\n"
           f"Total number of records: {len(lab_df)}")
     return lab_df
+
+if __name__ == '__main__':
+    # get_time_series_data_ckd_patients('egfr_components')
+    get_time_series_data_ckd_patients('heterogeneous')

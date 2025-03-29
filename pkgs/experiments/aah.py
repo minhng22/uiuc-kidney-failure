@@ -3,12 +3,13 @@ from lifelines import AalenAdditiveFitter
 import os
 
 from pkgs.commons import egfr_tv_aah_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import evaluate_scikit_survival_model
+from pkgs.data.types import ExperimentScenario
 
 # Aalen model assumes time-varying coefficients
 def run_tv():
-    df, df_test = get_train_test_data_egfr(True)
+    df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
     X = df[['duration_in_days', 'egfr', 'has_esrd']]
 
     if not os.path.exists(egfr_tv_aah_model_path):

@@ -1,5 +1,7 @@
 import pandas as pd
-from pkgs.commons import ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_path, esrd_codes, lab_events_file_path, lab_codes_creatinine, admissions_file_path, patients_file_path
+from pkgs.commons import (ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_path, esrd_codes, 
+                          lab_events_file_path, lab_codes_creatinine, admissions_file_path, patients_file_path, 
+                          lab_codes_proteins_24hr, lab_codes_albumin)
 from pkgs.data.utils_store import filter_df_on_icd_code
 from pkgs.data.utils import calculate_eGFR
 import numpy as np
@@ -63,7 +65,7 @@ def get_lab_events_df_for_patients(patient_df):
 def get_egfr_df(patient_df):
     lab_events_df = get_lab_events_df_for_patients(patient_df)
 
-    egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
+    egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]# unit is mg/dL
     egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
     egfr_df = egfr_df[egfr_df['valuenum'] != 0]
     egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
@@ -75,16 +77,11 @@ def get_egfr_df(patient_df):
 
 def get_protein_df(patient_df):
     lab_events_df = get_lab_events_df_for_patients(patient_df)
+    return lab_events_df[lab_events_df['itemid'].isin(lab_codes_proteins_24hr)] # unit is mg/24hr
 
-    egfr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_creatinine)]
-    egfr_df = pd.merge(egfr_df, patient_df, on='subject_id', how='outer')
-    egfr_df = egfr_df[egfr_df['valuenum'] != 0]
-    egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
-
-    egfr_df.dropna(inplace=True)
-    egfr_df = egfr_df.replace('', np.nan).dropna()
-
-    return egfr_df
+def get_albumin_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    return lab_events_df[lab_events_df['itemid'].isin(lab_codes_albumin)] # unit is mg/dL
 
 def get_first_time_esrd_df(diagnose_df):
     admission_df = pd.read_csv(admissions_file_path)

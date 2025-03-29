@@ -61,29 +61,46 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 """
 figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
-egfr_tv_train_data_path = f'{project_dir()}/generated_data/egfr_tv_train_data.csv'
-egfr_tv_test_data_path = f'{project_dir()}/generated_data/egfr_tv_test_data.csv'
-egfr_components_train_data_path = f'{project_dir()}/generated_data/egfr_components_train_data.csv'
-egfr_components_test_data_path = f'{project_dir()}/generated_data/egfr_components_test_data.csv'
+
+# trained models - time invariant scenario
+egfr_ti_srf_model_path = f'{project_dir()}/generated_data/egfr_ti_srf_model.pkl'
+egfr_ti_deepsurv_model_path = f'{project_dir()}/generated_data/egfr_ti_deepsurv_model.pt'
+egfr_ti_cox_model_path = f'{project_dir()}/generated_data/egfr_ti_cox_model.pkl'
+
+# trained models - time variant scenario
 egfr_tv_cox_model_path = f'{project_dir()}/generated_data/egfr_tv_cox_model.pkl'
 egfr_tv_aah_model_path = f'{project_dir()}/generated_data/egfr_tv_aah_model.pkl'
-egfr_ti_srf_model_path = f'{project_dir()}/generated_data/egfr_ti_srf_model.pkl'
 egfr_tv_srf_model_path = f'{project_dir()}/generated_data/egfr_tv_srf_model.pkl'
 egfr_tv_gbsa_model_path = f'{project_dir()}/generated_data/egfr_tv_gbsa_model.pkl'
 egfr_tv_dynamic_deep_hit_model_path = f'{project_dir()}/generated_data/egfr_tv_ddh_model.pt'
 egfr_tv_hazard_transformer_model_path = f'{project_dir()}/generated_data/egfr_tv_hazard_transformer_model.pt'
-egfr_ti_deepsurv_model_path = f'{project_dir()}/generated_data/egfr_ti_deepsurv_model.pt'
 egfr_tv_rnn_surv_model_path = f'{project_dir()}/generated_data/egfr_tv_rnn_surv_model.pt'
 
-egfr_ti_cox_model_path = f'{project_dir()}/generated_data/egfr_ti_cox_model.pkl'
+# trained models - heterogeneous scenario
+egfr_hg_cox_model_path = f'{project_dir()}/generated_data/egfr_hg_cox_model.pkl'
+egfr_hg_srf_model_path = f'{project_dir()}/generated_data/egfr_hg_srf_model.pkl'
+egfr_hg_gbsa_model_path = f'{project_dir()}/generated_data/egfr_hg_gbsa_model.pkl'
+egfr_hg_dynamic_deep_hit_model_path = f'{project_dir()}/generated_data/egfr_hg_ddh_model.pt'
+egfr_hg_hazard_transformer_model_path = f'{project_dir()}/generated_data/egfr_hg_hazard_transformer_model.pt'
+egfr_hg_rnn_surv_model_path = f'{project_dir()}/generated_data/egfr_hg_rnn_surv_model.pt'
+
+# trained models - egfr components scenario
+egfr_components_cox_model_path = f'{project_dir()}/generated_data/egfr_components_cox_model.pkl'
+egfr_components_rnn_surv_model_path = f'{project_dir()}/generated_data/egfr_components_rnn_surv_model.pt'
+egfr_components_dynamic_deep_hit_model_path = f'{project_dir()}/generated_data/egfr_components_ddh_model.pt'
+egfr_components_hazard_transformer_model_path = f'{project_dir()}/generated_data/egfr_components_hazard_transformer_model.pt'
+egfr_components_srf_model_path = f'{project_dir()}/generated_data/egfr_components_srf_model.pkl'
+egfr_components_gbsa_model_path = f'{project_dir()}/generated_data/egfr_components_gbsa_model.pkl'
+
+# train and test data
+heterogen_train_data_path = f'{project_dir()}/generated_data/heterogen_train_data.csv'
+heterogen_test_data_path = f'{project_dir()}/generated_data/heterogen_test_data.csv'
+egfr_tv_train_data_path = f'{project_dir()}/generated_data/egfr_tv_train_data.csv'
+egfr_tv_test_data_path = f'{project_dir()}/generated_data/egfr_tv_test_data.csv'
 egfr_ti_train_data_path = f'{project_dir()}/generated_data/egfr_ti_train_data.csv'
 egfr_ti_test_data_path = f'{project_dir()}/generated_data/egfr_ti_test_data.csv'
-
-multiple_risk_tv_train_data_path = f'{project_dir()}/generated_data/multiple_risk_tv_train_data.csv'
-multiple_risk_tv_test_data_path = f'{project_dir()}/generated_data/multiple_risk_tv_test_data.csv'
-multiple_risk_tv_cox_model_path = f'{project_dir()}/generated_data/multiple_risk_tv_cox_model.pkl'
-multiple_risk_ti_srf_model_path = f'{project_dir()}/generated_data/multiple_risk_ti_srf_model.pkl'
-multiple_risk_tv_gbsa_model_path = f'{project_dir()}/generated_data/multiple_risk_tv_gbsa_model.pkl'
+egfr_components_train_data_path = f'{project_dir()}/generated_data/egfr_components_train_data.csv'
+egfr_components_test_data_path = f'{project_dir()}/generated_data/egfr_components_test_data.csv'
 
 """
 ----------Others----------

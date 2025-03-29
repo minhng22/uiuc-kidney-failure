@@ -2,13 +2,14 @@ import torch
 import torch.optim as optim
 
 from pkgs.models.deepsurv import DeepSurv
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 from pkgs.experiments.utils import evaluate_rnn_model, ex_optuna
 
 import os
 from pkgs.commons import egfr_ti_deepsurv_model_path
+from pkgs.data.types import ExperimentScenario
 
 deep_surv_features = ['egfr']
 
@@ -45,7 +46,7 @@ def objective(trial):
     duration_col = 'duration_in_days'
     event_col = 'has_esrd'
 
-    df, _ = get_train_test_data_egfr(False)
+    df, _ = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
 
     train_dataset = DeepSurvDataset(df, deep_surv_features, duration_col, event_col)
     
@@ -82,7 +83,7 @@ def objective(trial):
     return c_index
 
 def run():
-    _, df_test = get_train_test_data_egfr(False)
+    _, df_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
 
     if os.path.exists(egfr_ti_deepsurv_model_path):
         print("Loading from saved weights")

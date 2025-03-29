@@ -4,9 +4,10 @@ from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import round_metric, ex_optuna
 from pkgs.commons import egfr_tv_rnn_surv_model_path
+from pkgs.data.types import ExperimentScenario
 
 import os
 
@@ -86,7 +87,7 @@ def objective(trial):
     event_col = 'has_esrd'
     num_time_intervals = trial.suggest_int('num_time_intervals', 10, 50)
 
-    df, _ = get_train_test_data_egfr(True)
+    df, _ = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     train_dataset = RNNSurvDataset(df, rnn_surv_features, duration_col, event_col)
     train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
@@ -134,7 +135,7 @@ def evaluate(model, df, features):
     return c_index
 
 def run():
-    _, df_test = get_train_test_data_egfr(False)
+    _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     if os.path.exists(egfr_tv_rnn_surv_model_path):
         print("Loading from saved weights")

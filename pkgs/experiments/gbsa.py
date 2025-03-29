@@ -1,13 +1,13 @@
 from pkgs.commons import egfr_tv_gbsa_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
 import joblib
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
 import os
-
+from pkgs.data.types import ExperimentScenario
 
 def run_gbsa():
-    df, df_test = get_train_test_data_egfr(True)
+    df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
     
     X = df[['start', 'stop', 'egfr']].to_numpy()
     y = get_y_for_sckit_survival_model(df)

@@ -1,5 +1,5 @@
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data_egfr
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader
@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from pkgs.playground.exp_common import RNNAttentionDataset
 from pkgs.playground.exp_common import batch_size, survival_loss, calculate_c_index
 from pkgs.experiments.utils import ex_optuna
+from pkgs.data.types import ExperimentScenario
 
 import os
 import numpy as np
@@ -15,7 +16,7 @@ ddh_features = ['egfr']
 num_risks = 1
 
 def objective(trial):
-    df, _ = get_train_test_data_egfr(True)
+    df, _ = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
@@ -66,7 +67,7 @@ def eval_ddh(model, data_loader):
     return avg_test_c_indices[0] # 1 risk, which is esrd
 
 def run():
-    _, df_test = get_train_test_data_egfr(True)
+    _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
         print("Loading from saved weights")

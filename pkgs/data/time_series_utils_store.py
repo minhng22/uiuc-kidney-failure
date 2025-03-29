@@ -1,7 +1,8 @@
 from pkgs.commons import esrd_codes, patients_file_path
-from pkgs.data.store import get_egfr_df, get_first_time_esrd_df, get_protein_df
+from pkgs.data.store import get_egfr_df, get_first_time_esrd_df, get_protein_df, get_albumin_df
 import pandas as pd
 import numpy as np
+from pkgs.data.types import ExperimentScenario
 
 
 def get_dead_status(row, patients):
@@ -21,8 +22,14 @@ def get_dead_status(row, patients):
     # If dod is present, compare time with dod
     return int(row['time'] >= pd.to_datetime(patient_dod.values[0]))
 
+def calculate_duration_in_days(df):
+    # `duration_in_days` is the time from the first lab record to the current lab record.
+    df['duration_in_days'] = (df['time'] - df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
+
+    return df
+
 # process patients who have not progressed to ESRD
-def process_negative_patients(patient_ids, scenario_name):
+def process_negative_patients(patient_ids: any, scenario_name: ExperimentScenario):
     print(
         f"Processing patients who have not progressed to ESRD:\n"
         f"Number of patients: {len(patient_ids)}")
@@ -41,8 +48,8 @@ def process_negative_patients(patient_ids, scenario_name):
     lab_df['has_esrd'] = 0
 
     lab_df['time'] = pd.to_datetime(lab_df['time'])
-    # `duration_in_days` is the time from the first lab record to the current lab record.
-    lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
+    
+    lab_df = calculate_duration_in_days(lab_df)
 
     # drop subject where there are missing values in duration_in_days
     # In mimic-iv, these are:
@@ -67,23 +74,28 @@ def process_negative_patients(patient_ids, scenario_name):
     
     return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
 
-def get_lab_df_for_scenario_name(patients, scenario_name):
-    if scenario_name == 'time_variant':
+def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenario):
+    if scenario_name == ExperimentScenario.TIME_VARIANT:
         lab_df = get_egfr_df(patients)
-    elif scenario_name == 'heterogeneous':
+    elif scenario_name == ExperimentScenario.HETEROGENEOUS:
         egfr_df = get_egfr_df(patients)
         egfr_df['egfr_missing'] = 0
-        egfr_df['protein_missing'] = 1
-        egfr_df['protein'] = 0
+        egfr_df['protein_missing'] = 1; egfr_df['protein'] = 0
+        egfr_df['albumin_missing'] = 1; egfr_df['albumin'] = 0
 
         protein_df = get_protein_df(patients)
-        protein_df['egfr_missing'] = 1
         protein_df['protein_missing'] = 0
-        protein_df['egfr'] = 0
+        protein_df['egfr_missing'] = 1; protein_df['egfr'] = 0
+        protein_df['albumin_missing'] = 1; protein_df['albumin'] = 0
+
+        albumin_df = get_albumin_df(patients)
+        albumin_df['albumin_missing'] = 0
+        albumin_df['egfr_missing'] = 1; albumin_df['egfr'] = 0
+        albumin_df['protein_missing'] = 1; albumin_df['protein'] = 0
         
         lab_df = pd.concat([egfr_df, protein_df])
     else:
-        assert scenario_name == 'egfr_components'
+        assert scenario_name == ExperimentScenario.EGFR_COMPONENTS, f"Unknown scenario name: {scenario_name}"
         lab_df = get_egfr_df(patients)
         lab_df['gender'] = lab_df['gender'].map({'M': 1, 'F': 0})
     
@@ -151,8 +163,7 @@ def process_positive_patients(diagnoses_df, patient_ids, scenario_name):
     lab_df['has_esrd'] = lab_df['time'] >= lab_df['first_diagnose_esrd_time']
     lab_df['has_esrd'] = lab_df['has_esrd'].astype(int)
 
-    # `duration_in_days` is the time from the first lab record to the current lab record.
-    lab_df['duration_in_days'] = (lab_df['time'] - lab_df.groupby('subject_id')['time'].transform('min')).dt.total_seconds() / (60 * 60 * 24)
+    lab_df = calculate_duration_in_days(lab_df)
 
     # empty value means they only have one record.
     lab_df = lab_df.groupby('subject_id').filter(lambda x: x['duration_in_days'].notna().all())
@@ -196,4 +207,5 @@ def sample_raw_df(df):
 
 if __name__ == '__main__':
     patients = pd.read_csv(patients_file_path)
-    get_lab_df_for_scenario_name(patients, "heterogeneous")
+    d = get_lab_df_for_scenario_name(patients, "egfr_components")
+
