@@ -12,6 +12,7 @@ def add_time_variant_support(df):
     df['stop'] = df['stop'].fillna(df['start'] + 1e-5)
 
     df.reset_index(drop=True, inplace=True)
+    print('add_time_variant_support cols: ', df.columns.tolist())
     return df
 
 
@@ -63,16 +64,23 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']]
     
-    lab_df.dropna(inplace=True)
-    lab_df = lab_df.replace('', np.nan).dropna()
-    
     lab_df.reset_index(drop=True, inplace=True)
 
     print(f"Data: \n{lab_df.head()}\n"
           f"Total number of patients: {lab_df['subject_id'].nunique()}\n"
           f"Total number of records: {len(lab_df)}")
-    return lab_df
+    return lab_df[get_final_columns(scenario)]
 
+def get_final_columns(scenario):
+    if scenario == ExperimentScenario.TIME_INVARIANT:
+        return ['subject_id', 'duration_in_days', 'egfr', 'has_esrd']
+    elif scenario == ExperimentScenario.TIME_VARIANT:
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'has_esrd']
+    elif scenario == ExperimentScenario.HETEROGENEOUS:
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing', 'has_esrd']
+    elif scenario == ExperimentScenario.EGFR_COMPONENTS:
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']
+   
 if __name__ == '__main__':
     # get_time_series_data_ckd_patients('egfr_components')
-    get_time_series_data_ckd_patients(ExperimentScenario.HETEROGENEOUS)
+    get_time_series_data_ckd_patients(ExperimentScenario.TIME_VARIANT)

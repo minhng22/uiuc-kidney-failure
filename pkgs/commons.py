@@ -53,6 +53,7 @@ diabete_codes = []
 lab_codes_creatinine = ['52546', '50912', '52024']
 lab_codes_egfr = ['50920', '52026', '53176']
 lab_codes_proteins_24hr = ['51068']
+lab_codes_proteins = ['51992', '51102', '51492']
 lab_codes_albumin = ['51069', '51070', '52703']
 
 ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']

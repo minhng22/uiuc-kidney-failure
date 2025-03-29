@@ -1,7 +1,7 @@
 import pandas as pd
 from pkgs.commons import (ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_path, esrd_codes, 
                           lab_events_file_path, lab_codes_creatinine, admissions_file_path, patients_file_path, 
-                          lab_codes_proteins_24hr, lab_codes_albumin)
+                          lab_codes_proteins, lab_codes_albumin)
 from pkgs.data.utils_store import filter_df_on_icd_code
 from pkgs.data.utils import calculate_eGFR
 import numpy as np
@@ -70,18 +70,30 @@ def get_egfr_df(patient_df):
     egfr_df = egfr_df[egfr_df['valuenum'] != 0]
     egfr_df['egfr'] = egfr_df.apply(calculate_eGFR, axis=1)
 
-    egfr_df.dropna(inplace=True)
-    egfr_df = egfr_df.replace('', np.nan).dropna()
+    egfr_df['serum_creatinine'] = egfr_df['valuenum']
+
+    egfr_df['egfr'] = egfr_df['egfr'].replace('', np.nan)
+    egfr_df = egfr_df.dropna(subset=['egfr'])
 
     return egfr_df
 
 def get_protein_df(patient_df):
     lab_events_df = get_lab_events_df_for_patients(patient_df)
-    return lab_events_df[lab_events_df['itemid'].isin(lab_codes_proteins_24hr)] # unit is mg/24hr
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_proteins)] # unit is mg/24hr
+    lab_events_df['protein'] = lab_events_df['valuenum']
+
+    lab_events_df['protein'] = lab_events_df['protein'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['protein'])
+    return lab_events_df
 
 def get_albumin_df(patient_df):
     lab_events_df = get_lab_events_df_for_patients(patient_df)
-    return lab_events_df[lab_events_df['itemid'].isin(lab_codes_albumin)] # unit is mg/dL
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_albumin)] # unit is mg/dL
+    lab_events_df['albumin'] = lab_events_df['valuenum']
+
+    lab_events_df['albumin'] = lab_events_df['albumin'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['albumin'])
+    return lab_events_df
 
 def get_first_time_esrd_df(diagnose_df):
     admission_df = pd.read_csv(admissions_file_path)

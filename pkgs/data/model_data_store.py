@@ -76,4 +76,4 @@ def get_train_test_data(scenario: ExperimentScenario):
     return data_train, data_test
 
 if __name__ == '__main__':
-    get_train_test_data(ExperimentScenario.HETEROGENEOUS)
+    get_train_test_data(ExperimentScenario.EGFR_COMPONENTS)

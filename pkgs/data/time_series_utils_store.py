@@ -72,7 +72,7 @@ def process_negative_patients(patient_ids: any, scenario_name: ExperimentScenari
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
     
-    return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
+    return lab_df
 
 def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenario):
     if scenario_name == ExperimentScenario.TIME_VARIANT:
@@ -83,17 +83,26 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         egfr_df['protein_missing'] = 1; egfr_df['protein'] = 0
         egfr_df['albumin_missing'] = 1; egfr_df['albumin'] = 0
 
+        print('number of patients with egfr:', egfr_df['subject_id'].nunique())
+        print('number of records with egfr:', len(egfr_df))
+
         protein_df = get_protein_df(patients)
         protein_df['protein_missing'] = 0
         protein_df['egfr_missing'] = 1; protein_df['egfr'] = 0
         protein_df['albumin_missing'] = 1; protein_df['albumin'] = 0
 
+        print('number of patients with protein:', protein_df['subject_id'].nunique())
+        print('number of records with protein:', len(protein_df))
+
         albumin_df = get_albumin_df(patients)
         albumin_df['albumin_missing'] = 0
         albumin_df['egfr_missing'] = 1; albumin_df['egfr'] = 0
         albumin_df['protein_missing'] = 1; albumin_df['protein'] = 0
+
+        print('number of patients with albumin:', albumin_df['subject_id'].nunique())
+        print('number of records with albumin:', len(albumin_df))
         
-        lab_df = pd.concat([egfr_df, protein_df])
+        lab_df = pd.concat([egfr_df, protein_df, albumin_df])
     else:
         assert scenario_name == ExperimentScenario.EGFR_COMPONENTS, f"Unknown scenario name: {scenario_name}"
         lab_df = get_egfr_df(patients)
@@ -103,6 +112,7 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
 
     print('Finished getting raw lab records for scenario:', scenario_name)
     print(lab_df.head())
+    print(lab_df.columns.tolist())
 
     return lab_df
         
@@ -193,7 +203,7 @@ def process_positive_patients(diagnoses_df, patient_ids, scenario_name):
         f"Number of records: {len(lab_df)}. Number of patients: {lab_df['subject_id'].nunique()}\n"
         f"mean {lab_df['egfr'].mean():.3f} sd {lab_df['egfr'].std():.3f}")
 
-    return lab_df[['subject_id', 'duration_in_days', 'egfr', 'has_esrd']]
+    return lab_df
 
 def sample_raw_df(df):
     unique_subjects = df['subject_id'].unique()
