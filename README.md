@@ -9,3 +9,8 @@
 
 1. Go to root folder
 1. Run `python -m pkgs.experiments.file`
+
+## To view analysis of train/test data
+
+1. Go to root folder
+1. Run `python -m pkgs.data.model_data_store`

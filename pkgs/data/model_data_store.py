@@ -75,5 +75,66 @@ def get_train_test_data(scenario: ExperimentScenario):
 
     return data_train, data_test
 
+def analyze_train_test_data():
+    for scenario in [ExperimentScenario.TIME_INVARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+        print(f"Analyzing scenario: {scenario}")
+        data_train, data_test = get_train_test_data(scenario)
+        print(f"Train data:\n{data_train.head()}")
+        print(f"Test data:\n{data_test.head()}")
+
+        print(f"Nan check in train data:\n{data_train.isna().sum()}")
+        print(f"Nan check in test data:\n{data_test.isna().sum()}")
+
+        # Analyze number of patients
+        num_patients_train = data_train['subject_id'].nunique()
+        num_patients_test = data_test['subject_id'].nunique()
+        print(f"Number of patients in train data: {num_patients_train}")
+        print(f"Number of patients in test data: {num_patients_test}")
+
+        # Analyze number of records
+        num_records_train = len(data_train)
+        num_records_test = len(data_test)
+        print(f"Number of records in train data: {num_records_train}")
+        print(f"Number of records in test data: {num_records_test}")
+
+        if scenario == ExperimentScenario.TIME_VARIANT:
+            # Max duration in days
+            max_duration_train = data_train['duration_in_days'].max()
+            max_duration_test = data_test['duration_in_days'].max()
+            print(f"Max duration in days in train data: {max_duration_train}")
+            print(f"Max duration in days in test data: {max_duration_test}")
+
+            # Analyze the distribution of eGFR values
+            print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
+            print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
+        elif scenario == ExperimentScenario.EGFR_COMPONENTS:
+            # Analyze the distribution of eGFR values
+            print(f"Distribution of eGFR in train data:\n{data_train['serum_creatinine'].describe()}")
+            print(f"Distribution of eGFR in test data:\n{data_test['serum_creatinine'].describe()}")
+
+            # Analyze the distribution of age
+            print(f"Distribution of age in train data:\n{data_train['age'].describe()}")
+            print(f"Distribution of age in test data:\n{data_test['age'].describe()}")
+
+            # Analyze distribution of gender
+            print(f"Distribution of age in train data:\n{data_train['gender'].describe()}")
+            print(f"Distribution of age in test data:\n{data_test['gender'].describe()}")
+        elif scenario == ExperimentScenario.HETEROGENEOUS:
+            # Analyze the distribution of eGFR values
+            print(f"Distribution of eGFR in train data:\n{data_train[data_train['egfr_missing'] == 0]['egfr'].describe()}")
+            print(f"Distribution of eGFR in test data:\n{data_test[data_test['egfr_missing'] == 0]['egfr'].describe()}")
+
+            # Analyze the distribution of protein values
+            print(f"Distribution of protein in train data:\n{data_train[data_train['protein_missing'] == 0]['protein'].describe()}")
+            print(f"Distribution of protein in test data:\n{data_test[data_test['protein_missing'] == 0]['protein'].describe()}")
+
+            # Analyze the distribution of albumin values
+            print(f"Distribution of albumin in train data:\n{data_train[data_train['albumin_missing'] == 0]['albumin'].describe()}")
+            print(f"Distribution of albumin in test data:\n{data_test[data_test['albumin_missing'] == 0]['albumin'].describe()}")
+        elif scenario == ExperimentScenario.TIME_INVARIANT:
+            # Analyze the distribution of eGFR values
+            print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
+            print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
+            
 if __name__ == '__main__':
-    get_train_test_data(ExperimentScenario.EGFR_COMPONENTS)
+    analyze_train_test_data()
