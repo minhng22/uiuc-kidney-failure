@@ -13,7 +13,7 @@ def round_metric(metric_num):
     return round(metric_num, 3)
 
 
-def evaluate_scikit_survival_model(df_test, risk_scores, surv_funcs, df_train):
+def evaluate_ti_scikit_survival_model(df_test, risk_scores, surv_funcs, df_train):
     # Concordance Index on test data
     c_index_test = round_metric(concordance_index(df_test['duration_in_days'], risk_scores, df_test['has_esrd']))
     print(f'Concordance Index Test: {round_metric(c_index_test)}')

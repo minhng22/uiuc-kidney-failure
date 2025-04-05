@@ -1,6 +1,6 @@
 from pkgs.commons import egfr_ti_srf_model_path
 from pkgs.data.model_data_store import get_train_test_data
-from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_scikit_survival_model
+from pkgs.experiments.utils import get_y_for_sckit_survival_model, evaluate_ti_scikit_survival_model
 
 import joblib
 from sksurv.ensemble import RandomSurvivalForest
@@ -11,6 +11,7 @@ import os
 from pkgs.data.types import ExperimentScenario
 
 # Data needs to be time-invariant setup
+# time-invariant model
 def run_survival_rf():
     df, df_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
     df['has_esrd'] = df['has_esrd'].astype(bool)
@@ -29,7 +30,7 @@ def run_survival_rf():
     df_test['has_esrd'] = df_test['has_esrd'].astype(bool)
     X_test = df_test[['start', 'stop', 'egfr']]
 
-    evaluate_scikit_survival_model(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), df)
+    evaluate_ti_scikit_survival_model(df_test, -rsf.predict(X_test), rsf.predict_survival_function(X_test), df)
 
 
 if __name__ == '__main__':

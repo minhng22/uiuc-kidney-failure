@@ -5,7 +5,6 @@ import os
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data
-from pkgs.experiments.utils import round_metric, evaluate_scikit_survival_model
 from pkgs.data.types import ExperimentScenario
 
 def get_callable_survival_functions(cox_model: CoxTimeVaryingFitter, data):
@@ -25,9 +24,6 @@ def run_tv_cox_model():
         model = joblib.load(egfr_tv_cox_model_path)
 
     print('Evaluate on test data')
-    evaluate_scikit_survival_model(
-        data_test, model.predict_partial_hazard(data_test), get_callable_survival_functions(model, data_test), 
-        data_train)
 
 
 def run_ti_cox_model():
