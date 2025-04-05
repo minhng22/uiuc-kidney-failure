@@ -13,6 +13,17 @@ def add_time_variant_support(df):
 
     df.reset_index(drop=True, inplace=True)
     print('add_time_variant_support cols: ', df.columns.tolist())
+
+    # Find rows where 'stop' is less than 'start'
+    invalid_rows = df[df['stop'] < df['start']]
+
+    # Check if there are any such rows and print the 'subject_id's
+    if not invalid_rows.empty:
+        print("Subjects with 'stop' < 'start':")
+        print(invalid_rows['subject_id'].tolist())
+        raise ValueError("Invalid data: 'stop' < 'start' for some subjects.")
+    else:
+        print("No subjects found with 'stop' < 'start'.")
     return df
 
 
