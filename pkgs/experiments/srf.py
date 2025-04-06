@@ -6,27 +6,60 @@ from lifelines.utils import concordance_index
 from sksurv.ensemble import RandomSurvivalForest
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.metrics import make_scorer
 
 from pkgs.commons import egfr_ti_srf_model_path
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric
+
+def c_idx_score_fn(y, risk_score):
+    events = np.array([item[0] for item in y])
+    duration_in_days = np.array([item[1] for item in y])
+
+    print(f'Events: {events[0]}')
+    print(f'Duration in days: {duration_in_days[0]}')
+
+    return concordance_index(duration_in_days, risk_score, events)
 
 # Data needs to be non-time-variant setup
 # non-time-variant model
 def run_survival_rf():
     df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
+    df = sample(df)
+    df_test = sample(df_test)
+
     X = get_x_for_sckit_survival_model(df)
     y = get_y_for_sckit_survival_model(df)
 
-    if os.path.exists(egfr_ti_srf_model_path):
-        rsf = joblib.load(egfr_ti_srf_model_path)
-    else:
-        print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
-        rsf = RandomSurvivalForest(n_jobs= 1, verbose=2, n_estimators=100)
-        rsf.fit(X, y)
-        joblib.dump(rsf, egfr_ti_srf_model_path)
+    param_grid = {
+        'n_estimators': [50, 100, 200, 300],
+        'max_depth': [None, 5, 10, 15],
+        'min_samples_split': [2, 5, 10, 15]
+    }
+    
+    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+    
+    scorer = make_scorer(c_idx_score_fn, greater_is_better=True)
+    
+    grid_search = GridSearchCV(
+        estimator=RandomSurvivalForest(n_jobs=1, verbose=0),
+        param_grid=param_grid,
+        scoring=scorer,
+        cv=cv,
+        n_jobs=1
+    )
+    
+    print(f'Fitting Random Survival Forest model. Current time {datetime.datetime.now()}:\n')
+    grid_search.fit(X, y)
+    
+    print('Best parameters found:')
+    print(grid_search.best_params_)
+    
+    rsf = grid_search.best_estimator_
+    joblib.dump(rsf, egfr_ti_srf_model_path)
 
     print('Evaluate on test data')
     
