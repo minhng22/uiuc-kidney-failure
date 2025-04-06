@@ -77,10 +77,10 @@ egfr_tv_hazard_transformer_model_path = f'{project_dir()}/generated_data/egfr_tv
 egfr_tv_rnn_surv_model_path = f'{project_dir()}/generated_data/egfr_tv_rnn_surv_model.pt'
 
 # trained models - heterogeneous scenario
-egfr_hg_cox_model_path = f'{project_dir()}/generated_data/egfr_hg_cox_model.pkl'
-egfr_hg_dynamic_deep_hit_model_path = f'{project_dir()}/generated_data/egfr_hg_ddh_model.pt'
-egfr_hg_hazard_transformer_model_path = f'{project_dir()}/generated_data/egfr_hg_hazard_transformer_model.pt'
-egfr_hg_rnn_surv_model_path = f'{project_dir()}/generated_data/egfr_hg_rnn_surv_model.pt'
+hg_cox_model_path = f'{project_dir()}/generated_data/hg_cox_model.pkl'
+hg_dynamic_deep_hit_model_path = f'{project_dir()}/generated_data/hg_ddh_model.pt'
+hg_hazard_transformer_model_path = f'{project_dir()}/generated_data/hg_hazard_transformer_model.pt'
+hg_rnn_surv_model_path = f'{project_dir()}/generated_data/hg_rnn_surv_model.pt'
 
 # trained models - egfr components scenario
 egfr_components_cox_model_path = f'{project_dir()}/generated_data/egfr_components_cox_model.pkl'

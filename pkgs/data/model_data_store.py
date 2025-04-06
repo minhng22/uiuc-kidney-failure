@@ -73,6 +73,9 @@ def get_train_test_data(scenario: ExperimentScenario):
         f'Number of records: test {len(data_test)} and train {len(data_train)}'
     )
 
+    data_train.reset_index(drop=True, inplace=True)
+    data_test.reset_index(drop=True, inplace=True)
+
     return data_train, data_test
 
 def analyze_train_test_data():
@@ -137,4 +140,6 @@ def analyze_train_test_data():
             print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
             
 if __name__ == '__main__':
-    analyze_train_test_data()
+    get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    get_train_test_data(ExperimentScenario.HETEROGENEOUS)
+    get_train_test_data(ExperimentScenario.EGFR_COMPONENTS)

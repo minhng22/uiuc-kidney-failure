@@ -7,7 +7,7 @@ from lifelines.utils import concordance_index
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
-from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path
+from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric
@@ -19,18 +19,22 @@ def compute_time_dependent_auc(model, data_train, data_test, duration_col, event
     auc_values, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
     return auc_values, mean_auc
 
-def run_tv_cox_model():
-    data_train, data_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+def run_cox_model(scenario: ExperimentScenario):
+    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]
 
-    if not os.path.exists(egfr_tv_cox_model_path):
-        model = CoxTimeVaryingFitter()
+    data_train, data_test = get_train_test_data(scenario)
+
+    model_path = get_model_path(scenario)
+
+    if not os.path.exists(model_path):
+        model = CoxTimeVaryingFitter(penalizer=0.1)
 
         print(f'Fitting model:\n')
         model.fit(data_train, event_col='has_esrd', id_col='subject_id')
 
-        joblib.dump(model, egfr_tv_cox_model_path)
+        joblib.dump(model, model_path)
     else:
-        model = joblib.load(egfr_tv_cox_model_path)
+        model = joblib.load(model_path)
 
     print('Evaluate on test data')
 
@@ -38,13 +42,21 @@ def run_tv_cox_model():
     c_index_test = round_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
-    last_obs = data_test.groupby('subject_id').last().reset_index()
-    times = np.arange(30, 365, 30)
-    train_last_obs = data_train.groupby('subject_id').last().reset_index()
-    auc_values, mean_auc = compute_time_dependent_auc(model, train_last_obs, last_obs, 'stop', 'has_esrd', times)
-    for t, auc in zip(times, auc_values):
-        print(f"Time-dependent AUC at {t} days: {auc:.4f}")
+    times = np.arange(1, 365, 1)
+
+    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'stop', 'has_esrd', times)
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+
+def get_model_path(scenario: ExperimentScenario):
+    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]
+
+    model_path = {
+        ExperimentScenario.TIME_VARIANT: egfr_tv_cox_model_path,
+        ExperimentScenario.HETEROGENEOUS: hg_cox_model_path,
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_cox_model_path
+    }
+
+    return model_path[scenario]
 
 def run_ti_cox_model():
     data_train, data_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
@@ -64,12 +76,14 @@ def run_ti_cox_model():
     c_index_test = round_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
-    times = np.arange(30, 365, 30)
-    auc_values, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
-    for t, auc in zip(times, auc_values):
-        print(f"Time-dependent AUC at {t} days: {auc:.4f}")
+    times = np.arange(1, 365, 1)
+    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
+
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 if __name__ == "__main__":
+    print("\nRunning time-invariant Cox model evaluation with time-dependent AUC...")
+    run_ti_cox_model()
+
     print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")
-    run_tv_cox_model()
+    run_cox_model(ExperimentScenario.EGFR_COMPONENTS)
