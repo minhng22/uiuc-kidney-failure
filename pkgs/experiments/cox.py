@@ -12,10 +12,12 @@ from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric
 
-def compute_time_dependent_auc(model, data_train, data_test, duration_col, event_col, times):
+def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_train, data_test, duration_col, event_col, times):
     y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train)
     y_test = Surv.from_dataframe(event=event_col, time=duration_col, data=data_test)
     risk_scores_test = model.predict_partial_hazard(data_test).values.flatten()
+
+    print(f"Risk scores test: {risk_scores_test.shape}")
     auc_values, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
     return auc_values, mean_auc
 
@@ -44,7 +46,7 @@ def run_cox_model(scenario: ExperimentScenario):
 
     times = np.arange(1, 365, 1)
 
-    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'stop', 'has_esrd', times)
+    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 def get_model_path(scenario: ExperimentScenario):
