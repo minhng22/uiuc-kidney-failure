@@ -4,9 +4,16 @@ from sksurv.metrics import integrated_brier_score
 import torch
 import optuna
 
+# from doc: "y must be a structured array with the first field being a binary class event indicator and the second field the time of the event/censoring"
 def get_y_for_sckit_survival_model(df):
     return np.array(list(zip(df['has_esrd'].astype(bool), df['duration_in_days'])),
               dtype=[('event', bool), ('time', np.float64)])
+
+# X must be a 2D array
+def get_x_for_sckit_survival_model(df):
+    X = df['egfr'].values.reshape(-1, 1)
+    print(f'X shape: {X.shape}')
+    return X
 
 
 def round_metric(metric_num):

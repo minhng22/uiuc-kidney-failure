@@ -64,7 +64,7 @@ figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
 # trained models - time invariant scenario
-egfr_ti_srf_model_path = f'{project_dir()}/generated_data/egfr_ti_srf_model.pkl'
+egfr_ti_gbsa_model_path = f'{project_dir()}/generated_data/egfr_ti_gbsa_model.pkl'
 egfr_ti_deepsurv_model_path = f'{project_dir()}/generated_data/egfr_ti_deepsurv_model.pt'
 egfr_ti_cox_model_path = f'{project_dir()}/generated_data/egfr_ti_cox_model.pkl'
 egfr_ti_srf_model_path = f'{project_dir()}/generated_data/egfr_ti_srf_model.pkl'
