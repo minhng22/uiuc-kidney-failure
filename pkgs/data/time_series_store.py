@@ -251,7 +251,7 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
     lab_df['subject_id'] = lab_df['subject_id'].astype(int)
     lab_df['duration_in_days'] = lab_df['duration_in_days'].astype(float)
 
-    if scenario == ExperimentScenario.TIME_INVARIANT:
+    if scenario == ExperimentScenario.NON_TIME_VARIANT:
         # right-censoring. similar to work done by:
         # 1. Hagar et al.: Survival Analysis of EHR CKD Data
         d = pd.DataFrame(columns=lab_df.columns)
@@ -274,7 +274,7 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
     return lab_df[get_final_columns(scenario)]
 
 def get_final_columns(scenario):
-    if scenario == ExperimentScenario.TIME_INVARIANT:
+    if scenario == ExperimentScenario.NON_TIME_VARIANT:
         return ['subject_id', 'duration_in_days', 'egfr', 'has_esrd']
     elif scenario == ExperimentScenario.TIME_VARIANT:
         return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'has_esrd']

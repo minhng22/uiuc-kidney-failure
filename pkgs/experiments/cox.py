@@ -60,7 +60,7 @@ def get_model_path(scenario: ExperimentScenario):
     return model_path[scenario]
 
 def run_ti_cox_model():
-    data_train, data_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
+    data_train, data_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
     if not os.path.exists(egfr_ti_cox_model_path):
         model = CoxPHFitter()
@@ -83,7 +83,7 @@ def run_ti_cox_model():
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 if __name__ == "__main__":
-    print("\nRunning time-invariant Cox model evaluation with time-dependent AUC...")
+    print("\nRunning non-time-variant Cox model evaluation with time-dependent AUC...")
     run_ti_cox_model()
 
     print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")

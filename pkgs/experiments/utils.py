@@ -37,7 +37,7 @@ def evaluate_ti_scikit_survival_model(df_test, risk_scores, surv_funcs, df_train
         df_test[['has_esrd', 'duration_in_days']].to_records(index=False), pred_surv_test, times_test)
     print(f'Integrated Brier Score (Test): {round_metric(bs_test)}')
 
-def evaluate_rnn_model(model, df_test, features):
+def c_idx_rnn_model(model, df_test, features):
     X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
     model.eval()
     with torch.no_grad():

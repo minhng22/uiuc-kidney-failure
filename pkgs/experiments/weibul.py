@@ -22,7 +22,7 @@ def compute_time_dependent_auc(model: WeibullAFTFitter, data_train, data_test, d
     return auc_values, mean_auc
 
 def run_ti():
-    df, df_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
+    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
     df['duration_in_days'] = df['duration_in_days'].replace(0, 1e-5)
     df_test['duration_in_days'] = df_test['duration_in_days'].replace(0, 1e-5)

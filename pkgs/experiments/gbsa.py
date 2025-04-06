@@ -11,9 +11,9 @@ from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model
 
-# time-invariant model
+# non-time-variant model
 def run_gbsa():
-    df, df_test = get_train_test_data(ExperimentScenario.TIME_INVARIANT)
+    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
     
     X = get_x_for_sckit_survival_model(df)
     y = get_y_for_sckit_survival_model(df)

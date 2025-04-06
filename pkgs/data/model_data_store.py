@@ -34,13 +34,13 @@ def sample(df):
 
 def get_train_test_data(scenario: ExperimentScenario):
     train_data_stored_path = {
-        ExperimentScenario.TIME_INVARIANT: egfr_ti_train_data_path,
+        ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
         ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
         ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path
     }
     test_data_stored_path = {
-        ExperimentScenario.TIME_INVARIANT: egfr_ti_test_data_path,
+        ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
         ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
         ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path
@@ -79,7 +79,7 @@ def get_train_test_data(scenario: ExperimentScenario):
     return data_train, data_test
 
 def analyze_train_test_data():
-    for scenario in [ExperimentScenario.TIME_INVARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
         print(f"Analyzing scenario: {scenario}")
         data_train, data_test = get_train_test_data(scenario)
         print(f"Train data:\n{data_train.head()}")
@@ -134,7 +134,7 @@ def analyze_train_test_data():
             # Analyze the distribution of albumin values
             print(f"Distribution of albumin in train data:\n{data_train[data_train['albumin_missing'] == 0]['albumin'].describe()}")
             print(f"Distribution of albumin in test data:\n{data_test[data_test['albumin_missing'] == 0]['albumin'].describe()}")
-        elif scenario == ExperimentScenario.TIME_INVARIANT:
+        elif scenario == ExperimentScenario.NON_TIME_VARIANT:
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
             print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
