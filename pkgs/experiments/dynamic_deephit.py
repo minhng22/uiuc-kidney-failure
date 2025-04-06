@@ -1,33 +1,34 @@
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader
 
 from pkgs.playground.exp_common import RNNAttentionDataset
 from pkgs.playground.exp_common import batch_size, survival_loss, calculate_c_index
-from pkgs.experiments.utils import ex_optuna
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features
 from pkgs.data.types import ExperimentScenario
 
 import os
 import numpy as np
 
-ddh_features = ['egfr']
-num_risks = 1
+num_risks = 1 # esrd
 
-def objective(trial):
-    df, _ = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
-    dataset = RNNAttentionDataset(df, multiple_risk=False)
+def objective(trial, scenario_name: ExperimentScenario):
+    print(f"Running trial {trial.number} for {scenario_name}")
+    df, _ = get_train_test_data(scenario_name)
+
+    dataset = RNNAttentionDataset(df, scenario_name)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    input_dim = len(ddh_features)
+    input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layer", 1, 20)
     hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 256) for i in range(num_layers)]
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 25
+    num_epochs = 1
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -66,18 +67,20 @@ def eval_ddh(model, data_loader):
     
     return avg_test_c_indices[0] # 1 risk, which is esrd
 
-def run():
+def run(scenario_name: ExperimentScenario):
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
         print("Loading from saved weights")
         model = torch.load(egfr_tv_dynamic_deep_hit_model_path, weights_only=False)
     else:
-        model = ex_optuna(objective)
+        model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, egfr_tv_dynamic_deep_hit_model_path)
     
     eval_ddh(model, df_test)
 
     
 if __name__ == '__main__':
-    run()
+    run(ExperimentScenario.TIME_VARIANT)
+    run(ExperimentScenario.HETEROGENEOUS)
+    run(ExperimentScenario.EGFR_COMPONENTS)

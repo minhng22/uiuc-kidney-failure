@@ -11,6 +11,8 @@ import pandas as pd
 
 import numpy as np
 import pandas as pd
+from pkgs.data.types import ExperimentScenario
+from pkgs.experiments.utils import get_tv_rnn_model_features
 
 def generate_sample_data(num_subjects=100, max_observations=30, seed=42):
     """
@@ -81,13 +83,14 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 
 # Dataset that supports RNN and attention models
 class RNNAttentionDataset(Dataset):
-    def __init__(self, df, multiple_risk=False):
+    def __init__(self, df, scenario_name: ExperimentScenario):
         self.df = df
         self.subject_groups = list(df.groupby('subject_id'))
         # Normalize numerical features based on the entire DataFrame
         self.egfr_mean = df['egfr'].mean()
         self.egfr_std = df['egfr'].std()
-        self.multiple_risk = multiple_risk
+        self.scenario_name = scenario_name
+        self.features = get_tv_rnn_model_features(scenario_name)
 
         self.max_seq_length = max(df.groupby('subject_id').size())
 
@@ -99,7 +102,7 @@ class RNNAttentionDataset(Dataset):
         seq_length = len(subject_data)
         
         # Create feature matrix
-        features = np.zeros((self.max_seq_length, 1))  # ['egfr']
+        features = np.zeros((self.max_seq_length, len(self.features)))
         mask = np.zeros(self.max_seq_length)
         
         # Fill in features
@@ -110,13 +113,7 @@ class RNNAttentionDataset(Dataset):
         
         # Get time to event and event indicators
         time_to_event = subject_data['duration_in_days'].iloc[-1]
-        if self.multiple_risk:
-            events = np.array([
-                subject_data['has_esrd'].iloc[-1],
-                subject_data['dead'].iloc[-1]
-            ])
-        else:
-            events = np.array([
+        events = np.array([
                 subject_data['has_esrd'].iloc[-1],
             ])
         

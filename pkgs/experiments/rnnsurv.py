@@ -5,13 +5,11 @@ from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data.model_data_store import get_train_test_data
-from pkgs.experiments.utils import round_metric, ex_optuna
+from pkgs.experiments.utils import round_metric, ex_optuna, get_tv_rnn_model_features
 from pkgs.commons import egfr_tv_rnn_surv_model_path
 from pkgs.data.types import ExperimentScenario
 
 import os
-
-rnn_surv_features = ['egfr']
 
 class RNNSurvDataset(Dataset):
     def __init__(self, df, features, duration_col, event_col):
@@ -82,10 +80,11 @@ def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_i
     total_loss = cross_entropy_loss_weight * loss_1 + (1 - cross_entropy_loss_weight) * loss_2
     return total_loss
 
-def objective(trial):
+def objective(trial, scenario_name: ExperimentScenario):
     duration_col = 'duration_in_days'
     event_col = 'has_esrd'
     num_time_intervals = trial.suggest_int('num_time_intervals', 10, 50)
+    rnn_surv_features = get_tv_rnn_model_features(scenario_name)
 
     df, _ = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
@@ -123,7 +122,7 @@ def objective(trial):
 
     return evaluate(model, df, rnn_surv_features)
 
-def evaluate(model, df, features):
+def evaluate(model: RNNSurv, df, features):
     X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1)
     model.eval()
     with torch.no_grad():
@@ -134,17 +133,19 @@ def evaluate(model, df, features):
     print("C-Index on Test Data:", c_index)
     return c_index
 
-def run():
+def run(scenario_name: ExperimentScenario):
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     if os.path.exists(egfr_tv_rnn_surv_model_path):
         print("Loading from saved weights")
         model = torch.load(egfr_tv_rnn_surv_model_path, weights_only=False)
     else:
-        model = ex_optuna(objective)
+        model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, egfr_tv_rnn_surv_model_path)
 
     evaluate(model, df_test, rnn_surv_features)
 
 if __name__ == '__main__':
-    run()
+    run(ExperimentScenario.TIME_VARIANT)
+    run(ExperimentScenario.HETEROGENEOUS)
+    run(ExperimentScenario.EGFR_COMPONENTS)

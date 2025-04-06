@@ -3,6 +3,7 @@ from lifelines.utils import concordance_index
 from sksurv.metrics import integrated_brier_score
 import torch
 import optuna
+from pkgs.data.types import ExperimentScenario
 
 # from doc: "y must be a structured array with the first field being a binary class event indicator and the second field the time of the event/censoring"
 def get_y_for_sckit_survival_model(df):
@@ -51,7 +52,7 @@ def ex_optuna(objective):
     print("Running Optuna hyperparameter optimization")
     
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=25)
+    study.optimize(objective, n_trials=1)
 
     print("Number of finished trials: ", len(study.trials))
     print("Best trial:")
@@ -61,3 +62,11 @@ def ex_optuna(objective):
     best_model = trial.user_attrs["model"]
 
     return best_model
+
+def get_tv_rnn_model_features(scenario_name: ExperimentScenario):
+    if scenario_name == ExperimentScenario.TIME_VARIANT:
+        return ['egfr']
+    elif scenario_name == ExperimentScenario.HETEROGENEOUS:
+        return ['egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing']
+    elif scenario_name == ExperimentScenario.EGFR_COMPONENTS:
+        return ['age', 'gender', 'serum_creatinine']

@@ -6,18 +6,18 @@ from torch.utils.data import DataLoader
 from pkgs.playground.exp_common import batch_size, RNNAttentionDataset, calculate_c_index, survival_loss
 import numpy as np
 import os
-from pkgs.experiments.utils import ex_optuna
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features
 from pkgs.data.types import ExperimentScenario
 
 num_risks = 1
 
-def objective(trial):
-    df, _ = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+def objective(trial, scenario_name: ExperimentScenario):
+    df, _ = get_train_test_data(scenario_name)
 
     dataset = RNNAttentionDataset(df, multiple_risk=False)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    input_dim = 1 # 'egfr'
+    input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
@@ -47,7 +47,7 @@ def objective(trial):
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def eval_ht(model, data_loader):
+def eval_ht(model: HazardTransformer, data_loader):
     test_c_indices = []
 
     model.eval()
@@ -66,16 +66,18 @@ def eval_ht(model, data_loader):
     
     return avg_test_c_indices[0]  # Return c-index for the single risk
 
-def run():
+def run(scenario_name: ExperimentScenario):
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
     if os.path.exists(egfr_tv_hazard_transformer_model_path):
         print("Loading from saved weights")
         model = torch.load(egfr_tv_hazard_transformer_model_path, weights_only=False)
     else:
-        model = ex_optuna(objective)
+        model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, egfr_tv_hazard_transformer_model_path)
     
     eval_ht(model, df_test)
 
 if __name__ == '__main__':
-    run()
+    run(ExperimentScenario.TIME_VARIANT)
+    run(ExperimentScenario.HETEROGENEOUS)
+    run(ExperimentScenario.EGFR_COMPONENTS)
