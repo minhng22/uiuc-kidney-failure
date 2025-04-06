@@ -5,11 +5,14 @@ from pkgs.models.deepsurv import DeepSurv
 from pkgs.data.model_data_store import get_train_test_data
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
-from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna
+from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric
 
 import os
 from pkgs.commons import egfr_ti_deepsurv_model_path
 from pkgs.data.types import ExperimentScenario
+from sksurv.util import Surv
+from sksurv.metrics import cumulative_dynamic_auc
+import numpy as np
 
 deep_surv_features = ['egfr']
 
@@ -83,7 +86,7 @@ def objective(trial):
     return c_index
 
 def run():
-    _, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
     if os.path.exists(egfr_ti_deepsurv_model_path):
         print("Loading from saved weights")
@@ -93,6 +96,21 @@ def run():
         torch.save(model, egfr_ti_deepsurv_model_path)
 
     c_idx_rnn_model(model, df_test, deep_surv_features)
+
+    # Compute time-dependent AUC
+    times = np.arange(1, 365, 1)
+    risk_scores = model(torch.tensor(df_test[deep_surv_features].values, dtype=torch.float32)).detach().numpy().flatten()
+
+    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
+    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
+
+    print(f'Risk scores shape: {risk_scores.shape}')
+    print(f'First 10 risk scores: {risk_scores[:10]}')
+    print(f'y_train shape: {y_train.shape}')
+    print(f'y_test shape: {y_test.shape}')
+
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
+    print(f'Mean AUC: {round_metric(mean_auc)}')
 
 if __name__ == '__main__':
     run()
