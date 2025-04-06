@@ -1,18 +1,17 @@
+import os
+import numpy as np
 import torch
 import torch.optim as optim
-
-from pkgs.models.deepsurv import DeepSurv
-from pkgs.data.model_data_store import get_train_test_data
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
-from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric
-
-import os
-from pkgs.commons import egfr_ti_deepsurv_model_path
-from pkgs.data.types import ExperimentScenario
-from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
-import numpy as np
+from sksurv.util import Surv
+
+from pkgs.commons import egfr_ti_deepsurv_model_path
+from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data.types import ExperimentScenario
+from pkgs.models.deepsurv import DeepSurv
+from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric
 
 deep_surv_features = ['egfr']
 
