@@ -1,13 +1,14 @@
-import joblib
-from lifelines import WeibullAFTFitter
 import os
+import joblib
+import numpy as np
+from lifelines import WeibullAFTFitter
+from lifelines.utils import concordance_index
+from sksurv.metrics import cumulative_dynamic_auc
+from sksurv.util import Surv
 
 from pkgs.commons import egfr_ti_weibul_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
-from sksurv.util import Surv
-from sksurv.metrics import cumulative_dynamic_auc
-import numpy as np
 
 def compute_time_dependent_auc(model: WeibullAFTFitter, data_train, data_test, duration_col, event_col, times):
     y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train)
@@ -40,6 +41,13 @@ def run_ti():
 
     print('Evaluate on test data')
     times = np.arange(1, 365, 1)
+
+    predicted_survival_times = model.predict_median(df_test)
+    event_occurred = df_test['has_esrd'].values
+    actual_survival_times = df_test['duration_in_days'].values
+
+    c_index = concordance_index(actual_survival_times, predicted_survival_times, event_occurred)
+    print(f"C-index: {c_index:.4f}")
 
     _, mean_auc = compute_time_dependent_auc(model, df, df_test, 'duration_in_days', 'has_esrd', times)
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
