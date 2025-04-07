@@ -14,14 +14,14 @@ num_risks = 1
 def objective(trial, scenario_name: ExperimentScenario):
     df, _ = get_train_test_data(scenario_name)
 
-    dataset = RNNAttentionDataset(df, multiple_risk=False)
+    dataset = RNNAttentionDataset(df, scenario_name)
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 25
+    num_epochs = 1
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor

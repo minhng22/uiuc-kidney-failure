@@ -1,4 +1,4 @@
-from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path
+from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path
 from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
@@ -66,21 +66,30 @@ def eval_ddh(model, data_loader):
         print(f"Risk {risk_idx + 1} Test C-index: {c_index:.2f}")
     
     return avg_test_c_indices[0] # 1 risk, which is esrd
-
+    
 def run(scenario_name: ExperimentScenario):
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
-    if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
+    model_saved_path_dict = {
+        ExperimentScenario.TIME_VARIANT: egfr_tv_dynamic_deep_hit_model_path,
+        ExperimentScenario.HETEROGENEOUS: hg_dynamic_deep_hit_model_path,
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_dynamic_deep_hit_model_path,
+    }
+    model_saved_path = model_saved_path_dict[scenario_name]
+
+    if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(egfr_tv_dynamic_deep_hit_model_path, weights_only=False)
+        model = torch.load(model_saved_path, weights_only=False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
-        torch.save(model, egfr_tv_dynamic_deep_hit_model_path)
+        torch.save(model, model_saved_path)
+
+    dataset = RNNAttentionDataset(df_test, scenario_name)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
-    eval_ddh(model, df_test)
+    eval_ddh(model, data_loader)
 
     
 if __name__ == '__main__':
-    run(ExperimentScenario.TIME_VARIANT)
     run(ExperimentScenario.HETEROGENEOUS)
     run(ExperimentScenario.EGFR_COMPONENTS)

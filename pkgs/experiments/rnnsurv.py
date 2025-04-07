@@ -6,7 +6,7 @@ from lifelines.utils import concordance_index
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import round_metric, ex_optuna, get_tv_rnn_model_features
-from pkgs.commons import egfr_tv_rnn_surv_model_path
+from pkgs.commons import egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path
 from pkgs.data.types import ExperimentScenario
 
 import os
@@ -86,7 +86,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     num_time_intervals = trial.suggest_int('num_time_intervals', 10, 50)
     rnn_surv_features = get_tv_rnn_model_features(scenario_name)
 
-    df, _ = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    df, _ = get_train_test_data(scenario_name)
 
     train_dataset = RNNSurvDataset(df, rnn_surv_features, duration_col, event_col)
     train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
@@ -99,7 +99,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
     cross_entropy_loss_weight = trial.suggest_float('cross_entropy_loss_weight', 0.1, 0.9)
 
-    num_epochs = 25
+    num_epochs = 1
 
     # Define time intervals based on the training data
     max_duration = df[duration_col].max()
@@ -134,18 +134,24 @@ def evaluate(model: RNNSurv, df, features):
     return c_index
 
 def run(scenario_name: ExperimentScenario):
-    _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    _, df_test = get_train_test_data(scenario_name)
 
-    if os.path.exists(egfr_tv_rnn_surv_model_path):
+    model_path_dict = {
+        ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
+        ExperimentScenario.HETEROGENEOUS: hg_rnn_surv_model_path,
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_rnn_surv_model_path
+    }
+    model_saved_path = model_path_dict[scenario_name]
+
+    if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(egfr_tv_rnn_surv_model_path, weights_only=False)
+        model = torch.load(model_saved_path, weights_only=False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
-        torch.save(model, egfr_tv_rnn_surv_model_path)
+        torch.save(model, model_saved_path)
 
-    evaluate(model, df_test, rnn_surv_features)
+    evaluate(model, df_test, get_tv_rnn_model_features(scenario_name))
 
 if __name__ == '__main__':
-    run(ExperimentScenario.TIME_VARIANT)
     run(ExperimentScenario.HETEROGENEOUS)
     run(ExperimentScenario.EGFR_COMPONENTS)
