@@ -6,21 +6,23 @@ from torch.utils.data import DataLoader
 
 from pkgs.playground.exp_common import RNNAttentionDataset
 from pkgs.playground.exp_common import batch_size, survival_loss, calculate_c_index
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, round_metric
 from pkgs.data.types import ExperimentScenario
 
 import os
 import numpy as np
+from sksurv.util import Surv
+from sksurv.metrics import cumulative_dynamic_auc
+
 
 num_risks = 1 # esrd
-
 
 def objective(trial, scenario_name: ExperimentScenario):
     print(f"Running trial {trial.number} for {scenario_name}")
     df, _ = get_train_test_data(scenario_name)
 
     dataset = RNNAttentionDataset(df, scenario_name)
-    train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(dataset, shuffle=True)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layer", 1, 20)
@@ -37,10 +39,10 @@ def objective(trial, scenario_name: ExperimentScenario):
     for epoch in range(num_epochs):
         print(f'Epoch {epoch + 1}')
         total_loss = 0
-        for features, mask, time_intervals, event_indicators in train_loader:
+        for features, mask, time_to_event, event_indicator, _, _ in train_loader:
             optimizer.zero_grad()
             hazard_preds, _ = model(features, mask)
-            loss = survival_loss(hazard_preds, time_intervals, event_indicators, num_risks)
+            loss = survival_loss(hazard_preds, time_to_event, event_indicator, num_risks)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
@@ -52,20 +54,16 @@ def objective(trial, scenario_name: ExperimentScenario):
 
 
 def eval_ddh(model, data_loader):
-    test_c_indices = []
+    c_idxs = []
 
-    with torch.no_grad():
-        for features, mask, time_intervals, event_indicators in data_loader:
-            hazard_preds, _ = model(features, mask)
-
-            c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
-            test_c_indices.append(c_indices)
-
-    avg_test_c_indices = np.mean(test_c_indices, axis=0)
-    for risk_idx, c_index in enumerate(avg_test_c_indices):
-        print(f"Risk {risk_idx + 1} Test C-index: {c_index:.2f}")
+    for features, mask, time_to_event, event_indicator, _, _ in data_loader:
+        hazard_preds, _ = model(features, mask)
+        c_idxs.append(calculate_c_index(hazard_preds, time_to_event, event_indicator, num_risks))
+        
+    avg_c_idx = np.mean(c_idxs, axis=0)
+    print(f"Test C-index: {avg_c_idx[0]:.2f}")
     
-    return avg_test_c_indices[0] # 1 risk, which is esrd
+    return avg_c_idx[0] # 1 risk, which is esrd
     
 def run(scenario_name: ExperimentScenario):
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
@@ -84,12 +82,32 @@ def run(scenario_name: ExperimentScenario):
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)
 
-    dataset = RNNAttentionDataset(df_test, scenario_name)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    test_dataset = RNNAttentionDataset(df_test, scenario_name)
+    test_dataloader = DataLoader(test_dataset)
+
+    c_idxs = []
+    aucs = []
+
+    for features, mask, time_intervals, event_indicators, time_to_events, event_indicators in test_dataloader:
+        hazard_preds, _ = model(features, mask)
+        c_idxs.append(calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks))
+
+        # calculate mean time-dependent AUC
+        times = np.arange(1, 365, 1)
+
+        y_train = Surv.from_arrays(event=event_indicators, time=time_to_events, name_event='has_esrd', name_time='duration_in_days')
+        y_test = Surv.from_arrays(event=event_indicators, time=time_intervals, name_event='has_esrd', name_time='duration_in_days')
+        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds.numpy(), times)
+        aucs.append(mean_auc)
     
-    eval_ddh(model, data_loader)
+    avg_c_idx = np.mean(c_idxs, axis=0)
+    print(f"Test C-index: {avg_c_idx[0]:.2f}")
+
+    avg_auc = np.mean(aucs, axis=0)
+    print(f"Mean time-dependent AUC: {avg_auc:.4f}")
 
     
 if __name__ == '__main__':
-    run(ExperimentScenario.HETEROGENEOUS)
+    #run(ExperimentScenario.TIME_VARIANT)
+    #run(ExperimentScenario.HETEROGENEOUS)
     run(ExperimentScenario.EGFR_COMPONENTS)

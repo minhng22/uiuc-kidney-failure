@@ -36,7 +36,6 @@ class DynamicDeepHit(nn.Module):
         if len(hidden_dims) > 1:
             for hidden_dim in hidden_dims[1:]:
                 layers.append(nn.Linear(prev_dim, hidden_dim))
-                layers.append(nn.BatchNorm1d(hidden_dim))
                 layers.append(nn.ReLU())
                 layers.append(nn.Dropout(dropout_cause))
                 prev_dim = hidden_dim
@@ -46,7 +45,6 @@ class DynamicDeepHit(nn.Module):
         self.risk_heads = nn.ModuleList([
             nn.Sequential(
                 nn.Linear(prev_dim, self.time_bins),
-                nn.BatchNorm1d(self.time_bins)
             ) for _ in range(num_risks)
         ])
     

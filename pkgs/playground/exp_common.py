@@ -72,6 +72,9 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
         risk_scores = -torch.sum(torch.log(1 - risk_hazard_preds + 1e-8), dim=1).detach().cpu().numpy()
         mask = risk_event_indicators > 0
 
+        print(observed_times[mask].detach().cpu().numpy())
+        print(risk_scores[mask])
+        print(risk_event_indicators[mask].detach().cpu().numpy())
         c_index = concordance_index(
                 observed_times[mask].detach().cpu().numpy(),
                 risk_scores[mask],
@@ -81,14 +84,12 @@ def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
 
     return c_index_per_risk
 
-# Dataset that supports RNN and attention models
+# Dataset that supports dynamicdeephit and hazardtransformer models
 class RNNAttentionDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
         self.df = df
         self.subject_groups = list(df.groupby('subject_id'))
-        # Normalize numerical features based on the entire DataFrame
-        self.egfr_mean = df['egfr'].mean()
-        self.egfr_std = df['egfr'].std()
+
         self.scenario_name = scenario_name
         self.features = get_tv_rnn_model_features(scenario_name)
 
@@ -100,27 +101,38 @@ class RNNAttentionDataset(Dataset):
     def __getitem__(self, idx):
         _, subject_data = self.subject_groups[idx]
         seq_length = len(subject_data)
+
+        assert isinstance(subject_data, pd.DataFrame), f"subject_data is not a DataFrame: {type(subject_data)}"
+        assert subject_data['duration_in_days'].is_monotonic_increasing, "subject_data is not sorted by time"
         
-        # Create feature matrix
         features = np.zeros((self.max_seq_length, len(self.features)))
         mask = np.zeros(self.max_seq_length)
         
-        # Fill in features
-        features[:seq_length, 0] = (subject_data['egfr'].values - self.egfr_mean) / self.egfr_std
+        if self.scenario_name == ExperimentScenario.TIME_VARIANT:
+            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+        elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
+            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 1] = subject_data['egfr_missing'].values
+            features[:seq_length, 2] = (subject_data['protein'].values - self.df['protein'].mean()) / self.df['protein'].std()
+            features[:seq_length, 3] = subject_data['protein_missing'].values
+            features[:seq_length, 4] = (subject_data['albumin'].values - self.df['albumin'].mean()) / self.df['albumin'].std()
+            features[:seq_length, 5] = subject_data['albumin_missing'].values
+        elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
+            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 1] = subject_data['gender'].values
+            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
         
-        # Create mask for valid timesteps
         mask[:seq_length] = 1
         
-        # Get time to event and event indicators
         time_to_event = subject_data['duration_in_days'].iloc[-1]
-        events = np.array([
-                subject_data['has_esrd'].iloc[-1],
-            ])
-        
+        event = np.array([subject_data['has_esrd'].iloc[-1]])
+                
         return (torch.FloatTensor(features),
                 torch.FloatTensor(mask),
                 torch.LongTensor([time_to_event]),
-                torch.FloatTensor(events))
+                torch.FloatTensor(event),
+                torch.FloatTensor(subject_data['duration_in_days'].values),
+                torch.FloatTensor(subject_data['has_esrd'].values))
 
 def survival_loss(hazard_preds, time_intervals, event_indicators, num_risks, alpha=0.5, sigma=0.1):
     """
