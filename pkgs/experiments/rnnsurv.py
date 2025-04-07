@@ -8,8 +8,11 @@ from pkgs.data.model_data_store import get_train_test_data
 from pkgs.experiments.utils import round_metric, ex_optuna, get_tv_rnn_model_features
 from pkgs.commons import egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path
 from pkgs.data.types import ExperimentScenario
+from sksurv.metrics import cumulative_dynamic_auc
+import numpy as np
 
 import os
+from sksurv.util import Surv
 
 class RNNSurvDataset(Dataset):
     def __init__(self, df, features, duration_col, event_col):
@@ -120,9 +123,9 @@ def objective(trial, scenario_name: ExperimentScenario):
 
     trial.set_user_attr(key="model", value=model)
 
-    return evaluate(model, df, rnn_surv_features)
+    return score_model_train(model, df, rnn_surv_features)
 
-def evaluate(model: RNNSurv, df, features):
+def score_model_train(model: RNNSurv, df, features):
     X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1)
     model.eval()
     with torch.no_grad():
@@ -131,10 +134,11 @@ def evaluate(model: RNNSurv, df, features):
 
     c_index = round_metric(concordance_index(df['duration_in_days'], test_risk_scores.numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
+
     return c_index
 
 def run(scenario_name: ExperimentScenario):
-    _, df_test = get_train_test_data(scenario_name)
+    df, df_test = get_train_test_data(scenario_name)
 
     model_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
@@ -150,8 +154,23 @@ def run(scenario_name: ExperimentScenario):
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)
 
-    evaluate(model, df_test, get_tv_rnn_model_features(scenario_name))
+    X_test = torch.tensor(df_test[get_tv_rnn_model_features(scenario_name)].values, dtype=torch.float32).unsqueeze(1)
+    model.eval()
+    with torch.no_grad():
+        _, test_risk_scores = model(X_test)
+        test_risk_scores = test_risk_scores.squeeze()
+
+    c_index = round_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.numpy(), df_test['has_esrd']))
+    print("C-Index on Test Data:", c_index)
+
+    times = np.arange(1, 365, 1)
+    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
+    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, test_risk_scores.numpy(), times)
+
+    print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 if __name__ == '__main__':
+    run(ExperimentScenario.TIME_VARIANT)
     run(ExperimentScenario.HETEROGENEOUS)
     run(ExperimentScenario.EGFR_COMPONENTS)
