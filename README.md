@@ -14,5 +14,3 @@
 
 1. Go to root folder
 1. Run `python -m pkgs.data.model_data_store`
-
-Test change
