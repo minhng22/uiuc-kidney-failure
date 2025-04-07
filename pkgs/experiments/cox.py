@@ -87,4 +87,10 @@ if __name__ == "__main__":
     run_ti_cox_model()
 
     print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")
+    run_cox_model(ExperimentScenario.TIME_VARIANT)
+
+    print("\nRunning heterogeneous Cox model evaluation with time-dependent AUC...")
+    run_cox_model(ExperimentScenario.HETEROGENEOUS)
+
+    print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.EGFR_COMPONENTS)

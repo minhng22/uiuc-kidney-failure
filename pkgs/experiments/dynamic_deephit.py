@@ -109,5 +109,5 @@ def run(scenario_name: ExperimentScenario):
     
 if __name__ == '__main__':
     #run(ExperimentScenario.TIME_VARIANT)
-    #run(ExperimentScenario.HETEROGENEOUS)
-    run(ExperimentScenario.EGFR_COMPONENTS)
+    run(ExperimentScenario.HETEROGENEOUS)
+    #run(ExperimentScenario.EGFR_COMPONENTS)

@@ -102,7 +102,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-3, log=True)
     cross_entropy_loss_weight = trial.suggest_float('cross_entropy_loss_weight', 0.1, 0.9)
 
-    num_epochs = 1
+    num_epochs = 50
 
     # Define time intervals based on the training data
     max_duration = df[duration_col].max()

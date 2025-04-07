@@ -17,10 +17,6 @@ from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sck
 def c_idx_score_fn(y, risk_score):
     events = np.array([item[0] for item in y])
     duration_in_days = np.array([item[1] for item in y])
-
-    print(f'Events: {events[0]}')
-    print(f'Duration in days: {duration_in_days[0]}')
-
     return concordance_index(duration_in_days, risk_score, events)
 
 # Data needs to be non-time-variant setup
