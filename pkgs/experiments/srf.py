@@ -60,7 +60,7 @@ def run_survival_rf():
         joblib.dump(rsf, egfr_ti_srf_model_path)
         print(f'Model saved to {egfr_ti_srf_model_path}')
         
-        evaluate_model(rsf, df, df_test)
+    evaluate_model(rsf, df, df_test)
 
 def evaluate_model(rsf, df, df_test):
     print('Evaluate on test data')

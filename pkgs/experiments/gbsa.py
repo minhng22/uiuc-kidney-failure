@@ -1,3 +1,4 @@
+import os
 import joblib
 import numpy as np
 from lifelines.utils import concordance_index
@@ -15,49 +16,75 @@ from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric,
 def c_idx_score_fn(y, risk_score):
     events = np.array([item[0] for item in y])
     duration_in_days = np.array([item[1] for item in y])
-
     return concordance_index(duration_in_days, risk_score, events)
+
+def evaluate_model(gbsa, df, df_test):
+    print('Evaluate on test data')
+    
+    X_test = get_x_for_sckit_survival_model(df_test)
+    risk_scores = gbsa.predict(X_test)
+    times = np.arange(1, 365, 1)
+
+    print(f'Risk scores shape: {risk_scores.shape}')
+    print(f'First 10 risk scores: {risk_scores[:10]}')
+    
+    # Concordance Index on test data
+    c_index_test = round_metric(concordance_index(df_test['duration_in_days'], risk_scores, df_test['has_esrd']))
+    print(f'Concordance Index Test: {round_metric(c_index_test)}')
+    
+    # Compute time-dependent AUC
+    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
+    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
+    print(f'Mean AUC: {round_metric(mean_auc)}')
 
 # non-time-variant model
 def run_gbsa():
     df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
-    df = sample(df)
-    df_test = sample(df_test)
     
-    X = get_x_for_sckit_survival_model(df)
-    y = get_y_for_sckit_survival_model(df)
+    if os.path.exists(egfr_ti_gbsa_model_path):
+        print(f'Model found at {egfr_ti_gbsa_model_path}. Loading model...')
+        gbsa = joblib.load(egfr_ti_gbsa_model_path)
+    else:
+        print('No existing model found. Starting hyperparameter tuning...')
+        df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+        df = sample(df)
+        df_test = sample(df_test)
     
-    print(df.head())
+        X = get_x_for_sckit_survival_model(df)
+        y = get_y_for_sckit_survival_model(df)
     
-    param_grid = {
-        'n_estimators': [50, 100, 200, 300],
-        'max_depth': [3, 5, 10, 15],
-        'learning_rate': [0.01, 0.1, 0.2],
-        'min_samples_split': [2, 5, 10, 15],
-    }
+        print(df.head())
     
-    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+        param_grid = {
+            'n_estimators': [50, 100, 200, 300],
+            'max_depth': [3, 5, 10, 15],
+            'learning_rate': [0.01, 0.1, 0.2],
+            'min_samples_split': [2, 5, 10, 15],
+        }
     
-    scorer = make_scorer(c_idx_score_fn, greater_is_better=True)
+        cv = KFold(n_splits=5, shuffle=True, random_state=42)
     
-    grid_search = GridSearchCV(
-        estimator=GradientBoostingSurvivalAnalysis(verbose=0),
-        param_grid=param_grid,
-        scoring=scorer,
-        cv=cv,
-        n_jobs=1,
-        verbose=2,
-    )
+        scorer = make_scorer(c_idx_score_fn, greater_is_better=True)
     
-    print('Starting hyperparameter tuning...')
-    grid_search.fit(X, y)
+        grid_search = GridSearchCV(
+            estimator=GradientBoostingSurvivalAnalysis(verbose=0),
+            param_grid=param_grid,
+            scoring=scorer,
+            cv=cv,
+            n_jobs=1,
+            verbose=2,
+        )
     
-    print('Best parameters found:')
-    print(grid_search.best_params_)
+        print('Starting hyperparameter tuning...')
+        grid_search.fit(X, y)
     
-    gbsa = grid_search.best_estimator_
-    joblib.dump(gbsa, egfr_ti_gbsa_model_path)
+        print('Best parameters found:')
+        print(grid_search.best_params_)
     
+        gbsa = grid_search.best_estimator_
+        joblib.dump(gbsa, egfr_ti_gbsa_model_path)
+        
     print('Evaluate on test data')
     
     X_test = get_x_for_sckit_survival_model(df_test)
