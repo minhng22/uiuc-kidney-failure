@@ -8,11 +8,22 @@ import numpy as np
 import os
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features
 from pkgs.data.types import ExperimentScenario
+from torch.nn.utils.rnn import pad_sequence
 
 num_risks = 1
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def custom_collate_fn(batch):
+    features, masks, time_to_events, events, durations, esrds = zip(*batch)
+
+    features = pad_sequence(features, batch_first=True)
+    masks = pad_sequence(masks, batch_first=True)
+    durations = pad_sequence(durations, batch_first=True)
+    esrds = pad_sequence(esrds, batch_first=True)
+
+    return features, masks, torch.stack(time_to_events), torch.stack(events), durations, esrds
 
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
@@ -21,7 +32,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     df, _ = get_train_test_data(scenario_name)
 
     dataset = RNNAttentionDataset(df, scenario_name)
-    train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=custom_collate_fn)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layers", 2, 64)
@@ -38,7 +49,7 @@ def objective(trial, scenario_name: ExperimentScenario):
 
     model.train()
     for _ in range(num_epochs):
-        for features, mask, time_intervals, event_indicators in train_loader:
+        for features, mask, time_intervals, event_indicators, _, _ in train_loader:
             features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
             optimizer.zero_grad()
             
