@@ -70,7 +70,7 @@ def eval_ht(model: HazardTransformer, data_loader, device):
 
     model.eval()
     with torch.no_grad():
-        for features, mask, time_intervals, event_indicators in data_loader:
+        for features, mask, time_intervals, event_indicators, _, _ in data_loader:
             features, mask = features.to(device), mask.to(device)
             eval_times = torch.linspace(0, model.max_time, 100).to(device)
             eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)

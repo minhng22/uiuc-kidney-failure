@@ -32,7 +32,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 50
+    num_epochs = 1
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -50,18 +50,26 @@ def objective(trial, scenario_name: ExperimentScenario):
             optimizer.step()
             total_loss += loss.item()
 
-    c_index = eval_ddh(model, train_loader)
+    c_index = eval_ddh(model, train_loader, device)
 
     trial.set_user_attr(key="model", value=model)
     return c_index
 
 
-def eval_ddh(model, data_loader):
+def eval_ddh(model, data_loader, device):
     c_idxs = []
 
-    for features, mask, time_to_event, event_indicator, _, _ in data_loader:
+    for features, mask, time_to_event, event_indicator, time_to_events, event_indicators in data_loader:
+        features, mask = features.to(device), mask.to(device)
         hazard_preds, _ = model(features, mask)
-        c_idxs.append(calculate_c_index(hazard_preds, time_to_event, event_indicator, num_risks))
+
+        print(f"hazard_preds shape: {hazard_preds.shape}")
+        print(f"event_indicator shape: {event_indicator.shape}")
+        print(f"time_to_event shape: {time_to_event.shape}")
+        print(f"time to events shape {time_to_events.shape}")
+        print(f"event_indicators shape {event_indicators.shape}")
+
+        c_idxs.append(calculate_c_index(hazard_preds, time_to_events, event_indicators, num_risks))
         
     avg_c_idx = np.mean(c_idxs, axis=0)
     print(f"Test C-index: {avg_c_idx[0]:.2f}")
@@ -69,7 +77,7 @@ def eval_ddh(model, data_loader):
     return avg_c_idx[0] # 1 risk, which is esrd
 
 def get_device():
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
@@ -98,16 +106,16 @@ def run(scenario_name: ExperimentScenario):
     c_idxs = []
     aucs = []
 
-    for features, mask, time_intervals, event_indicators, time_to_events, event_indicators in test_dataloader:
+    for features, mask, time_to_event, event_indicators, time_to_events, event_indicators in test_dataloader:
         features, mask = features.to(device), mask.to(device)
         hazard_preds, _ = model(features, mask)
-        c_idxs.append(calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks))
+        c_idxs.append(calculate_c_index(hazard_preds, time_to_event, event_indicators, num_risks))
 
         # calculate mean time-dependent AUC
         times = np.arange(1, 365, 1)
 
         y_train = Surv.from_arrays(event=event_indicators, time=time_to_events, name_event='has_esrd', name_time='duration_in_days')
-        y_test = Surv.from_arrays(event=event_indicators, time=time_intervals, name_event='has_esrd', name_time='duration_in_days')
+        y_test = Surv.from_arrays(event=event_indicators, time=time_to_event, name_event='has_esrd', name_time='duration_in_days')
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds.cpu().numpy(), times)
         aucs.append(mean_auc)
     
