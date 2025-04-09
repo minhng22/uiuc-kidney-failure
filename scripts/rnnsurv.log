@@ -1,0 +1,22 @@
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Running Optuna hyperparameter optimization
+[I 2025-04-07 22:44:07,796] A new study created in memory with name: no-name-4e03519c-3420-4829-a71b-cf718f4a3df5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+C-Index on Test Data: 0.561
+[I 2025-04-08 03:31:30,106] Trial 0 finished with value: 0.561 and parameters: {'num_time_intervals': 10, 'embedding_size': 122, 'num_embedding_layers': 3, 'hidden_dims': 179, 'num_recurrent_layers': 1, 'learning_rate': 0.0008340624766644467, 'cross_entropy_loss_weight': 0.5717169442802125}. Best is trial 0 with value: 0.561.
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+C-Index on Test Data: 0.329
+[I 2025-04-08 08:12:49,876] Trial 1 finished with value: 0.329 and parameters: {'num_time_intervals': 17, 'embedding_size': 117, 'num_embedding_layers': 3, 'hidden_dims': 231, 'num_recurrent_layers': 3, 'learning_rate': 0.00018018112494878685, 'cross_entropy_loss_weight': 0.34968110853744394}. Best is trial 0 with value: 0.561.
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
