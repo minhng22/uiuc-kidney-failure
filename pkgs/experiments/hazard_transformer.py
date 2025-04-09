@@ -11,7 +11,13 @@ from pkgs.data.types import ExperimentScenario
 
 num_risks = 1
 
+def get_device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 def objective(trial, scenario_name: ExperimentScenario):
+    device = get_device()
+
+    print(f"Running trial {trial.number} for {scenario_name} on device {device}")
     df, _ = get_train_test_data(scenario_name)
 
     dataset = RNNAttentionDataset(df, scenario_name)
@@ -21,21 +27,22 @@ def objective(trial, scenario_name: ExperimentScenario):
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 1
+    num_epochs = 50
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
     max_time = trial.suggest_int("max_time", 50, 200)
 
-    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time)
+    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     model.train()
     for _ in range(num_epochs):
         for features, mask, time_intervals, event_indicators in train_loader:
+            features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
             optimizer.zero_grad()
             
-            eval_times = torch.linspace(0, model.max_time, 100)
+            eval_times = torch.linspace(0, model.max_time, 100).to(device)
             eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
             
             hazard_preds, _, _ = model(features, mask, eval_times)
@@ -43,17 +50,18 @@ def objective(trial, scenario_name: ExperimentScenario):
             loss.backward()
             optimizer.step()
 
-    c_index = eval_ht(model, train_loader)
+    c_index = eval_ht(model, train_loader, device)
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def eval_ht(model: HazardTransformer, data_loader):
+def eval_ht(model: HazardTransformer, data_loader, device):
     test_c_indices = []
 
     model.eval()
     with torch.no_grad():
         for features, mask, time_intervals, event_indicators in data_loader:
-            eval_times = torch.linspace(0, model.max_time, 100)
+            features, mask = features.to(device), mask.to(device)
+            eval_times = torch.linspace(0, model.max_time, 100).to(device)
             eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
             
             hazard_preds, _, _ = model(features, mask, eval_times)
@@ -67,15 +75,18 @@ def eval_ht(model: HazardTransformer, data_loader):
     return avg_test_c_indices[0]  # Return c-index for the single risk
 
 def run(scenario_name: ExperimentScenario):
+    device = get_device()
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
     if os.path.exists(egfr_tv_hazard_transformer_model_path):
         print("Loading from saved weights")
-        model = torch.load(egfr_tv_hazard_transformer_model_path, weights_only=False)
+        model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, egfr_tv_hazard_transformer_model_path)
     
-    eval_ht(model, df_test)
+    model.to(device)
+
+    eval_ht(model, df_test, device)
 
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)

@@ -84,6 +84,9 @@ def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_i
     return total_loss
 
 def objective(trial, scenario_name: ExperimentScenario):
+    device = get_device()
+
+    print(f"Running trial number {trial.number} for {scenario_name} on device {device}")
     duration_col = 'duration_in_days'
     event_col = 'has_esrd'
     num_time_intervals = trial.suggest_int('num_time_intervals', 10, 50)
@@ -106,15 +109,15 @@ def objective(trial, scenario_name: ExperimentScenario):
 
     # Define time intervals based on the training data
     max_duration = df[duration_col].max()
-    time_intervals = torch.linspace(0, max_duration, num_time_intervals + 1)[1:]
+    time_intervals = torch.linspace(0, max_duration, num_time_intervals + 1)[1:].to(device)
 
-    model = RNNSurv(input_dim, embedding_size, num_embedding_layers, hidden_dims, num_recurrent_layers, num_time_intervals)
+    model = RNNSurv(input_dim, embedding_size, num_embedding_layers, hidden_dims, num_recurrent_layers, num_time_intervals).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     model.train()
     for _ in range(num_epochs):
         for batch in train_loader:
-            X_batch, durations_batch, events_batch = batch
+            X_batch, durations_batch, events_batch = [x.to(device) for x in batch]
             optimizer.zero_grad()
             survival_probabilities, risk_scores = model(X_batch)
             loss = rnn_surv_loss(survival_probabilities, risk_scores, durations_batch, events_batch, time_intervals, cross_entropy_loss_weight)
@@ -123,21 +126,26 @@ def objective(trial, scenario_name: ExperimentScenario):
 
     trial.set_user_attr(key="model", value=model)
 
-    return score_model_train(model, df, rnn_surv_features)
+    return score_model_train(model, df, rnn_surv_features, device)
 
-def score_model_train(model: RNNSurv, df, features):
-    X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1)
+def score_model_train(model: RNNSurv, df, features, device):
+    X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1).to(device)
     model.eval()
     with torch.no_grad():
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = round_metric(concordance_index(df['duration_in_days'], test_risk_scores.numpy(), df['has_esrd']))
+    c_index = round_metric(concordance_index(df['duration_in_days'], test_risk_scores.cpu().numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
     return c_index
 
+def get_device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
+    device = get_device()
     df, df_test = get_train_test_data(scenario_name)
 
     model_path_dict = {
@@ -149,24 +157,26 @@ def run(scenario_name: ExperimentScenario):
 
     if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(model_saved_path, weights_only=False)
+        model = torch.load(model_saved_path, map_location=device)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)
 
-    X_test = torch.tensor(df_test[get_tv_rnn_model_features(scenario_name)].values, dtype=torch.float32).unsqueeze(1)
+    model.to(device)
+
+    X_test = torch.tensor(df_test[get_tv_rnn_model_features(scenario_name)].values, dtype=torch.float32).unsqueeze(1).to(device)
     model.eval()
     with torch.no_grad():
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = round_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.numpy(), df_test['has_esrd']))
+    c_index = round_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.cpu().numpy(), df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
     times = np.arange(1, 365, 1)
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
     y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, test_risk_scores.numpy(), times)
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, test_risk_scores.cpu().numpy(), times)
 
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 

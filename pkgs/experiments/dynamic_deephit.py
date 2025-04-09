@@ -18,7 +18,9 @@ from sksurv.metrics import cumulative_dynamic_auc
 num_risks = 1 # esrd
 
 def objective(trial, scenario_name: ExperimentScenario):
-    print(f"Running trial {trial.number} for {scenario_name}")
+    device = get_device()
+
+    print(f"Running trial {trial.number} for {scenario_name} on device {device}")
     df, _ = get_train_test_data(scenario_name)
 
     dataset = RNNAttentionDataset(df, scenario_name)
@@ -30,9 +32,9 @@ def objective(trial, scenario_name: ExperimentScenario):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 1
+    num_epochs = 50
 
-    model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause)
+    model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     model.train()
@@ -40,6 +42,7 @@ def objective(trial, scenario_name: ExperimentScenario):
         print(f'Epoch {epoch + 1}')
         total_loss = 0
         for features, mask, time_to_event, event_indicator, _, _ in train_loader:
+            features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
             optimizer.zero_grad()
             hazard_preds, _ = model(features, mask)
             loss = survival_loss(hazard_preds, time_to_event, event_indicator, num_risks)
@@ -64,8 +67,13 @@ def eval_ddh(model, data_loader):
     print(f"Test C-index: {avg_c_idx[0]:.2f}")
     
     return avg_c_idx[0] # 1 risk, which is esrd
-    
+
+def get_device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
+    device = get_device()
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     model_saved_path_dict = {
@@ -77,10 +85,12 @@ def run(scenario_name: ExperimentScenario):
 
     if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(model_saved_path, weights_only=False)
+        model = torch.load(model_saved_path, map_location=device)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)
+
+    model.to(device)
 
     test_dataset = RNNAttentionDataset(df_test, scenario_name)
     test_dataloader = DataLoader(test_dataset)
@@ -89,6 +99,7 @@ def run(scenario_name: ExperimentScenario):
     aucs = []
 
     for features, mask, time_intervals, event_indicators, time_to_events, event_indicators in test_dataloader:
+        features, mask = features.to(device), mask.to(device)
         hazard_preds, _ = model(features, mask)
         c_idxs.append(calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks))
 
@@ -97,7 +108,7 @@ def run(scenario_name: ExperimentScenario):
 
         y_train = Surv.from_arrays(event=event_indicators, time=time_to_events, name_event='has_esrd', name_time='duration_in_days')
         y_test = Surv.from_arrays(event=event_indicators, time=time_intervals, name_event='has_esrd', name_time='duration_in_days')
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds.numpy(), times)
+        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds.cpu().numpy(), times)
         aucs.append(mean_auc)
     
     avg_c_idx = np.mean(c_idxs, axis=0)
@@ -108,6 +119,6 @@ def run(scenario_name: ExperimentScenario):
 
     
 if __name__ == '__main__':
-    #run(ExperimentScenario.TIME_VARIANT)
+    run(ExperimentScenario.TIME_VARIANT)
     run(ExperimentScenario.HETEROGENEOUS)
-    #run(ExperimentScenario.EGFR_COMPONENTS)
+    run(ExperimentScenario.EGFR_COMPONENTS)

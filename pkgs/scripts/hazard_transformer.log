@@ -1,0 +1,65 @@
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Running Optuna hyperparameter optimization
+[I 2025-04-08 20:42:36,993] A new study created in memory with name: no-name-d5366e2b-5b4e-4fb7-91af-c36cc442f0dd
+Running trial 0 for ExperimentScenario.TIME_VARIANT on device cuda
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+[W 2025-04-08 20:42:38,453] Trial 0 failed with parameters: {'num_layers': 62, 'learning_rate': 0.0016531993066847411, 'drop_out_rate': 0.10744932930180667, 'n_head': 3, 'nhead_factor': 13, 'max_time': 54} because of the following error: RuntimeError('The expanded size of the tensor (19) must match the existing size (20) at non-singleton dimension 1.  Target sizes: [1000, 19].  Tensor sizes: [1000, 20]').
+Traceback (most recent call last):
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 84, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 36, in objective
+    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/hazard_transformer.py", line 34, in __init__
+    self.pos_encoder = PositionalEncoding(d_model, 1000)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/hazard_transformer.py", line 12, in __init__
+    pe[:, 1::2] = torch.cos(position * div_term)
+    ~~^^^^^^^^^
+RuntimeError: The expanded size of the tensor (19) must match the existing size (20) at non-singleton dimension 1.  Target sizes: [1000, 19].  Tensor sizes: [1000, 20]
+[W 2025-04-08 20:42:38,455] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 92, in <module>
+    run(ExperimentScenario.TIME_VARIANT)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 84, in run
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/utils.py", line 55, in ex_optuna
+    study.optimize(objective, n_trials=10)
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 84, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 36, in objective
+    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/hazard_transformer.py", line 34, in __init__
+    self.pos_encoder = PositionalEncoding(d_model, 1000)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/hazard_transformer.py", line 12, in __init__
+    pe[:, 1::2] = torch.cos(position * div_term)
+    ~~^^^^^^^^^
+RuntimeError: The expanded size of the tensor (19) must match the existing size (20) at non-singleton dimension 1.  Target sizes: [1000, 19].  Tensor sizes: [1000, 20]
