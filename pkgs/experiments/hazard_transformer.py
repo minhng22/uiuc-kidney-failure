@@ -3,7 +3,7 @@ from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
 from torch.utils.data import DataLoader
-from pkgs.playground.exp_common import batch_size, RNNAttentionDataset, calculate_c_index, survival_loss
+from pkgs.playground.exp_common import batch_size, RNNAttentionDataset, calculate_c_index, combine_loss
 import numpy as np
 import os
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features
@@ -43,6 +43,8 @@ def objective(trial, scenario_name: ExperimentScenario):
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
     max_time = trial.suggest_int("max_time", 50, 200)
+    llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
+    ranking_loss = 1 - llh_loss
 
     model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -57,7 +59,7 @@ def objective(trial, scenario_name: ExperimentScenario):
             eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
             
             hazard_preds, _, _ = model(features, mask, eval_times)
-            loss = survival_loss(hazard_preds, time_intervals, event_indicators, num_risks)
+            loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
             loss.backward()
             optimizer.step()
 
@@ -90,7 +92,7 @@ def run(scenario_name: ExperimentScenario):
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
     if os.path.exists(egfr_tv_hazard_transformer_model_path):
         print("Loading from saved weights")
-        model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device)
+        model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device, weights_only=False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, egfr_tv_hazard_transformer_model_path)

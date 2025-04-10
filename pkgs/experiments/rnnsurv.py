@@ -116,6 +116,7 @@ def objective(trial, scenario_name: ExperimentScenario):
 
     model.train()
     for _ in range(num_epochs):
+        print(f"Epoch {_ + 1}/{num_epochs}")
         for batch in train_loader:
             X_batch, durations_batch, events_batch = [x.to(device) for x in batch]
             optimizer.zero_grad()
@@ -125,7 +126,6 @@ def objective(trial, scenario_name: ExperimentScenario):
             optimizer.step()
 
     trial.set_user_attr(key="model", value=model)
-
     return score_model_train(model, df, rnn_surv_features, device)
 
 def score_model_train(model: RNNSurv, df, features, device):
@@ -141,7 +141,7 @@ def score_model_train(model: RNNSurv, df, features, device):
     return c_index
 
 def get_device():
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
@@ -157,7 +157,7 @@ def run(scenario_name: ExperimentScenario):
 
     if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(model_saved_path, map_location=device)
+        model = torch.load(model_saved_path, map_location=device, weights_only=False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)

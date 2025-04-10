@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from pkgs.playground.exp_common import RNNAttentionDataset
-from pkgs.playground.exp_common import batch_size, survival_loss, calculate_c_index
+from pkgs.playground.exp_common import batch_size, combine_loss, calculate_c_index
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, round_metric
 from pkgs.data.types import ExperimentScenario
 
@@ -32,6 +32,8 @@ def objective(trial, scenario_name: ExperimentScenario):
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
+    llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
+    ranking_loss = 1 - llh_loss
     num_epochs = 1
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
@@ -39,13 +41,13 @@ def objective(trial, scenario_name: ExperimentScenario):
 
     model.train()
     for epoch in range(num_epochs):
-        print(f'Epoch {epoch + 1}')
+        print(f'Epoch {epoch + 1}/{num_epochs}')
         total_loss = 0
         for features, mask, time_to_event, event_indicator, _, _ in train_loader:
             features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
             optimizer.zero_grad()
             hazard_preds, _ = model(features, mask)
-            loss = survival_loss(hazard_preds, time_to_event, event_indicator, num_risks)
+            loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
@@ -93,7 +95,7 @@ def run(scenario_name: ExperimentScenario):
 
     if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(model_saved_path, map_location=device)
+        model = torch.load(model_saved_path, map_location=device, weights_only = False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)
