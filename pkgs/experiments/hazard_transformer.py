@@ -3,10 +3,9 @@ from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
 from torch.utils.data import DataLoader
-from pkgs.playground.exp_common import batch_size, combine_loss
 import numpy as np
 import os
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, RNNAttentionDataset
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, RNNAttentionDataset, combine_loss
 from pkgs.data.types import ExperimentScenario
 from torch.nn.utils.rnn import pad_sequence
 
@@ -32,7 +31,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     df, _ = get_train_test_data(scenario_name)
 
     dataset = RNNAttentionDataset(df, scenario_name)
-    train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=custom_collate_fn)
+    train_loader = DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layers", 2, 64)

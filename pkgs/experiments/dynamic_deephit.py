@@ -5,8 +5,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from pkgs.experiments.utils import RNNAttentionDataset
-from pkgs.playground.exp_common import combine_loss
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, combine_loss
 from pkgs.data.types import ExperimentScenario
 
 import os
