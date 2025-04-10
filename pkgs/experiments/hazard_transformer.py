@@ -3,10 +3,10 @@ from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
 from torch.utils.data import DataLoader
-from pkgs.playground.exp_common import batch_size, RNNAttentionDataset, calculate_c_index, combine_loss
+from pkgs.playground.exp_common import batch_size, RNNAttentionDataset, combine_loss
 import numpy as np
 import os
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index
 from pkgs.data.types import ExperimentScenario
 from torch.nn.utils.rnn import pad_sequence
 

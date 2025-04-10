@@ -1,10 +1,7 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import pandas as pd
 import numpy as np
-from torch.utils.data import Dataset, DataLoader
-from lifelines.utils import concordance_index
+from torch.utils.data import Dataset
 
 import numpy as np
 import pandas as pd
@@ -13,30 +10,6 @@ import numpy as np
 import pandas as pd
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import get_tv_rnn_model_features
-
-def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks):
-    c_index_per_risk = []
-
-    for risk in range(num_risks):
-        risk_hazard_preds = hazard_preds[:, risk, :]
-        risk_event_indicators = event_indicators[:, risk]
-        observed_times = time_intervals[:, 0]
-
-        # Cumulative hazard
-        risk_scores = -torch.sum(torch.log(1 - risk_hazard_preds + 1e-8), dim=1).detach().cpu().numpy()
-        mask = risk_event_indicators > 0
-
-        print(observed_times[mask].detach().cpu().numpy())
-        print(risk_scores[mask])
-        print(risk_event_indicators[mask].detach().cpu().numpy())
-        c_index = concordance_index(
-                observed_times[mask].detach().cpu().numpy(),
-                risk_scores[mask],
-                event_observed=risk_event_indicators[mask].detach().cpu().numpy()
-            )
-        c_index_per_risk.append(c_index)
-
-    return c_index_per_risk
 
 # Dataset that supports dynamicdeephit and hazardtransformer models
 class RNNAttentionDataset(Dataset):
