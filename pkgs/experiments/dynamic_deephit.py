@@ -4,7 +4,7 @@ from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader
 
-from pkgs.playground.exp_common import RNNAttentionDataset
+from pkgs.experiments.utils import RNNAttentionDataset
 from pkgs.playground.exp_common import combine_loss
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index
 from pkgs.data.types import ExperimentScenario
