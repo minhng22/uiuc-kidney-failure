@@ -4,8 +4,6 @@ from sksurv.metrics import integrated_brier_score
 import torch
 import optuna
 from pkgs.data.types import ExperimentScenario
-from torch.utils.data import Dataset
-import pandas as pd
 
 # from doc: "y must be a structured array with the first field being a binary class event indicator and the second field the time of the event/censoring"
 def get_y_for_sckit_survival_model(df):
@@ -72,30 +70,6 @@ def get_tv_rnn_model_features(scenario_name: ExperimentScenario):
         return ['egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing']
     elif scenario_name == ExperimentScenario.EGFR_COMPONENTS:
         return ['age', 'gender', 'serum_creatinine']
-
-def calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks):
-    c_index_per_risk = []
-
-    for risk in range(num_risks):
-        risk_hazard_preds = hazard_preds[:, risk, :]
-        risk_event_indicators = event_indicators[:, risk]
-        observed_times = time_intervals[:, 0]
-
-        # Cumulative hazard
-        risk_scores = -torch.sum(torch.log(1 - risk_hazard_preds + 1e-8), dim=1).detach().cpu().numpy()
-        mask = risk_event_indicators > 0
-
-        print(observed_times[mask].detach().cpu().numpy())
-        print(risk_scores[mask])
-        print(risk_event_indicators[mask].detach().cpu().numpy())
-        c_index = concordance_index(
-                observed_times[mask].detach().cpu().numpy(),
-                risk_scores[mask],
-                event_observed=risk_event_indicators[mask].detach().cpu().numpy()
-            )
-        c_index_per_risk.append(c_index)
-
-    return c_index_per_risk
 
 def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0.5, w2=0.1):
     batch_size = hazard_preds.size(0)

@@ -6,7 +6,7 @@ class DynamicDeepHit(nn.Module):
     def __init__(self, input_dim, hidden_dims, num_risks, dropout_lstm=0.2, dropout_cause=0.2):
         super(DynamicDeepHit, self).__init__()
         self.num_risks = num_risks
-        self.time_bins = 30 # discrete time of one month as the original paper
+        self.pred_times = 365 * 5
         
         num_layer_lstm = 2
         self.lstm = nn.LSTM(
@@ -44,7 +44,7 @@ class DynamicDeepHit(nn.Module):
         
         self.risk_heads = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(prev_dim, self.time_bins),
+                nn.Linear(prev_dim, self.pred_times),
             ) for _ in range(num_risks)
         ])
     

@@ -5,13 +5,14 @@ from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, combine_loss
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss
 from pkgs.data.types import ExperimentScenario
 
 import os
 import numpy as np
 from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
+from lifelines.utils import concordance_index
 
 
 num_risks = 1 # esrd
@@ -57,13 +58,15 @@ class DynamicDeepHitDataset(Dataset):
         
         time_to_event = subject_data['duration_in_days'].iloc[-1]
         event = np.array([subject_data['has_esrd'].iloc[-1]])
+        time_to_events = subject_data['duration_in_days'].values
+        event_indicators = subject_data['has_esrd'].values
                 
         return (torch.FloatTensor(features),
                 torch.FloatTensor(mask),
                 torch.LongTensor([time_to_event]),
                 torch.FloatTensor(event),
-                torch.FloatTensor(subject_data['duration_in_days'].values),
-                torch.FloatTensor(subject_data['has_esrd'].values))
+                torch.FloatTensor(time_to_events),
+                torch.FloatTensor(event_indicators))
 
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
@@ -131,7 +134,19 @@ def eval_ddh(model, data_loader, device):
         print(f"time to events shape {time_to_events.shape}")
         print(f"event_indicators shape {event_indicators.shape}")
 
-        c_idxs.append(calculate_c_index(hazard_preds, time_to_event, event_indicator, num_risks))
+        hazard_preds = hazard_preds.cpu().detach().numpy()
+        hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
+        final_risk_scores = []
+        for i in range(time_to_events.shape[1]):
+            duration = time_to_events[:, i]
+            risk_at_time = hazard_preds[:, duration]
+            final_risk_scores.append(risk_at_time)
+        
+        final_risk_scores = np.array(final_risk_scores).reshape((1, -1))
+        print(f"final_risk_scores shape: {final_risk_scores.shape}")
+        print(f"time_to_events: {time_to_events}")
+
+        c_idxs.append(concordance_index(time_to_events, final_risk_scores, event_indicators))
         
     avg_c_idx = np.mean(c_idxs, axis=0)
     print(f"Test C-index: {avg_c_idx[0]:.2f}")
@@ -162,7 +177,7 @@ def run(scenario_name: ExperimentScenario):
 
     model.to(device)
 
-    test_dataset = RNNAttentionDataset(df_test, scenario_name)
+    test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
     test_dataloader = DataLoader(test_dataset)
 
     c_idxs = []
