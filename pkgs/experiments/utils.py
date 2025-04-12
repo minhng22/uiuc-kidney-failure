@@ -54,7 +54,7 @@ def ex_optuna(objective):
     print("Running Optuna hyperparameter optimization")
     
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=1)
+    study.optimize(objective, n_trials=10)
 
     print("Number of finished trials: ", len(study.trials))
     print("Best trial:")

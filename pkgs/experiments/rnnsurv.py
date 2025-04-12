@@ -141,7 +141,7 @@ def score_model_train(model: RNNSurv, df, features, device):
     return c_index
 
 def get_device():
-    return torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
@@ -181,6 +181,5 @@ def run(scenario_name: ExperimentScenario):
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 if __name__ == '__main__':
-    run(ExperimentScenario.TIME_VARIANT)
     run(ExperimentScenario.HETEROGENEOUS)
     run(ExperimentScenario.EGFR_COMPONENTS)

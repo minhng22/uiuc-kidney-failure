@@ -42,10 +42,22 @@ def objective(trial, scenario_name: ExperimentScenario):
     for epoch in range(num_epochs):
         print(f'Epoch {epoch + 1}/{num_epochs}')
         total_loss = 0
-        for features, mask, time_to_event, event_indicator, _, _ in train_loader:
+        for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators) in enumerate(train_loader):
+            print_shape = False
+            if i == len(train_loader) - 1:
+                print_shape = True
             features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
             optimizer.zero_grad()
-            hazard_preds, _ = model(features, mask)
+
+            if print_shape:
+                print(f"features shape: {features.shape}")
+                print(f"mask shape: {mask.shape}")
+                print(f"time_to_event shape: {time_to_event.shape}")
+                print(f"event_indicator shape: {event_indicator.shape}")
+                print(f"time_to_events shape: {time_to_events.shape}")
+                print(f"event_indicators shape: {event_indicators.shape}")
+
+            hazard_preds, _ = model(features, mask, print_shape)
             loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
             loss.backward()
             optimizer.step()
@@ -70,7 +82,7 @@ def eval_ddh(model, data_loader, device):
         print(f"time to events shape {time_to_events.shape}")
         print(f"event_indicators shape {event_indicators.shape}")
 
-        c_idxs.append(calculate_c_index(hazard_preds, time_to_events, event_indicators, num_risks))
+        c_idxs.append(calculate_c_index(hazard_preds, time_to_event, event_indicator, num_risks))
         
     avg_c_idx = np.mean(c_idxs, axis=0)
     print(f"Test C-index: {avg_c_idx[0]:.2f}")

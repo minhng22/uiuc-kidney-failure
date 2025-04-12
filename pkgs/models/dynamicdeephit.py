@@ -56,12 +56,34 @@ class DynamicDeepHit(nn.Module):
         context = torch.sum(attention_weights * fc_output, dim=1)
         return context, attention_weights
     
-    def forward(self, x, mask):
+    def forward(self, x, mask, print_shapes=False):
+        if print_shapes:
+            print(f"x shape: {x.shape}")
+            print(f"mask shape: {mask.shape}")
+
         lstm_output, _ = self.lstm(x)
+        if print_shapes:
+            print(f"lstm_output shape: {lstm_output.shape}")
+        
         fc_output = self.fc(lstm_output)
+        if print_shapes:
+            print(f"fc_output shape: {fc_output.shape}")
+
         context, attention_weights = self.attention_net(fc_output, mask)
+        if print_shapes:
+            print(f"context shape: {context.shape}")
+            print(f"attention_weights shape: {attention_weights.shape}")
         
         x = self.cause_specific_fc(context)
+        if print_shapes:
+            print(f"x shape after cause_specific_fc: {x.shape}")
         
         hazard_preds = [torch.sigmoid(risk_head(x)) for risk_head in self.risk_heads]
-        return torch.stack(hazard_preds, dim=1), attention_weights
+        if print_shapes:
+            print(f"hazard_preds shape: {[pred.shape for pred in hazard_preds]}")
+        
+        res = torch.stack(hazard_preds, dim=1)
+        if print_shapes:
+            print(f"res shape: {res.shape}")
+
+        return res, attention_weights
