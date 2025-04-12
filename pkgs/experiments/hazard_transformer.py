@@ -1,11 +1,12 @@
+import pandas as pd
 from pkgs.commons import egfr_tv_hazard_transformer_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 import numpy as np
 import os
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, RNNAttentionDataset, combine_loss
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, combine_loss
 from pkgs.data.types import ExperimentScenario
 from torch.nn.utils.rnn import pad_sequence
 
@@ -14,6 +15,55 @@ num_risks = 1
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+class HazardTransformerDataset(Dataset):
+    def __init__(self, df, scenario_name: ExperimentScenario):
+        self.df = df
+        self.subject_groups = list(df.groupby('subject_id'))
+
+        self.scenario_name = scenario_name
+        self.features = get_tv_rnn_model_features(scenario_name)
+
+        self.max_seq_length = max(df.groupby('subject_id').size())
+
+    def __len__(self):
+        return len(self.subject_groups)
+
+    def __getitem__(self, idx):
+        _, subject_data = self.subject_groups[idx]
+        seq_length = len(subject_data)
+
+        assert isinstance(subject_data, pd.DataFrame), f"subject_data is not a DataFrame: {type(subject_data)}"
+        assert subject_data['duration_in_days'].is_monotonic_increasing, "subject_data is not sorted by time"
+        
+        features = np.zeros((self.max_seq_length, len(self.features)))
+        mask = np.zeros(self.max_seq_length)
+        
+        if self.scenario_name == ExperimentScenario.TIME_VARIANT:
+            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+        elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
+            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 1] = subject_data['egfr_missing'].values
+            features[:seq_length, 2] = (subject_data['protein'].values - self.df['protein'].mean()) / self.df['protein'].std()
+            features[:seq_length, 3] = subject_data['protein_missing'].values
+            features[:seq_length, 4] = (subject_data['albumin'].values - self.df['albumin'].mean()) / self.df['albumin'].std()
+            features[:seq_length, 5] = subject_data['albumin_missing'].values
+        elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
+            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 1] = subject_data['gender'].values
+            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
+        
+        mask[:seq_length] = 1
+        
+        time_to_event = subject_data['duration_in_days'].iloc[-1]
+        event = np.array([subject_data['has_esrd'].iloc[-1]])
+                
+        return (torch.FloatTensor(features),
+                torch.FloatTensor(mask),
+                torch.LongTensor([time_to_event]),
+                torch.FloatTensor(event),
+                torch.FloatTensor(subject_data['duration_in_days'].values),
+                torch.FloatTensor(subject_data['has_esrd'].values))
+    
 def custom_collate_fn(batch):
     features, masks, time_to_events, events, durations, esrds = zip(*batch)
 
@@ -30,7 +80,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     print(f"Running trial {trial.number} for {scenario_name} on device {device}")
     df, _ = get_train_test_data(scenario_name)
 
-    dataset = RNNAttentionDataset(df, scenario_name)
+    dataset = HazardTransformerDataset(df, scenario_name)
     train_loader = DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))

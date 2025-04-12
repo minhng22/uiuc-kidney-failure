@@ -1,0 +1,104 @@
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Loading from saved weights
+C-Index on Test Data: 0.33
+Mean time-dependent AUC: 0.6812
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/heterogen_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/heterogen_test_data.csv
+Number of patients: test 6843 and train 27372
+Number of records: test 97205 and train 395894
+Loading from saved weights
+C-Index on Test Data: 0.344
+Mean time-dependent AUC: 0.6682
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_components_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_components_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Running Optuna hyperparameter optimization
+[I 2025-04-11 22:13:48,783] A new study created in memory with name: no-name-dbfcac81-1ea6-459e-aad2-46637d8ee315
+Running trial number 0 for ExperimentScenario.EGFR_COMPONENTS on device cuda:6
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_components_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/egfr_components_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Epoch 1/50
+[W 2025-04-11 22:13:57,125] Trial 0 failed with parameters: {'num_time_intervals': 49, 'embedding_size': 66, 'num_embedding_layers': 1, 'hidden_dims': 124, 'num_recurrent_layers': 2, 'learning_rate': 9.666438884653918e-05, 'cross_entropy_loss_weight': 0.7526999666712192} because of the following error: OutOfMemoryError('CUDA out of memory. Tried to allocate 1.96 GiB. GPU 6 has a total capacity of 10.57 GiB of which 1.12 GiB is free. Including non-PyTorch memory, this process has 9.45 GiB memory in use. Of the allocated memory 9.23 GiB is allocated by PyTorch, and 33.58 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)').
+Traceback (most recent call last):
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 162, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 123, in objective
+    survival_probabilities, risk_scores = model(X_batch)
+                                          ^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/rnnsurv.py", line 34, in forward
+    out, _ = self.rnn(embedded)
+             ^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1123, in forward
+    result = _VF.lstm(
+             ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.96 GiB. GPU 6 has a total capacity of 10.57 GiB of which 1.12 GiB is free. Including non-PyTorch memory, this process has 9.45 GiB memory in use. Of the allocated memory 9.23 GiB is allocated by PyTorch, and 33.58 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[W 2025-04-11 22:13:57,129] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 186, in <module>
+    run(ExperimentScenario.EGFR_COMPONENTS)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 162, in run
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/utils.py", line 57, in ex_optuna
+    study.optimize(objective, n_trials=10)
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 162, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 123, in objective
+    survival_probabilities, risk_scores = model(X_batch)
+                                          ^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/rnnsurv.py", line 34, in forward
+    out, _ = self.rnn(embedded)
+             ^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1123, in forward
+    result = _VF.lstm(
+             ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.96 GiB. GPU 6 has a total capacity of 10.57 GiB of which 1.12 GiB is free. Including non-PyTorch memory, this process has 9.45 GiB memory in use. Of the allocated memory 9.23 GiB is allocated by PyTorch, and 33.58 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
