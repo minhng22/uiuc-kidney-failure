@@ -125,35 +125,30 @@ def objective(trial, scenario_name: ExperimentScenario):
     ranking_loss = 1 - llh_loss
     num_epochs = 1
 
-    if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
-        print("Loading from saved weights")
-        model = torch.load(egfr_tv_dynamic_deep_hit_model_path, map_location=device, weights_only = False)
-    else:
-        model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-        model.train()
-        for epoch in range(num_epochs):
-            print(f'Epoch {epoch + 1}/{num_epochs}')
-            total_loss = 0
-            for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(train_loader):
-                debug_mode = False
-                if i == 0:
-                    debug_mode = True
-                features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
-                optimizer.zero_grad()
+    model.train()
+    for epoch in range(num_epochs):
+        print(f'Epoch {epoch + 1}/{num_epochs}')
+        total_loss = 0
+        for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(train_loader):
+            debug_mode = False
+            if i == 0:
+                debug_mode = True
+            features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
+            optimizer.zero_grad()
 
-                if debug_mode:
-                    print(f"features shape: {features.shape}, mask shape: {mask.shape}, time_to_event shape: {time_to_event.shape}, "
-                          f"event_indicator shape: {event_indicator.shape}, time_to_events shape: {time_to_events.shape}, "
-                          f"event_indicators shape: {event_indicators.shape}, sequence lengths shape: {seq_lens.shape}")
+            if debug_mode:
+                print(f"features shape: {features.shape}, mask shape: {mask.shape}, time_to_event shape: {time_to_event.shape}, "
+                      f"event_indicator shape: {event_indicator.shape}, time_to_events shape: {time_to_events.shape}, "
+                      f"event_indicators shape: {event_indicators.shape}, sequence lengths shape: {seq_lens.shape}")
 
-                hazard_preds, _ = model(features, mask, debug_mode)
-                loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
-                loss.backward()
-                optimizer.step()
-                total_loss += loss.item()
-        torch.save(model, egfr_tv_dynamic_deep_hit_model_path)
+            hazard_preds, _ = model(features, mask, debug_mode)
+            loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
 
     c_index = c_idx(model, dataset, device)
 
@@ -207,7 +202,7 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
             print(f"f_risk_scores shape: {len(f_risk_scores)}")
             print(f"f_event_indicators shape: {len(f_event_indicators)}")
 
-        y_test = Surv.from_arrays(event=event_indicators, time=time_to_event, name_event='has_esrd', name_time='duration_in_days')
+        y_test = Surv.from_arrays(event=f_event_indicators, time=f_time_to_events, name_event='has_esrd', name_time='duration_in_days')
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, f_risk_scores, times)
         aucs.append(mean_auc)
 
