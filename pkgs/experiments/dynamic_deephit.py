@@ -30,6 +30,34 @@ class DynamicDeepHitDataset(Dataset):
     def __len__(self):
         return len(self.subject_groups)
 
+    def get_all_subj_data(self):
+        feats, masks, tte, ev, ttes, inds = [], [], [], [], [], []
+
+        for i in range(len(self.subject_groups)):
+            f_i, m_i, tte_i, ev_i, ttes_i, ind_i = self[i]
+            feats.append(f_i)
+            masks.append(m_i)
+            tte.append(tte_i)
+            ev.append(ev_i)
+            ttes.append(ttes_i)
+            inds.append(ind_i)
+
+        combined_features         = torch.stack(feats, dim=0)
+        combined_mask             = torch.stack(masks, dim=0)
+        combined_time_to_event    = torch.stack(tte, dim=0)
+        combined_event            = torch.stack(ev, dim=0)
+        combined_time_to_events   = torch.stack(ttes, dim=0)
+        combined_event_indicators = torch.stack(inds, dim=0)
+
+        return (
+            combined_features,
+            combined_mask,
+            combined_time_to_event,
+            combined_event,
+            combined_time_to_events,
+            combined_event_indicators
+        )
+
     def __getitem__(self, idx):
         _, subject_data = self.subject_groups[idx]
         seq_length = len(subject_data)
@@ -115,43 +143,39 @@ def objective(trial, scenario_name: ExperimentScenario):
             optimizer.step()
             total_loss += loss.item()
 
-    c_index = eval_ddh(model, train_loader, device)
+    c_index = c_idx(model, dataset, device)
 
     trial.set_user_attr(key="model", value=model)
     return c_index
 
 
-def eval_ddh(model, data_loader, device):
-    c_idxs = []
+def c_idx(model, dataset: DynamicDeepHitDataset, device):
+    features, mask, _, _, time_to_events, event_indicators = dataset.get_all_subj_data()
 
-    for features, mask, time_to_event, event_indicator, time_to_events, event_indicators in data_loader:
-        features, mask = features.to(device), mask.to(device)
-        hazard_preds, _ = model(features, mask)
+    features, mask = features.to(device), mask.to(device)
+    hazard_preds, _ = model(features, mask)
 
-        print(f"hazard_preds shape: {hazard_preds.shape}")
-        print(f"event_indicator shape: {event_indicator.shape}")
-        print(f"time_to_event shape: {time_to_event.shape}")
-        print(f"time to events shape {time_to_events.shape}")
-        print(f"event_indicators shape {event_indicators.shape}")
+    print(f"hazard_preds shape: {hazard_preds.shape}")
+    print(f"time to events shape {time_to_events.shape}")
+    print(f"event_indicators shape {event_indicators.shape}")
 
-        hazard_preds = hazard_preds.cpu().detach().numpy()
-        hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
-        final_risk_scores = []
-        for i in range(time_to_events.shape[1]):
-            duration = time_to_events[:, i]
-            risk_at_time = hazard_preds[:, duration]
-            final_risk_scores.append(risk_at_time)
+    hazard_preds = hazard_preds.cpu().detach().numpy()
+    hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
+    final_risk_scores = []
+    for i in range(time_to_events.shape[1]):
+        duration = time_to_events[:, i]
+        risk_at_time = hazard_preds[:, int(duration)]
+        final_risk_scores.append(risk_at_time)
         
-        final_risk_scores = np.array(final_risk_scores).reshape((1, -1))
-        print(f"final_risk_scores shape: {final_risk_scores.shape}")
-        print(f"time_to_events: {time_to_events}")
-
-        c_idxs.append(concordance_index(time_to_events, final_risk_scores, event_indicators))
-        
-    avg_c_idx = np.mean(c_idxs, axis=0)
-    print(f"Test C-index: {avg_c_idx[0]:.2f}")
+    final_risk_scores = np.array(final_risk_scores).reshape((1, -1))
+    print(f"final_risk_scores shape: {final_risk_scores}")
+    print(f"time_to_events: {time_to_events}")
+    print(f"event_indicators: {event_indicators}")
     
-    return avg_c_idx[0] # 1 risk, which is esrd
+    c_idx = concordance_index(time_to_events, final_risk_scores, event_indicators)
+    print(f"Test C-index: {c_idx:.2f}")
+    
+    return c_idx
 
 def get_device():
     return torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
