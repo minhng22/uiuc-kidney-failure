@@ -123,7 +123,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
     ranking_loss = 1 - llh_loss
-    num_epochs = 50
+    num_epochs = 1
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -149,6 +149,8 @@ def objective(trial, scenario_name: ExperimentScenario):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
+    
+    torch.save(model, egfr_tv_dynamic_deep_hit_model_path)
 
     c_index = c_idx(model, dataset, device)
 
@@ -213,6 +215,7 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
 def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
+    print("Calculating C-index")
     dataloader = DataLoader(dataset, shuffle=False, batch_size=256)
     c_idxs = []
     for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
@@ -224,6 +227,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
             print(f"features shape: {features.shape}")
             print(f"mask shape: {mask.shape}")
             print(f"time_to_event shape: {time_to_event.shape}")
+            print(f"event_indicator shape: {event_indicator.shape}")
             print(f"time_to_events shape: {time_to_events.shape}")
             print(f"seq_lens shape: {seq_lens.shape}")
 
@@ -235,25 +239,17 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
         if debug_mode:
             print(f"calc hazard_preds shape: {hazard_preds.shape}")
         
-        f_time_to_events, f_risk_scores, f_event_indicators = None, None, None
+        f_risk_scores = None
 
         for j in range(hazard_preds.shape[0]):
             p_seq_len = int(seq_lens[j])
-            if f_time_to_events is None:
-                f_time_to_events = time_to_events[j][:p_seq_len]
+            if f_risk_scores is None:
                 f_risk_scores = hazard_preds[j][:p_seq_len]
-                f_event_indicators = event_indicators[j][:p_seq_len]
             else:
-                f_time_to_events = np.concatenate((f_time_to_events, time_to_events[j][:p_seq_len]), axis=0)
                 f_risk_scores = np.concatenate((f_risk_scores, hazard_preds[j][:p_seq_len]), axis=0)
-                f_event_indicators = np.concatenate((f_event_indicators, event_indicators[j][:p_seq_len]), axis=0)
         
-        if debug_mode:
-            print(f"f_time_to_events shape: {len(f_time_to_events)}")
-            print(f"f_risk_scores shape: {len(f_risk_scores)}")
-            print(f"f_event_indicators shape: {len(f_event_indicators)}")
 
-        c_idx = concordance_index(f_time_to_events, f_risk_scores, f_event_indicators)            
+        c_idx = concordance_index(time_to_event, f_risk_scores, event_indicator)            
         c_idxs.append(c_idx)
 
         if debug_mode:
@@ -264,7 +260,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
     return np.mean(c_idxs, axis=0)
 
 def get_device():
-    return torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
