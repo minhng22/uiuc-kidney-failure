@@ -65,10 +65,11 @@ class HazardTransformerDataset(Dataset):
                 torch.LongTensor([time_to_event]),
                 torch.FloatTensor(event),
                 torch.FloatTensor(subject_data['duration_in_days'].values),
-                torch.FloatTensor(subject_data['has_esrd'].values))
+                torch.FloatTensor(subject_data['has_esrd'].values),
+                torch.LongTensor([len(subject_data['duration_in_days'].values)]))
     
 def custom_collate_fn(batch):
-    features, masks, time_to_events, events, durations, esrds = zip(*batch)
+    features, masks, time_to_events, events, durations, esrds, _ = zip(*batch)
 
     features = pad_sequence(features, batch_first=True)
     masks = pad_sequence(masks, batch_first=True)
@@ -125,35 +126,40 @@ def objective(trial, scenario_name: ExperimentScenario):
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def c_idx(hazard_preds, time_intervals, event_indicators, num_risks):
-    c_indices = []
-    for risk_idx in range(num_risks):
-        # Extract predictions for the current risk
-        risk_hazard_preds = hazard_preds[:, :, risk_idx].mean(dim=1).cpu().numpy()
-        true_times = time_intervals.cpu().numpy().flatten()
-        events = event_indicators.cpu().numpy().flatten()
-
-        # Calculate the C-index for the current risk
-        c_index = concordance_index(true_times, -risk_hazard_preds, events)
-        c_indices.append(c_index)
-
-    return c_indices
-
 def c_idx(model: HazardTransformer, data_loader, device):
+    print("Calculating C-index")
     test_c_indices = []
 
-    for features, mask, time_intervals, event_indicators, _, _ in data_loader:
+    for i, (features, mask, time_to_events, event_indicators, _, _) in enumerate(data_loader):
         features, mask = features.to(device), mask.to(device)
-        eval_times = torch.linspace(0, model.max_time, 100).to(device)
-        eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
-            
-        hazard_preds, _, _ = model(features, mask, eval_times)
-        
-        risk_hazard_preds = hazard_preds[:, :, 0].mean(dim=1).cpu().numpy()
-        true_times = time_intervals.cpu().numpy().flatten()
-        events = event_indicators.cpu().numpy().flatten()
 
-        c_index = concordance_index(true_times, -risk_hazard_preds, events)
+        if i == 0:
+            print(f"Features shape: {features.shape}")
+            print(f"Mask shape: {mask.shape}")
+            print(f"Time to events shape: {time_to_events.shape}")
+            print(f"Event indicators shape: {event_indicators.shape}")
+            
+        hazard_preds, _, _ = model(features, mask)
+        if i == 0:
+            print(f"Hazard predictions shape: {hazard_preds.shape}")
+        
+        risk_hazard_preds = hazard_preds[:, :, 0].detach().cpu().numpy()
+        f_hazards = []
+        
+        if i == 0:
+            print(f"Risk hazard predictions shape: {risk_hazard_preds.shape}")
+
+        for j in range(risk_hazard_preds.shape[0]):
+            p_hazards = risk_hazard_preds[j,:]
+            p_time_to_event = int(time_to_events[j])
+            p_hazard = p_hazards[:p_time_to_event]
+            f_hazards.append(p_hazard)
+            if j == 0:
+                print(f"Risk hazards shape: {p_hazards.shape}")
+                print(f"Time to event: {p_time_to_event}")
+                print(f"First hazard: {p_hazard}")
+
+        c_index = concordance_index(time_to_events, f_hazards, event_indicators)
 
         test_c_indices.append(c_index)
 
@@ -196,6 +202,9 @@ def run(scenario_name: ExperimentScenario):
         torch.save(model, egfr_tv_hazard_transformer_model_path)
     
     model.to(device)
+
+    print("model summary")
+    print(model)
 
     c_idx(model, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
     auc(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
