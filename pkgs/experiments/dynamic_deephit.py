@@ -31,31 +31,26 @@ class DynamicDeepHitDataset(Dataset):
         return len(self.subject_groups)
 
     def get_all_subj_data(self):
-        feats, masks, tte, ev, ttes, inds = [], [], [], [], [], []
+        feats, masks, tte, ev, ttes, inds = torch.Tensor([]), torch.Tensor([]), torch.Tensor([]), torch.Tensor([]), torch.Tensor([]), torch.Tensor([])
 
         for i in range(len(self.subject_groups)):
-            f_i, m_i, tte_i, ev_i, ttes_i, ind_i = self[i]
-            feats.append(f_i)
-            masks.append(m_i)
-            tte.append(tte_i)
-            ev.append(ev_i)
-            ttes.append(ttes_i)
-            inds.append(ind_i)
+            f_i, m_i, tte_i, ev_i, ttes_i, ind_i = self.__getitem__(i)
+            feats = torch.concat((feats, f_i), dim=0)
+            masks = torch.concat((masks, m_i), dim=0)
+            tte = torch.concat((tte, tte_i), dim=0)
+            ev = torch.concat((ev, ev_i), dim=0)
+            ttes = torch.concat((ttes, ttes_i), dim=0)
+            inds = torch.concat((inds, ind_i), dim=0)
 
-        combined_features         = torch.stack(feats, dim=0)
-        combined_mask             = torch.stack(masks, dim=0)
-        combined_time_to_event    = torch.stack(tte, dim=0)
-        combined_event            = torch.stack(ev, dim=0)
-        combined_time_to_events   = torch.stack(ttes, dim=0)
-        combined_event_indicators = torch.stack(inds, dim=0)
+        print(f"feats shape: {feats.shape}")
+        print(f"masks shape: {masks.shape}")
+        print(f"tte shape: {tte.shape}")
+        print(f"ev shape: {ev.shape}")
+        print(f"ttes shape: {ttes.shape}")
+        print(f"inds shape: {inds.shape}")
 
         return (
-            combined_features,
-            combined_mask,
-            combined_time_to_event,
-            combined_event,
-            combined_time_to_events,
-            combined_event_indicators
+            feats, masks, tte, ev, ttes, inds
         )
 
     def __getitem__(self, idx):
@@ -115,33 +110,38 @@ def objective(trial, scenario_name: ExperimentScenario):
     ranking_loss = 1 - llh_loss
     num_epochs = 1
 
-    model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    if os.path.exists(egfr_tv_dynamic_deep_hit_model_path):
+        print("Loading from saved weights")
+        model = torch.load(egfr_tv_dynamic_deep_hit_model_path, map_location=device, weights_only = False)
+    else:
+        model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    model.train()
-    for epoch in range(num_epochs):
-        print(f'Epoch {epoch + 1}/{num_epochs}')
-        total_loss = 0
-        for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators) in enumerate(train_loader):
-            print_shape = False
-            if i == len(train_loader) - 1:
-                print_shape = True
-            features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
-            optimizer.zero_grad()
+        model.train()
+        for epoch in range(num_epochs):
+            print(f'Epoch {epoch + 1}/{num_epochs}')
+            total_loss = 0
+            for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators) in enumerate(train_loader):
+                print_shape = False
+                if i == len(train_loader) - 1:
+                    print_shape = True
+                features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
+                optimizer.zero_grad()
 
-            if print_shape:
-                print(f"features shape: {features.shape}")
-                print(f"mask shape: {mask.shape}")
-                print(f"time_to_event shape: {time_to_event.shape}")
-                print(f"event_indicator shape: {event_indicator.shape}")
-                print(f"time_to_events shape: {time_to_events.shape}")
-                print(f"event_indicators shape: {event_indicators.shape}")
+                if print_shape:
+                    print(f"features shape: {features.shape}")
+                    print(f"mask shape: {mask.shape}")
+                    print(f"time_to_event shape: {time_to_event.shape}")
+                    print(f"event_indicator shape: {event_indicator.shape}")
+                    print(f"time_to_events shape: {time_to_events.shape}")
+                    print(f"event_indicators shape: {event_indicators.shape}")
 
-            hazard_preds, _ = model(features, mask, print_shape)
-            loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
+                hazard_preds, _ = model(features, mask, print_shape)
+                loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
+                loss.backward()
+                optimizer.step()
+                total_loss += loss.item()
+        torch.save(model, egfr_tv_dynamic_deep_hit_model_path)
 
     c_index = c_idx(model, dataset, device)
 
@@ -149,11 +149,15 @@ def objective(trial, scenario_name: ExperimentScenario):
     return c_index
 
 
-def c_idx(model, dataset: DynamicDeepHitDataset, device):
+def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
     features, mask, _, _, time_to_events, event_indicators = dataset.get_all_subj_data()
 
     features, mask = features.to(device), mask.to(device)
-    hazard_preds, _ = model(features, mask)
+
+    features = features.contiguous()
+    mask = mask.contiguous()
+
+    hazard_preds, _ = model(features, mask, True)
 
     print(f"hazard_preds shape: {hazard_preds.shape}")
     print(f"time to events shape {time_to_events.shape}")
@@ -178,10 +182,11 @@ def c_idx(model, dataset: DynamicDeepHitDataset, device):
     return c_idx
 
 def get_device():
-    return torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    return torch.device("cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
+    torch.backends.cudnn.enabled = False
     device = get_device()
     _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
@@ -200,8 +205,10 @@ def run(scenario_name: ExperimentScenario):
         torch.save(model, model_saved_path)
 
     model.to(device)
-
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
+
+    c_idx(model, test_dataset, device)
+
     test_dataloader = DataLoader(test_dataset)
 
     c_idxs = []
