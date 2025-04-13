@@ -13,6 +13,7 @@ import numpy as np
 from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
+from torchsummary import summary
 
 
 num_risks = 1 # esrd
@@ -156,6 +157,8 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
 
     features = features.contiguous()
     mask = mask.contiguous()
+
+    summary(model)
 
     hazard_preds, _ = model(features, mask, True)
 
