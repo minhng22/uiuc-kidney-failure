@@ -13,8 +13,6 @@ import numpy as np
 from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
-from torchsummary import summary
-
 
 num_risks = 1 # esrd
 
@@ -32,16 +30,27 @@ class DynamicDeepHitDataset(Dataset):
         return len(self.subject_groups)
 
     def get_all_subj_data(self):
-        feats, masks, tte, ev, ttes, inds = torch.Tensor([]), torch.Tensor([]), torch.Tensor([]), torch.Tensor([]), torch.Tensor([]), torch.Tensor([])
+        feats, masks, tte, ev, ttes, inds = [None for _ in range(6)]
 
         for i in range(len(self.subject_groups)):
             f_i, m_i, tte_i, ev_i, ttes_i, ind_i = self.__getitem__(i)
-            feats = torch.concat((feats, f_i), dim=0)
-            masks = torch.concat((masks, m_i), dim=0)
-            tte = torch.concat((tte, tte_i), dim=0)
-            ev = torch.concat((ev, ev_i), dim=0)
-            ttes = torch.concat((ttes, ttes_i), dim=0)
-            inds = torch.concat((inds, ind_i), dim=0)
+            if feats is None:
+                feats = f_i.unsqueeze(0)
+                masks = m_i.unsqueeze(0)
+                tte = tte_i.unsqueeze(0)
+                ev = ev_i.unsqueeze(0)
+                ttes = ttes_i.unsqueeze(0)
+                inds = ind_i.unsqueeze(0)
+                print(f"feats shape: {feats.shape}")
+                print(f"masks shape: {masks.shape}")
+                print(f"tte shape: {tte.shape}")
+            else:
+                feats = torch.concat((feats, f_i.unsqueeze(0)), dim=0)
+                masks = torch.concat((masks, m_i.unsqueeze(0)), dim=0)
+                tte = torch.concat((tte, tte_i.unsqueeze(0)), dim=0)
+                ev = torch.concat((ev, ev_i.unsqueeze(0)), dim=0)
+                ttes = torch.concat((ttes, ttes_i.unsqueeze(0)), dim=0)
+                inds = torch.concat((inds, ind_i.unsqueeze(0)), dim=0)
 
         print(f"feats shape: {feats.shape}")
         print(f"masks shape: {masks.shape}")
@@ -82,15 +91,20 @@ class DynamicDeepHitDataset(Dataset):
         
         time_to_event = subject_data['duration_in_days'].iloc[-1]
         event = np.array([subject_data['has_esrd'].iloc[-1]])
-        time_to_events = subject_data['duration_in_days'].values
-        event_indicators = subject_data['has_esrd'].values
+
+        time_to_events = np.zeros((self.max_seq_length))
+        time_to_events[:len(subject_data['duration_in_days'].values)] = subject_data['duration_in_days'].values
+
+        event_indicators = np.zeros((self.max_seq_length))
+        event_indicators[:len(subject_data['has_esrd'].values)] = subject_data['has_esrd'].values
                 
         return (torch.FloatTensor(features),
                 torch.FloatTensor(mask),
                 torch.LongTensor([time_to_event]),
                 torch.FloatTensor(event),
                 torch.FloatTensor(time_to_events),
-                torch.FloatTensor(event_indicators))
+                torch.FloatTensor(event_indicators),
+                torch.LongTensor([len(subject_data['has_esrd'].values)]))
 
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
@@ -122,22 +136,19 @@ def objective(trial, scenario_name: ExperimentScenario):
         for epoch in range(num_epochs):
             print(f'Epoch {epoch + 1}/{num_epochs}')
             total_loss = 0
-            for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators) in enumerate(train_loader):
-                print_shape = False
-                if i == len(train_loader) - 1:
-                    print_shape = True
+            for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(train_loader):
+                debug_mode = False
+                if i == 0:
+                    debug_mode = True
                 features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
                 optimizer.zero_grad()
 
-                if print_shape:
-                    print(f"features shape: {features.shape}")
-                    print(f"mask shape: {mask.shape}")
-                    print(f"time_to_event shape: {time_to_event.shape}")
-                    print(f"event_indicator shape: {event_indicator.shape}")
-                    print(f"time_to_events shape: {time_to_events.shape}")
-                    print(f"event_indicators shape: {event_indicators.shape}")
+                if debug_mode:
+                    print(f"features shape: {features.shape}, mask shape: {mask.shape}, time_to_event shape: {time_to_event.shape}, "
+                          f"event_indicator shape: {event_indicator.shape}, time_to_events shape: {time_to_events.shape}, "
+                          f"event_indicators shape: {event_indicators.shape}, sequence lengths shape: {seq_lens.shape}")
 
-                hazard_preds, _ = model(features, mask, print_shape)
+                hazard_preds, _ = model(features, mask, debug_mode)
                 loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
                 loss.backward()
                 optimizer.step()
@@ -149,40 +160,113 @@ def objective(trial, scenario_name: ExperimentScenario):
     trial.set_user_attr(key="model", value=model)
     return c_index
 
+def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd.DataFrame, device):
+    times = np.arange(1, 365, 1)
+    y_train = Surv.from_arrays(
+        event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
+
+    dataloader = DataLoader(test_dataset, shuffle=False, batch_size=256)
+    aucs = []
+
+    for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
+        debug_mode = False
+        if i == 0:
+            debug_mode = True
+        features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
+        
+        if debug_mode:
+            print(f"features shape: {features.shape}")
+            print(f"mask shape: {mask.shape}")
+            print(f"time_to_event shape: {time_to_event.shape}")
+            print(f"time_to_events shape: {time_to_events.shape}")
+            print(f"seq_lens shape: {seq_lens.shape}")
+
+        hazard_preds, _ = model(features, mask, debug_mode)
+
+        hazard_preds = hazard_preds.cpu().detach().numpy()
+        hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
+
+        if debug_mode:
+            print(f"calc hazard_preds shape: {hazard_preds.shape}")
+        
+        f_time_to_events, f_risk_scores, f_event_indicators = None, None, None
+
+        for j in range(hazard_preds.shape[0]):
+            p_seq_len = int(seq_lens[j])
+            if f_time_to_events is None:
+                f_time_to_events = time_to_events[j][:p_seq_len]
+                f_risk_scores = hazard_preds[j][:p_seq_len]
+                f_event_indicators = event_indicators[j][:p_seq_len]
+            else:
+                f_time_to_events = np.concatenate((f_time_to_events, time_to_events[j][:p_seq_len]), axis=0)
+                f_risk_scores = np.concatenate((f_risk_scores, hazard_preds[j][:p_seq_len]), axis=0)
+                f_event_indicators = np.concatenate((f_event_indicators, event_indicators[j][:p_seq_len]), axis=0)
+        
+        if debug_mode:
+            print(f"f_time_to_events shape: {len(f_time_to_events)}")
+            print(f"f_risk_scores shape: {len(f_risk_scores)}")
+            print(f"f_event_indicators shape: {len(f_event_indicators)}")
+
+        y_test = Surv.from_arrays(event=event_indicators, time=time_to_event, name_event='has_esrd', name_time='duration_in_days')
+        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, f_risk_scores, times)
+        aucs.append(mean_auc)
+
+        if debug_mode:
+            print(f"Mean AUC: {mean_auc}")
+
+    avg_auc = np.mean(aucs, axis=0)
+    print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
 def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
-    features, mask, _, _, time_to_events, event_indicators = dataset.get_all_subj_data()
+    dataloader = DataLoader(dataset, shuffle=False, batch_size=256)
+    c_idxs = []
+    for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
+        debug_mode = False
+        if i == 0:
+            debug_mode = True
+        features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
+        if debug_mode:
+            print(f"features shape: {features.shape}")
+            print(f"mask shape: {mask.shape}")
+            print(f"time_to_event shape: {time_to_event.shape}")
+            print(f"time_to_events shape: {time_to_events.shape}")
+            print(f"seq_lens shape: {seq_lens.shape}")
 
-    features, mask = features.to(device), mask.to(device)
+        hazard_preds, _ = model(features, mask, debug_mode)
 
-    features = features.contiguous()
-    mask = mask.contiguous()
+        hazard_preds = hazard_preds.cpu().detach().numpy()
+        hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
 
-    summary(model)
-
-    hazard_preds, _ = model(features, mask, True)
-
-    print(f"hazard_preds shape: {hazard_preds.shape}")
-    print(f"time to events shape {time_to_events.shape}")
-    print(f"event_indicators shape {event_indicators.shape}")
-
-    hazard_preds = hazard_preds.cpu().detach().numpy()
-    hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
-    final_risk_scores = []
-    for i in range(time_to_events.shape[1]):
-        duration = time_to_events[:, i]
-        risk_at_time = hazard_preds[:, int(duration)]
-        final_risk_scores.append(risk_at_time)
+        if debug_mode:
+            print(f"calc hazard_preds shape: {hazard_preds.shape}")
         
-    final_risk_scores = np.array(final_risk_scores).reshape((1, -1))
-    print(f"final_risk_scores shape: {final_risk_scores}")
-    print(f"time_to_events: {time_to_events}")
-    print(f"event_indicators: {event_indicators}")
-    
-    c_idx = concordance_index(time_to_events, final_risk_scores, event_indicators)
+        f_time_to_events, f_risk_scores, f_event_indicators = None, None, None
+
+        for j in range(hazard_preds.shape[0]):
+            p_seq_len = int(seq_lens[j])
+            if f_time_to_events is None:
+                f_time_to_events = time_to_events[j][:p_seq_len]
+                f_risk_scores = hazard_preds[j][:p_seq_len]
+                f_event_indicators = event_indicators[j][:p_seq_len]
+            else:
+                f_time_to_events = np.concatenate((f_time_to_events, time_to_events[j][:p_seq_len]), axis=0)
+                f_risk_scores = np.concatenate((f_risk_scores, hazard_preds[j][:p_seq_len]), axis=0)
+                f_event_indicators = np.concatenate((f_event_indicators, event_indicators[j][:p_seq_len]), axis=0)
+        
+        if debug_mode:
+            print(f"f_time_to_events shape: {len(f_time_to_events)}")
+            print(f"f_risk_scores shape: {len(f_risk_scores)}")
+            print(f"f_event_indicators shape: {len(f_event_indicators)}")
+
+        c_idx = concordance_index(f_time_to_events, f_risk_scores, f_event_indicators)            
+        c_idxs.append(c_idx)
+
+        if debug_mode:
+            print(f"Concordance index: {c_idx:.2f}")
+
+    c_idx = np.mean(c_idxs, axis=0)
     print(f"Test C-index: {c_idx:.2f}")
-    
-    return c_idx
+    return np.mean(c_idxs, axis=0)
 
 def get_device():
     return torch.device("cpu")
@@ -191,7 +275,7 @@ def get_device():
 def run(scenario_name: ExperimentScenario):
     torch.backends.cudnn.enabled = False
     device = get_device()
-    _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
     model_saved_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_dynamic_deep_hit_model_path,
@@ -208,33 +292,12 @@ def run(scenario_name: ExperimentScenario):
         torch.save(model, model_saved_path)
 
     model.to(device)
+    print("model summary:")
+    print(model)
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
 
     c_idx(model, test_dataset, device)
-
-    test_dataloader = DataLoader(test_dataset)
-
-    c_idxs = []
-    aucs = []
-
-    for features, mask, time_to_event, event_indicators, time_to_events, event_indicators in test_dataloader:
-        features, mask = features.to(device), mask.to(device)
-        hazard_preds, _ = model(features, mask)
-        c_idxs.append(calculate_c_index(hazard_preds, time_to_event, event_indicators, num_risks))
-
-        # calculate mean time-dependent AUC
-        times = np.arange(1, 365, 1)
-
-        y_train = Surv.from_arrays(event=event_indicators, time=time_to_events, name_event='has_esrd', name_time='duration_in_days')
-        y_test = Surv.from_arrays(event=event_indicators, time=time_to_event, name_event='has_esrd', name_time='duration_in_days')
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds.cpu().numpy(), times)
-        aucs.append(mean_auc)
-    
-    avg_c_idx = np.mean(c_idxs, axis=0)
-    print(f"Test C-index: {avg_c_idx[0]:.2f}")
-
-    avg_auc = np.mean(aucs, axis=0)
-    print(f"Mean time-dependent AUC: {avg_auc:.4f}")
+    auc(model, test_dataset, df, device)
 
     
 if __name__ == '__main__':
