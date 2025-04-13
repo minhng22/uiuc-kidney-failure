@@ -264,7 +264,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
     return np.mean(c_idxs, axis=0)
 
 def get_device():
-    return torch.device("cpu")
+    return torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
