@@ -6,9 +6,12 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 import numpy as np
 import os
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, calculate_c_index, combine_loss
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss
 from pkgs.data.types import ExperimentScenario
 from torch.nn.utils.rnn import pad_sequence
+from lifelines.utils import concordance_index
+from sksurv.metrics import cumulative_dynamic_auc
+from sksurv.util import Surv
 
 num_risks = 1
 
@@ -87,48 +90,72 @@ def objective(trial, scenario_name: ExperimentScenario):
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 50
+    num_epochs = 1
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
-    max_time = trial.suggest_int("max_time", 50, 200)
+    max_time = 365 * 5
     llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
     ranking_loss = 1 - llh_loss
 
-    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    if os.path.exists(egfr_tv_hazard_transformer_model_path):
+        print("Loading from saved weights")
+        model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device, weights_only=False)
+    else:
+        model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-    model.train()
-    for _ in range(num_epochs):
-        for features, mask, time_intervals, event_indicators, _, _ in train_loader:
-            features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
-            optimizer.zero_grad()
-            
-            eval_times = torch.linspace(0, model.max_time, 100).to(device)
-            eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
-            
-            hazard_preds, _, _ = model(features, mask, eval_times)
-            loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
-            loss.backward()
-            optimizer.step()
+        model.train()
+        for _ in range(num_epochs):
+            for features, mask, time_intervals, event_indicators, _, _ in train_loader:
+                features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
+                optimizer.zero_grad()
+                
+                eval_times = torch.linspace(0, model.max_time, 100).to(device)
+                eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
+                
+                hazard_preds, _, _ = model(features, mask, eval_times)
+                loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
+                loss.backward()
+                optimizer.step()
+    
+        torch.save(model, egfr_tv_hazard_transformer_model_path)
 
-    c_index = eval_ht(model, train_loader, device)
+    c_index = c_idx(model, DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def eval_ht(model: HazardTransformer, data_loader, device):
+def c_idx(hazard_preds, time_intervals, event_indicators, num_risks):
+    c_indices = []
+    for risk_idx in range(num_risks):
+        # Extract predictions for the current risk
+        risk_hazard_preds = hazard_preds[:, :, risk_idx].mean(dim=1).cpu().numpy()
+        true_times = time_intervals.cpu().numpy().flatten()
+        events = event_indicators.cpu().numpy().flatten()
+
+        # Calculate the C-index for the current risk
+        c_index = concordance_index(true_times, -risk_hazard_preds, events)
+        c_indices.append(c_index)
+
+    return c_indices
+
+def c_idx(model: HazardTransformer, data_loader, device):
     test_c_indices = []
 
-    model.eval()
-    with torch.no_grad():
-        for features, mask, time_intervals, event_indicators, _, _ in data_loader:
-            features, mask = features.to(device), mask.to(device)
-            eval_times = torch.linspace(0, model.max_time, 100).to(device)
-            eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
+    for features, mask, time_intervals, event_indicators, _, _ in data_loader:
+        features, mask = features.to(device), mask.to(device)
+        eval_times = torch.linspace(0, model.max_time, 100).to(device)
+        eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
             
-            hazard_preds, _, _ = model(features, mask, eval_times)
-            c_indices = calculate_c_index(hazard_preds, time_intervals, event_indicators, num_risks)
-            test_c_indices.append(c_indices)
+        hazard_preds, _, _ = model(features, mask, eval_times)
+        
+        risk_hazard_preds = hazard_preds[:, :, 0].mean(dim=1).cpu().numpy()
+        true_times = time_intervals.cpu().numpy().flatten()
+        events = event_indicators.cpu().numpy().flatten()
+
+        c_index = concordance_index(true_times, -risk_hazard_preds, events)
+
+        test_c_indices.append(c_index)
 
     avg_test_c_indices = np.mean(test_c_indices, axis=0)
     for risk_idx, c_index in enumerate(avg_test_c_indices):
@@ -136,9 +163,31 @@ def eval_ht(model: HazardTransformer, data_loader, device):
     
     return avg_test_c_indices[0]  # Return c-index for the single risk
 
+def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
+    y_train = Surv.from_arrays(
+        event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
+    aucs = []
+    times = np.arange(1, 365, 1)
+    for features, mask, time_intervals, event_indicators, _, _ in dataloader:
+
+        y_test = Surv.from_arrays(event=event_indicators, time=time_intervals, name_event='has_esrd', name_time='duration_in_days')
+
+        eval_times = torch.linspace(1, model.max_time, 1).to(device)
+        eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
+
+        hazard_preds, _, _ = model(features, mask, eval_times)
+        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds, times)
+        aucs.append(mean_auc)
+
+    avg_auc = np.mean(aucs, axis=0)
+    print(f"Mean time-dependent AUC: {avg_auc:.2f}")
+    
+    
+
 def run(scenario_name: ExperimentScenario):
     device = get_device()
-    _, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    
     if os.path.exists(egfr_tv_hazard_transformer_model_path):
         print("Loading from saved weights")
         model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device, weights_only=False)
@@ -148,7 +197,8 @@ def run(scenario_name: ExperimentScenario):
     
     model.to(device)
 
-    eval_ht(model, df_test, device)
+    c_idx(model, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
+    auc(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
 
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)
