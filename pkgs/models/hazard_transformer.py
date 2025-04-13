@@ -20,11 +20,11 @@ class PositionalEncoding(nn.Module):
         return x + self.pe[:, :x.size(1)]
 
 class HazardTransformer(nn.Module):
-    def __init__(self, input_dim, d_model, num_risks, num_layers, nhead, dropout, max_time):
+    def __init__(self, input_dim, d_model, num_risks, num_layers, nhead, dropout):
         super(HazardTransformer, self).__init__()
         self.num_risks = num_risks
         self.d_model = d_model
-        self.max_time = max_time
+        self.max_time = 365 * 11
         
         self.input_embedding = nn.Linear(input_dim, d_model)
         

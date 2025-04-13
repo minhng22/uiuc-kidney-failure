@@ -113,7 +113,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     df, _ = get_train_test_data(scenario_name)
 
     dataset = DynamicDeepHitDataset(df, scenario_name)
-    train_loader = DataLoader(dataset, shuffle=True)
+    train_loader = DataLoader(dataset, shuffle=True, batch_size=256)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layer", 1, 20)
@@ -218,18 +218,16 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
     print("Calculating C-index")
     dataloader = DataLoader(dataset, shuffle=False, batch_size=256)
     c_idxs = []
-    for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
+    for i, (features, mask, time_to_event, event_indicator, _, _, _) in enumerate(dataloader):
         debug_mode = False
         if i == 0:
             debug_mode = True
-        features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
+        features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
         if debug_mode:
             print(f"features shape: {features.shape}")
             print(f"mask shape: {mask.shape}")
             print(f"time_to_event shape: {time_to_event.shape}")
             print(f"event_indicator shape: {event_indicator.shape}")
-            print(f"time_to_events shape: {time_to_events.shape}")
-            print(f"seq_lens shape: {seq_lens.shape}")
 
         hazard_preds, _ = model(features, mask, debug_mode)
 
@@ -242,14 +240,24 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
         f_risk_scores = None
 
         for j in range(hazard_preds.shape[0]):
-            p_seq_len = int(seq_lens[j])
-            if f_risk_scores is None:
-                f_risk_scores = hazard_preds[j][:p_seq_len]
-            else:
-                f_risk_scores = np.concatenate((f_risk_scores, hazard_preds[j][:p_seq_len]), axis=0)
-        
+            if j == 0:
+                print(hazard_preds[j])
+                print(f"hazard_preds shape: {hazard_preds[j].shape}")
+            p_time_to_event = int(time_to_event[j])
+            risk_at_time = np.asarray([hazard_preds[j][p_time_to_event]])
 
-        c_idx = concordance_index(time_to_event, f_risk_scores, event_indicator)            
+            if f_risk_scores is None:
+                f_risk_scores = risk_at_time
+                if j == 0:
+                    print(f"f_risk_score: {f_risk_scores}")
+                    print(f"p_time_to_event: {p_time_to_event}")
+                    print(f"risk_at_time: {risk_at_time}")
+            else:
+                f_risk_scores = np.concatenate((f_risk_scores, risk_at_time), axis=0)
+        
+        if debug_mode:
+            print(f"f_risk_scores shape: {len(f_risk_scores)}")
+        c_idx = concordance_index(time_to_event.cpu(), f_risk_scores, event_indicator.cpu())            
         c_idxs.append(c_idx)
 
         if debug_mode:

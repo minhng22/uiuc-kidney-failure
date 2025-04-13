@@ -95,7 +95,6 @@ def objective(trial, scenario_name: ExperimentScenario):
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
-    max_time = 365 * 5
     llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
     ranking_loss = 1 - llh_loss
 
@@ -103,7 +102,7 @@ def objective(trial, scenario_name: ExperimentScenario):
         print("Loading from saved weights")
         model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device, weights_only=False)
     else:
-        model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, max_time=max_time).to(device)
+        model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out).to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
         model.train()
