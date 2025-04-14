@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 from pkgs.commons import egfr_tv_hazard_transformer_model_path
 from pkgs.data.model_data_store import get_train_test_data
@@ -114,7 +115,7 @@ def objective(trial, scenario_name: ExperimentScenario):
                 eval_times = torch.linspace(0, model.max_time, 100).to(device)
                 eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
                 
-                hazard_preds, _, _ = model(features, mask, eval_times)
+                hazard_preds, _, _ = model(features, mask)
                 loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
                 loss.backward()
                 optimizer.step()
@@ -143,50 +144,29 @@ def c_idx(model: HazardTransformer, data_loader, device):
             print(f"Hazard predictions shape: {hazard_preds.shape}")
         
         risk_hazard_preds = hazard_preds[:, :, 0].detach().cpu().numpy()
-        f_hazards = []
-        
-        if i == 0:
-            print(f"Risk hazard predictions shape: {risk_hazard_preds.shape}")
-
-        for j in range(risk_hazard_preds.shape[0]):
-            p_hazards = risk_hazard_preds[j,:]
-            p_time_to_event = int(time_to_events[j])
-            p_hazard = p_hazards[:p_time_to_event]
-            f_hazards.append(p_hazard)
-            if j == 0:
-                print(f"Risk hazards shape: {p_hazards.shape}")
-                print(f"Time to event: {p_time_to_event}")
-                print(f"First hazard: {p_hazard}")
-
-        c_index = concordance_index(time_to_events, f_hazards, event_indicators)
+        c_index = concordance_index(time_to_events, risk_hazard_preds, event_indicators)
 
         test_c_indices.append(c_index)
 
     avg_test_c_indices = np.mean(test_c_indices, axis=0)
-    for risk_idx, c_index in enumerate(avg_test_c_indices):
-        print(f"Risk {risk_idx + 1} Test C-index: {c_index:.2f}")
+    print(f"Mean C-index: {avg_test_c_indices:.2f}")
     
-    return avg_test_c_indices[0]  # Return c-index for the single risk
+    return avg_test_c_indices
 
 def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
     y_train = Surv.from_arrays(
         event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
     aucs = []
     times = np.arange(1, 365, 1)
-    for features, mask, time_intervals, event_indicators, _, _ in dataloader:
+    for features, mask, time_to_events, event_indicators, _, _ in dataloader:
+        y_test = Surv.from_arrays(event=event_indicators, time=time_to_events, name_event='has_esrd', name_time='duration_in_days')
 
-        y_test = Surv.from_arrays(event=event_indicators, time=time_intervals, name_event='has_esrd', name_time='duration_in_days')
-
-        eval_times = torch.linspace(1, model.max_time, 1).to(device)
-        eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
-
-        hazard_preds, _, _ = model(features, mask, eval_times)
+        hazard_preds, _, _ = model(features, mask)
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds, times)
         aucs.append(mean_auc)
 
     avg_auc = np.mean(aucs, axis=0)
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
-    
     
 
 def run(scenario_name: ExperimentScenario):

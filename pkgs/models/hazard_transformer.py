@@ -24,7 +24,7 @@ class HazardTransformer(nn.Module):
         super(HazardTransformer, self).__init__()
         self.num_risks = num_risks
         self.d_model = d_model
-        self.max_time = 365 * 11
+        self.max_time = 365 * 15
         
         self.input_embedding = nn.Linear(input_dim, d_model)
         

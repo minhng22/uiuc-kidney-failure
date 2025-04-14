@@ -6,7 +6,7 @@ class DynamicDeepHit(nn.Module):
     def __init__(self, input_dim, hidden_dims, num_risks, dropout_lstm=0.2, dropout_cause=0.2):
         super(DynamicDeepHit, self).__init__()
         self.num_risks = num_risks
-        self.pred_times = 365 * 11
+        self.pred_times = 365 * 12
         
         num_layer_lstm = 2
         self.lstm = nn.LSTM(
