@@ -17,7 +17,7 @@ from sksurv.util import Surv
 num_risks = 1
 
 def get_device():
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
 
 class HazardTransformerDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
@@ -79,6 +79,13 @@ def custom_collate_fn(batch):
 
     return features, masks, torch.stack(time_to_events), torch.stack(events), durations, esrds
 
+def hazard_loss(hazard_preds, delta, time_mask, eps=1e-7):
+    p = hazard_preds.clamp(min=eps, max=1-eps)           
+    ll1 = delta * torch.log(p)                           
+    ll0 = (1 - delta) * torch.log(1 - p)                 
+    neg_ll = - (ll1 + ll0) * time_mask.unsqueeze(1)      
+    return neg_ll.sum() / (time_mask.sum() * hazard_preds.size(1) + eps)
+
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
 
@@ -96,8 +103,6 @@ def objective(trial, scenario_name: ExperimentScenario):
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
-    llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
-    ranking_loss = 1 - llh_loss
 
     model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -105,14 +110,27 @@ def objective(trial, scenario_name: ExperimentScenario):
     model.train()
     for _ in range(num_epochs):
         for features, mask, time_intervals, event_indicators, _, _ in train_loader:
-            features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
+            features, mask, time_intervals, event_indicators = [
+                x.to(device) for x in (features, mask, time_intervals, event_indicators)
+            ]
             optimizer.zero_grad()
 
-            eval_times = torch.linspace(0, model.max_time, 100).to(device)
-            eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
-
             hazard_preds, _, _ = model(features, mask)
-            loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
+
+            batch, _, T = hazard_preds.shape
+            t_i = time_intervals.squeeze(1).long()             
+            arange = torch.arange(T, device=device)            
+            time_mask = (arange.unsqueeze(0) < t_i.unsqueeze(1)).float()  
+
+            delta = torch.zeros_like(hazard_preds)            
+            for i in range(batch):
+                if event_indicators[i].item() == 1:
+                    m = t_i[i].item()
+                    if m < T:
+                        delta[i, 0, m] = 1.0
+
+            loss = hazard_loss(hazard_preds, delta, time_mask)
+
             loss.backward()
             optimizer.step()
 

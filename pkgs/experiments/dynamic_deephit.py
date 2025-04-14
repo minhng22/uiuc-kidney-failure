@@ -123,7 +123,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
     ranking_loss = 1 - llh_loss
-    num_epochs = 1
+    num_epochs = 50
 
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)

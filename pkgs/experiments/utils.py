@@ -48,11 +48,11 @@ def c_idx_rnn_model(model, df_test, features):
     c_index = round_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.squeeze().numpy(), df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
-def ex_optuna(objective):
+def ex_optuna(objective, n_trials=10):
     print("Running Optuna hyperparameter optimization")
     
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=1)
+    study.optimize(objective, n_trials=n_trials)
 
     print("Number of finished trials: ", len(study.trials))
     print("Best trial:")
