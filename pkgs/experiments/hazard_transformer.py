@@ -1,6 +1,6 @@
 import math
 import pandas as pd
-from pkgs.commons import egfr_tv_hazard_transformer_model_path
+from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
@@ -92,35 +92,29 @@ def objective(trial, scenario_name: ExperimentScenario):
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 1
+    num_epochs = 50
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
     llh_loss = trial.suggest_float('llh_loss', 0.1, 1.0)
     ranking_loss = 1 - llh_loss
 
-    if os.path.exists(egfr_tv_hazard_transformer_model_path):
-        print("Loading from saved weights")
-        model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device, weights_only=False)
-    else:
-        model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out).to(device)
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out).to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-        model.train()
-        for _ in range(num_epochs):
-            for features, mask, time_intervals, event_indicators, _, _ in train_loader:
-                features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
-                optimizer.zero_grad()
-                
-                eval_times = torch.linspace(0, model.max_time, 100).to(device)
-                eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
-                
-                hazard_preds, _, _ = model(features, mask)
-                loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
-                loss.backward()
-                optimizer.step()
-    
-        torch.save(model, egfr_tv_hazard_transformer_model_path)
+    model.train()
+    for _ in range(num_epochs):
+        for features, mask, time_intervals, event_indicators, _, _ in train_loader:
+            features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
+            optimizer.zero_grad()
+
+            eval_times = torch.linspace(0, model.max_time, 100).to(device)
+            eval_times = eval_times.unsqueeze(0).repeat(features.size(0), 1)
+
+            hazard_preds, _, _ = model(features, mask)
+            loss = combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, llh_loss, ranking_loss)
+            loss.backward()
+            optimizer.step()
 
     c_index = c_idx(model, DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
     trial.set_user_attr(key="model", value=model)
@@ -168,8 +162,7 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
         )
 
         hazard_preds, _, _ = model(features, mask)
-
-        hazard_preds = hazard_preds[:, :, 0].detach().cpu().numpy()
+        hazard_preds = hazard_preds[:, 0, 0].detach().cpu().numpy()
 
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds, times)
         aucs.append(mean_auc)
@@ -180,14 +173,21 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
 
 def run(scenario_name: ExperimentScenario):
     device = get_device()
-    df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    df, df_test = get_train_test_data(scenario_name)
+
+    model_saved_path_dict = {
+        ExperimentScenario.TIME_VARIANT: egfr_tv_hazard_transformer_model_path,
+        ExperimentScenario.HETEROGENEOUS: hg_hazard_transformer_model_path,
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_hazard_transformer_model_path,
+    }
+    model_saved_path = model_saved_path_dict[scenario_name]
     
-    if os.path.exists(egfr_tv_hazard_transformer_model_path):
+    if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        model = torch.load(egfr_tv_hazard_transformer_model_path, map_location=device, weights_only=False)
+        model = torch.load(model_saved_path, map_location=device, weights_only=False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
-        torch.save(model, egfr_tv_hazard_transformer_model_path)
+        torch.save(model, model_saved_path)
     
     model.to(device)
 

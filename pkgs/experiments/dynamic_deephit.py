@@ -191,15 +191,15 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
         for j in range(hazard_preds.shape[0]):
             p_seq_len = int(seq_lens[j])
             if f_time_to_events is None:
-                f_time_to_events = time_to_events[j][:p_seq_len]
+                f_time_to_events = time_to_events[j][:p_seq_len].cpu().detach().numpy()
                 f_risk_scores = hazard_preds[j][:p_seq_len]
-                f_event_indicators = event_indicators[j][:p_seq_len]
+                f_event_indicators = event_indicators[j][:p_seq_len].cpu().detach().numpy()
             else:
-                f_time_to_events = np.concatenate((f_time_to_events, time_to_events[j][:p_seq_len]), axis=0)
+                f_time_to_events = np.concatenate((f_time_to_events, time_to_events[j][:p_seq_len].cpu().detach().numpy()), axis=0)
                 f_risk_scores = np.concatenate((f_risk_scores, hazard_preds[j][:p_seq_len]), axis=0)
-                f_event_indicators = np.concatenate((f_event_indicators, event_indicators[j][:p_seq_len]), axis=0)
+                f_event_indicators = np.concatenate((f_event_indicators, event_indicators[j][:p_seq_len].cpu().detach().numpy()), axis=0)
         
-        if debug_mode:
+        if i == 0:
             print(f"f_time_to_events shape: {len(f_time_to_events)}")
             print(f"f_risk_scores shape: {len(f_risk_scores)}")
             print(f"f_event_indicators shape: {len(f_event_indicators)}")
