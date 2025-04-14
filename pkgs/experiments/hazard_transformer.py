@@ -159,9 +159,18 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
     aucs = []
     times = np.arange(1, 365, 1)
     for features, mask, time_to_events, event_indicators, _, _ in dataloader:
-        y_test = Surv.from_arrays(event=event_indicators, time=time_to_events, name_event='has_esrd', name_time='duration_in_days')
+        features, mask = features.to(device), mask.to(device)
+        y_test = Surv.from_arrays(
+            event=event_indicators.squeeze(),
+            time=time_to_events.squeeze(),
+            name_event='has_esrd',
+            name_time='duration_in_days'
+        )
 
         hazard_preds, _, _ = model(features, mask)
+
+        hazard_preds = hazard_preds[:, :, 0].detach().cpu().numpy()
+
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds, times)
         aucs.append(mean_auc)
 
