@@ -107,22 +107,27 @@ def objective(trial, scenario_name: ExperimentScenario):
     model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+    # Early stopping parameters
+    patience = 5
+    best_loss = float('inf')
+    patience_counter = 0
+
     model.train()
-    for _ in range(num_epochs):
-        for features, mask, time_intervals, event_indicators, _, _ in train_loader:
-            features, mask, time_intervals, event_indicators = [
-                x.to(device) for x in (features, mask, time_intervals, event_indicators)
-            ]
+    for epoch in range(num_epochs):
+        print(f'Epoch {epoch + 1}/{num_epochs}')
+        total_loss = 0
+        for i, (features, mask, time_intervals, event_indicators, _, _) in enumerate(train_loader):
+            features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
             optimizer.zero_grad()
 
             hazard_preds, _, _ = model(features, mask)
 
             batch, _, T = hazard_preds.shape
-            t_i = time_intervals.squeeze(1).long()             
-            arange = torch.arange(T, device=device)            
-            time_mask = (arange.unsqueeze(0) < t_i.unsqueeze(1)).float()  
+            t_i = time_intervals.squeeze(1).long()
+            arange = torch.arange(T, device=device)
+            time_mask = (arange.unsqueeze(0) < t_i.unsqueeze(1)).float()
 
-            delta = torch.zeros_like(hazard_preds)            
+            delta = torch.zeros_like(hazard_preds)
             for i in range(batch):
                 if event_indicators[i].item() == 1:
                     m = t_i[i].item()
@@ -130,9 +135,23 @@ def objective(trial, scenario_name: ExperimentScenario):
                         delta[i, 0, m] = 1.0
 
             loss = hazard_loss(hazard_preds, delta, time_mask)
-
             loss.backward()
             optimizer.step()
+            total_loss += loss.item()
+
+        # Check for early stopping
+        avg_loss = total_loss / len(train_loader)
+        print(f'Average Loss: {avg_loss}')
+        if avg_loss < best_loss:
+            best_loss = avg_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            print(f'Patience Counter: {patience_counter}')
+
+        if patience_counter >= patience:
+            print("Early stopping triggered")
+            break
 
     c_index = c_idx(model, DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
     trial.set_user_attr(key="model", value=model)

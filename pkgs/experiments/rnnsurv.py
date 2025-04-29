@@ -114,9 +114,15 @@ def objective(trial, scenario_name: ExperimentScenario):
     model = RNNSurv(input_dim, embedding_size, num_embedding_layers, hidden_dims, num_recurrent_layers, num_time_intervals).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
+    # Early stopping parameters
+    patience = 5
+    best_loss = float('inf')
+    patience_counter = 0
+
     model.train()
-    for _ in range(num_epochs):
-        print(f"Epoch {_ + 1}/{num_epochs}")
+    for epoch in range(num_epochs):
+        print(f'Epoch {epoch + 1}/{num_epochs}')
+        total_loss = 0
         for batch in train_loader:
             X_batch, durations_batch, events_batch = [x.to(device) for x in batch]
             optimizer.zero_grad()
@@ -124,6 +130,21 @@ def objective(trial, scenario_name: ExperimentScenario):
             loss = rnn_surv_loss(survival_probabilities, risk_scores, durations_batch, events_batch, time_intervals, cross_entropy_loss_weight)
             loss.backward()
             optimizer.step()
+            total_loss += loss.item()
+
+        # Check for early stopping
+        avg_loss = total_loss / len(train_loader)
+        print(f'Average Loss: {avg_loss}')
+        if avg_loss < best_loss:
+            best_loss = avg_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            print(f'Patience Counter: {patience_counter}')
+
+        if patience_counter >= patience:
+            print("Early stopping triggered")
+            break
 
     trial.set_user_attr(key="model", value=model)
     return score_model_train(model, df, rnn_surv_features, device)

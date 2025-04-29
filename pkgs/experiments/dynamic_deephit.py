@@ -128,6 +128,11 @@ def objective(trial, scenario_name: ExperimentScenario):
     model = DynamicDeepHit(input_dim, hidden_dims, num_risks, drop_out_lstm, drop_out_cause).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
+    # Early stopping parameters
+    patience = 5
+    best_loss = float('inf')
+    patience_counter = 0
+
     model.train()
     for epoch in range(num_epochs):
         print(f'Epoch {epoch + 1}/{num_epochs}')
@@ -149,6 +154,20 @@ def objective(trial, scenario_name: ExperimentScenario):
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
+
+        # Check for early stopping
+        avg_loss = total_loss / len(train_loader)
+        print(f'Average Loss: {avg_loss}')
+        if avg_loss < best_loss:
+            best_loss = avg_loss
+            patience_counter = 0
+        else:
+            patience_counter += 1
+            print(f'Patience Counter: {patience_counter}')
+
+        if patience_counter >= patience:
+            print("Early stopping triggered")
+            break
     
     c_index = c_idx(model, dataset, device)
 
