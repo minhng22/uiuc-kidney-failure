@@ -150,8 +150,6 @@ def objective(trial, scenario_name: ExperimentScenario):
             optimizer.step()
             total_loss += loss.item()
     
-    torch.save(model, egfr_tv_dynamic_deep_hit_model_path)
-
     c_index = c_idx(model, dataset, device)
 
     trial.set_user_attr(key="model", value=model)
