@@ -232,57 +232,38 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
 def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
-    print("Calculating C-index")
-    dataloader = DataLoader(dataset, shuffle=False, batch_size=256)
-    c_idxs = []
-    for i, (features, mask, time_to_event, event_indicator, _, _, _) in enumerate(dataloader):
-        debug_mode = False
-        if i == 0:
-            debug_mode = True
-        features, mask, time_to_event, event_indicator = [x.to(device) for x in (features, mask, time_to_event, event_indicator)]
-        if debug_mode:
-            print(f"features shape: {features.shape}")
-            print(f"mask shape: {mask.shape}")
-            print(f"time_to_event shape: {time_to_event.shape}")
-            print(f"event_indicator shape: {event_indicator.shape}")
+    model.eval()
+    loader = DataLoader(dataset, shuffle=False, batch_size=256)
+    
+    all_T = []
+    all_E = []
+    all_R = []
 
-        hazard_preds, _ = model(features, mask, debug_mode)
+    with torch.no_grad():
+        for features, mask, T, E, _, _, _ in loader:
+            features, mask = features.to(device), mask.to(device)
+            hazards, _ = model(features, mask, False)
+            hazards = hazards[:, 0, :].cpu().numpy()
+            T = T.cpu().numpy().ravel().astype(int)
+            E = E.cpu().numpy().ravel().astype(bool)
 
-        hazard_preds = hazard_preds.cpu().detach().numpy()
-        hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
+            for j, t_j in enumerate(T):
+                h_j = hazards[j, : t_j + 1]
+                surv = np.cumprod(1.0 - h_j)
+                cif_j = 1.0 - surv[-1]
+                
+                all_T.append(t_j)
+                all_E.append(E[j])
+                all_R.append(cif_j)
 
-        if debug_mode:
-            print(f"calc hazard_preds shape: {hazard_preds.shape}")
-        
-        f_risk_scores = None
+    all_T = np.array(all_T)
+    all_E = np.array(all_E)
+    all_R = np.array(all_R)
 
-        for j in range(hazard_preds.shape[0]):
-            if j == 0:
-                print(hazard_preds[j])
-                print(f"hazard_preds shape: {hazard_preds[j].shape}")
-            p_time_to_event = int(time_to_event[j])
-            risk_at_time = np.asarray([hazard_preds[j][p_time_to_event]])
-
-            if f_risk_scores is None:
-                f_risk_scores = risk_at_time
-                if j == 0:
-                    print(f"f_risk_score: {f_risk_scores}")
-                    print(f"p_time_to_event: {p_time_to_event}")
-                    print(f"risk_at_time: {risk_at_time}")
-            else:
-                f_risk_scores = np.concatenate((f_risk_scores, risk_at_time), axis=0)
-        
-        if debug_mode:
-            print(f"f_risk_scores shape: {len(f_risk_scores)}")
-        c_idx = concordance_index(time_to_event.cpu(), f_risk_scores, event_indicator.cpu())            
-        c_idxs.append(c_idx)
-
-        if debug_mode:
-            print(f"Concordance index: {c_idx:.2f}")
-
-    c_idx = np.mean(c_idxs, axis=0)
-    print(f"Test C-index: {c_idx:.2f}")
-    return np.mean(c_idxs, axis=0)
+    cindex = concordance_index(all_T, all_R, all_E)
+    
+    print(f"Global test C-index: {cindex:.4f}")
+    return cindex
 
 def get_device():
     return torch.device("cuda:1" if torch.cuda.is_available() else "cpu")

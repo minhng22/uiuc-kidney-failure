@@ -10,7 +10,7 @@ import os
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss
 from pkgs.data.types import ExperimentScenario
 from torch.nn.utils.rnn import pad_sequence
-from lifelines.utils import concordance_index
+from sksurv.metrics import concordance_index_ipcw
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
@@ -99,7 +99,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     num_layers = trial.suggest_int("num_layers", 2, 64)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
-    num_epochs = 50
+    num_epochs = 1
     nhead = trial.suggest_int("n_head", 1, 8)
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
@@ -153,36 +153,39 @@ def objective(trial, scenario_name: ExperimentScenario):
             print("Early stopping triggered")
             break
 
-    c_index = c_idx(model, DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
+    c_index = c_idx(model, DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256), df, device)
     trial.set_user_attr(key="model", value=model)
     return c_index
 
-def c_idx(model: HazardTransformer, data_loader, device):
-    print("Calculating C-index")
-    test_c_indices = []
+def c_idx(model, data_loader, train_df, device):
+    model.eval()
+    y_train = Surv.from_arrays(
+        event=train_df['has_esrd'].values.astype(bool),
+        time=train_df['duration_in_days'].values,
+        name_event='has_esrd',
+        name_time='duration_in_days')
 
-    for i, (features, mask, time_to_events, event_indicators, _, _) in enumerate(data_loader):
-        features, mask = features.to(device), mask.to(device)
+    all_scores, all_times, all_events = [], [], []
 
-        if i == 0:
-            print(f"Features shape: {features.shape}")
-            print(f"Mask shape: {mask.shape}")
-            print(f"Time to events shape: {time_to_events.shape}")
-            print(f"Event indicators shape: {event_indicators.shape}")
-            
-        hazard_preds, _, _ = model(features, mask)
-        if i == 0:
-            print(f"Hazard predictions shape: {hazard_preds.shape}")
-        
-        risk_hazard_preds = hazard_preds[:, :, 0].detach().cpu().numpy()
-        c_index = concordance_index(time_to_events, risk_hazard_preds, event_indicators)
+    with torch.no_grad():
+        for X, mask, times, events, _, _ in data_loader:
+            X, mask = X.to(device), mask.to(device)
+            hazard_preds, _, _ = model(X, mask)              
+            # Compute cumulative incidence for event 0 by time horizon T
+            surv = torch.cumprod(1 - hazard_preds.sum(dim=2), dim=1)         
+            cumidx = 1 - surv
+            risk = cumidx[:, -1].cpu().numpy()               
 
-        test_c_indices.append(c_index)
+            all_scores.extend(risk.tolist())
+            all_times.extend(times.squeeze(1).cpu().numpy().tolist())
+            all_events.extend(events.squeeze(1).cpu().numpy().tolist())
 
-    avg_test_c_indices = np.mean(test_c_indices, axis=0)
-    print(f"Mean C-index: {avg_test_c_indices:.2f}")
-    
-    return avg_test_c_indices
+    c_td, _, _, _, _ = concordance_index_ipcw(
+        y_train,
+        Surv.from_arrays(event=np.array(all_events).astype(bool), time=np.array(all_times), name_event='has_esrd', name_time='duration_in_days'),
+        all_scores)
+    print(f"Time-dependent C-index: {c_td:.4f}")
+    return c_td
 
 def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
     y_train = Surv.from_arrays(
@@ -231,7 +234,7 @@ def run(scenario_name: ExperimentScenario):
     print("model summary")
     print(model)
 
-    c_idx(model, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
+    c_idx(model, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), df, device)
     auc(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
 
 if __name__ == '__main__':
