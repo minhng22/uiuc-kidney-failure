@@ -15,6 +15,11 @@ from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
 
 num_risks = 1 # esrd
+model_saved_path_dict = {
+        ExperimentScenario.TIME_VARIANT: egfr_tv_dynamic_deep_hit_model_path,
+        ExperimentScenario.HETEROGENEOUS: hg_dynamic_deep_hit_model_path,
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_dynamic_deep_hit_model_path,
+    }
 
 class DynamicDeepHitDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
@@ -171,6 +176,21 @@ def objective(trial, scenario_name: ExperimentScenario):
     
     c_index = c_idx(model, dataset, device)
 
+    saved_path = model_saved_path_dict[scenario_name]
+    if os.path.exists(saved_path):
+        saved_model = torch.load(saved_path, map_location=device)
+        saved_cidx = c_idx(saved_model, dataset, device)
+        
+        print(f"Saved model C-index: {saved_cidx:.4f}, Current trial C-index: {c_index:.4f}")
+        if c_index > saved_cidx:
+            print("New model is better, saving current model")
+            torch.save(model, saved_path)
+        else:
+            print("Saved model is better, keeping it")
+    else:
+        print("No existing model, saving current model")
+        torch.save(model, saved_path)
+
     trial.set_user_attr(key="model", value=model)
     return c_index
 
@@ -262,7 +282,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
 
     cindex = concordance_index(all_T, all_R, all_E)
     
-    print(f"Global test C-index: {cindex:.4f}")
+    print(f"Global test C-index: {cindex:.3f}")
     return cindex
 
 def get_device():
@@ -274,11 +294,6 @@ def run(scenario_name: ExperimentScenario):
     device = get_device()
     df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
 
-    model_saved_path_dict = {
-        ExperimentScenario.TIME_VARIANT: egfr_tv_dynamic_deep_hit_model_path,
-        ExperimentScenario.HETEROGENEOUS: hg_dynamic_deep_hit_model_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_dynamic_deep_hit_model_path,
-    }
     model_saved_path = model_saved_path_dict[scenario_name]
 
     if os.path.exists(model_saved_path):
