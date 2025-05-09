@@ -183,7 +183,7 @@ def c_idx(model, data_loader, train_df, device):
     c_td, _, _, _, _ = concordance_index_ipcw(
         y_train,
         Surv.from_arrays(event=np.array(all_events).astype(bool), time=np.array(all_times), name_event='has_esrd', name_time='duration_in_days'),
-        all_scores)
+        all_scores, train_df['duration_in_days'].max())
     print(f"Time-dependent C-index: {c_td:.4f}")
     return c_td
 
