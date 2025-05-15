@@ -44,11 +44,12 @@ def run_survival_rf():
         scorer = make_scorer(c_idx_score_fn, greater_is_better=True)
         
         grid_search = GridSearchCV(
-            estimator=RandomSurvivalForest(n_jobs=1, verbose=0),
+            estimator=RandomSurvivalForest(n_jobs=10, verbose=2),
             param_grid=param_grid,
             scoring=scorer,
             cv=cv,
-            n_jobs=1
+            n_jobs=1,
+            verbose=2,
         )
         
         grid_search.fit(X, y)
