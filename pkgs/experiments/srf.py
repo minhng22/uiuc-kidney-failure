@@ -35,8 +35,8 @@ def run_survival_rf():
         y = get_y_for_sckit_survival_model(df)
         
         param_grid = {
-            'n_estimators': [50, 100, 200, 300],
-            'max_depth': [None, 5, 10, 15],
+            'n_estimators': [50, 100, 150],
+            'max_depth': [None, 5, 10],
             'min_samples_split': [2, 5, 10, 15]
         }
         
@@ -44,11 +44,10 @@ def run_survival_rf():
         scorer = make_scorer(c_idx_score_fn, greater_is_better=True)
         
         grid_search = GridSearchCV(
-            estimator=RandomSurvivalForest(n_jobs=10, verbose=2),
+            estimator=RandomSurvivalForest(n_jobs=2, verbose=2),
             param_grid=param_grid,
             scoring=scorer,
             cv=cv,
-            n_jobs=1,
             verbose=2,
         )
         
