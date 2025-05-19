@@ -292,7 +292,7 @@ def get_device():
 def run(scenario_name: ExperimentScenario):
     torch.backends.cudnn.enabled = False
     device = get_device()
-    df, df_test = get_train_test_data(ExperimentScenario.TIME_VARIANT)
+    df, df_test = get_train_test_data(scenario_name)
 
     model_saved_path = model_saved_path_dict[scenario_name]
 
