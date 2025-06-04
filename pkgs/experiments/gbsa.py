@@ -44,8 +44,9 @@ def run_gbsa():
     df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
     
     if os.path.exists(egfr_ti_gbsa_model_path):
+        model_path = egfr_ti_gbsa_model_path.replace('.pkl', '.dill')
         print(f'Model found at {egfr_ti_gbsa_model_path}. Loading model...')
-        gbsa = joblib.load(egfr_ti_gbsa_model_path)
+        gbsa = joblib.load(model_path)
     else:
         print('No existing model found. Starting hyperparameter tuning...')
         df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
@@ -114,5 +115,5 @@ def joblib_to_dill():
             dill.dump(model, f, protocol=4)
 
 if __name__ == '__main__':
-    joblib_to_dill()
+    run_gbsa()
 
