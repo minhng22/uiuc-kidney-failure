@@ -93,9 +93,16 @@ def objective(trial, scenario_name: ExperimentScenario):
     rnn_surv_features = get_tv_rnn_model_features(scenario_name)
 
     df, _ = get_train_test_data(scenario_name)
+    
+    model_path_dict = {
+        ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
+        ExperimentScenario.HETEROGENEOUS: hg_rnn_surv_model_path,
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_rnn_surv_model_path
+    }
+    model_saved_path = model_path_dict[scenario_name]
 
     train_dataset = RNNSurvDataset(df, rnn_surv_features, duration_col, event_col)
-    train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=256, shuffle=True)
 
     input_dim = len(rnn_surv_features)
     embedding_size = trial.suggest_int('embedding_size', 32, 128)
@@ -146,8 +153,22 @@ def objective(trial, scenario_name: ExperimentScenario):
             print("Early stopping triggered")
             break
 
+    c_index = score_model_train(model, df, rnn_surv_features, device)
+    
+    if os.path.exists(model_saved_path):
+        saved_model = torch.load(model_saved_path, map_location=device)
+        saved_c_index = score_model_train(saved_model, df, rnn_surv_features, device)
+        
+        print(f"Current trial C-index: {c_index:.4f}, Previously saved model C-index: {saved_c_index:.4f}")
+        if c_index > saved_c_index:
+            print("Current model performs better, saving it...")
+            torch.save(model, model_saved_path)
+    else:
+        print(f"No existing model found, saving current model with C-index: {c_index:.4f}")
+        torch.save(model, model_saved_path)
+
     trial.set_user_attr(key="model", value=model)
-    return score_model_train(model, df, rnn_surv_features, device)
+    return c_index
 
 def score_model_train(model: RNNSurv, df, features, device):
     X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1).to(device)
@@ -162,7 +183,7 @@ def score_model_train(model: RNNSurv, df, features, device):
     return c_index
 
 def get_device():
-    return torch.device("cpu")
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
@@ -181,8 +202,6 @@ def run(scenario_name: ExperimentScenario):
         model = torch.load(model_saved_path, map_location=device, weights_only=False)
     else:
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
-        torch.save(model, model_saved_path)
-
     model.to(device)
 
     X_test = torch.tensor(df_test[get_tv_rnn_model_features(scenario_name)].values, dtype=torch.float32).unsqueeze(1).to(device)
