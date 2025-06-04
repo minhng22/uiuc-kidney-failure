@@ -10,6 +10,7 @@ from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric
+import dill
 
 def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_train, data_test, duration_col, event_col, times):
     y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train)
@@ -49,9 +50,10 @@ def run_cox_model(scenario: ExperimentScenario):
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 def get_model_path(scenario: ExperimentScenario):
-    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]
+    assert scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]
 
     model_path = {
+        ExperimentScenario.NON_TIME_VARIANT: egfr_ti_cox_model_path,
         ExperimentScenario.TIME_VARIANT: egfr_tv_cox_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_cox_model_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_cox_model_path
@@ -82,7 +84,7 @@ def run_ti_cox_model():
 
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
-if __name__ == "__main__":
+def run_all():
     print("\nRunning non-time-variant Cox model evaluation with time-dependent AUC...")
     run_ti_cox_model()
 
@@ -94,3 +96,14 @@ if __name__ == "__main__":
 
     print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.EGFR_COMPONENTS)
+
+def joblib_to_dill():
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+        model_path = get_model_path(scenario)
+        if os.path.exists(model_path):
+            model = joblib.load(model_path)
+            with open(model_path.replace('.joblib', '.dill'), 'wb') as f:
+                dill.dump(model, f, protocol=4)
+
+if __name__ == "__main__":
+    joblib_to_dill()
