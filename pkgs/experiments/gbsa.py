@@ -12,6 +12,7 @@ from pkgs.commons import egfr_ti_gbsa_model_path
 from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model
+import dill
 
 def c_idx_score_fn(y, risk_score):
     events = np.array([item[0] for item in y])
@@ -105,7 +106,13 @@ def run_gbsa():
     _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
     print(f'Mean AUC: {round_metric(mean_auc)}')
     
+def joblib_to_dill():
+    model_path = egfr_ti_gbsa_model_path
+    if os.path.exists(model_path):
+        model = joblib.load(model_path)
+        with open(model_path.replace('.pkl', '.dill'), 'wb') as f:
+            dill.dump(model, f, protocol=4)
 
 if __name__ == '__main__':
-    run_gbsa()
+    joblib_to_dill()
 
