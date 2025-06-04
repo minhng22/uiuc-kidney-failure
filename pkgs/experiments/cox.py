@@ -102,7 +102,7 @@ def joblib_to_dill():
         model_path = get_model_path(scenario)
         if os.path.exists(model_path):
             model = joblib.load(model_path)
-            with open(model_path.replace('.joblib', '.dill'), 'wb') as f:
+            with open(model_path.replace('.pkl', '.dill'), 'wb') as f:
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
