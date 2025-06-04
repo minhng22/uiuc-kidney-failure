@@ -27,6 +27,7 @@ def run_cox_model(scenario: ExperimentScenario):
     data_train, data_test = get_train_test_data(scenario)
 
     model_path = get_model_path(scenario)
+    model_path = model_path.replace('.pkl', '.dill')
 
     if not os.path.exists(model_path):
         model = CoxTimeVaryingFitter(penalizer=0.1)
@@ -64,15 +65,17 @@ def get_model_path(scenario: ExperimentScenario):
 def run_ti_cox_model():
     data_train, data_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
-    if not os.path.exists(egfr_ti_cox_model_path):
+    model_path = egfr_ti_cox_model_path.replace('.pkl', '.dill')
+
+    if not os.path.exists(model_path):
         model = CoxPHFitter()
 
         print(f'Fitting model:\n')
         model.fit(data_train, duration_col='duration_in_days', event_col='has_esrd')
 
-        joblib.dump(model, egfr_ti_cox_model_path)
+        joblib.dump(model, model_path)
     else:
-        model = joblib.load(egfr_ti_cox_model_path)
+        model = joblib.load(model_path)
 
     print('Evaluate on test data')
     risk_scores_test = model.predict_partial_hazard(data_test)
@@ -106,4 +109,4 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
-    joblib_to_dill()
+    run_all()
