@@ -138,8 +138,21 @@ def analyze_train_test_data():
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
             print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
-            
+
+def validate_subject_ids():
+    # Make sure that the subject in train are not in test data
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+        print(f"Validating subject IDs for scenario: {scenario}")
+        data_train, data_test = get_train_test_data(scenario)
+
+        train_subjects = set(data_train['subject_id'].unique())
+        test_subjects = set(data_test['subject_id'].unique())
+
+        intersection = train_subjects.intersection(test_subjects)
+        if intersection:
+            print(f"Error: Found common subjects in train and test data for scenario {scenario}: {intersection}")
+        else:
+            print(f"No common subjects found in train and test data for scenario {scenario}.")
+
 if __name__ == '__main__':
-    get_train_test_data(ExperimentScenario.TIME_VARIANT)
-    get_train_test_data(ExperimentScenario.HETEROGENEOUS)
-    get_train_test_data(ExperimentScenario.EGFR_COMPONENTS)
+    validate_subject_ids()
