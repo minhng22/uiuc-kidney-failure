@@ -113,6 +113,7 @@ def analyze_train_test_data():
             print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
             print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
             
+            # Plot eGFR trajectories for random 1000 patients in test data
             sns.set(style="whitegrid")
             random_patients = np.random.choice(data_test['subject_id'].unique(), size=1000, replace=False)
             plt.figure(figsize=(18, 6))
@@ -126,6 +127,17 @@ def analyze_train_test_data():
             plt.legend()
             
             plt.savefig('generated_data/egfr_trajectories_test.png')
+            plt.clf()
+
+            # average eGFR over time of random_patients
+            avg_egfr = data_test[data_test['subject_id'].isin(random_patients)].groupby('duration_in_days')['egfr'].mean()
+            plt.xlabel('Duration in days')
+            plt.ylabel('Average eGFR')
+            plt.plot(avg_egfr.index, avg_egfr.values, label='Average eGFR', color='blue')
+            plt.title('Average eGFR Over Time for Random 1000 Patients In Test Data')
+            plt.legend()
+            plt.savefig('generated_data/avg_egfr_trajectories_test.png')
+            plt.clf()
         elif scenario == ExperimentScenario.EGFR_COMPONENTS:
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['serum_creatinine'].describe()}")
