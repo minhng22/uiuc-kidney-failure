@@ -9,6 +9,8 @@ from pkgs.commons import (
 from pkgs.data.types import ExperimentScenario
 from pkgs.data.time_series_store import get_time_series_data_ckd_patients
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 # Pick a small subset of the data to test the models
@@ -110,6 +112,20 @@ def analyze_train_test_data():
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
             print(f"Distribution of eGFR in test data:\n{data_test['egfr'].describe()}")
+            
+            sns.set(style="whitegrid")
+            random_patients = np.random.choice(data_test['subject_id'].unique(), size=1000, replace=False)
+            plt.figure(figsize=(18, 6))
+            for patient in random_patients:
+                patient_data_test = data_test[data_test['subject_id'] == patient]
+                plt.plot(patient_data_test['duration_in_days'], patient_data_test['egfr'], label=f'Test {patient}', linestyle='--')
+            
+            plt.xlabel('Duration in days')
+            plt.ylabel('eGFR')
+            plt.title('eGFR Trajectories for Random 1000 Patients In Test Data')
+            plt.legend()
+            
+            plt.savefig('generated_data/egfr_trajectories_test.png')
         elif scenario == ExperimentScenario.EGFR_COMPONENTS:
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['serum_creatinine'].describe()}")
@@ -155,4 +171,4 @@ def validate_subject_ids():
             print(f"No common subjects found in train and test data for scenario {scenario}.")
 
 if __name__ == '__main__':
-    validate_subject_ids()
+    analyze_train_test_data()
