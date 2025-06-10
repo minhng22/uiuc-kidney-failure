@@ -317,12 +317,13 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     all_times = np.array(all_times)
     all_events = np.array(all_events)
     all_risks = np.array(all_risks)
+    all_surv = 1.0 - all_risks
 
     print(f"all_E shape: {all_events.shape} first 10 values: {all_events[:10]}")
     print(f"all_R shape: {all_risks.shape} first 10 values: {all_risks[:10]}")
     print(f"all_T shape: {all_times.shape} first 10 values: {all_times[:10]}")
 
-    cindex = concordance_index(all_times, all_risks, all_events)
+    cindex = concordance_index(all_times, all_surv, all_events)
 
     res = concordance_index_censored(all_events, all_times, all_risks)
     print(f"Global test C-index (scikit-survival): {res[0]:.3f} number of concordant pairs: {res[1]}")
@@ -364,7 +365,7 @@ def run(scenario_name: ExperimentScenario):
     print("model summary:")
     print(model)
 
-    df_test = sample(df_test)
+    # df_test = sample(df_test)
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
 
     c_idx(model, test_dataset, device, True)
