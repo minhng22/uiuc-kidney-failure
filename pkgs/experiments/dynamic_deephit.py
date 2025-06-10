@@ -288,7 +288,9 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     all_E = np.array(all_E)
     all_R = np.array(all_R)
 
-    print(f"all_E is: {all_E}")
+    print(f"all_E shape: {all_E.shape} first 10 values: {all_E[:10]}")
+    print(f"all_R shape: {all_R.shape} first 10 values: {all_R[:10]}")
+    print(f"all_T shape: {all_T.shape} first 10 values: {all_T[:10]}")
 
     cindex = concordance_index(all_T, all_R, all_E)
     
