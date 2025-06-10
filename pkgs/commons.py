@@ -98,6 +98,8 @@ egfr_ti_test_data_path = f'{project_dir()}/generated_data/egfr_ti_test_data.csv'
 egfr_components_train_data_path = f'{project_dir()}/generated_data/egfr_components_train_data.csv'
 egfr_components_test_data_path = f'{project_dir()}/generated_data/egfr_components_test_data.csv'
 
+esrd_patient_ids_path = f'{project_dir()}/generated_data/esrd_patient_ids.csv'
+
 """
 ----------Others----------
 """

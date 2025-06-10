@@ -2,11 +2,12 @@ import pandas as pd
 from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_codes
 from pkgs.data.time_series_utils_store import calculate_duration_in_days
 from pkgs.data.types import ExperimentScenario
-from pkgs.commons import esrd_codes, patients_file_path
+from pkgs.commons import esrd_codes, patients_file_path, esrd_patient_ids_path
 from pkgs.data.store import get_egfr_df, get_first_time_esrd_df, get_protein_df, get_albumin_df
 import pandas as pd
 from pkgs.data.types import ExperimentScenario
 import numpy as np
+import os
 
 # process patients who have progressed to ESRD
 def process_positive_patients(diagnoses_df, patient_ids, scenario_name):
@@ -231,6 +232,7 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
     diagnoses_df.dropna()
 
     esrd_patients = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]['subject_id'].unique()
+
     non_esrd_patients = diagnoses_df[~diagnoses_df['subject_id'].isin(esrd_patients)]['subject_id'].unique()
     print(f"Sample patients with esrd: {esrd_patients[:10]}")
     print(f'Number of patients progressed from ckd stage 3-5 to esrd are {len(esrd_patients)} '
@@ -282,10 +284,24 @@ def get_final_columns(scenario):
         return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing', 'has_esrd']
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         return ['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']
-   
-if __name__ == '__main__':
+
+def get_data_with_null_analyze():
     # get_time_series_data_ckd_patients('egfr_components')
     data = get_time_series_data_ckd_patients(ExperimentScenario.TIME_VARIANT)
     # Select rows that contain NaN values
     rows_with_nan = data[data.isnull().any(axis=1)]
     print("Rows with NaN values:\n%s", rows_with_nan)
+
+def get_esrd_patient_ids():
+    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
+    diagnoses_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5 + esrd_codes)]
+    diagnoses_df.dropna()
+
+    esrd_patients = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]['subject_id'].unique()
+    
+    if not os.path.exists(esrd_patient_ids_path):
+        print(f"Saving esrd patient ids to {esrd_patient_ids_path}")
+        pd.DataFrame(esrd_patients, columns=['subject_id']).to_csv(esrd_patient_ids_path, index=False)
+
+if __name__ == '__main__':
+    get_esrd_patient_ids()

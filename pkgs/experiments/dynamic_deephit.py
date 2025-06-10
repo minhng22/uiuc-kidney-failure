@@ -280,6 +280,8 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
     all_E = np.array(all_E)
     all_R = np.array(all_R)
 
+    print(f"all_E is: {all_E}")
+
     cindex = concordance_index(all_T, all_R, all_E)
     
     print(f"Global test C-index: {cindex:.3f}")
@@ -306,6 +308,9 @@ def run(scenario_name: ExperimentScenario):
     model.to(device)
     print("model summary:")
     print(model)
+
+    
+
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
 
     c_idx(model, test_dataset, device)
@@ -314,5 +319,3 @@ def run(scenario_name: ExperimentScenario):
     
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)
-    run(ExperimentScenario.HETEROGENEOUS)
-    run(ExperimentScenario.EGFR_COMPONENTS)
