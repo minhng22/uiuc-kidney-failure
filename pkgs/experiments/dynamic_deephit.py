@@ -1,6 +1,6 @@
 import pandas as pd
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data, sample
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader, Dataset
@@ -14,7 +14,6 @@ from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
 from sksurv.metrics import concordance_index_censored
-from collections import Counter
 
 num_risks = 1 # esrd
 model_saved_path_dict = {
@@ -209,8 +208,8 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
 
     for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
         debug_mode = False
-        if i == 0:
-            debug_mode = True
+        # if i == 0:
+        #     debug_mode = True
         features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
         
         if debug_mode:
@@ -286,36 +285,37 @@ def simple_cindex(times, predictions, events):
 
 def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=False):
     model.eval()
-    batch_size = 256
-    if test:
-        batch_size = dataset.number_of_subjects()
-    print(f"Using batch size: {batch_size}")
 
-    loader = DataLoader(dataset, shuffle=False, batch_size=batch_size)
+    loader = DataLoader(dataset, shuffle=False, batch_size=256)
     
     all_times = []
     all_events = []
     all_risks = []
 
     with torch.no_grad():
+        debug_print = True
         for features, mask, T, E, _, _, _ in loader:
             features, mask = features.to(device), mask.to(device)
             hazards, _ = model(features, mask, False)
             hazards = hazards[:, 0, :].cpu().numpy()
+
+            if debug_print:
+                print(f"features shape: {features.shape}, mask shape: {mask.shape}, T shape: {T.shape}, E shape: {E.shape} hazards shape: {hazards.shape}")
+                
             T = T.cpu().numpy().ravel().astype(int)
             E = E.cpu().numpy().ravel().astype(bool)
 
             for j, t_j in enumerate(T):
-                h_j = hazards[j, : t_j + 1]
-                h_j = np.cumsum(h_j)
-                
+                if debug_print:
+                    print(f"Processing subject {j} with time {t_j} and event {E[j]} hazards shape: {hazards[j, t_j : t_j + 1]}")
+                    debug_print = False
                 all_times.append(t_j)
                 all_events.append(E[j])
-                all_risks.append(h_j[-1])
+                all_risks.append(hazards[j, t_j : t_j + 1])
 
     all_times = np.array(all_times)
     all_events = np.array(all_events)
-    all_risks = np.array(all_risks)
+    all_risks = np.array(all_risks).flatten()
     all_surv = 1.0 - all_risks
 
     print(f"all_E shape: {all_events.shape} first 10 values: {all_events[:10]}")
@@ -330,11 +330,6 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     print(f"Global test C-index: {cindex:.3f}")
 
     if test:
-        risk_counter = Counter(all_risks)
-        num_unique_risks = len(risk_counter)
-        print(f"Number of unique risk scores: {num_unique_risks} out of {len(all_risks)} total")
-        print(f"Most common risk scores: {risk_counter.most_common(5)}")
-        
         num_events = sum(all_events)
         print(f"Event rate: {num_events}/{len(all_events)} ({num_events/len(all_events)*100:.2f}%)")
         
@@ -372,3 +367,5 @@ def run(scenario_name: ExperimentScenario):
 
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)
+    run(ExperimentScenario.HETEROGENEOUS)
+    run(ExperimentScenario.EGFR_COMPONENTS)
