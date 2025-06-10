@@ -176,7 +176,7 @@ def c_idx(model, data_loader, train_df, device):
             cumidx = 1 - surv
             risk = cumidx[:, -1].cpu().numpy()               
 
-            all_scores.extend(risk.tolist())
+            all_scores.extend([1 - r for r in risk.tolist()])
             all_times.extend(times.squeeze(1).cpu().numpy().tolist())
             all_events.extend(events.squeeze(1).cpu().numpy().tolist())
 

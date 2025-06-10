@@ -73,7 +73,7 @@ def evaluate_model(rsf, df, df_test):
     print(f'First 10 risk scores: {risk_scores[:10]}')
     
     # Concordance Index on test data
-    c_index_test = round_metric(concordance_index(df_test['duration_in_days'], risk_scores, df_test['has_esrd']))
+    c_index_test = round_metric(concordance_index(df_test['duration_in_days'], 1 - risk_scores, df_test['has_esrd']))
     print(f'Concordance Index Test: {round_metric(c_index_test)}')
     
     # Compute time-dependent AUC

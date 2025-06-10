@@ -177,7 +177,7 @@ def score_model_train(model: RNNSurv, df, features, device):
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = round_metric(concordance_index(df['duration_in_days'], test_risk_scores.cpu().numpy(), df['has_esrd']))
+    c_index = round_metric(concordance_index(df['duration_in_days'], 1 - test_risk_scores.cpu().numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
     return c_index
@@ -210,7 +210,7 @@ def run(scenario_name: ExperimentScenario):
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = round_metric(concordance_index(df_test['duration_in_days'], test_risk_scores.cpu().numpy(), df_test['has_esrd']))
+    c_index = round_metric(concordance_index(df_test['duration_in_days'], 1 - test_risk_scores.cpu().numpy(), df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
     times = np.arange(1, 365, 1)
