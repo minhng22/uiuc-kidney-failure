@@ -14,6 +14,7 @@ from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
 from sksurv.metrics import concordance_index_censored
+from collections import Counter
 
 num_risks = 1 # esrd
 model_saved_path_dict = {
@@ -299,6 +300,47 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     print(f"Global test C-index (scikit-survival): {res[0]:.3f} number of concordant pairs: {res[1]}")
     
     print(f"Global test C-index: {cindex:.3f}")
+
+    if test:
+        risk_counter = Counter(all_R)
+        num_unique_risks = len(risk_counter)
+        print(f"Number of unique risk scores: {num_unique_risks} out of {len(all_R)} total")
+        print(f"Most common risk scores: {risk_counter.most_common(5)}")
+        
+        num_events = sum(all_E)
+        print(f"Event rate: {num_events}/{len(all_E)} ({num_events/len(all_E)*100:.2f}%)")
+        
+        def simple_cindex(times, predictions, events):
+            pairs = 0
+            concordant = 0
+            tied = 0
+            
+            print(f"Starting simple C-index calculation...")
+            
+            for i in range(len(times)):
+                if not events[i]:
+                    continue
+                    
+                for j in range(len(times)):
+                    if i == j:
+                        continue
+                        
+                    if times[j] > times[i]:
+                        pairs += 1
+                        if predictions[j] < predictions[i]:
+                            concordant += 1
+                        elif predictions[j] == predictions[i]:
+                            tied += 0.5
+            print(f"Pairs evaluated: {pairs}, Concordant: {concordant}, Tied: {tied}")
+            
+            if pairs == 0:
+                print("WARNING: No valid pairs found for comparison!")
+                return 0.0
+                
+            return (concordant + tied) / pairs
+        
+        simple_ci = simple_cindex(all_T, all_R, all_E)
+        print(f"Simple C-index implementation: {simple_ci:.3f}")
     return cindex
 
 def get_device():
