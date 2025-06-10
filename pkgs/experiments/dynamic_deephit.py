@@ -256,6 +256,36 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     avg_auc = np.mean(aucs, axis=0)
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
+def simple_cindex(times, predictions, events):
+    pairs = 0
+    concordant = 0
+    tied = 0
+    
+    print(f"Starting simple C-index calculation...")
+    
+    for i in range(len(times)):
+        if not events[i]:
+            continue
+            
+        for j in range(len(times)):
+            if i == j:
+                continue
+                
+            if times[j] > times[i]:
+                pairs += 1
+                if predictions[j] < predictions[i]:
+                    concordant += 1
+                elif predictions[j] == predictions[i]:
+                    tied += 0.5
+    
+    print(f"Pairs evaluated: {pairs}, Concordant: {concordant}, Tied: {tied}")
+    
+    if pairs == 0:
+        print("WARNING: No valid pairs found for comparison!")
+        return 0.0
+        
+    return (concordant + tied) / pairs
+
 def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=False):
     model.eval()
     batch_size = 256
@@ -265,9 +295,9 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
 
     loader = DataLoader(dataset, shuffle=False, batch_size=batch_size)
     
-    all_T = []
-    all_E = []
-    all_R = []
+    all_times = []
+    all_events = []
+    all_risks = []
 
     with torch.no_grad():
         for features, mask, T, E, _, _, _ in loader:
@@ -282,64 +312,35 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
                 surv = np.cumprod(1.0 - h_j)
                 cif_j = 1.0 - surv[-1]
                 
-                all_T.append(t_j)
-                all_E.append(E[j])
-                all_R.append(cif_j)
+                all_times.append(t_j)
+                all_events.append(E[j])
+                all_risks.append(cif_j)
 
-    all_T = np.array(all_T)
-    all_E = np.array(all_E)
-    all_R = np.array(all_R)
+    all_times = np.array(all_times)
+    all_events = np.array(all_events)
+    all_risks = np.array(all_risks)
 
-    print(f"all_E shape: {all_E.shape} first 10 values: {all_E[:10]}")
-    print(f"all_R shape: {all_R.shape} first 10 values: {all_R[:10]}")
-    print(f"all_T shape: {all_T.shape} first 10 values: {all_T[:10]}")
+    print(f"all_E shape: {all_events.shape} first 10 values: {all_events[:10]}")
+    print(f"all_R shape: {all_risks.shape} first 10 values: {all_risks[:10]}")
+    print(f"all_T shape: {all_times.shape} first 10 values: {all_times[:10]}")
 
-    cindex = concordance_index(all_T, all_R, all_E)
+    cindex = concordance_index(all_times, all_risks, all_events)
 
-    res = concordance_index_censored(all_E, all_T, all_R)
+    res = concordance_index_censored(all_events, all_times, all_risks)
     print(f"Global test C-index (scikit-survival): {res[0]:.3f} number of concordant pairs: {res[1]}")
     
     print(f"Global test C-index: {cindex:.3f}")
 
     if test:
-        risk_counter = Counter(all_R)
+        risk_counter = Counter(all_risks)
         num_unique_risks = len(risk_counter)
-        print(f"Number of unique risk scores: {num_unique_risks} out of {len(all_R)} total")
+        print(f"Number of unique risk scores: {num_unique_risks} out of {len(all_risks)} total")
         print(f"Most common risk scores: {risk_counter.most_common(5)}")
         
-        num_events = sum(all_E)
-        print(f"Event rate: {num_events}/{len(all_E)} ({num_events/len(all_E)*100:.2f}%)")
+        num_events = sum(all_events)
+        print(f"Event rate: {num_events}/{len(all_events)} ({num_events/len(all_events)*100:.2f}%)")
         
-        def simple_cindex(times, predictions, events):
-            pairs = 0
-            concordant = 0
-            tied = 0
-            
-            print(f"Starting simple C-index calculation...")
-            
-            for i in range(len(times)):
-                if not events[i]:
-                    continue
-                    
-                for j in range(len(times)):
-                    if i == j:
-                        continue
-                        
-                    if times[j] > times[i]:
-                        pairs += 1
-                        if predictions[j] < predictions[i]:
-                            concordant += 1
-                        elif predictions[j] == predictions[i]:
-                            tied += 0.5
-            print(f"Pairs evaluated: {pairs}, Concordant: {concordant}, Tied: {tied}")
-            
-            if pairs == 0:
-                print("WARNING: No valid pairs found for comparison!")
-                return 0.0
-                
-            return (concordant + tied) / pairs
-        
-        simple_ci = simple_cindex(all_T, all_R, all_E)
+        simple_ci = simple_cindex(all_times, all_risks, all_events)
         print(f"Simple C-index implementation: {simple_ci:.3f}")
     return cindex
 
