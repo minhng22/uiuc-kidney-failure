@@ -30,6 +30,9 @@ class DynamicDeepHitDataset(Dataset):
         self.features = get_tv_rnn_model_features(scenario_name)
 
         self.max_seq_length = max(df.groupby('subject_id').size())
+    
+    def number_of_subjects(self):
+        return len(self.subject_groups)
 
     def __len__(self):
         return len(self.subject_groups)
@@ -251,9 +254,14 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     avg_auc = np.mean(aucs, axis=0)
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
-def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device):
+def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=False):
     model.eval()
-    loader = DataLoader(dataset, shuffle=False, batch_size=256)
+    batch_size = 256
+    if test:
+        batch_size = dataset.number_of_subjects()
+    print(f"Using batch size: {batch_size}")
+
+    loader = DataLoader(dataset, shuffle=False, batch_size=batch_size)
     
     all_T = []
     all_E = []
@@ -309,9 +317,10 @@ def run(scenario_name: ExperimentScenario):
     print("model summary:")
     print(model)
 
+    df_test = sample(df_test)
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
 
-    c_idx(model, test_dataset, device)
+    c_idx(model, test_dataset, device, True)
     auc(model, test_dataset, df, device)
 
 if __name__ == '__main__':

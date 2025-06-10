@@ -23,18 +23,21 @@ def sample(df):
     esrd_patient_ids = esrd_ids_df['subject_id'].unique()
     print(f"Number of subjects with esrd: {len(esrd_patient_ids)} {esrd_patient_ids[:5]}")
 
+    esrd_patients = df[df['subject_id'].isin(esrd_patient_ids)]['subject_id'].unique()
     non_esrd_patients = df[~df['subject_id'].isin(esrd_patient_ids)]['subject_id'].unique()
     print(
-        f"Number of subjects with esrd: {len(esrd_patient_ids)}\n"
+        f"Number of subjects with esrd: {len(esrd_patients)}\n"
         f"Number of subjects without esrd: {len(non_esrd_patients)}\n" 
         f"Total: {df['subject_id'].nunique()}")
 
     rand_subjects_esrd = np.random.choice(
-        esrd_patient_ids, size=num_subjects, replace=False)
+        esrd_patients, size=num_subjects, replace=False)
     rand_subjects_no_esrd = np.random.choice(
         non_esrd_patients, size=num_subjects, replace=False)
     
     res = df[df['subject_id'].isin(np.concatenate((rand_subjects_esrd, rand_subjects_no_esrd), axis=0))]
+
+    print(f"number of subjects in sampled data: {res['subject_id'].nunique()}")
 
     return res
 
