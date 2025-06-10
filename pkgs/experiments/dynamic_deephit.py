@@ -273,12 +273,10 @@ def simple_cindex(times, predictions, events):
                 
             if times[j] > times[i]:
                 pairs += 1
-                if predictions[j] < predictions[i]:
+                if predictions[j] <= predictions[i]:
                     concordant += 1
-                elif predictions[j] == predictions[i]:
-                    tied += 0.5
     
-    print(f"Pairs evaluated: {pairs}, Concordant: {concordant}, Tied: {tied}")
+    print(f"Pairs evaluated: {pairs}, Concordant: {concordant}")
     
     if pairs == 0:
         print("WARNING: No valid pairs found for comparison!")
