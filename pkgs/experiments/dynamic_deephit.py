@@ -13,6 +13,7 @@ import numpy as np
 from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
+from sksurv.metrics import concordance_index_censored
 
 num_risks = 1 # esrd
 model_saved_path_dict = {
@@ -293,6 +294,9 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     print(f"all_T shape: {all_T.shape} first 10 values: {all_T[:10]}")
 
     cindex = concordance_index(all_T, all_R, all_E)
+
+    res = concordance_index_censored(all_E, all_T, all_R)
+    print(f"Global test C-index (scikit-survival): {res[0]:.3f} number of concordant pairs: {res[1]}")
     
     print(f"Global test C-index: {cindex:.3f}")
     return cindex
