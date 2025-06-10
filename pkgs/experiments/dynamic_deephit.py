@@ -307,12 +307,11 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
 
             for j, t_j in enumerate(T):
                 h_j = hazards[j, : t_j + 1]
-                surv = np.cumprod(1.0 - h_j)
-                cif_j = 1.0 - surv[-1]
+                h_j = np.cumsum(h_j)
                 
                 all_times.append(t_j)
                 all_events.append(E[j])
-                all_risks.append(cif_j)
+                all_risks.append(h_j[-1])
 
     all_times = np.array(all_times)
     all_events = np.array(all_events)
