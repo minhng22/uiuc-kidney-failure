@@ -1,6 +1,6 @@
 import pandas as pd
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader, Dataset
@@ -309,13 +309,10 @@ def run(scenario_name: ExperimentScenario):
     print("model summary:")
     print(model)
 
-    
-
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
 
     c_idx(model, test_dataset, device)
     auc(model, test_dataset, df, device)
 
-    
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)

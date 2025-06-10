@@ -11,6 +11,7 @@ from pkgs.data.time_series_store import get_time_series_data_ckd_patients
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pkgs.commons import esrd_patient_ids_path
 
 
 # Pick a small subset of the data to test the models
@@ -18,15 +19,18 @@ import seaborn as sns
 def sample(df):
     num_subjects = 500
 
-    esrd_patients = df[df['has_esrd'] == True]['subject_id'].unique()
-    non_esrd_patients = df[~df['subject_id'].isin(esrd_patients)]['subject_id'].unique()
+    esrd_ids_df = pd.read_csv(esrd_patient_ids_path)
+    esrd_patient_ids = esrd_ids_df['subject_id'].unique()
+    print(f"Number of subjects with esrd: {len(esrd_patient_ids)} {esrd_patient_ids[:5]}")
+
+    non_esrd_patients = df[~df['subject_id'].isin(esrd_patient_ids)]['subject_id'].unique()
     print(
-        f"Number of subjects with esrd: {len(esrd_patients)}\n"
+        f"Number of subjects with esrd: {len(esrd_patient_ids)}\n"
         f"Number of subjects without esrd: {len(non_esrd_patients)}\n" 
         f"Total: {df['subject_id'].nunique()}")
 
     rand_subjects_esrd = np.random.choice(
-        esrd_patients, size=num_subjects, replace=False)
+        esrd_patient_ids, size=num_subjects, replace=False)
     rand_subjects_no_esrd = np.random.choice(
         non_esrd_patients, size=num_subjects, replace=False)
     
