@@ -1,8 +1,9 @@
 from pkgs.data.store import get_admission_df, get_ckd_patients_and_diagnoses, get_lab_events_df_for_patients, get_egfr_df
-from pkgs.data.store import get_esrd_patients_and_diagnoses
+from pkgs.data.store import get_esrd_patients_and_diagnoses, get_ckd_but_non_esrd_patients_and_diagnoses
 from pkgs.data.graphics import plot_icd_codes
-from commons import lab_codes_creatinine, esrd_codes, ckd_codes_stage3_to_5, ckd_codes_hypertension, \
-    ckd_codes_diabetes_mellitus, ace_inhibitor_drugs, diagnose_icd_file_path, age_bins, prescription_file_path
+from pkgs.commons import lab_codes_creatinine, esrd_codes, ckd_codes_stage3_to_5, ckd_codes_hypertension, \
+    ckd_codes_diabetes_mellitus, ace_inhibitor_drugs, diagnose_icd_file_path, age_bins, prescription_file_path,\
+    lab_codes_proteins_24hr
 from pkgs.data.utils_store import filter_df_on_icd_code
 import pandas as pd
 
@@ -38,29 +39,41 @@ def laboratory_params(patient_df):
         f"Number of records: {len(egfr_df)}\n"
         f"mean {egfr_df['egfr'].mean():.3f} sd {egfr_df['egfr'].std():.3f}")
 
-    # # 24hr urine protein
-    # protein_24hr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_proteins_24hr)]
-    # print(f"Number of records for 24hr urine protein: {len(protein_24hr_df)}")
-    # protein_24hr_df['valuenum'] = protein_24hr_df['valuenum'] / 1000 # mg/24hr to g/24hr
-    #
-    # print(f"units: {protein_24hr_df['valueuom'].value_counts()}")
-    # print(
-    #     f"Stats on 24hr urine protein:\n"
-    #     f"Number of records: {len(protein_24hr_df)}\n"
-    #     f"median {protein_24hr_df['valuenum'].median():.3f} IQR {(protein_24hr_df['valuenum'].quantile(0.75) - protein_24hr_df['valuenum'].quantile(0.25)):.3f}")
+    # 24hr urine protein
+    protein_24hr_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_proteins_24hr)]
+    print(f"Number of records for 24hr urine protein: {len(protein_24hr_df)}")
+    protein_24hr_df['valuenum'] = protein_24hr_df['valuenum'] / 1000 # mg/24hr to g/24hr
+    
+    print(f"units: {protein_24hr_df['valueuom'].value_counts()}")
+    print(
+        f"Stats on 24hr urine protein:\n"
+        f"Number of records: {len(protein_24hr_df)}\n"
+        f"median {protein_24hr_df['valuenum'].median():.3f} IQR {(protein_24hr_df['valuenum'].quantile(0.75) - protein_24hr_df['valuenum'].quantile(0.25)):.3f}")
 
 
 def analyze_esrd():
     patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
 
     #plot_icd_codes(diagnoses_df)
-    # age_statistics(patients_df)
-    # gender_statistics(patients_df)
-    # ethnicity_and_race_statistics(patients_df, True, True)
+    age_statistics(patients_df)
+    gender_statistics(patients_df)
+    ethnicity_and_race_statistics(patients_df, True, True)
 
-    #clinical_characteristic_analysis_esrd(esrd=True, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    clinical_characteristic_analysis_esrd(mode='esrd_only', num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     laboratory_params(patients_df)
-    #medication_use(patients_df)
+    medication_use(patients_df)
+
+def analyze_non_esrd():
+    patients_df, diagnoses_df = get_ckd_but_non_esrd_patients_and_diagnoses()
+
+    #plot_icd_codes(diagnoses_df)
+    age_statistics(patients_df)
+    gender_statistics(patients_df)
+    ethnicity_and_race_statistics(patients_df, True, True)
+
+    clinical_characteristic_analysis_esrd(mode='non_esrd', num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    laboratory_params(patients_df)
+    medication_use(patients_df)
 
 
 # return race info
@@ -105,25 +118,28 @@ def gender_statistics(patients_df):
     print(f"Distribution:\n{res}")
 
 
-def clinical_characteristic_analysis_esrd(esrd: bool, num_patient_in_cohort: int):
+def clinical_characteristic_analysis_esrd(mode: str, num_patient_in_cohort: int):
+    assert mode in ['esrd_only', 'all_ckd', 'non_esrd']
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
 
-    if esrd:
+    if mode == 'esrd_only':
         s_ids = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
         print(
             f"Number of ESRD patients with CKD stage 3-5: {s_ids['subject_id'].nunique()}," 
             f"account for {s_ids['subject_id'].nunique()/num_patient_in_cohort*100:.3f} percent")
+        
+        diagnoses_df = diagnoses_df[diagnoses_df['subject_id'].isin(s_ids['subject_id'])]
 
-        s_ids = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_hypertension)
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_hypertension)]
         print(
             f"Number of ESRD patients with hypertension: {s_ids['subject_id'].nunique()},"
             f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort*100:.3f} percent")
 
-        s_ids = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_diabetes_mellitus)
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_diabetes_mellitus)]
         print(
             f"Number of ESRD patients with diabetes mellitus: {s_ids['subject_id'].nunique()},"
             f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
-    else:
+    elif mode == 'all_ckd':
         s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5)]
         print(
             f"Number of CKD patients with CKD stage 3-5: {s_ids['subject_id'].nunique()},"
@@ -138,7 +154,26 @@ def clinical_characteristic_analysis_esrd(esrd: bool, num_patient_in_cohort: int
         print(
             f"Number of CKD patients with diabetes mellitus: {s_ids['subject_id'].nunique()},"
             f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+    else:
+        esrd_p = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5)]
+        s_ids = s_ids[~s_ids['subject_id'].isin(esrd_p['subject_id'])]
+        print(
+            f"Number of CKD patients with CKD stage 3-5 and not progress to esrd: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
         
+        diagnoses_df = diagnoses_df[diagnoses_df['subject_id'].isin(s_ids['subject_id'])]
+        
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_hypertension)]
+        print(
+            f"Number of CKD patients with hypertension: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_diabetes_mellitus)]
+        print(
+            f"Number of CKD patients with diabetes mellitus: {s_ids['subject_id'].nunique()},"
+            f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+
 
 def medication_use(patient_df):
     pres_df = pd.read_csv(prescription_file_path)
@@ -160,6 +195,17 @@ def analyze_ckd():
     gender_statistics(patients_df)
     ethnicity_and_race_statistics(patients_df, True, True)
 
-    clinical_characteristic_analysis_esrd(esrd=False, num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
+    clinical_characteristic_analysis_esrd(mode='all_ckd', num_patient_in_cohort=diagnoses_df['subject_id'].nunique())
     laboratory_params(patients_df)
     medication_use(patients_df)
+
+if __name__ == '__main__':
+    print("Analyzing CKD patients...")
+    analyze_ckd()
+    
+    print("\nAnalyzing ESRD patients...")
+    analyze_esrd()
+    
+    print("\nAnalyzing CKD but non-ESRD...")
+    analyze_non_esrd()
+    print("Analysis completed.")

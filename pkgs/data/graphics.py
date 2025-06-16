@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from commons import figs_path_icd_stats
+from pkgs.commons import figs_path_icd_stats
 
 
 def plot_icd_codes(diagnoses_df):

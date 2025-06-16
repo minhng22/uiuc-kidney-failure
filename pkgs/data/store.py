@@ -150,7 +150,7 @@ def get_ckd_patients_and_diagnoses(late_stage: bool = True):
 def get_esrd_patients_and_diagnoses():
     diagnoses_df = pd.read_csv(diagnose_icd_file_path)
 
-    esrd_diagnose_df = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes)
+    esrd_diagnose_df = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
     esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(esrd_codes)]
     print(
         f"number of ESRD subjects: {esrd_diagnose_df['subject_id'].nunique()}\n"
@@ -163,3 +163,22 @@ def get_esrd_patients_and_diagnoses():
     print(f"number of subjects (for validation): {patients_df['subject_id'].nunique()}")
 
     return patients_df, esrd_diagnose_df
+
+def get_ckd_but_non_esrd_patients_and_diagnoses():
+    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
+
+    ckd_stage_35_diagnose_df = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_stage3_to_5)]
+    print(
+        f"number of CKD stage 3-5 subjects: {ckd_stage_35_diagnose_df['subject_id'].nunique()}\n"
+        f"percentage of subjects in dataset: {ckd_stage_35_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
+    )
+
+    esrd_diagnose_df = diagnoses_df[diagnoses_df['icd_code'].isin(esrd_codes)]
+    ckd_but_non_esrd_diagnose_df = ckd_stage_35_diagnose_df[~ckd_stage_35_diagnose_df['subject_id'].isin(esrd_diagnose_df['subject_id'])]
+
+    patients_df = pd.read_csv(patients_file_path)
+    patients_df = patients_df[patients_df['subject_id'].isin(ckd_but_non_esrd_diagnose_df['subject_id'].unique())]
+
+    print(f"number of subjects (for validation): {patients_df['subject_id'].nunique()}")
+
+    return patients_df, ckd_but_non_esrd_diagnose_df
