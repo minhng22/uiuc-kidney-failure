@@ -3,7 +3,7 @@ from pkgs.data.store import get_esrd_patients_and_diagnoses, get_ckd_but_non_esr
 from pkgs.data.graphics import plot_icd_codes
 from pkgs.commons import lab_codes_creatinine, esrd_codes, ckd_codes_stage3_to_5, ckd_codes_hypertension, \
     ckd_codes_diabetes_mellitus, ace_inhibitor_drugs, diagnose_icd_file_path, age_bins, prescription_file_path,\
-    lab_codes_proteins_24hr
+    lab_codes_proteins_24hr, ckd_codes
 from pkgs.data.utils_store import filter_df_on_icd_code
 import pandas as pd
 
@@ -144,6 +144,9 @@ def clinical_characteristic_analysis_esrd(mode: str, num_patient_in_cohort: int)
         print(
             f"Number of CKD patients with CKD stage 3-5: {s_ids['subject_id'].nunique()},"
             f"account for {s_ids['subject_id'].nunique() / num_patient_in_cohort * 100:.3f} percent")
+        
+        s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes)]
+        diagnoses_df = diagnoses_df[diagnoses_df['subject_id'].isin(s_ids['subject_id'])]
 
         s_ids = diagnoses_df[diagnoses_df['icd_code'].isin(ckd_codes_hypertension)]
         print(
@@ -202,7 +205,7 @@ def analyze_ckd():
 if __name__ == '__main__':
     print("Analyzing CKD patients...")
     analyze_ckd()
-    
+
     print("\nAnalyzing ESRD patients...")
     analyze_esrd()
     
