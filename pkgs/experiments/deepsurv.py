@@ -52,8 +52,7 @@ def objective(trial):
 
     train_dataset = DeepSurvDataset(df, deep_surv_features, duration_col, event_col)
     
-    # use full batch to preven neg log likehood loss crash on no positive datapoint in batch
-    train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=len(train_dataset)//2, shuffle=True)
 
     input_dim = 1 # egfr
     num_layers = trial.suggest_int("num_layer", 1, 20)
