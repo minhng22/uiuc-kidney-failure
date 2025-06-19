@@ -37,7 +37,7 @@ def run_cox_model(scenario: ExperimentScenario):
         model.fit(data_train, event_col='has_esrd', id_col='subject_id')
 
         with open(model_path, 'wb') as f:
-            dill.dump(model, f, protocol=4)(model, model_path)
+            dill.dump(model, f, protocol=4)
     else:
         model = trained_model
 
