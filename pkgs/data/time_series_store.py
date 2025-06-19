@@ -146,7 +146,7 @@ def process_negative_patients(patient_ids: any, scenario_name: ExperimentScenari
     return lab_df
 
 def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenario):
-    if scenario_name == ExperimentScenario.TIME_VARIANT:
+    if scenario_name == ExperimentScenario.TIME_VARIANT or scenario_name == ExperimentScenario.NON_TIME_VARIANT:
         lab_df = get_egfr_df(patients)
     elif scenario_name == ExperimentScenario.HETEROGENEOUS:
         egfr_df = get_egfr_df(patients)
