@@ -4,7 +4,10 @@ from sklearn.model_selection import train_test_split
 from pkgs.commons import (
     egfr_tv_train_data_path, egfr_tv_test_data_path, egfr_ti_train_data_path, egfr_ti_test_data_path,
     egfr_components_test_data_path, egfr_components_train_data_path,
-    heterogen_train_data_path, heterogen_test_data_path,
+    heterogen_train_data_path, heterogen_test_data_path, prev_egfr_ti_train_data_path,
+    prev_egfr_ti_test_data_path, prev_egfr_tv_train_data_path, prev_egfr_tv_test_data_path,
+    prev_egfr_components_train_data_path, prev_egfr_components_test_data_path,
+    prev_heterogen_train_data_path, prev_heterogen_test_data_path
 )
 from pkgs.data.types import ExperimentScenario
 from pkgs.data.time_series_store import get_time_series_data_ckd_patients
@@ -194,5 +197,53 @@ def get_train_test_data_for_all_scenarios():
         print(f"Getting train and test data for scenario: {scenario}")
         get_train_test_data(scenario)
 
+def reshuffle_train_test_data():
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+        print(f"Reshuffling train and test data for scenario: {scenario}")
+        
+        prev_train_data_stored_path = {
+            ExperimentScenario.NON_TIME_VARIANT: prev_egfr_ti_train_data_path,
+            ExperimentScenario.TIME_VARIANT: prev_egfr_tv_train_data_path,
+            ExperimentScenario.HETEROGENEOUS: prev_heterogen_train_data_path,
+            ExperimentScenario.EGFR_COMPONENTS: prev_egfr_components_train_data_path
+        }
+        prev_test_data_stored_path = {
+            ExperimentScenario.NON_TIME_VARIANT: prev_egfr_ti_test_data_path,
+            ExperimentScenario.TIME_VARIANT: prev_egfr_tv_test_data_path,
+            ExperimentScenario.HETEROGENEOUS: prev_heterogen_test_data_path,
+            ExperimentScenario.EGFR_COMPONENTS: prev_egfr_components_test_data_path
+        }
+        prev_train_path = prev_train_data_stored_path[scenario]
+        prev_test_path = prev_test_data_stored_path[scenario]
+
+        train_data = pd.read_csv(prev_train_path)
+        test_data = pd.read_csv(prev_test_path)
+
+        combined_data = pd.concat([train_data, test_data], ignore_index=True)
+
+        train_subjects, test_subjects = train_test_split(combined_data['subject_id'].unique(), test_size=0.2, random_state=42)
+
+        data_test = combined_data[combined_data['subject_id'].isin(test_subjects)]
+        data_train = combined_data[combined_data['subject_id'].isin(train_subjects)]
+
+        data_train.reset_index(drop=True, inplace=True)
+        data_test.reset_index(drop=True, inplace=True)
+
+        train_data_path = {
+            ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
+            ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
+            ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
+            ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path
+        }
+        test_data_path = {
+            ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
+            ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
+            ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
+            ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path
+        }
+
+        data_train.to_csv(train_data_path[scenario])
+        data_test.to_csv(test_data_path[scenario])
+
 if __name__ == '__main__':
-    get_train_test_data_for_all_scenarios()
+    reshuffle_train_test_data()

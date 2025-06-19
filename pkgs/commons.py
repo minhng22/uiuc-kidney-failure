@@ -63,44 +63,54 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
-generate_data_path = f'{project_dir()}/generated_data/rep2'
+generate_data_path_latest_rep = f'{project_dir()}/generated_data/rep5'
+generate_data_path = f'{project_dir()}/generated_data'
 
 # trained models - time invariant scenario
-egfr_ti_gbsa_model_path = f'{generate_data_path}/egfr_ti_gbsa_model.pkl'
-egfr_ti_deepsurv_model_path = f'{generate_data_path}/egfr_ti_deepsurv_model.pt'
-egfr_ti_cox_model_path = f'{generate_data_path}/egfr_ti_cox_model.pkl'
-egfr_ti_srf_model_path = f'{generate_data_path}/egfr_ti_srf_model.pkl'
-egfr_ti_weibul_model_path = f'{generate_data_path}/egfr_ti_weibul_model.pkl'
+egfr_ti_gbsa_model_path = f'{generate_data_path_latest_rep}/egfr_ti_gbsa_model.pkl'
+egfr_ti_deepsurv_model_path = f'{generate_data_path_latest_rep}/egfr_ti_deepsurv_model.pt'
+egfr_ti_cox_model_path = f'{generate_data_path_latest_rep}/egfr_ti_cox_model.pkl'
+egfr_ti_srf_model_path = f'{generate_data_path_latest_rep}/egfr_ti_srf_model.pkl'
+egfr_ti_weibul_model_path = f'{generate_data_path_latest_rep}/egfr_ti_weibul_model.pkl'
 
 # trained models - time variant scenario
-egfr_tv_cox_model_path = f'{generate_data_path}/egfr_tv_cox_model.pkl'
-egfr_tv_dynamic_deep_hit_model_path = f'{generate_data_path}/egfr_tv_ddh_model.pt'
-egfr_tv_hazard_transformer_model_path = f'{generate_data_path}/egfr_tv_hazard_transformer_model.pt'
-egfr_tv_rnn_surv_model_path = f'{generate_data_path}/egfr_tv_rnn_surv_model.pt'
+egfr_tv_cox_model_path = f'{generate_data_path_latest_rep}/egfr_tv_cox_model.pkl'
+egfr_tv_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/egfr_tv_ddh_model.pt'
+egfr_tv_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/egfr_tv_hazard_transformer_model.pt'
+egfr_tv_rnn_surv_model_path = f'{generate_data_path_latest_rep}/egfr_tv_rnn_surv_model.pt'
 
 # trained models - heterogeneous scenario
-hg_cox_model_path = f'{generate_data_path}/hg_cox_model.pkl'
-hg_dynamic_deep_hit_model_path = f'{generate_data_path}/hg_ddh_model.pt'
-hg_hazard_transformer_model_path = f'{generate_data_path}/hg_hazard_transformer_model.pt'
-hg_rnn_surv_model_path = f'{generate_data_path}/hg_rnn_surv_model.pt'
+hg_cox_model_path = f'{generate_data_path_latest_rep}/hg_cox_model.pkl'
+hg_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/hg_ddh_model.pt'
+hg_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/hg_hazard_transformer_model.pt'
+hg_rnn_surv_model_path = f'{generate_data_path_latest_rep}/hg_rnn_surv_model.pt'
 
 # trained models - egfr components scenario
-egfr_components_cox_model_path = f'{generate_data_path}/egfr_components_cox_model.pkl'
-egfr_components_rnn_surv_model_path = f'{generate_data_path}/egfr_components_rnn_surv_model.pt'
-egfr_components_dynamic_deep_hit_model_path = f'{generate_data_path}/egfr_components_ddh_model.pt'
-egfr_components_hazard_transformer_model_path = f'{generate_data_path}/egfr_components_hazard_transformer_model.pt'
+egfr_components_cox_model_path = f'{generate_data_path_latest_rep}/egfr_components_cox_model.pkl'
+egfr_components_rnn_surv_model_path = f'{generate_data_path_latest_rep}/egfr_components_rnn_surv_model.pt'
+egfr_components_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/egfr_components_ddh_model.pt'
+egfr_components_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/egfr_components_hazard_transformer_model.pt'
 
 # train and test data
-heterogen_train_data_path = f'{generate_data_path}/heterogen_train_data.csv'
-heterogen_test_data_path = f'{generate_data_path}/heterogen_test_data.csv'
-egfr_tv_train_data_path = f'{generate_data_path}/egfr_tv_train_data.csv'
-egfr_tv_test_data_path = f'{generate_data_path}/egfr_tv_test_data.csv'
-egfr_ti_train_data_path = f'{generate_data_path}/egfr_ti_train_data.csv'
-egfr_ti_test_data_path = f'{generate_data_path}/egfr_ti_test_data.csv'
-egfr_components_train_data_path = f'{generate_data_path}/egfr_components_train_data.csv'
-egfr_components_test_data_path = f'{generate_data_path}/egfr_components_test_data.csv'
+heterogen_train_data_path = f'{generate_data_path_latest_rep}/heterogen_train_data.csv'
+heterogen_test_data_path = f'{generate_data_path_latest_rep}/heterogen_test_data.csv'
+egfr_tv_train_data_path = f'{generate_data_path_latest_rep}/egfr_tv_train_data.csv'
+egfr_tv_test_data_path = f'{generate_data_path_latest_rep}/egfr_tv_test_data.csv'
+egfr_ti_train_data_path = f'{generate_data_path_latest_rep}/egfr_ti_train_data.csv'
+egfr_ti_test_data_path = f'{generate_data_path_latest_rep}/egfr_ti_test_data.csv'
+egfr_components_train_data_path = f'{generate_data_path_latest_rep}/egfr_components_train_data.csv'
+egfr_components_test_data_path = f'{generate_data_path_latest_rep}/egfr_components_test_data.csv'
 
-esrd_patient_ids_path = f'{generate_data_path}/esrd_patient_ids.csv'
+prev_heterogen_train_data_path = f'{generate_data_path}/heterogen_train_data.csv'
+prev_heterogen_test_data_path = f'{generate_data_path}/heterogen_test_data.csv'
+prev_egfr_tv_train_data_path = f'{generate_data_path}/egfr_tv_train_data.csv'
+prev_egfr_tv_test_data_path = f'{generate_data_path}/egfr_tv_test_data.csv'
+prev_egfr_ti_train_data_path = f'{generate_data_path}/egfr_ti_train_data.csv'
+prev_egfr_ti_test_data_path = f'{generate_data_path}/egfr_ti_test_data.csv'
+prev_egfr_components_train_data_path = f'{generate_data_path}/egfr_components_train_data.csv'
+prev_egfr_components_test_data_path = f'{generate_data_path}/egfr_components_test_data.csv'
+
+esrd_patient_ids_path = f'{generate_data_path_latest_rep}/esrd_patient_ids.csv'
 
 """
 ----------Others----------
