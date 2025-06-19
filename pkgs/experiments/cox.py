@@ -102,7 +102,7 @@ def run_all():
     print("\nRunning heterogeneous Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.HETEROGENEOUS)
 
-    print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")
+    print("\nRunning egfr raw Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.EGFR_COMPONENTS)
 
 def joblib_to_dill():
