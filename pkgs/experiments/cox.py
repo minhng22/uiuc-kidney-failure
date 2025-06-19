@@ -78,7 +78,7 @@ def run_ti_cox_model():
         model.fit(data_train, duration_col='duration_in_days', event_col='has_esrd')
 
         with open(model_path, 'wb') as f:
-            dill.dump(model, f, protocol=4)(model, model_path)
+            dill.dump(model, f, protocol=4)
     else:
         model = trained_model
 
@@ -93,7 +93,7 @@ def run_ti_cox_model():
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 def run_all():
-    print("\nRunning non-time-variant Cox model evaluation with time-dependent AUC...")
+    print("\nRunning non-time-variant Cox model evaluation...")
     run_ti_cox_model()
 
     print("\nRunning time-variant Cox model evaluation with time-dependent AUC...")

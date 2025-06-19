@@ -45,7 +45,7 @@ def neg_log_partial_likelihood(risk, durations, events):
     return loss
 
 def get_device():
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 def score_model_train(model: DeepSurv, df, features, device):
     X = torch.tensor(df[features].values, dtype=torch.float32).to(device)

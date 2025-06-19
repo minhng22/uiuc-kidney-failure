@@ -17,7 +17,7 @@ from sksurv.util import Surv
 num_risks = 1
 
 def get_device():
-    return torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
 
 class HazardTransformerDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
