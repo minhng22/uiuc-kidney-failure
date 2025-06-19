@@ -191,7 +191,7 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
     return lab_df
 
 def get_feature_columns(scenario):
-    if scenario == ExperimentScenario.TIME_VARIANT:
+    if scenario == ExperimentScenario.TIME_VARIANT or scenario == ExperimentScenario.NON_TIME_VARIANT:
         return ['egfr']
     elif scenario == ExperimentScenario.HETEROGENEOUS:
         return ['egfr', 'protein', 'albumin']
