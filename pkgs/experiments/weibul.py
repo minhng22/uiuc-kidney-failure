@@ -5,10 +5,12 @@ from lifelines import WeibullAFTFitter
 from lifelines.utils import concordance_index
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
+import dill
 
 from pkgs.commons import egfr_ti_weibul_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
+from pkgs.experiments.utils import load_pkl_and_dill_model
 
 def compute_time_dependent_auc(model: WeibullAFTFitter, data_train, data_test, duration_col, event_col, times):
     y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train)
@@ -30,14 +32,17 @@ def run_ti():
     print(f"Train data shape: {df.shape}")
     print(f"Test data shape: {df_test.shape}")
 
-    if not os.path.exists(egfr_ti_weibul_model_path):
+    trained_model = load_pkl_and_dill_model(egfr_ti_weibul_model_path)
+
+    if not trained_model:
         model = WeibullAFTFitter()
         print('Fitting model:')
         model.fit(df, event_col='has_esrd', duration_col='duration_in_days')
-        joblib.dump(model, egfr_ti_weibul_model_path)
+        with open(egfr_ti_weibul_model_path, 'wb') as f:
+            dill.dump(model, f, protocol=4)
     else:
         print("Loading model from file")
-        model = joblib.load(egfr_ti_weibul_model_path)
+        model = trained_model
 
     print('Evaluate on test data')
     times = np.arange(1, 365, 1)

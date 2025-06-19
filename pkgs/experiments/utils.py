@@ -4,6 +4,9 @@ from sksurv.metrics import integrated_brier_score
 import torch
 import optuna
 from pkgs.data.types import ExperimentScenario
+import os
+import dill
+import joblib
 
 # from doc: "y must be a structured array with the first field being a binary class event indicator and the second field the time of the event/censoring"
 def get_y_for_sckit_survival_model(df):
@@ -112,3 +115,19 @@ def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0
         total_loss += log_likelihood_loss * w1 + ranking_loss * w2
 
     return total_loss / num_risks
+
+def load_pkl_and_dill_model(model_path):
+    model_pkl_path = model_path.replace('.dill', '.pkl')
+
+    if not os.path.exists(model_path) and not os.path.exists(model_pkl_path):
+        return None
+    
+    # some old models saved with .pkl extension
+    if os.path.exists(model_pkl_path):
+        print(f"Loading model from {model_pkl_path}")
+        return joblib.load(model_pkl_path)
+    
+    print(f"Loading model from {model_path}")
+    with open(model_path, 'rb') as f:
+        return dill.load(f)
+    

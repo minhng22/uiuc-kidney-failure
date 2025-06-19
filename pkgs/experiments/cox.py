@@ -9,7 +9,7 @@ from sksurv.util import Surv
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
-from pkgs.experiments.utils import round_metric
+from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model
 import dill
 
 def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_train, data_test, duration_col, event_col, times):
@@ -27,17 +27,19 @@ def run_cox_model(scenario: ExperimentScenario):
     data_train, data_test = get_train_test_data(scenario)
 
     model_path = get_model_path(scenario)
-    model_path = model_path.replace('.pkl', '.dill')
 
-    if not os.path.exists(model_path):
+    trained_model = load_pkl_and_dill_model(model_path)
+
+    if not trained_model:
         model = CoxTimeVaryingFitter(penalizer=0.1)
 
         print(f'Fitting model:\n')
         model.fit(data_train, event_col='has_esrd', id_col='subject_id')
 
-        joblib.dump(model, model_path)
+        with open(model_path, 'wb') as f:
+            dill.dump(model, f, protocol=4)(model, model_path)
     else:
-        model = joblib.load(model_path)
+        model = trained_model
 
     print('Evaluate on test data')
 
@@ -65,17 +67,20 @@ def get_model_path(scenario: ExperimentScenario):
 def run_ti_cox_model():
     data_train, data_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
-    model_path = egfr_ti_cox_model_path.replace('.pkl', '.dill')
+    model_path = egfr_ti_cox_model_path
 
-    if not os.path.exists(model_path):
+    trained_model = load_pkl_and_dill_model(model_path)
+
+    if not trained_model:
         model = CoxPHFitter()
 
         print(f'Fitting model:\n')
         model.fit(data_train, duration_col='duration_in_days', event_col='has_esrd')
 
-        joblib.dump(model, model_path)
+        with open(model_path, 'wb') as f:
+            dill.dump(model, f, protocol=4)(model, model_path)
     else:
-        model = joblib.load(model_path)
+        model = trained_model
 
     print('Evaluate on test data')
     risk_scores_test = model.predict_partial_hazard(data_test)
@@ -104,8 +109,11 @@ def joblib_to_dill():
     for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
         model_path = get_model_path(scenario)
         if os.path.exists(model_path):
+            # if file path ends with .dill, skip
+            if model_path.endswith('.dill'):
+                continue
             model = joblib.load(model_path)
-            with open(model_path.replace('.pkl', '.dill'), 'wb') as f:
+            with open(model_path, 'wb') as f:
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":

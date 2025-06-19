@@ -2,6 +2,7 @@ import os
 import datetime
 import joblib
 import numpy as np
+import dill
 from lifelines.utils import concordance_index
 from sksurv.ensemble import RandomSurvivalForest
 from sksurv.metrics import cumulative_dynamic_auc
@@ -12,7 +13,7 @@ from sklearn.metrics import make_scorer
 from pkgs.commons import egfr_ti_srf_model_path
 from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.data.types import ExperimentScenario
-from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric
+from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric, load_pkl_and_dill_model
 
 def c_idx_score_fn(y, risk_score):
     events = np.array([item[0] for item in y])
@@ -24,9 +25,11 @@ def c_idx_score_fn(y, risk_score):
 def run_survival_rf():
     df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
 
-    if os.path.exists(egfr_ti_srf_model_path):
+    trained_model = load_pkl_and_dill_model(egfr_ti_srf_model_path)
+
+    if trained_model:
         print(f'Model file found at {egfr_ti_srf_model_path}. Loading model...')
-        rsf = joblib.load(egfr_ti_srf_model_path)
+        rsf = trained_model
         evaluate_model(rsf, df, df_test)
     else:
         print(f'No existing model found. Training model. Current time {datetime.datetime.now()}:\n')
@@ -57,7 +60,8 @@ def run_survival_rf():
         print(grid_search.best_params_)
         
         rsf = grid_search.best_estimator_
-        joblib.dump(rsf, egfr_ti_srf_model_path)
+        with open(egfr_ti_srf_model_path, 'wb') as f:
+            dill.dump(rsf, f, protocol=4)
         print(f'Model saved to {egfr_ti_srf_model_path}')
         
     evaluate_model(rsf, df, df_test)

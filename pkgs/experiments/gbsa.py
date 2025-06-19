@@ -11,7 +11,7 @@ from sklearn.metrics import make_scorer
 from pkgs.commons import egfr_ti_gbsa_model_path
 from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.data.types import ExperimentScenario
-from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model
+from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model
 import dill
 
 def c_idx_score_fn(y, risk_score):
@@ -42,11 +42,12 @@ def evaluate_model(gbsa, df, df_test):
 # non-time-variant model
 def run_gbsa():
     df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+
+    trained_model = load_pkl_and_dill_model(egfr_ti_gbsa_model_path)
     
-    if os.path.exists(egfr_ti_gbsa_model_path):
-        model_path = egfr_ti_gbsa_model_path.replace('.pkl', '.dill')
+    if trained_model:
         print(f'Model found at {egfr_ti_gbsa_model_path}. Loading model...')
-        gbsa = joblib.load(model_path)
+        gbsa = trained_model
     else:
         print('No existing model found. Starting hyperparameter tuning...')
         df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
@@ -85,7 +86,8 @@ def run_gbsa():
         print(grid_search.best_params_)
     
         gbsa = grid_search.best_estimator_
-        joblib.dump(gbsa, egfr_ti_gbsa_model_path)
+        with open(egfr_ti_gbsa_model_path, 'wb') as f:
+            dill.dump(gbsa, f, protocol=4)
         
     print('Evaluate on test data')
     
