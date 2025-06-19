@@ -189,5 +189,10 @@ def validate_subject_ids():
         else:
             print(f"No common subjects found in train and test data for scenario {scenario}.")
 
+def get_train_test_data_for_all_scenarios():
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+        print(f"Getting train and test data for scenario: {scenario}")
+        get_train_test_data(scenario)
+
 if __name__ == '__main__':
-    analyze_train_test_data()
+    get_train_test_data_for_all_scenarios()
