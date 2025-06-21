@@ -152,10 +152,10 @@ def objective(trial, scenario_name: ExperimentScenario):
         if patience_counter >= patience:
             print("Early stopping triggered")
             break
-
-    c_index = score_model_train(model, df, rnn_surv_features, device)
     
     if os.path.exists(model_saved_path):
+        c_index = score_model_train(model, df, rnn_surv_features, device)
+
         saved_model = torch.load(model_saved_path, map_location=device)
         saved_c_index = score_model_train(saved_model, df, rnn_surv_features, device)
         
@@ -164,9 +164,11 @@ def objective(trial, scenario_name: ExperimentScenario):
             print("Current model performs better, saving it...")
             torch.save(model, model_saved_path)
     else:
-        print(f"No existing model found, saving current model with C-index: {c_index:.4f}")
+        print(f"No existing model found, saving current model")
         torch.save(model, model_saved_path)
 
+    c_index = score_model_train(model, df, rnn_surv_features, device)
+    
     trial.set_user_attr(key="model", value=model)
     return c_index
 
@@ -183,7 +185,7 @@ def score_model_train(model: RNNSurv, df, features, device):
     return c_index
 
 def get_device():
-    return torch.device("cuda:5" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
