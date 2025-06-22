@@ -9,7 +9,7 @@ from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.metrics import make_scorer
 
 from pkgs.commons import egfr_ti_gbsa_model_path
-from pkgs.data.model_data_store import get_train_test_data, sample
+from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model
 import dill
@@ -51,8 +51,6 @@ def run_gbsa():
     else:
         print('No existing model found. Starting hyperparameter tuning...')
         df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
-        df = sample(df)
-        df_test = sample(df_test)
     
         X = get_x_for_sckit_survival_model(df)
         y = get_y_for_sckit_survival_model(df)
