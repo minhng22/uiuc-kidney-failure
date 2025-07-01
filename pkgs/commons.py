@@ -63,14 +63,14 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
-generate_data_path_latest_rep = f'{project_dir()}/generated_data/rep2'
+generate_data_path_latest_rep = f'{project_dir()}/generated_data/rep4'
 generate_data_path = f'{project_dir()}/generated_data'
 
 # trained models - time invariant scenario
 egfr_ti_gbsa_model_path = f'{generate_data_path_latest_rep}/egfr_ti_gbsa_model.dill'
 egfr_ti_deepsurv_model_path = f'{generate_data_path_latest_rep}/egfr_ti_deepsurv_model.pt'
 egfr_ti_cox_model_path = f'{generate_data_path_latest_rep}/egfr_ti_cox_model.dill'
-egfr_ti_srf_model_path = f'{generate_data_path_latest_rep}/egfr_ti_srf_model.dill'
+egfr_ti_srf_model_path = f'/srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill'
 egfr_ti_weibul_model_path = f'{generate_data_path_latest_rep}/egfr_ti_weibul_model.dill'
 
 # trained models - time variant scenario
