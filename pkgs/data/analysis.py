@@ -202,13 +202,24 @@ def analyze_ckd():
     laboratory_params(patients_df)
     medication_use(patients_df)
 
-if __name__ == '__main__':
-    print("Analyzing CKD patients...")
-    analyze_ckd()
+def analyze_admission(patients_df=None):
+    admission_df = get_admission_df(False)
+    print(f"Number of admissions: {len(admission_df)}")
+    print(f"Number of unique patients: {admission_df['subject_id'].nunique()}")
 
-    print("\nAnalyzing ESRD patients...")
-    analyze_esrd()
+    if patients_df is not None:
+        admission_df = admission_df[admission_df['subject_id'].isin(patients_df['subject_id'])]
+        print(f"Number of admissions for patients in cohort: {len(admission_df)}")
+        print(f"Number of unique patients in cohort: {admission_df['subject_id'].nunique()}")
+
+def analyze_admission_aggregate():
+    print("Analyzing admission of ESRD patients...")
+    patients_df, _ = get_esrd_patients_and_diagnoses()
+    analyze_admission(patients_df)
+
+    print("\n\nAnalyzing admission of CKD patients...")
+    patients_df, _ = get_ckd_but_non_esrd_patients_and_diagnoses()
+    analyze_admission(patients_df)
     
-    print("\nAnalyzing CKD but non-ESRD...")
-    analyze_non_esrd()
-    print("Analysis completed.")
+if __name__ == '__main__':
+    analyze_admission_aggregate()
