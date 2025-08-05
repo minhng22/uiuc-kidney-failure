@@ -20,7 +20,7 @@ echo "Stop process with:"
 echo "  kill \$(cat ${SCRIPT_DIR}/run_all_reps.pid)"
 echo ""
 echo "Individual rep logs will also be generated:"
-for rep in {1..1}; do
+for rep in {1..5}; do
     echo "  - ${SCRIPT_DIR}/eval_all_rep${rep}.log"
 done
 echo ""

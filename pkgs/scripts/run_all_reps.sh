@@ -94,7 +94,7 @@ echo "Original rep setting: rep${original_rep}"
 
 failed_reps=()
 
-for rep in {1..1}; do
+for rep in {1..5}; do
     echo "Starting rep${rep}..."
     if run_rep "$rep"; then
         echo "✓ Rep${rep} completed successfully"
@@ -120,7 +120,7 @@ fi
 
 echo ""
 echo "Log files generated:"
-for rep in {1..1}; do
+for rep in {1..5}; do
     echo "  - ${SCRIPT_DIR}/eval_all_rep${rep}.log"
 done
 
@@ -148,7 +148,7 @@ if [ "$1" = "--background" ] || [ "$1" = "-b" ]; then
     echo "Stop process with: kill $(cat "${SCRIPT_DIR}/run_all_reps.pid")"
     echo ""
     echo "Individual rep logs will also be generated:"
-    for rep in {1..1}; do
+    for rep in {1..5}; do
         echo "  - ${SCRIPT_DIR}/eval_all_rep${rep}.log"
     done
 else
