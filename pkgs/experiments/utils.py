@@ -1,6 +1,7 @@
 import numpy as np
 from lifelines.utils import concordance_index
-from sksurv.metrics import integrated_brier_score
+from sksurv.metrics import integrated_brier_score, brier_score
+from sksurv.util import Surv
 import torch
 import optuna
 from pkgs.data.types import ExperimentScenario
@@ -24,6 +25,74 @@ def round_metric(metric_num):
     return round(metric_num, 3)
 
 
+def round_metric(metric_num):
+    return round(metric_num, 3)
+
+
+def compute_brier_score_from_survival_probs(df_train, df_test, survival_probs, times):
+    """
+    Compute Integrated Brier Score from survival probabilities.
+    
+    Args:
+        df_train: Training dataframe with 'has_esrd' and 'duration_in_days' columns
+        df_test: Test dataframe with 'has_esrd' and 'duration_in_days' columns  
+        survival_probs: Array of survival probabilities of shape (n_samples, n_times)
+        times: Array of time points corresponding to survival probabilities
+    
+    Returns:
+        Integrated Brier Score
+    """
+    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
+    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
+    
+    try:
+        # Ensure survival_probs has the right shape (n_samples, n_times)
+        if survival_probs.ndim == 1:
+            survival_probs = survival_probs.reshape(1, -1)
+        elif survival_probs.shape[0] != len(df_test):
+            survival_probs = survival_probs.T
+            
+        ibs = integrated_brier_score(y_train, y_test, survival_probs, times)
+        return round_metric(ibs)
+    except Exception as e:
+        print(f"Warning: Could not compute Brier Score: {e}")
+        return None
+
+
+def compute_brier_score_from_risk_scores(df_train, df_test, risk_scores):
+    """
+    Compute Brier Score from risk scores by converting to survival probabilities.
+    Uses a simple exponential survival model approximation.
+    
+    Args:
+        df_train: Training dataframe
+        df_test: Test dataframe  
+        risk_scores: Risk scores from the model
+    
+    Returns:
+        Integrated Brier Score
+    """
+    try:
+        # Define time points for evaluation
+        max_time = max(df_train['duration_in_days'].max(), df_test['duration_in_days'].max())
+        times = np.linspace(1, min(max_time, 365), 50)  # Evaluate up to 1 year
+        
+        # Convert risk scores to survival probabilities using exponential model
+        # S(t) = exp(-lambda * t), where lambda is proportional to risk score
+        # Normalize risk scores to be positive
+        risk_scores_norm = risk_scores - risk_scores.min() + 0.01
+        
+        # Create survival probability matrix
+        survival_probs = np.zeros((len(df_test), len(times)))
+        for i, t in enumerate(times):
+            survival_probs[:, i] = np.exp(-risk_scores_norm * t / 365.0)  # Scale by year
+            
+        return compute_brier_score_from_survival_probs(df_train, df_test, survival_probs, times)
+    except Exception as e:
+        print(f"Warning: Could not compute Brier Score from risk scores: {e}")
+        return None
+
+
 def evaluate_ti_scikit_survival_model(df_test, risk_scores, surv_funcs, df_train):
     # Concordance Index on test data
     c_index_test = round_metric(concordance_index(df_test['duration_in_days'], risk_scores, df_test['has_esrd']))
@@ -40,6 +109,11 @@ def evaluate_ti_scikit_survival_model(df_test, risk_scores, surv_funcs, df_train
         df_train[['has_esrd', 'duration_in_days']].to_records(index=False), 
         df_test[['has_esrd', 'duration_in_days']].to_records(index=False), pred_surv_test, times_test)
     print(f'Integrated Brier Score (Test): {round_metric(bs_test)}')
+    
+    # Also compute Brier Score using our new comprehensive function
+    brier_score_new = compute_brier_score_from_survival_probs(df_train, df_test, pred_surv_test.T, times_test)
+    if brier_score_new is not None:
+        print(f'Integrated Brier Score (New): {brier_score_new}')
 
 def c_idx_rnn_model(model, df_test, features):
     X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)

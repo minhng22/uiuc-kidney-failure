@@ -10,7 +10,7 @@ import dill
 from pkgs.commons import egfr_ti_weibul_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
-from pkgs.experiments.utils import load_pkl_and_dill_model
+from pkgs.experiments.utils import load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 
 def compute_time_dependent_auc(model: WeibullAFTFitter, data_train, data_test, duration_col, event_col, times):
     y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train)
@@ -53,6 +53,11 @@ def run_ti():
 
     c_index = concordance_index(actual_survival_times, predicted_survival_times, event_occurred)
     print(f"C-index: {c_index:.4f}")
+
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(df, df_test, -predicted_survival_times)  # Negative because higher survival time = lower risk
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
 
     _, mean_auc = compute_time_dependent_auc(model, df, df_test, 'duration_in_days', 'has_esrd', times)
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")

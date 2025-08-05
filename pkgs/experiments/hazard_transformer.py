@@ -7,12 +7,12 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 import numpy as np
 import os
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss, compute_brier_score_from_risk_scores
 from pkgs.data.types import ExperimentScenario
 from torch.nn.utils.rnn import pad_sequence
-from sksurv.metrics import concordance_index_ipcw
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
+from lifelines.utils import concordance_index
 
 num_risks = 1
 
@@ -180,11 +180,8 @@ def c_idx(model, data_loader, train_df, device):
             all_times.extend(times.squeeze(1).cpu().numpy().tolist())
             all_events.extend(events.squeeze(1).cpu().numpy().tolist())
 
-    c_td, _, _, _, _ = concordance_index_ipcw(
-        y_train,
-        Surv.from_arrays(event=np.array(all_events).astype(bool), time=np.array(all_times), name_event='has_esrd', name_time='duration_in_days'),
-        all_scores, train_df['duration_in_days'].max())
-    print(f"Time-dependent C-index: {c_td:.4f}")
+    c_td = concordance_index(all_times, all_scores, all_events)
+    print(f"C-index: {c_td:.4f}")
     return c_td
 
 def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
@@ -209,6 +206,35 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
 
     avg_auc = np.mean(aucs, axis=0)
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
+
+def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataLoader, device):
+    """Compute Brier Score for Hazard Transformer model"""
+    all_risk_scores = []
+    all_times = []
+    all_events = []
+    
+    for features, mask, time_to_events, event_indicators, _, _ in dataloader:
+        features, mask = features.to(device), mask.to(device)
+        
+        hazard_preds, _, _ = model(features, mask)
+        hazard_preds = hazard_preds[:, 0, 0].detach().cpu().numpy()
+        
+        all_risk_scores.extend(hazard_preds)
+        all_times.extend(time_to_events.squeeze().numpy())
+        all_events.extend(event_indicators.squeeze().numpy())
+    
+    # Create test dataframe from collected data
+    test_df = pd.DataFrame({
+        'duration_in_days': all_times,
+        'has_esrd': all_events
+    })
+    
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(train_df, test_df, np.array(all_risk_scores))
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
+    
+    return brier_score
     
 
 def run(scenario_name: ExperimentScenario):
@@ -236,6 +262,7 @@ def run(scenario_name: ExperimentScenario):
 
     c_idx(model, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), df, device)
     auc(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
+    brier_score_evaluation(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
 
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)

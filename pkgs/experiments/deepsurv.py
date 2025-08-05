@@ -11,7 +11,7 @@ from pkgs.commons import egfr_ti_deepsurv_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.models.deepsurv import DeepSurv
-from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric
+from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric, compute_brier_score_from_risk_scores
 
 deep_surv_features = ['egfr']
 
@@ -151,6 +151,11 @@ def run():
 
     c_index = round_metric(concordance_index(df_test['duration_in_days'], test_risk_scores, df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
+
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(df, df_test, test_risk_scores)
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
 
     # Compute time-dependent AUC
     times = np.arange(1, 365, 1)

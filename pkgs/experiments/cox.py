@@ -9,7 +9,7 @@ from sksurv.util import Surv
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
-from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model
+from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 import dill
 
 def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_train, data_test, duration_col, event_col, times):
@@ -46,6 +46,11 @@ def run_cox_model(scenario: ExperimentScenario):
     risk_scores_test = model.predict_partial_hazard(data_test)
     c_index_test = round_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
+
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(data_train, data_test, -risk_scores_test.values.flatten())
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
 
     times = np.arange(1, 365, 1)
 
@@ -86,6 +91,11 @@ def run_ti_cox_model():
     risk_scores_test = model.predict_partial_hazard(data_test)
     c_index_test = round_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
+
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(data_train, data_test, -risk_scores_test.values.flatten())
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
 
     times = np.arange(1, 365, 1)
     _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)

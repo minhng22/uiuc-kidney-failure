@@ -5,7 +5,7 @@ from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss, compute_brier_score_from_risk_scores
 from pkgs.data.types import ExperimentScenario
 
 import os
@@ -255,6 +255,40 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     avg_auc = np.mean(aucs, axis=0)
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
+def brier_score_evaluation(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd.DataFrame, device):
+    """Compute Brier Score for Dynamic DeepHit model"""
+    dataloader = DataLoader(test_dataset, shuffle=False, batch_size=256)
+    
+    all_risk_scores = []
+    all_times = []
+    all_events = []
+    
+    for features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens in dataloader:
+        features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
+        
+        hazard_preds, _ = model(features, mask)
+        hazard_preds = hazard_preds.cpu().detach().numpy()
+        hazard_preds = hazard_preds[:, 0, :]  # only one risk (ESRD)
+        
+        for j in range(hazard_preds.shape[0]):
+            p_seq_len = int(seq_lens[j])
+            all_risk_scores.extend(hazard_preds[j][:p_seq_len])
+            all_times.extend(time_to_events[j][:p_seq_len].cpu().detach().numpy())
+            all_events.extend(event_indicators[j][:p_seq_len].cpu().detach().numpy())
+    
+    # Create test dataframe from collected data
+    test_df = pd.DataFrame({
+        'duration_in_days': all_times,
+        'has_esrd': all_events
+    })
+    
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(train_df, test_df, np.array(all_risk_scores))
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
+    
+    return brier_score
+
 def simple_cindex(times, predictions, events):
     pairs = 0
     concordant = 0
@@ -364,6 +398,7 @@ def run(scenario_name: ExperimentScenario):
 
     c_idx(model, test_dataset, device, True)
     auc(model, test_dataset, df, device)
+    brier_score_evaluation(model, test_dataset, df, device)
 
 if __name__ == '__main__':
     run(ExperimentScenario.TIME_VARIANT)

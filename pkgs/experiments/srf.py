@@ -13,7 +13,7 @@ from sklearn.metrics import make_scorer
 from pkgs.commons import egfr_ti_srf_model_path
 from pkgs.data.model_data_store import get_train_test_data, sample
 from pkgs.data.types import ExperimentScenario
-from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric, load_pkl_and_dill_model
+from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 
 def c_idx_score_fn(y, risk_score):
     events = np.array([item[0] for item in y])
@@ -85,6 +85,11 @@ def evaluate_model(rsf, df, df_test):
     y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
     _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
     print(f'Mean AUC: {round_metric(mean_auc)}')
+    
+    # Compute Brier Score
+    brier_score = compute_brier_score_from_risk_scores(df, df_test, risk_scores)
+    if brier_score is not None:
+        print(f'Integrated Brier Score Test: {brier_score}')
 
 if __name__ == '__main__':
     run_survival_rf()
