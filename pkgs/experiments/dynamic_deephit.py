@@ -372,8 +372,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     return cindex
 
 def get_device():
-    num = np.random.randint(1, 8)
-    return torch.device("cuda:"+str(num) if torch.cuda.is_available() else "cpu")
+    return torch.device("cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):

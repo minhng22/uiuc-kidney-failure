@@ -1,0 +1,195 @@
+Starting repetition 1...
+Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep1.log
+Start time: Tue Aug  5 16:29:00 CDT 2025
+=========================================
+==================== Running cox for rep1 ====================
+Start time: Tue Aug  5 16:29:00 CDT 2025
+
+Running non-time-variant Cox model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.503
+Integrated Brier Score Test: 0.445
+Risk scores test: (6841,)
+Mean time-dependent AUC: 0.5054
+
+Running time-variant Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.547
+Integrated Brier Score Test: 0.211
+Risk scores test: (96894,)
+Mean time-dependent AUC: 0.5424
+
+Running heterogeneous Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/heterogen_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/heterogen_test_data.csv
+Number of patients: test 6843 and train 27372
+Number of records: test 97205 and train 395894
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/hg_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.548
+Integrated Brier Score Test: 0.189
+Risk scores test: (97205,)
+Mean time-dependent AUC: 0.5446
+
+Running egfr raw Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_components_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_components_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_components_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.381
+Integrated Brier Score Test: 0.874
+Risk scores test: (96894,)
+Mean time-dependent AUC: 0.3584
+✓ cox completed successfully
+End time: Tue Aug  5 16:29:32 CDT 2025
+
+==================== Running deepsurv for rep1 ====================
+Start time: Tue Aug  5 16:29:32 CDT 2025
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading from saved weights
+C-Index on Test Data: 0.526
+Integrated Brier Score Test: 0.49
+Risk scores shape: (6841,)
+First 10 risk scores: [-0.05981906 -0.05970863 -0.05982057 -0.05807529 -0.06061506 -0.05940301
+ -0.0610926  -0.05956358 -0.06001833 -0.05994125]
+y_train shape: (27361,)
+y_test shape: (6841,)
+Mean AUC: 0.46
+✓ deepsurv completed successfully
+End time: Tue Aug  5 16:29:39 CDT 2025
+
+==================== Running dynamic_deephit for rep1 ====================
+Start time: Tue Aug  5 16:29:39 CDT 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 405, in <module>
+    run(ExperimentScenario.TIME_VARIANT)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 402, in run
+    brier_score_evaluation(model, test_dataset, df, device)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 269, in brier_score_evaluation
+    hazard_preds, _ = model(features, mask)
+                      ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/dynamicdeephit.py", line 64, in forward
+    lstm_output, _ = self.lstm(x)
+                     ^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1123, in forward
+    result = _VF.lstm(
+             ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 MiB. GPU 6 has a total capacity of 10.57 GiB of which 3.06 MiB is free. Including non-PyTorch memory, this process has 10.56 GiB memory in use. Of the allocated memory 9.40 GiB is allocated by PyTorch, and 1004.55 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Loading from saved weights
+model summary:
+DynamicDeepHit(
+  (lstm): LSTM(1, 230, num_layers=2, batch_first=True, dropout=0.10453185971627983, bidirectional=True)
+  (fc): Sequential(
+    (0): Linear(in_features=460, out_features=230, bias=True)
+    (1): Tanh()
+  )
+  (attention): Sequential(
+    (0): Linear(in_features=230, out_features=230, bias=True)
+    (1): Tanh()
+    (2): Linear(in_features=230, out_features=1, bias=True)
+  )
+  (cause_specific_fc): Sequential(
+    (0): Linear(in_features=230, out_features=186, bias=True)
+    (1): ReLU()
+    (2): Dropout(p=0.10453185971627983, inplace=False)
+    (3): Linear(in_features=186, out_features=21, bias=True)
+    (4): ReLU()
+    (5): Dropout(p=0.10453185971627983, inplace=False)
+    (6): Linear(in_features=21, out_features=65, bias=True)
+    (7): ReLU()
+    (8): Dropout(p=0.10453185971627983, inplace=False)
+    (9): Linear(in_features=65, out_features=38, bias=True)
+    (10): ReLU()
+    (11): Dropout(p=0.10453185971627983, inplace=False)
+    (12): Linear(in_features=38, out_features=130, bias=True)
+    (13): ReLU()
+    (14): Dropout(p=0.10453185971627983, inplace=False)
+    (15): Linear(in_features=130, out_features=70, bias=True)
+    (16): ReLU()
+    (17): Dropout(p=0.10453185971627983, inplace=False)
+    (18): Linear(in_features=70, out_features=193, bias=True)
+    (19): ReLU()
+    (20): Dropout(p=0.10453185971627983, inplace=False)
+    (21): Linear(in_features=193, out_features=233, bias=True)
+    (22): ReLU()
+    (23): Dropout(p=0.10453185971627983, inplace=False)
+  )
+  (risk_heads): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=233, out_features=5475, bias=True)
+    )
+  )
+)
+features shape: torch.Size([256, 387, 1]), mask shape: torch.Size([256, 387]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [0.7071434]
+all_E shape: (6842,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (6842,) first 10 values: [0.7071434  0.03843677 0.04886763 0.03200833 0.03434764 0.04375213
+ 0.7071434  0.06149414 0.03303982 0.04091571]
+all_T shape: (6842,) first 10 values: [   0  549 1601  305  512 1466    0    7   30 2713]
+Global test C-index (scikit-survival): 0.733 number of concordant pairs: 14230427
+Global test C-index: 0.733
+Event rate: 6328/6842 (92.49%)
+Starting simple C-index calculation...
+Pairs evaluated: 19400304, Concordant: 14230427
+Simple C-index implementation: 0.734
+f_time_to_events shape: 4222
+f_risk_scores shape: 4222
+f_event_indicators shape: 4222
+Mean time-dependent AUC: 0.94
+✗ dynamic_deephit failed with exit code 1
+End time: Tue Aug  5 16:30:41 CDT 2025
+
+==================== Running gbsa for rep1 ====================
+Start time: Tue Aug  5 16:30:41 CDT 2025
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_gbsa_model.dill
+Model found at /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_gbsa_model.dill. Loading model...
+Evaluate on test data
+X shape: (6841, 1)
+Risk scores shape: (6841,)
+First 10 risk scores: [-0.01991417  0.00275296 -0.01991417  0.30951341 -0.16414273 -0.10358991
+ -0.15809923 -0.12444013 -0.04596983  0.00717992]
+Concordance Index Test: 0.503
+Mean AUC: 0.505
+Integrated Brier Score Test: 0.306
+✓ gbsa completed successfully
+End time: Tue Aug  5 16:30:47 CDT 2025
+
+==================== Running hazard_transformer for rep1 ====================
+Start time: Tue Aug  5 16:30:47 CDT 2025

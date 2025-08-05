@@ -2,6 +2,7 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+
 echo "Starting all experiments in background..."
 echo "Script directory: $SCRIPT_DIR"
 
@@ -19,7 +20,7 @@ echo "Stop process with:"
 echo "  kill \$(cat ${SCRIPT_DIR}/run_all_reps.pid)"
 echo ""
 echo "Individual rep logs will also be generated:"
-for rep in {1..5}; do
+for rep in {1..1}; do
     echo "  - ${SCRIPT_DIR}/eval_all_rep${rep}.log"
 done
 echo ""
