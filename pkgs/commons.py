@@ -72,6 +72,7 @@ egfr_ti_deepsurv_model_path = f'{generate_data_path_latest_rep}/egfr_ti_deepsurv
 egfr_ti_cox_model_path = f'{generate_data_path_latest_rep}/egfr_ti_cox_model.dill'
 egfr_ti_srf_model_path = f'/srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill'
 egfr_ti_weibul_model_path = f'{generate_data_path_latest_rep}/egfr_ti_weibul_model.dill'
+egfr_ti_survival_svm_model_path = f'{generate_data_path_latest_rep}/egfr_ti_survival_svm_model.dill'
 
 # trained models - time variant scenario
 egfr_tv_cox_model_path = f'{generate_data_path_latest_rep}/egfr_tv_cox_model.dill'

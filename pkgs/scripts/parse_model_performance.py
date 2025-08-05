@@ -79,6 +79,13 @@ def parse_log_file(log_path):
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
+        # Survival SVM
+        'survival_svm': {
+            'section': r'==================== Running survival_svm.*?====================.*?(.*?)(?=✓ survival_svm completed|✗ survival_svm failed|===================)',
+            'c_index': r'Concordance Index Test:\s*([\d.]+)',
+            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
+            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
+        },
         # Weibull
         'weibul': {
             'section': r'==================== Running weibul.*?====================.*?(.*?)(?=✓ weibul completed|✗ weibul failed|===================)',
