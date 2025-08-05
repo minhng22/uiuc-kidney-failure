@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to run all experiments for repetitions 2-5 in the background
+# Script to run all experiments for repetitions 1-5 in the background
 # Each experiment must finish before the next one starts
 # Each repetition must finish before the next repetition starts
 
@@ -84,7 +84,7 @@ run_rep() {
     return ${#failed_experiments[@]}
 }
 
-echo "Starting all repetitions (rep2 to rep5)..."
+echo "Starting all repetitions (rep1 to rep5)..."
 echo "Project root: $PROJECT_ROOT"
 echo "Experiments to run: ${EXPERIMENTS[*]}"
 echo ""
@@ -94,7 +94,7 @@ echo "Original rep setting: rep${original_rep}"
 
 failed_reps=()
 
-for rep in {2..5}; do
+for rep in {1..5}; do
     echo "Starting rep${rep}..."
     if run_rep "$rep"; then
         echo "✓ Rep${rep} completed successfully"
@@ -108,8 +108,8 @@ done
 echo "========================================="
 echo "FINAL SUMMARY"
 echo "========================================="
-echo "Repetitions run: 2, 3, 4, 5"
-echo "Total repetitions: 4"
+echo "Repetitions run: 1, 2, 3, 4, 5"
+echo "Total repetitions: 5"
 echo "Failed repetitions: ${#failed_reps[@]}"
 
 if [ ${#failed_reps[@]} -eq 0 ]; then
@@ -120,7 +120,7 @@ fi
 
 echo ""
 echo "Log files generated:"
-for rep in {2..5}; do
+for rep in {1..5}; do
     echo "  - ${SCRIPT_DIR}/eval_all_rep${rep}.log"
 done
 
@@ -148,7 +148,7 @@ if [ "$1" = "--background" ] || [ "$1" = "-b" ]; then
     echo "Stop process with: kill $(cat "${SCRIPT_DIR}/run_all_reps.pid")"
     echo ""
     echo "Individual rep logs will also be generated:"
-    for rep in {2..5}; do
+    for rep in {1..5}; do
         echo "  - ${SCRIPT_DIR}/eval_all_rep${rep}.log"
     done
 else
