@@ -58,33 +58,13 @@ def parse_log_file(log_path):
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean AUC:\s*([\d.]+)'
         },
-        # Dynamic Deep Hit (DDH)
-        'ddh': {
-            'section': r'==================== Running dynamic_deephit.*?====================.*?(.*?)(?=✓ ddh completed|✗ ddh failed|===================)',
-            'c_index': r'Global test C-index:\s*([\d.]+)',
-            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
-            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
-        },
+
         # GBSA
         'gbsa': {
             'section': r'==================== Running gbsa.*?====================.*?(.*?)(?=✓ gbsa completed|✗ gbsa failed|===================)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean AUC:\s*([\d.]+)'
-        },
-        # Hazard Transformer
-        'hazard_transformer': {
-            'section': r'==================== Running hazard_transformer.*?====================.*?(.*?)(?=✓ hazard_transformer completed|✗ hazard_transformer failed|===================)',
-            'c_index': r'C-index:\s*([\d.]+)',
-            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
-            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
-        },
-        # RNN Survival
-        'rnnsurv': {
-            'section': r'==================== Running rnnsurv.*?====================.*?(.*?)(?=✓ rnnsurv completed|✗ rnnsurv failed|===================)',
-            'c_index': r'C-Index on Test Data:\s*([\d.]+)',
-            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
-            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
         # Survival SVM
         'survival_svm': {
@@ -137,7 +117,253 @@ def parse_log_file(log_path):
             print(f"Warning: Error parsing {model_name} in {log_path}: {e}")
             continue
     
+    # Special handling for dynamic_deephit with multiple settings
+    ddh_results = parse_dynamic_deephit(content)
+    results.update(ddh_results)
+    
+    # Special handling for hazard_transformer with multiple settings
+    ht_results = parse_hazard_transformer(content)
+    results.update(ht_results)
+    
+    # Special handling for rnnsurv with multiple settings
+    rnn_results = parse_rnnsurv(content)
+    results.update(rnn_results)
+    
     return results
+
+def parse_dynamic_deephit(content):
+    """Special parser for dynamic_deephit which has multiple settings in one section."""
+    ddh_results = {}
+    
+    # Find the entire dynamic_deephit section
+    ddh_section_match = re.search(
+        r'==================== Running dynamic_deephit.*?====================.*?(.*?)(?=✓ dynamic_deephit completed|✗ dynamic_deephit failed|===================)',
+        content, re.DOTALL | re.IGNORECASE
+    )
+    
+    if not ddh_section_match:
+        return ddh_results
+    
+    ddh_section = ddh_section_match.group(1)
+    
+    # Define the three settings and their patterns
+    settings = {
+        'ddh_egfr_tv': {
+            'data_path_pattern': r'egfr_tv_train_data\.csv.*?egfr_tv_test_data\.csv',
+            'start_marker': r'egfr_tv_train_data\.csv',
+            'end_marker': r'(?=Train data path.*?heterogen_train_data\.csv|Train data path.*?egfr_components_train_data\.csv|✓ dynamic_deephit completed|$)'
+        },
+        'ddh_heterogen': {
+            'data_path_pattern': r'heterogen_train_data\.csv.*?heterogen_test_data\.csv',
+            'start_marker': r'heterogen_train_data\.csv',
+            'end_marker': r'(?=Train data path.*?egfr_components_train_data\.csv|✓ dynamic_deephit completed|$)'
+        },
+        'ddh_egfr_components': {
+            'data_path_pattern': r'egfr_components_train_data\.csv.*?egfr_components_test_data\.csv',
+            'start_marker': r'egfr_components_train_data\.csv',
+            'end_marker': r'(?=✓ dynamic_deephit completed|$)'
+        }
+    }
+    
+    for setting_name, patterns in settings.items():
+        try:
+            # Find the start position of this setting
+            start_match = re.search(patterns['start_marker'], ddh_section)
+            if not start_match:
+                continue
+            
+            # Extract the subsection for this setting
+            start_pos = start_match.start()
+            end_match = re.search(patterns['end_marker'], ddh_section[start_pos:])
+            
+            if end_match:
+                end_pos = start_pos + end_match.start()
+                setting_section = ddh_section[start_pos:end_pos]
+            else:
+                setting_section = ddh_section[start_pos:]
+            
+            # Extract metrics from this setting section
+            metrics = {}
+            
+            # C-index (look for "Global test C-index")
+            c_index_match = re.search(r'Global test C-index.*?:\s*([\d.]+)', setting_section)
+            if c_index_match:
+                metrics['c_index'] = float(c_index_match.group(1))
+            
+            # Brier Score
+            brier_match = re.search(r'Integrated Brier Score Test:\s*([\d.]+)', setting_section)
+            if brier_match:
+                metrics['brier'] = float(brier_match.group(1))
+            
+            # AUC
+            auc_match = re.search(r'Mean time-dependent AUC:\s*([\d.]+)', setting_section)
+            if auc_match:
+                metrics['auc'] = float(auc_match.group(1))
+            
+            if metrics:  # Only add if we found at least one metric
+                ddh_results[setting_name] = metrics
+                
+        except Exception as e:
+            print(f"Warning: Error parsing {setting_name}: {e}")
+            continue
+    
+    return ddh_results
+
+def parse_hazard_transformer(content):
+    """Special parser for hazard_transformer which has multiple settings in one section."""
+    ht_results = {}
+    
+    # Find the entire hazard_transformer section
+    ht_section_match = re.search(
+        r'==================== Running hazard_transformer.*?====================.*?(.*?)(?=✓ hazard_transformer completed|✗ hazard_transformer failed|===================)',
+        content, re.DOTALL | re.IGNORECASE
+    )
+    
+    if not ht_section_match:
+        return ht_results
+    
+    ht_section = ht_section_match.group(1)
+    
+    # Define the three settings and their patterns
+    settings = {
+        'hazard_transformer_egfr_tv': {
+            'data_path_pattern': r'egfr_tv_train_data\.csv.*?egfr_tv_test_data\.csv',
+            'start_marker': r'egfr_tv_train_data\.csv',
+            'end_marker': r'(?=Train data path.*?heterogen_train_data\.csv|Train data path.*?egfr_components_train_data\.csv|✓ hazard_transformer completed|$)'
+        },
+        'hazard_transformer_heterogen': {
+            'data_path_pattern': r'heterogen_train_data\.csv.*?heterogen_test_data\.csv',
+            'start_marker': r'heterogen_train_data\.csv',
+            'end_marker': r'(?=Train data path.*?egfr_components_train_data\.csv|✓ hazard_transformer completed|$)'
+        },
+        'hazard_transformer_egfr_components': {
+            'data_path_pattern': r'egfr_components_train_data\.csv.*?egfr_components_test_data\.csv',
+            'start_marker': r'egfr_components_train_data\.csv',
+            'end_marker': r'(?=✓ hazard_transformer completed|$)'
+        }
+    }
+    
+    for setting_name, patterns in settings.items():
+        try:
+            # Find the start position of this setting
+            start_match = re.search(patterns['start_marker'], ht_section)
+            if not start_match:
+                continue
+            
+            # Extract the subsection for this setting
+            start_pos = start_match.start()
+            end_match = re.search(patterns['end_marker'], ht_section[start_pos:])
+            
+            if end_match:
+                end_pos = start_pos + end_match.start()
+                setting_section = ht_section[start_pos:end_pos]
+            else:
+                setting_section = ht_section[start_pos:]
+            
+            # Extract metrics from this setting section
+            metrics = {}
+            
+            # C-index (look for "C-index:")
+            c_index_match = re.search(r'C-index:\s*([\d.]+)', setting_section)
+            if c_index_match:
+                metrics['c_index'] = float(c_index_match.group(1))
+            
+            # Brier Score
+            brier_match = re.search(r'Integrated Brier Score Test:\s*([\d.]+)', setting_section)
+            if brier_match:
+                metrics['brier'] = float(brier_match.group(1))
+            
+            # AUC
+            auc_match = re.search(r'Mean time-dependent AUC:\s*([\d.]+)', setting_section)
+            if auc_match:
+                metrics['auc'] = float(auc_match.group(1))
+            
+            if metrics:  # Only add if we found at least one metric
+                ht_results[setting_name] = metrics
+                
+        except Exception as e:
+            print(f"Warning: Error parsing {setting_name}: {e}")
+            continue
+    
+    return ht_results
+
+def parse_rnnsurv(content):
+    """Special parser for rnnsurv which has multiple settings in one section."""
+    rnn_results = {}
+    
+    # Find the entire rnnsurv section
+    rnn_section_match = re.search(
+        r'==================== Running rnnsurv.*?====================.*?(.*?)(?=✓ rnnsurv completed|✗ rnnsurv failed|===================)',
+        content, re.DOTALL | re.IGNORECASE
+    )
+    
+    if not rnn_section_match:
+        return rnn_results
+    
+    rnn_section = rnn_section_match.group(1)
+    
+    # Define the three settings and their patterns
+    settings = {
+        'rnnsurv_egfr_tv': {
+            'data_path_pattern': r'egfr_tv_train_data\.csv.*?egfr_tv_test_data\.csv',
+            'start_marker': r'egfr_tv_train_data\.csv',
+            'end_marker': r'(?=Train data path.*?heterogen_train_data\.csv|Train data path.*?egfr_components_train_data\.csv|✓ rnnsurv completed|$)'
+        },
+        'rnnsurv_heterogen': {
+            'data_path_pattern': r'heterogen_train_data\.csv.*?heterogen_test_data\.csv',
+            'start_marker': r'heterogen_train_data\.csv',
+            'end_marker': r'(?=Train data path.*?egfr_components_train_data\.csv|✓ rnnsurv completed|$)'
+        },
+        'rnnsurv_egfr_components': {
+            'data_path_pattern': r'egfr_components_train_data\.csv.*?egfr_components_test_data\.csv',
+            'start_marker': r'egfr_components_train_data\.csv',
+            'end_marker': r'(?=✓ rnnsurv completed|$)'
+        }
+    }
+    
+    for setting_name, patterns in settings.items():
+        try:
+            # Find the start position of this setting
+            start_match = re.search(patterns['start_marker'], rnn_section)
+            if not start_match:
+                continue
+            
+            # Extract the subsection for this setting
+            start_pos = start_match.start()
+            end_match = re.search(patterns['end_marker'], rnn_section[start_pos:])
+            
+            if end_match:
+                end_pos = start_pos + end_match.start()
+                setting_section = rnn_section[start_pos:end_pos]
+            else:
+                setting_section = rnn_section[start_pos:]
+            
+            # Extract metrics from this setting section
+            metrics = {}
+            
+            # C-index (look for "C-Index on Test Data:")
+            c_index_match = re.search(r'C-Index on Test Data:\s*([\d.]+)', setting_section)
+            if c_index_match:
+                metrics['c_index'] = float(c_index_match.group(1))
+            
+            # Brier Score
+            brier_match = re.search(r'Integrated Brier Score Test:\s*([\d.]+)', setting_section)
+            if brier_match:
+                metrics['brier'] = float(brier_match.group(1))
+            
+            # AUC
+            auc_match = re.search(r'Mean time-dependent AUC:\s*([\d.]+)', setting_section)
+            if auc_match:
+                metrics['auc'] = float(auc_match.group(1))
+            
+            if metrics:  # Only add if we found at least one metric
+                rnn_results[setting_name] = metrics
+                
+        except Exception as e:
+            print(f"Warning: Error parsing {setting_name}: {e}")
+            continue
+    
+    return rnn_results
 
 def calculate_statistics(all_results):
     """Calculate mean and standard deviation for each model and metric."""
