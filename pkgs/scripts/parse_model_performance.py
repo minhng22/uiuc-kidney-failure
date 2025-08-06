@@ -58,6 +58,13 @@ def parse_log_file(log_path):
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean AUC:\s*([\d.]+)'
         },
+        # Dynamic Deep Hit (DDH)
+        'ddh': {
+            'section': r'==================== Running dynamic_deephit.*?====================.*?(.*?)(?=✓ ddh completed|✗ ddh failed|===================)',
+            'c_index': r'Global test C-index:\s*([\d.]+)',
+            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
+            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
+        },
         # GBSA
         'gbsa': {
             'section': r'==================== Running gbsa.*?====================.*?(.*?)(?=✓ gbsa completed|✗ gbsa failed|===================)',
@@ -193,7 +200,7 @@ def main():
     
     # Generate output
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = f"/home/minhn2/uiuc-kidney-failure/model_performance_summary_{timestamp}.log"
+    output_file = f"/home/minhn2/uiuc-kidney-failure/pkgs/scripts/model_performance_summary.log"
     
     with open(output_file, 'w') as f:
         # Sort models for consistent output
