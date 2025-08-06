@@ -71,7 +71,7 @@ def parse_log_file(log_path):
             'section': r'==================== Running survival_svm.*?====================.*?(.*?)(?=✓ survival_svm completed|✗ survival_svm failed|===================)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
-            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
+            'auc': r'Mean AUC:\s*([\d.]+)'
         },
         # Weibull
         'weibul': {
@@ -434,9 +434,9 @@ def main():
         
         # Only output the summary table
         f.write("SUMMARY TABLE\n")
-        f.write("=" * 80 + "\n")
-        f.write(f"{'Model':<20} {'C-Index':<15} {'Brier Score':<15} {'AUC':<15}\n")
-        f.write("-" * 80 + "\n")
+        f.write("=" * 90 + "\n")
+        f.write(f"{'Model':<40} {'C-Index':<15} {'Brier Score':<15} {'AUC':<15}\n")
+        f.write("-" * 90 + "\n")
         
         for model in sorted_models:
             metrics = stats[model]
@@ -456,7 +456,7 @@ def main():
                 m, s = metrics['auc']['mean'], metrics['auc']['std']
                 auc_str = f"{m:.3f}±{s:.3f}"
             
-            f.write(f"{model:<20} {c_index_str:<15} {brier_str:<15} {auc_str:<15}\n")
+            f.write(f"{model:<40} {c_index_str:<15} {brier_str:<15} {auc_str:<15}\n")
     
     print(f"\nResults saved to: {output_file}")
     print("\nBrief summary:")
