@@ -1,0 +1,77 @@
+Starting repetition 5...
+Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep5.log
+Start time: Wed Aug  6 10:41:29 CDT 2025
+=========================================
+==================== Running cox for rep5 ====================
+Start time: Wed Aug  6 10:41:29 CDT 2025
+
+Running non-time-variant Cox model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.52
+Integrated Brier Score Test: 0.442
+Risk scores test: (6841,)
+Mean time-dependent AUC: 0.5330
+
+Running time-variant Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 97259 and train 385387
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_tv_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.545
+Integrated Brier Score Test: 0.216
+Risk scores test: (97259,)
+Mean time-dependent AUC: 0.5382
+
+Running heterogeneous Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/heterogen_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/heterogen_test_data.csv
+Number of patients: test 6843 and train 27372
+Number of records: test 97905 and train 395194
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep5/hg_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.553
+Integrated Brier Score Test: 0.194
+Risk scores test: (97905,)
+Mean time-dependent AUC: 0.5508
+
+Running egfr raw Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_components_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_components_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 97259 and train 385387
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_components_cox_model.dill
+Evaluate on test data
+Concordance Index Test: 0.372
+Integrated Brier Score Test: 0.939
+Risk scores test: (97259,)
+Mean time-dependent AUC: 0.3501
+✓ cox completed successfully
+End time: Wed Aug  6 10:42:04 CDT 2025
+
+==================== Running deepsurv for rep5 ====================
+Start time: Wed Aug  6 10:42:04 CDT 2025
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading from saved weights
+C-Index on Test Data: 0.522
+Integrated Brier Score Test: 0.486
+Risk scores shape: (6841,)
+First 10 risk scores: [2.025356  2.0668395 2.0475247 2.043951  2.0384996 2.0575402 2.0864706
+ 2.0454817 2.0536973 2.0822568]
+y_train shape: (27361,)
+y_test shape: (6841,)
+Mean AUC: 0.465
+✓ deepsurv completed successfully
+End time: Wed Aug  6 10:42:22 CDT 2025
+
+==================== Running dynamic_deephit for rep5 ====================
+Start time: Wed Aug  6 10:42:22 CDT 2025
