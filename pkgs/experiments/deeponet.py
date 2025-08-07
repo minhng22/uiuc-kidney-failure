@@ -283,8 +283,7 @@ def score_model_test(model: DeepONet, df_test, scenario_name: ExperimentScenario
 
 
 def get_device():
-    n_cuda = np.random.randint(4, 8)
-    return torch.device("cuda:"+ str(n_cuda) if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def get_model_path(scenario_name: ExperimentScenario):
