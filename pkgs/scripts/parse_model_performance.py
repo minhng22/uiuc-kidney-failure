@@ -394,18 +394,18 @@ def parse_logistic_hazard(content):
     # Define the three settings and their patterns
     settings = {
         'logistic_hazard_egfr_tv': {
-            'data_path_pattern': r'TIME_VARIANT',
-            'start_marker': r'=== Evaluation Results for TIME_VARIANT ===',
-            'end_marker': r'(?==== Evaluation Results for HETEROGENEOUS ===|=== Evaluation Results for EGFR_COMPONENTS ===|✓ logistic_hazard completed|$)'
+            'data_path_pattern': r'time_variant',
+            'start_marker': r'=== Evaluation Results for time_variant ===',
+            'end_marker': r'(?=== Evaluation Results for heterogeneous ===|=== Evaluation Results for egfr_components ===|✓ logistic_hazard completed|$)'
         },
         'logistic_hazard_heterogen': {
-            'data_path_pattern': r'HETEROGENEOUS',
-            'start_marker': r'=== Evaluation Results for HETEROGENEOUS ===',
-            'end_marker': r'(?==== Evaluation Results for EGFR_COMPONENTS ===|✓ logistic_hazard completed|$)'
+            'data_path_pattern': r'heterogeneous',
+            'start_marker': r'=== Evaluation Results for heterogeneous ===',
+            'end_marker': r'(?=== Evaluation Results for egfr_components ===|✓ logistic_hazard completed|$)'
         },
         'logistic_hazard_egfr_components': {
-            'data_path_pattern': r'EGFR_COMPONENTS',
-            'start_marker': r'=== Evaluation Results for EGFR_COMPONENTS ===',
+            'data_path_pattern': r'egfr_components',
+            'start_marker': r'=== Evaluation Results for egfr_components ===',
             'end_marker': r'(?=✓ logistic_hazard completed|$)'
         }
     }
