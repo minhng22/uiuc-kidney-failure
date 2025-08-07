@@ -79,18 +79,21 @@ egfr_tv_cox_model_path = f'{generate_data_path_latest_rep}/egfr_tv_cox_model.dil
 egfr_tv_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/egfr_tv_ddh_model.pt'
 egfr_tv_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/egfr_tv_hazard_transformer_model.pt'
 egfr_tv_rnn_surv_model_path = f'{generate_data_path_latest_rep}/egfr_tv_rnn_surv_model.pt'
+egfr_tv_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/egfr_tv_logistic_hazard_model.pt'
 
 # trained models - heterogeneous scenario
 hg_cox_model_path = f'{generate_data_path_latest_rep}/hg_cox_model.dill'
 hg_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/hg_ddh_model.pt'
 hg_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/hg_hazard_transformer_model.pt'
 hg_rnn_surv_model_path = f'{generate_data_path_latest_rep}/hg_rnn_surv_model.pt'
+hg_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/hg_logistic_hazard_model.pt'
 
 # trained models - egfr components scenario
 egfr_components_cox_model_path = f'{generate_data_path_latest_rep}/egfr_components_cox_model.dill'
 egfr_components_rnn_surv_model_path = f'{generate_data_path_latest_rep}/egfr_components_rnn_surv_model.pt'
 egfr_components_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/egfr_components_ddh_model.pt'
 egfr_components_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/egfr_components_hazard_transformer_model.pt'
+egfr_components_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/egfr_components_logistic_hazard_model.pt'
 
 # train and test data
 heterogen_train_data_path = f'{generate_data_path_latest_rep}/heterogen_train_data.csv'

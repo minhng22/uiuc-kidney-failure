@@ -79,6 +79,13 @@ def parse_log_file(log_path):
             'c_index': r'C-index:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
+        },
+        # LogisticHazard
+        'logistic_hazard': {
+            'section': r'==================== Running logistic_hazard.*?====================.*?(.*?)(?=✓ logistic_hazard completed|✗ logistic_hazard failed|===================)',
+            'c_index': r'Global test C-index:\s*([\d.]+)',
+            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
+            'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         }
     }
     
@@ -128,6 +135,10 @@ def parse_log_file(log_path):
     # Special handling for rnnsurv with multiple settings
     rnn_results = parse_rnnsurv(content)
     results.update(rnn_results)
+    
+    # Special handling for logistic_hazard with multiple settings
+    lh_results = parse_logistic_hazard(content)
+    results.update(lh_results)
     
     return results
 
@@ -364,6 +375,84 @@ def parse_rnnsurv(content):
             continue
     
     return rnn_results
+
+def parse_logistic_hazard(content):
+    """Special parser for logistic_hazard which has multiple settings in one section."""
+    lh_results = {}
+    
+    # Find the entire logistic_hazard section
+    lh_section_match = re.search(
+        r'==================== Running logistic_hazard.*?====================.*?(.*?)(?=✓ logistic_hazard completed|✗ logistic_hazard failed|===================)',
+        content, re.DOTALL | re.IGNORECASE
+    )
+    
+    if not lh_section_match:
+        return lh_results
+    
+    lh_section = lh_section_match.group(1)
+    
+    # Define the three settings and their patterns
+    settings = {
+        'logistic_hazard_egfr_tv': {
+            'data_path_pattern': r'TIME_VARIANT',
+            'start_marker': r'=== Evaluation Results for TIME_VARIANT ===',
+            'end_marker': r'(?==== Evaluation Results for HETEROGENEOUS ===|=== Evaluation Results for EGFR_COMPONENTS ===|✓ logistic_hazard completed|$)'
+        },
+        'logistic_hazard_heterogen': {
+            'data_path_pattern': r'HETEROGENEOUS',
+            'start_marker': r'=== Evaluation Results for HETEROGENEOUS ===',
+            'end_marker': r'(?==== Evaluation Results for EGFR_COMPONENTS ===|✓ logistic_hazard completed|$)'
+        },
+        'logistic_hazard_egfr_components': {
+            'data_path_pattern': r'EGFR_COMPONENTS',
+            'start_marker': r'=== Evaluation Results for EGFR_COMPONENTS ===',
+            'end_marker': r'(?=✓ logistic_hazard completed|$)'
+        }
+    }
+    
+    for setting_name, patterns in settings.items():
+        try:
+            # Find the start position of this setting
+            start_match = re.search(patterns['start_marker'], lh_section)
+            if not start_match:
+                continue
+            
+            # Extract the subsection for this setting
+            start_pos = start_match.start()
+            end_match = re.search(patterns['end_marker'], lh_section[start_pos:])
+            
+            if end_match:
+                end_pos = start_pos + end_match.start()
+                setting_section = lh_section[start_pos:end_pos]
+            else:
+                setting_section = lh_section[start_pos:]
+            
+            # Extract metrics from this setting section
+            metrics = {}
+            
+            # C-index (look for "Global test C-index")
+            c_index_match = re.search(r'Global test C-index.*?:\s*([\d.]+)', setting_section)
+            if c_index_match:
+                metrics['c_index'] = float(c_index_match.group(1))
+            
+            # Brier Score
+            brier_match = re.search(r'Integrated Brier Score Test:\s*([\d.]+)', setting_section)
+            if brier_match:
+                metrics['brier'] = float(brier_match.group(1))
+            
+            # AUC
+            auc_match = re.search(r'Mean time-dependent AUC:\s*([\d.]+)', setting_section)
+            if auc_match:
+                metrics['auc'] = float(auc_match.group(1))
+            
+            if metrics:  # Only add if we found at least one metric
+                lh_results[setting_name] = metrics
+                
+        except Exception as e:
+            print(f"Warning: Error parsing {setting_name}: {e}")
+            continue
+    
+    return lh_results
 
 def calculate_statistics(all_results):
     """Calculate mean and standard deviation for each model and metric."""
