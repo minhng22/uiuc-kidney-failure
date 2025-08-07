@@ -71,9 +71,9 @@ def objective(trial, scenario_name: ExperimentScenario):
     
     num_nodes = trial.suggest_categorical('num_nodes', [16, 32, 64, 128])
     num_layers = trial.suggest_int('num_layers', 1, 3)
-    lr = trial.suggest_loguniform('lr', 1e-4, 1e-1)
+    lr = trial.suggest_float('lr', 1e-4, 1e-1, log=True)
     batch_size = trial.suggest_categorical('batch_size', [32, 64, 128, 256])
-    dropout = trial.suggest_uniform('dropout', 0.0, 0.5)
+    dropout = trial.suggest_float('dropout', 0.0, 0.5)
     
     df, df_test = get_train_test_data(scenario_name)
     
