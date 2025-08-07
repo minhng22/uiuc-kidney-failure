@@ -55,9 +55,7 @@ run_rep() {
     echo "=========================================" | tee -a "$log_file"
     
     update_rep_in_commons "$rep_num"
-    
-    mkdir -p "${PROJECT_ROOT}/generated_data/rep${rep_num}"
-    
+        
     local failed_experiments=()
     
     for experiment in "${EXPERIMENTS[@]}"; do
@@ -134,23 +132,33 @@ echo ""
 echo "All done! Check the individual log files for detailed results."
 }
 
-if [ "$1" = "--background" ] || [ "$1" = "-b" ]; then
-    echo "Starting LogisticHazard experiments in background..."
-    echo "Project root: $PROJECT_ROOT"
-    echo "Output will be logged to: ${SCRIPT_DIR}/run_loghazard_reps_master.log"
-    
-    main_execution > "${SCRIPT_DIR}/run_loghazard_reps_master.log" 2>&1 &
-    
-    echo $! > "${SCRIPT_DIR}/run_loghazard_reps.pid"
-    
-    echo "Background process started with PID: $(cat "${SCRIPT_DIR}/run_loghazard_reps.pid")"
-    echo "Monitor progress with: tail -f ${SCRIPT_DIR}/run_loghazard_reps_master.log"
-    echo "Stop process with: kill $(cat "${SCRIPT_DIR}/run_loghazard_reps.pid")"
-    echo ""
-    echo "Individual rep logs will also be generated:"
-    for rep in {1..5}; do
-        echo "  - ${SCRIPT_DIR}/eval_loghazard_rep${rep}.log"
-    done
-else
-    main_execution
-fi
+# Always run in background
+echo "Starting LogisticHazard experiments in background..."
+echo "Project root: $PROJECT_ROOT"
+echo "Script dir: $SCRIPT_DIR"
+echo "Output will be logged to: ${SCRIPT_DIR}/run_loghazard_reps_master.log"
+
+# Export all necessary variables and run with proper working directory
+nohup bash -c "
+export SCRIPT_DIR='${SCRIPT_DIR}'
+export PROJECT_ROOT='${PROJECT_ROOT}'
+export PYTHONPATH='${PROJECT_ROOT}'
+EXPERIMENTS=('logistic_hazard')
+cd '${PROJECT_ROOT}'
+$(declare -f main_execution update_rep_in_commons run_experiment run_rep)
+main_execution
+" > "${SCRIPT_DIR}/run_loghazard_reps_master.log" 2>&1 &
+
+echo $! > "${SCRIPT_DIR}/run_loghazard_reps.pid"
+
+echo "Background process started with PID: $(cat "${SCRIPT_DIR}/run_loghazard_reps.pid")"
+echo "Monitor progress with: tail -f ${SCRIPT_DIR}/run_loghazard_reps_master.log"
+echo "Stop process with: kill $(cat "${SCRIPT_DIR}/run_loghazard_reps.pid")"
+echo ""
+echo "Individual rep logs will also be generated:"
+for rep in {1..5}; do
+    echo "  - ${SCRIPT_DIR}/eval_loghazard_rep${rep}.log"
+done
+echo ""
+echo "Check if process is still running:"
+echo "  ps -p \$(cat ${SCRIPT_DIR}/run_loghazard_reps.pid)"
