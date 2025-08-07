@@ -1005,6 +1005,39 @@ Integrated Brier Score Test: 0.564
 ✓ logistic_hazard completed successfully
 End time: Thu Aug  7 09:35:27 CDT 2025
 
+==================== Running srf for rep5 ====================
+
+Train data path /Users/minh/Documents/Code/uiuc-kidney-failure/generated_data/rep5/egfr_ti_train_data.csv
+Test data path /Users/minh/Documents/Code/uiuc-kidney-failure/generated_data/rep5/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading model from /Volumes/MBAir_Extended/uiuc_kidney_failure/generated_data/rep5/egfr_ti_srf_model.dill
+Model file found at /Volumes/MBAir_Extended/uiuc_kidney_failure/generated_data/rep5/egfr_ti_srf_model.dill. Loading model...
+Evaluate on test data
+X shape: (6841, 1)
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   46.6s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   54.3s finished
+Risk scores shape: (6841,)
+First 10 risk scores: [20679.89856249 10434.96919124 17891.69013215 17461.10040963
+ 23603.42726168 16199.29941347 16138.05591021 23821.39198352
+ 12530.40875569 10839.75853801]
+Concordance Index Test: 0.521
+Mean AUC: 0.534
+Integrated Brier Score Test: 0.499
+Evaluate on test data
+X shape: (6841, 1)
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   22.4s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   29.4s finished
+Risk scores shape: (6841,)
+First 10 risk scores: [20679.89856249 10434.96919124 17891.69013215 17461.10040963
+ 23603.42726168 16199.29941347 16138.05591021 23821.39198352
+ 12530.40875569 10839.75853801]
+Concordance Index Test: 0.521
+Mean AUC: 0.534
+Integrated Brier Score Test: 0.499
+
 =========================================
 Repetition 5 Summary:
 Total experiments: 9
