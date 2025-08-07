@@ -147,6 +147,8 @@ def get_tv_rnn_model_features(scenario_name: ExperimentScenario):
         return ['egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing']
     elif scenario_name == ExperimentScenario.EGFR_COMPONENTS:
         return ['age', 'gender', 'serum_creatinine']
+    elif scenario_name == ExperimentScenario.NON_TIME_VARIANT:
+        return ['egfr']
 
 def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0.5, w2=0.1):
     batch_size = hazard_preds.size(0)

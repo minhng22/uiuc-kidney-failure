@@ -2,12 +2,13 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-
 echo "Starting all experiments in background..."
 echo "Script directory: $SCRIPT_DIR"
 
-nohup "${SCRIPT_DIR}/run_all_reps.sh" > "${SCRIPT_DIR}/run_all_reps_master.log" 2>&1 &
+# Run in its own process group using setsid
+setsid "${SCRIPT_DIR}/run_all_reps.sh" > "${SCRIPT_DIR}/run_all_reps_master.log" 2>&1 &
 
+# Save the PID of the group leader
 echo $! > "${SCRIPT_DIR}/run_all_reps.pid"
 
 echo "Background process started with PID: $(cat "${SCRIPT_DIR}/run_all_reps.pid")"
@@ -16,8 +17,8 @@ echo ""
 echo "Monitor progress with:"
 echo "  tail -f ${SCRIPT_DIR}/run_all_reps_master.log"
 echo ""
-echo "Stop process with:"
-echo "  kill \$(cat ${SCRIPT_DIR}/run_all_reps.pid)"
+echo "Stop all related processes with:"
+echo "  kill -TERM -$(cat ${SCRIPT_DIR}/run_all_reps.pid)"
 echo ""
 echo "Individual rep logs will also be generated:"
 for rep in {1..5}; do
