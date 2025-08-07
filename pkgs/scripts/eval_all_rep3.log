@@ -1050,10 +1050,117 @@ Mean time-dependent AUC: 0.5342
 ✓ weibul completed successfully
 End time: Wed Aug  6 06:40:59 CDT 2025
 
+==================== Running logistic_hazard for rep3 ====================
+Start time: Thu Aug  7 09:30:11 CDT 2025
+Using GPU: cuda:5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 97259 and train 385387
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=1, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.27665338538927914, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=128, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.27665338538927914, inplace=False)
+    )
+    (2): Linear(in_features=128, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for time_variant ===
+Global test C-index: 0.508
+Event rate: 6311/6842 (92.24%)
+Mean time-dependent AUC: 0.512
+Integrated Brier Score Test: 0.559
+Using GPU: cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/heterogen_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/heterogen_test_data.csv
+Number of patients: test 6843 and train 27372
+Number of records: test 97905 and train 395194
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=6, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3275407917239386, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=128, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3275407917239386, inplace=False)
+    )
+    (2): DenseVanillaBlock(
+      (linear): Linear(in_features=128, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3275407917239386, inplace=False)
+    )
+    (3): Linear(in_features=128, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for heterogeneous ===
+Global test C-index: 0.489
+Event rate: 6267/6843 (91.58%)
+Mean time-dependent AUC: 0.533
+Integrated Brier Score Test: 0.345
+Using GPU: cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_components_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_components_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 97259 and train 385387
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=3, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.2667779384074831, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=128, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.2667779384074831, inplace=False)
+    )
+    (2): DenseVanillaBlock(
+      (linear): Linear(in_features=128, out_features=128, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.2667779384074831, inplace=False)
+    )
+    (3): Linear(in_features=128, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for egfr_components ===
+Global test C-index: 0.482
+Event rate: 6311/6842 (92.24%)
+Mean time-dependent AUC: 0.538
+Integrated Brier Score Test: 0.562
+✓ logistic_hazard completed successfully
+End time: Thu Aug  7 09:31:59 CDT 2025
+
 =========================================
 Repetition 3 Summary:
-Total experiments: 8
+Total experiments: 9
 Failed experiments: 0
 ✓ All experiments completed successfully!
-End time: Wed Aug  6 06:40:59 CDT 2025
+End time: Thu Aug  7 09:31:59 CDT 2025
 =========================================

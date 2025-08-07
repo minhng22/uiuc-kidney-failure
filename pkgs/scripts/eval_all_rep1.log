@@ -977,10 +977,105 @@ Mean time-dependent AUC: 0.5342
 ✓ weibul completed successfully
 End time: Tue Aug  5 21:59:18 CDT 2025
 
+==================== Running logistic_hazard for rep1 ====================
+Start time: Thu Aug  7 09:26:37 CDT 2025
+Using GPU: cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_tv_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=1, out_features=64, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.35842650188513914, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=64, out_features=64, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.35842650188513914, inplace=False)
+    )
+    (2): DenseVanillaBlock(
+      (linear): Linear(in_features=64, out_features=64, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.35842650188513914, inplace=False)
+    )
+    (3): Linear(in_features=64, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for time_variant ===
+Global test C-index: 0.529
+Event rate: 6328/6842 (92.49%)
+Mean time-dependent AUC: 0.470
+Integrated Brier Score Test: 0.579
+Using GPU: cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/heterogen_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/heterogen_test_data.csv
+Number of patients: test 6843 and train 27372
+Number of records: test 97205 and train 395894
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=6, out_features=32, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.2646243207744083, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=32, out_features=32, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.2646243207744083, inplace=False)
+    )
+    (2): Linear(in_features=32, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for heterogeneous ===
+Global test C-index: 0.497
+Event rate: 6321/6843 (92.37%)
+Mean time-dependent AUC: 0.504
+Integrated Brier Score Test: 0.348
+Using GPU: cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_components_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_components_test_data.csv
+Number of patients: test 6842 and train 27365
+Number of records: test 96894 and train 385752
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=3, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.0067459052979899625, inplace=False)
+    )
+    (1): Linear(in_features=16, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for egfr_components ===
+Global test C-index: 0.517
+Event rate: 6328/6842 (92.49%)
+Mean time-dependent AUC: 0.512
+Integrated Brier Score Test: 0.579
+✓ logistic_hazard completed successfully
+End time: Thu Aug  7 09:28:26 CDT 2025
+
 =========================================
 Repetition 1 Summary:
-Total experiments: 8
+Total experiments: 9
 Failed experiments: 0
 ✓ All experiments completed successfully!
-End time: Tue Aug  5 21:59:18 CDT 2025
+End time: Thu Aug  7 09:28:26 CDT 2025
 =========================================
