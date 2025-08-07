@@ -131,6 +131,8 @@ def objective(trial, scenario_name: ExperimentScenario):
         print("No existing model, saving current model")
         torch.save(model.net, saved_path)
     
+    trial.set_user_attr(key="model", value=model.net)
+    
     return c_index
 
 def compute_c_index_from_surv(surv_df, durations, events):
