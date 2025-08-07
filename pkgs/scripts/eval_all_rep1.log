@@ -1073,37 +1073,36 @@ Integrated Brier Score Test: 0.579
 End time: Thu Aug  7 09:28:26 CDT 2025
 
 ==================== Running srf for rep1 ====================
-
-Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/egfr_ti_train_data.csv
-Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/egfr_ti_test_data.csv
+Train data path /Users/minh/Documents/Code/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /Users/minh/Documents/Code/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
 Number of patients: test 6841 and train 27361
 Number of records: test 6841 and train 27361
-Loading model from /srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill
-Model file found at /srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill. Loading model...
+Loading model from /Volumes/MBAir_Extended/uiuc_kidney_failure/generated_data/rep1/egfr_ti_srf_model.pkl
+Model file found at /Volumes/MBAir_Extended/uiuc_kidney_failure/generated_data/rep1/egfr_ti_srf_model.dill. Loading model...
 Evaluate on test data
 X shape: (6841, 1)
 [Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
-[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   24.0s
-[Parallel(n_jobs=2)]: Done 150 out of 150 | elapsed:  1.2min finished
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   47.1s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   54.8s finished
 Risk scores shape: (6841,)
-First 10 risk scores: [18718.0016262  10491.14176683 17982.50920432 18473.02097997
- 23824.13793321 15772.63109655 13553.34509468 22936.0436314
- 13946.92976604 12481.03844526]
-Concordance Index Test: 0.522
-Mean AUC: 0.535
-Integrated Brier Score Test: 0.499
+First 10 risk scores: [13970.60892023 28081.80609897  7263.19801944 21879.07071162
+ 16611.11150794 18536.72254548 22801.65329437 22492.75411443
+ 11819.66077426 12289.22391925]
+Concordance Index Test: 0.513
+Mean AUC: 0.518
+Integrated Brier Score Test: 0.504
 Evaluate on test data
 X shape: (6841, 1)
 [Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
-[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   15.8s
-[Parallel(n_jobs=2)]: Done 150 out of 150 | elapsed:  1.0min finished
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   22.5s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   29.8s finished
 Risk scores shape: (6841,)
-First 10 risk scores: [18718.0016262  10491.14176683 17982.50920432 18473.02097997
- 23824.13793321 15772.63109655 13553.34509468 22936.0436314
- 13946.92976604 12481.03844526]
-Concordance Index Test: 0.522
-Mean AUC: 0.535
-Integrated Brier Score Test: 0.499
+First 10 risk scores: [13970.60892023 28081.80609897  7263.19801944 21879.07071162
+ 16611.11150794 18536.72254548 22801.65329437 22492.75411443
+ 11819.66077426 12289.22391925]
+Concordance Index Test: 0.513
+Mean AUC: 0.518
+Integrated Brier Score Test: 0.504
 
 =========================================
 Repetition 1 Summary:
