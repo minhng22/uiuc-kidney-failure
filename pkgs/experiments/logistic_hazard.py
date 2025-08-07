@@ -107,10 +107,9 @@ def objective(trial, scenario_name: ExperimentScenario):
     model = LogisticHazard(net, optimizer=optim.Adam(net.parameters(), lr=lr), device=device)
     
     epochs = 100
-    callbacks = [tt.callbacks.EarlyStopping(patience=10)]
     
     model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,
-              callbacks=callbacks, verbose=False, val_data=(x_test, y_test))
+              verbose=False, val_data=(x_test, y_test))
     
     surv = model.predict_surv_df(x_test)
     
@@ -118,13 +117,9 @@ def objective(trial, scenario_name: ExperimentScenario):
     
     saved_path = model_saved_path_dict[scenario_name]
     if os.path.exists(saved_path):
-        saved_model_data = torch.load(saved_path, map_location=device)
-        if hasattr(saved_model_data, 'get'):
-            saved_cidx = saved_model_data.get('c_index', 0.0)
-        else:
-            saved_model = saved_model_data
-            saved_surv = saved_model.predict_surv_df(x_test)
-            saved_cidx = compute_c_index_from_surv(saved_surv, durations_test, events_test)
+        saved_net = torch.load(saved_path, map_location=device)
+        saved_model = LogisticHazard(saved_net, optimizer=optim.Adam(saved_net.parameters()), device=device)
+        saved_cidx = compute_c_index_from_surv(saved_model.predict_surv_df(x_test), durations_test, events_test)
         
         print(f"Saved model C-index: {saved_cidx:.4f}, Current trial C-index: {c_index:.4f}")
         if c_index > saved_cidx:
@@ -135,9 +130,6 @@ def objective(trial, scenario_name: ExperimentScenario):
     else:
         print("No existing model, saving current model")
         torch.save(model.net, saved_path)
-    
-    trial.set_user_attr(key="model", value=model.net)
-    trial.set_user_attr(key="labtrans", value=labtrans)
     
     return c_index
 
@@ -245,28 +237,9 @@ def run(scenario_name: ExperimentScenario):
     
     if os.path.exists(model_saved_path):
         print("Loading from saved weights")
-        saved_data = torch.load(model_saved_path, map_location=device, weights_only=False)
-        
-        if hasattr(saved_data, 'predict_surv_df'):
-            model = saved_data
-            labtrans = LabTransDiscreteTime(50)
-        elif hasattr(saved_data, 'parameters'):
-            net = saved_data
-            labtrans = LabTransDiscreteTime(50)
-            model = LogisticHazard(net, optimizer=optim.Adam(net.parameters()), device=device)
-        else:
-            labtrans = saved_data['labtrans']
-            net_config = saved_data['net_config']
-            net = tt.practical.MLPVanilla(
-                net_config['in_features'], 
-                net_config['num_nodes_list'], 
-                net_config['out_features'],
-                True, 
-                net_config['dropout'], 
-                output_bias=False
-            )
-            net.load_state_dict(saved_data['net_state_dict'])
-            model = LogisticHazard(net, optimizer=optim.Adam(net.parameters()), device=device)
+        saved_net = torch.load(model_saved_path, map_location=device, weights_only=False)
+        labtrans = LabTransDiscreteTime(50)
+        model = LogisticHazard(saved_net, optimizer=optim.Adam(saved_net.parameters()), device=device)
     else:
         print("Training new model with Optuna optimization")
         _ = ex_optuna(lambda trial: objective(trial, scenario_name))
