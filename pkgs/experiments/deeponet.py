@@ -129,9 +129,9 @@ def deeponet_survival_loss(model, u, query_times, durations, events):
 def objective(trial, scenario_name: ExperimentScenario):
     # Hyperparameter suggestions
     branch_hidden_dims = trial.suggest_categorical('branch_hidden_dims', 
-                                                  [[64, 128], [128, 256], [256, 512]])
+                                                  [(64, 128), (128, 256), (256, 512)])
     trunk_hidden_dims = trial.suggest_categorical('trunk_hidden_dims',
-                                                 [[64, 128], [128, 256], [256, 512]])
+                                                 [(64, 128), (128, 256), (256, 512)])
     operator_dim = trial.suggest_categorical('operator_dim', [64, 128, 256])
     dropout = trial.suggest_float('dropout', 0.1, 0.5)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
@@ -283,7 +283,7 @@ def score_model_test(model: DeepONet, df_test, scenario_name: ExperimentScenario
 
 
 def get_device():
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
 
 def get_model_path(scenario_name: ExperimentScenario):

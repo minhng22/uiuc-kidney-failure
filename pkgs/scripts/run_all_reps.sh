@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 export PYTHONPATH="${PROJECT_ROOT}"
 
-EXPERIMENTS=("cox" "deepsurv" "dynamic_deephit" "gbsa" "hazard_transformer" "rnnsurv" "survival_svm" "weibul" "logistic_hazard")
+EXPERIMENTS=("deeponet" "survtimesurvival")
 
 main_execution() {
 
@@ -47,7 +47,7 @@ run_experiment() {
 
 run_rep() {
     local rep_num=$1
-    local log_file="${SCRIPT_DIR}/eval_all_rep${rep_num}.log"
+    local log_file="${SCRIPT_DIR}/eval_deeponet_survtimesurvival_rep${rep_num}.log"
     
     echo "Starting repetition ${rep_num}..." | tee "$log_file"
     echo "Log file: $log_file" | tee -a "$log_file"
