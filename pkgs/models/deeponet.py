@@ -151,10 +151,6 @@ class DeepONet(nn.Module):
             operator_output = torch.sum(branch_output * trunk_output, dim=-1, keepdim=True) + self.bias  # (batch_size, 1)
             
         return operator_output
-        # Add bias
-        operator_output = operator_output + self.bias
-        
-        return operator_output
     
     def predict_hazard(self, u, y):
         """
@@ -220,6 +216,14 @@ class DeepONet(nn.Module):
         
         # Get operator output at reference time
         risk_scores = self.forward(u, reference_time).squeeze(-1)
+        
+        # Check for NaN/inf values and clamp to reasonable range
+        if torch.isnan(risk_scores).any() or torch.isinf(risk_scores).any():
+            print("Warning: NaN/Inf detected in risk scores, setting to zeros")
+            risk_scores = torch.zeros_like(risk_scores)
+        else:
+            # Clamp to prevent extreme values
+            risk_scores = torch.clamp(risk_scores, -10, 10)
         
         return risk_scores
     

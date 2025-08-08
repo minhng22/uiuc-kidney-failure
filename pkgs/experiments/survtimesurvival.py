@@ -105,7 +105,7 @@ def survtime_loss_function(hazard_logits, durations, events):
     
     # Convert durations to discrete time indices
     max_duration = 365 * 2  # Assume 2 years max follow-up
-    duration_cuts = torch.linspace(0, max_duration, num_durations + 1)
+    duration_cuts = torch.linspace(0, max_duration, num_durations + 1, device=durations.device)
     
     # Find which interval each duration falls into
     duration_indices = torch.searchsorted(duration_cuts[1:], durations, right=True)

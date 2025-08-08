@@ -102,6 +102,14 @@ def deeponet_survival_loss(model, u, query_times, durations, events):
     
     risk_scores = torch.stack(risk_scores)  # (batch_size,)
     
+    # Check for NaN or inf in risk scores
+    if torch.isnan(risk_scores).any() or torch.isinf(risk_scores).any():
+        print(f"Warning: NaN/Inf detected in risk scores: {risk_scores}")
+        return torch.tensor(1e6, device=device, requires_grad=True)  # Large penalty
+    
+    # Clamp risk scores to prevent overflow in exp
+    risk_scores = torch.clamp(risk_scores, -10, 10)
+    
     # Partial likelihood (Cox-style loss)
     risk_exp = torch.exp(risk_scores)
     
@@ -114,8 +122,8 @@ def deeponet_survival_loss(model, u, query_times, durations, events):
             at_risk = durations >= durations[i]
             risk_set_sum = torch.sum(risk_exp[at_risk])
             
-            if risk_set_sum > 0:
-                loss += risk_scores[i] - torch.log(risk_set_sum)
+            if risk_set_sum > 1e-8:  # Prevent log(0)
+                loss += risk_scores[i] - torch.log(risk_set_sum + 1e-8)
                 num_events += 1
     
     if num_events > 0:
@@ -123,15 +131,25 @@ def deeponet_survival_loss(model, u, query_times, durations, events):
     else:
         loss = torch.tensor(0.0, device=device, requires_grad=True)
     
+    # Check for NaN in final loss
+    if torch.isnan(loss) or torch.isinf(loss):
+        print(f"Warning: NaN/Inf detected in loss: {loss}")
+        return torch.tensor(1e6, device=device, requires_grad=True)  # Large penalty
+    
     return loss
 
 
 def objective(trial, scenario_name: ExperimentScenario):
-    # Hyperparameter suggestions
-    branch_hidden_dims = trial.suggest_categorical('branch_hidden_dims', 
-                                                  [(64, 128), (128, 256), (256, 512)])
-    trunk_hidden_dims = trial.suggest_categorical('trunk_hidden_dims',
-                                                 [(64, 128), (128, 256), (256, 512)])
+    # Hyperparameter suggestions - using string representations to avoid Optuna warnings
+    branch_hidden_choice = trial.suggest_categorical('branch_hidden_dims', 
+                                                     ['64_128', '128_256', '256_512'])
+    trunk_hidden_choice = trial.suggest_categorical('trunk_hidden_dims',
+                                                    ['64_128', '128_256', '256_512'])
+    
+    # Convert string choices back to tuples
+    branch_hidden_dims = tuple(map(int, branch_hidden_choice.split('_')))
+    trunk_hidden_dims = tuple(map(int, trunk_hidden_choice.split('_')))
+    
     operator_dim = trial.suggest_categorical('operator_dim', [64, 128, 256])
     dropout = trial.suggest_float('dropout', 0.1, 0.5)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
@@ -190,6 +208,10 @@ def objective(trial, scenario_name: ExperimentScenario):
             
             if loss.requires_grad:
                 loss.backward()
+                
+                # Gradient clipping to prevent gradient explosion
+                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+                
                 optimizer.step()
             
             epoch_loss += loss.item()
@@ -227,6 +249,14 @@ def objective(trial, scenario_name: ExperimentScenario):
     val_risk_scores = np.array(val_risk_scores)
     val_durations = np.array(val_durations)
     val_events = np.array(val_events)
+    
+    # Check for NaN values before computing C-index
+    if np.isnan(val_risk_scores).any() or np.isnan(val_durations).any() or np.isnan(val_events).any():
+        print(f"Warning: NaN values detected in validation data. Returning low C-index.")
+        print(f"Risk scores NaN count: {np.isnan(val_risk_scores).sum()}")
+        print(f"Durations NaN count: {np.isnan(val_durations).sum()}")
+        print(f"Events NaN count: {np.isnan(val_events).sum()}")
+        return 0.4  # Return poor performance score
     
     c_index = concordance_index(val_durations, val_risk_scores, val_events)
     
@@ -278,6 +308,14 @@ def score_model_test(model: DeepONet, df_test, scenario_name: ExperimentScenario
     test_risk_scores = np.array(test_risk_scores)
     test_durations = np.array(test_durations)
     test_events = np.array(test_events)
+    
+    # Check for NaN values before computing C-index
+    if np.isnan(test_risk_scores).any() or np.isnan(test_durations).any() or np.isnan(test_events).any():
+        print(f"Warning: NaN values detected in test data. Returning low C-index.")
+        print(f"Risk scores NaN count: {np.isnan(test_risk_scores).sum()}")
+        print(f"Durations NaN count: {np.isnan(test_durations).sum()}")
+        print(f"Events NaN count: {np.isnan(test_events).sum()}")
+        return 0.4  # Return poor performance score
     
     return concordance_index(test_durations, test_risk_scores, test_events)
 
