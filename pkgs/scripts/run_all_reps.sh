@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 export PYTHONPATH="${PROJECT_ROOT}"
 
-EXPERIMENTS=("deeponet" "survtimesurvival")
+EXPERIMENTS=("deeponet")
 
 main_execution() {
 
