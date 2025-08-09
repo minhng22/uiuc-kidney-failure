@@ -1,18 +1,22 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 
 class BranchNet(nn.Module):
-    """Branch network for processing input functions (covariate histories)"""
-    
+    """Branch network for processing input functions (covariate histories)
+
+    NOTE: This preserves your original class name and forward signature.
+    Internally we expose `self.network` (as in your original code) so that
+    DeepONet can compute per-time-step embeddings by calling `self.network`
+    on flattened per-step inputs.
+    """
     def __init__(self, input_dim, hidden_dims, dropout=0.1):
         super(BranchNet, self).__init__()
-        
+
         layers = []
         prev_dim = input_dim
-        
+
         for hidden_dim in hidden_dims:
             layers.extend([
                 nn.Linear(prev_dim, hidden_dim),
@@ -20,40 +24,34 @@ class BranchNet(nn.Module):
                 nn.Dropout(dropout)
             ])
             prev_dim = hidden_dim
-            
+
         self.network = nn.Sequential(*layers)
         self.output_dim = prev_dim
-        
+
     def forward(self, u):
         """
+        Original pooling behavior is preserved for the batch-aligned case.
         Args:
-            u: Input functions/covariate histories (batch_size, seq_len, input_dim)
+            u: (batch_size, seq_len, input_dim)
         Returns:
-            Branch network output (batch_size, output_dim)
+            pooled (batch_size, output_dim)
         """
-        # Process each time step and aggregate
         batch_size, seq_len, input_dim = u.size()
-        u_flat = u.view(-1, input_dim)  # (batch_size * seq_len, input_dim)
-        
-        # Pass through network
-        output = self.network(u_flat)  # (batch_size * seq_len, output_dim)
-        output = output.view(batch_size, seq_len, -1)  # (batch_size, seq_len, output_dim)
-        
-        # Global average pooling over time dimension
-        output = torch.mean(output, dim=1)  # (batch_size, output_dim)
-        
-        return output
+        u_flat = u.view(-1, input_dim)  # (batch*seq_len, input_dim)
+        out = self.network(u_flat)      # (batch*seq_len, feat)
+        out = out.view(batch_size, seq_len, -1)
+        out = torch.mean(out, dim=1)    # global average pooling
+        return out
 
 
 class TrunkNet(nn.Module):
     """Trunk network for processing query points (time points)"""
-    
     def __init__(self, query_dim, hidden_dims, dropout=0.1):
         super(TrunkNet, self).__init__()
-        
+
         layers = []
         prev_dim = query_dim
-        
+
         for hidden_dim in hidden_dims:
             layers.extend([
                 nn.Linear(prev_dim, hidden_dim),
@@ -61,220 +59,275 @@ class TrunkNet(nn.Module):
                 nn.Dropout(dropout)
             ])
             prev_dim = hidden_dim
-            
+
         self.network = nn.Sequential(*layers)
         self.output_dim = prev_dim
-        
+
     def forward(self, y):
-        """
-        Args:
-            y: Query points/time points (batch_size, query_dim) or (num_queries, query_dim)
-        Returns:
-            Trunk network output (batch_size, output_dim) or (num_queries, output_dim)
-        """
         return self.network(y)
 
 
 class DeepONet(nn.Module):
     """
-    Deep Operator Network (DeepONet) for survival analysis with time-varying covariates.
-    
-    Based on the paper: "Nonparametric Estimation of Conditional Survival Function 
-    with Time-Varying Covariates Using DeepONet"
-    
-    The model learns a nonlinear operator that maps covariate histories to 
-    conditional hazard/survival functions.
+    Deep Operator Network adapted to paper semantics while keeping the original
+    __init__ and forward signatures.
+
+    - The network's raw forward output is interpreted as log-hazard (h).
+    - Use set_time_grid(time_bins) before calling shared-query forward/prediction or compute_survival_loss.
     """
-    
-    def __init__(self, input_dim, branch_hidden_dims, trunk_hidden_dims, 
+
+    def __init__(self, input_dim, branch_hidden_dims, trunk_hidden_dims,
                  query_dim=1, dropout=0.1, operator_dim=None):
+        # NOTE: signature preserved exactly
         super(DeepONet, self).__init__()
-        
+
         self.input_dim = input_dim
         self.query_dim = query_dim
-        
-        # Branch network processes covariate histories
+
+        # Branch and trunk (class names preserved)
         self.branch_net = BranchNet(input_dim, branch_hidden_dims, dropout)
-        
-        # Trunk network processes query time points
         self.trunk_net = TrunkNet(query_dim, trunk_hidden_dims, dropout)
-        
-        # Ensure branch and trunk networks have compatible output dimensions
+
         if operator_dim is None:
             operator_dim = min(self.branch_net.output_dim, self.trunk_net.output_dim)
-        
+
         self.operator_dim = operator_dim
-        
-        # Final projection layers to ensure compatible dimensions
+
         self.branch_projection = nn.Linear(self.branch_net.output_dim, operator_dim)
         self.trunk_projection = nn.Linear(self.trunk_net.output_dim, operator_dim)
-        
-        # Bias term
+
         self.bias = nn.Parameter(torch.zeros(1))
-        
+
+        # Additional internals required by paper-consistent implementation
+        self.time_grid = None              # set with set_time_grid(time_bins) where len(time_bins)==seq_len+1
+        self.loghazard_clamp = 20.0        # clamp before exp for numerical stability
+
+    # -------------------------
+    # Utility: set time partition (must call if you use shared-query forward or compute_survival_loss)
+    # time_bins: 1D tensor of shape (m+1,) with [t0, t1, ..., tm], where seq_len == m
+    # -------------------------
+    def set_time_grid(self, time_bins: torch.Tensor):
+        assert time_bins.ndim == 1, "time_bins must be 1D tensor"
+        self.time_grid = time_bins.clone().detach()
+
+    # -------------------------
+    # Internal: compute per-query branch encodings by masking future per-step embeddings.
+    # Inputs:
+    #   u: (B, m, d)
+    #   cutoffs: (Q,) int tensor where each cutoff j in [0..m-1] means keep steps 0..j
+    # Returns:
+    #   branch_proj_out: (B, Q, operator_dim)
+    # -------------------------
+    def _branch_encodings_per_query(self, u: torch.Tensor, cutoffs: torch.Tensor) -> torch.Tensor:
+        B, m, d = u.shape
+        device = u.device
+        Q = int(cutoffs.numel())
+
+        # compute per-step features using branch_net.network on flattened inputs
+        u_flat = u.view(B * m, d)  # (B*m, d)
+        per_step = self.branch_net.network(u_flat)  # (B*m, feat)
+        feat = per_step.shape[-1]
+        per_step = per_step.view(B, m, feat)  # (B, m, feat)
+
+        # build mask (Q, m): keep indices <= cutoff_j
+        seq_idx = torch.arange(m, device=device).unsqueeze(0)   # (1, m)
+        q_idx = cutoffs.to(device).unsqueeze(1)                # (Q, 1)
+        keep_mask = (seq_idx <= q_idx).unsqueeze(0).unsqueeze(-1)  # (1, Q, m, 1)
+
+        # expand features to (B, Q, m, feat), apply mask
+        feats_exp = per_step.unsqueeze(1).expand(-1, Q, -1, -1).contiguous()  # (B, Q, m, feat)
+        masked = feats_exp * keep_mask  # zero-out future steps
+
+        # sum over time and divide by (j+1) to average across kept steps (avoids dividing by zero)
+        denom = (cutoffs.to(masked.dtype) + 1.0).to(device)  # (Q,)
+        summed = masked.sum(dim=2)                            # (B, Q, feat)
+        averaged = summed / denom.unsqueeze(0).unsqueeze(-1)  # (B, Q, feat)
+
+        # project to operator dim
+        BQ_flat = averaged.view(B * Q, feat)
+        BQ_proj = self.branch_projection(BQ_flat)             # (B*Q, operator_dim)
+        BQ_proj = BQ_proj.view(B, Q, -1)                      # (B, Q, operator_dim)
+        return BQ_proj
+
+    # -------------------------
+    # forward signature preserved exactly
+    # - If y is shared queries (Q, query_dim) and Q != batch_size: produce (batch, Q)
+    # - Else (y batch-aligned): produce (batch, 1) as in your original code
+    # -------------------------
     def forward(self, u, y):
-        """
-        Forward pass of DeepONet - standard operator learning formulation
-        
-        Args:
-            u: Input functions/covariate histories (batch_size, seq_len, input_dim)
-            y: Query points/time points (batch_size, query_dim) or (num_queries, query_dim)
-            
-        Returns:
-            operator_output: Operator output G(u)(y) representing hazard at query times
-        """
-        # Branch network output
-        branch_output = self.branch_net(u)  # (batch_size, branch_output_dim)
-        branch_output = self.branch_projection(branch_output)  # (batch_size, operator_dim)
-        
-        # Trunk network output  
-        trunk_output = self.trunk_net(y)  # (batch_size or num_queries, trunk_output_dim)
-        trunk_output = self.trunk_projection(trunk_output)  # (batch_size or num_queries, operator_dim)
-        
-        # Compute operator output: dot product + bias (standard DeepONet formulation)
-        if y.dim() == 2 and y.size(0) != u.size(0):
-            # y is (num_queries, query_dim), need to broadcast
-            num_queries = y.size(0)
-            batch_size = u.size(0)
-            
-            # Expand branch output: (batch_size, operator_dim) -> (batch_size, num_queries, operator_dim)
-            branch_expanded = branch_output.unsqueeze(1).expand(-1, num_queries, -1)
-            
-            # Expand trunk output: (num_queries, operator_dim) -> (batch_size, num_queries, operator_dim)  
-            trunk_expanded = trunk_output.unsqueeze(0).expand(batch_size, -1, -1)
-            
-            # Element-wise multiplication and sum over operator dimension + bias
-            operator_output = torch.sum(branch_expanded * trunk_expanded, dim=-1) + self.bias  # (batch_size, num_queries)
-            
+        batch_size = u.size(0)
+
+        # Shared queries across batch: need to mask branch per-query. Requires time_grid set.
+        if y.dim() == 2 and y.size(0) != batch_size:
+            if self.time_grid is None:
+                raise RuntimeError("time_grid not set. Call set_time_grid(time_bins) before using shared-query forward.")
+
+            # map query times (y) to cutoffs indices on time_grid:
+            # time_bins length m+1 where seq_len == m
+            time_bins = self.time_grid.to(y.device)
+            m_plus1 = time_bins.numel()
+            m = m_plus1 - 1
+            # bucketize: returns index in [0..m], where bucketize with right=True maps t in (t_j, t_{j+1}] -> idx=j+1
+            idx = torch.bucketize(y.squeeze(-1), time_bins, right=True)  # (Q,)
+            idx = idx.clamp(min=1, max=m)  # ensure in [1..m]
+            cutoffs = (idx - 1).to(torch.long)  # left-index in [0..m-1], shape (Q,)
+
+            # branch encodings per query (B, Q, operator_dim)
+            branch_out = self._branch_encodings_per_query(u, cutoffs)  # (B,Q,op_dim)
+
+            # trunk: (Q, query_dim) -> (Q, trunk_out) -> project -> (Q, op_dim)
+            trunk_out = self.trunk_net(y)                      # (Q, trunk_out)
+            trunk_out = self.trunk_projection(trunk_out)       # (Q, op_dim)
+
+            # expand trunk and compute dot
+            trunk_exp = trunk_out.unsqueeze(0).expand(batch_size, -1, -1)  # (B,Q,op_dim)
+            operator_output = torch.sum(branch_out * trunk_exp, dim=-1) + self.bias  # (B, Q)
+            return operator_output
+
         else:
-            # y has same batch size as u, direct dot product + bias
-            operator_output = torch.sum(branch_output * trunk_output, dim=-1, keepdim=True) + self.bias  # (batch_size, 1)
-            
-        return operator_output
-    
+            # batch-aligned case: reuse original behavior (global pooling branch)
+            branch_output = self.branch_net(u)  # (batch, branch_output_dim)
+            branch_output = self.branch_projection(branch_output)  # (batch, operator_dim)
+
+            trunk_output = self.trunk_net(y) if y.dim() == 2 else self.trunk_net(y.unsqueeze(1))
+            trunk_output = self.trunk_projection(trunk_output)  # (batch, operator_dim)
+
+            operator_output = torch.sum(branch_output * trunk_output, dim=-1, keepdim=True) + self.bias  # (batch,1)
+            return operator_output
+
+    # -------------------------
+    # Predict hazard lambda = exp(h) where h is network raw output (log-hazard)
+    # keep interface same as Impl A
+    # -------------------------
     def predict_hazard(self, u, y):
-        """
-        Predict conditional hazard function h(t|u) at query time points
-        
-        Args:
-            u: Covariate histories (batch_size, seq_len, input_dim)
-            y: Query time points (num_queries, 1)
-            
-        Returns:
-            Conditional hazard rates (batch_size, num_queries)
-        """
-        # Get operator output
+        # forward returns log-hazard; exponentiate with clamp for numerical stability
         operator_output = self.forward(u, y)
-        
-        # Apply softplus to ensure positive hazard rates
-        hazard_rates = F.softplus(operator_output)
-        
+        # clamp then exp
+        h_clamped = torch.clamp(operator_output, max=self.loghazard_clamp)
+        hazard_rates = torch.exp(h_clamped)
         return hazard_rates
-    
+
+    # -------------------------
+    # Predict survival using left-Riemann integration on the time_grid (must be set)
+    # This replaces the naive h(t) * t approximation
+    # y: (num_queries,1) or (batch,1) as before
+    # -------------------------
     def predict_survival(self, u, y):
-        """
-        Predict conditional survival function S(t|u) at query time points
-        
-        Args:
-            u: Covariate histories (batch_size, seq_len, input_dim)  
-            y: Query time points (num_queries, 1)
-            
-        Returns:
-            Conditional survival probabilities (batch_size, num_queries)
-        """
-        # Get hazard rates
-        hazard_rates = self.predict_hazard(u, y)
-        
-        # Convert to survival probabilities using: S(t) = exp(-∫h(s)ds)
-        # For discrete case: S(t) ≈ exp(-h(t) * t)
-        if y.dim() == 2:
-            time_points = y.squeeze(-1)  # (num_queries,)
-            time_points = time_points.unsqueeze(0)  # (1, num_queries)
+        if self.time_grid is None:
+            raise RuntimeError("time_grid not set. Call set_time_grid(time_bins) before predict_survival.")
+
+        device = u.device
+        time_bins = self.time_grid.to(device)
+        m_plus1 = time_bins.numel()
+        m = m_plus1 - 1
+        # left endpoints t0..t_{m-1}
+        eval_times = time_bins[:-1].unsqueeze(-1).to(device)  # (m,1)
+
+        # hazards at left endpoints: returns (B, m)
+        lam_grid = self.predict_hazard(u, eval_times)  # (B, m)
+
+        # dt per interval (m,)
+        dt = (time_bins[1:] - time_bins[:-1]).to(device)
+
+        # cumulative hazard at each left index j: sum_{k=0..j} lam[:,k] * dt[k]
+        cumhaz = torch.cumsum(lam_grid * dt.unsqueeze(0), dim=1)  # (B, m)
+
+        # If y shared queries (num_queries,1) map each query to its left index
+        if y.dim() == 2 and y.size(0) != u.size(0):
+            idx = torch.bucketize(y.squeeze(-1).to(device), time_bins, right=True)  # (Q,)
+            idx = idx.clamp(min=1, max=m)
+            left_idx = (idx - 1).long()  # (Q,)
+
+            B = u.size(0)
+            Q = left_idx.numel()
+            S = torch.empty(B, Q, device=device, dtype=lam_grid.dtype)
+            # small loop over Q (Q typically manageable); can be vectorized with advanced indexing if needed
+            for q, j in enumerate(left_idx.tolist()):
+                S[:, q] = torch.exp(-cumhaz[:, j])
+            return S
+
         else:
-            time_points = y.unsqueeze(0)
-            
-        # Calculate cumulative hazard (approximated)
-        cumulative_hazard = hazard_rates * time_points
-        
-        # Survival probability
-        survival_probs = torch.exp(-cumulative_hazard)
-        
-        return survival_probs
-    
+            # batch-aligned: y is (B,1) or (B,)
+            times = y.squeeze(-1).to(device)
+            idx = torch.bucketize(times, time_bins, right=True)  # (B,)
+            idx = idx.clamp(min=1, max=m)
+            left_idx = (idx - 1).long()
+            B = u.size(0)
+            S = torch.empty(B, device=device, dtype=lam_grid.dtype)
+            for i, j in enumerate(left_idx.tolist()):
+                S[i] = torch.exp(-cumhaz[i, j])
+            return S
+
+    # -------------------------
+    # Predict risk score: keep your original method but map to grid if available
+    # -------------------------
     def predict_risk_score(self, u):
-        """
-        Predict risk scores for patients based on their covariate histories
-        
-        Args:
-            u: Covariate histories (batch_size, seq_len, input_dim)
-            
-        Returns:
-            Risk scores (batch_size,)
-        """
-        # Use a reference time point (e.g., median follow-up time)
-        reference_time = torch.tensor([[365.0]], device=u.device)  # 1 year
-        
-        # Get operator output at reference time
-        risk_scores = self.forward(u, reference_time).squeeze(-1)
-        
-        # Check for NaN/inf values and clamp to reasonable range
+        reference_time = torch.tensor([[365.0]], device=u.device)
+        # use forward behavior unchanged (returns (B,1) if reference_time is expanded appropriately)
+        if self.time_grid is not None:
+            op = self.forward(u, reference_time)  # will be treated as shared query -> (B,1)
+            if op.dim() == 2 and op.size(1) == 1:
+                risk_scores = op.squeeze(-1)
+            else:
+                risk_scores = op
+        else:
+            # fallback: batch-aligned evaluation
+            B = u.size(0)
+            ref_batch = reference_time.expand(B, -1).to(u.device)
+            out = self.forward(u, ref_batch)  # (B,1)
+            risk_scores = out.squeeze(-1)
+
+        # safety checks (preserve similar behavior to Impl A)
         if torch.isnan(risk_scores).any() or torch.isinf(risk_scores).any():
             print("Warning: NaN/Inf detected in risk scores, setting to zeros")
             risk_scores = torch.zeros_like(risk_scores)
         else:
-            # Clamp to prevent extreme values
             risk_scores = torch.clamp(risk_scores, -10, 10)
-        
+
         return risk_scores
-    
+
+    # -------------------------
+    # Vectorized discretized negative log-likelihood consistent with the paper (Eq.6)
+    # u: (B, m, d) where m == seq_len and time_grid length must be m+1
+    # durations: (B,)
+    # events: (B,)
+    # num_time_points ignored (kept for signature compatibility)
+    # -------------------------
     def compute_survival_loss(self, u, durations, events, num_time_points=50):
-        """
-        Compute survival loss based on likelihood for censored data
-        
-        Args:
-            u: Covariate histories (batch_size, seq_len, input_dim)
-            durations: Event/censoring times (batch_size,)
-            events: Event indicators (batch_size,)
-            num_time_points: Number of time points for evaluation
-            
-        Returns:
-            Loss value
-        """
-        batch_size = u.size(0)
+        if self.time_grid is None:
+            raise RuntimeError("time_grid not set. Call set_time_grid(time_bins) before compute_survival_loss.")
+
         device = u.device
-        
-        # Create time points for evaluation
-        max_time = durations.max().item()
-        time_points = torch.linspace(1, max_time, num_time_points, device=device).unsqueeze(-1)
-        
-        # Get hazard rates at all time points
-        hazard_rates = self.predict_hazard(u, time_points)  # (batch_size, num_time_points)
-        
-        # Approximate survival probabilities
-        dt = max_time / num_time_points
-        cumulative_hazard = torch.cumsum(hazard_rates * dt, dim=1)
-        survival_probs = torch.exp(-cumulative_hazard)
-        
-        # Compute likelihood for each patient
-        total_loss = 0.0
-        
-        for i in range(batch_size):
-            t_i = durations[i].item()
-            delta_i = events[i].item()
-            
-            # Find closest time index
-            time_idx = min(int(t_i / dt), num_time_points - 1)
-            
-            if delta_i == 1:  # Event occurred
-                # Likelihood: h(t_i) * S(t_i)
-                h_t = hazard_rates[i, time_idx]
-                S_t = survival_probs[i, time_idx]
-                likelihood = h_t * S_t
-            else:  # Censored
-                # Likelihood: S(t_i)
-                likelihood = survival_probs[i, time_idx]
-            
-            # Add negative log-likelihood
-            total_loss -= torch.log(likelihood + 1e-8)
-        
-        return total_loss / batch_size
+        B, m, d = u.shape
+        time_bins = self.time_grid.to(device)
+        assert time_bins.numel() == (m + 1), "time_grid length must equal seq_len + 1"
+
+        # Evaluate log-hazard h at left endpoints t0..t_{m-1}: eval_times shape (m,1)
+        eval_times = time_bins[:-1].unsqueeze(-1).to(device)
+        h_grid = self.forward(u, eval_times)  # (B, m) log-hazard
+
+        # lambda = exp(h) with clamping
+        h_clamped = torch.clamp(h_grid, max=self.loghazard_clamp)
+        lam_grid = torch.exp(h_clamped)  # (B, m)
+
+        # dt for each left interval j
+        dt = (time_bins[1:] - time_bins[:-1]).to(device)  # (m,)
+
+        # indicator_left: I(t_j <= Y_i) where t_j are left endpoints (time_bins[:-1])
+        indicator_left = (durations.unsqueeze(1).to(device) >= time_bins[:-1].unsqueeze(0).to(device)).to(dtype=lam_grid.dtype)  # (B, m)
+
+        # integral approx per subject: sum_j indicator_left * lam_grid[:, j] * dt[j]
+        integral_terms = (indicator_left * lam_grid * dt.unsqueeze(0)).sum(dim=1)  # (B,)
+
+        # find left index of interval containing duration: idx in [1..m] from bucketize, left_idx = idx-1 in [0..m-1]
+        idx = torch.bucketize(durations.to(device), time_bins, right=True)  # (B,)
+        idx = idx.clamp(min=1, max=m)
+        left_idx = idx - 1  # (B,)
+
+        # h at event left endpoint
+        h_at_event = h_grid[torch.arange(B, device=device), left_idx]  # (B,)
+
+        # log-likelihood and mean negative log-likelihood
+        loglike = h_at_event * events.to(dtype=h_at_event.dtype) - integral_terms
+        nll = -loglike.mean()
+        return nll
