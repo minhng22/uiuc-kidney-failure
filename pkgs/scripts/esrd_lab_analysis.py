@@ -157,27 +157,7 @@ def generate_detailed_report(results_df, patients_df, esrd_lab_events):
         report.append(f"   Total measurements: {row['total_measurements']:,} ({row['percentage_of_lab_events']:.2f}% of all lab events)")
         report.append(f"   ESRD patients with this test: {row['patients_with_test']:,} ({row['percentage_of_esrd_patients']:.1f}% of ESRD patients)")
         report.append("")
-    
-    report.append("Clinical Insights:")
-    report.append("-" * 40)
-    
-    kidney_related_keywords = ['creatinine', 'urea', 'nitrogen', 'egfr', 'protein', 'albumin', 'phosphorus']
-    kidney_tests = []
-    
-    for _, row in results_df.iterrows():
-        lab_name_lower = row['lab_name'].lower()
-        if any(keyword in lab_name_lower for keyword in kidney_related_keywords):
-            kidney_tests.append(row['lab_name'])
-    
-    if kidney_tests:
-        report.append(f"Kidney-related tests among top 10:")
-        for test in kidney_tests:
-            report.append(f"  - {test}")
-    else:
-        report.append("No obvious kidney-related tests found in top 10")
-    
-    report.append("")
-    
+        
     return "\n".join(report)
 
 def main():
