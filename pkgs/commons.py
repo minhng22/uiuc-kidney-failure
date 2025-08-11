@@ -63,7 +63,9 @@ ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Peri
 figs_path = f'{project_dir()}/generated_data/figs'
 figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
-generate_data_path_latest_rep = f'{project_dir()}/generated_data/rep1'
+current_rep = 1
+
+generate_data_path_latest_rep = f'{project_dir()}/generated_data/rep{current_rep}'
 generate_data_path = f'{project_dir()}/generated_data'
 
 # trained models - time invariant scenario

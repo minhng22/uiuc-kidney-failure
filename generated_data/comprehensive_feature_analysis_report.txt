@@ -1,0 +1,74 @@
+COMPREHENSIVE FEATURE ANALYSIS REPORT
+================================================================================
+Generated on: 2025-08-11 09:28:52
+================================================================================
+
+ANALYSIS 1: FEATURE AVAILABILITY PATTERNS
+================================================================================
+
+TRAINING Dataset:
+----------------------------------------
+Total records: 395,894
+eGFR only (protein & albumin missing): 387,216 (97.81%)
+All features present: 0 (0.00%)
+eGFR + protein only: 0 (0.00%)
+eGFR + albumin only: 0 (0.00%)
+eGFR missing: 8,678 (2.19%)
+
+TEST Dataset:
+----------------------------------------
+Total records: 97,205
+eGFR only (protein & albumin missing): 95,584 (98.33%)
+All features present: 0 (0.00%)
+eGFR + protein only: 0 (0.00%)
+eGFR + albumin only: 0 (0.00%)
+eGFR missing: 1,621 (1.67%)
+
+================================================================================
+ANALYSIS 2: FEATURE IMPORTANCE ANALYSIS
+================================================================================
+
+eGFR TIME-VARIANT SETUP:
+--------------------------------------------------
+Top Feature Importances:
+  duration_days_log: 0.3037
+  duration_in_days: 0.2969
+  egfr_squared: 0.1363
+  egfr: 0.1349
+  egfr_sqrt: 0.1282
+
+HETEROGENEOUS SETUP:
+--------------------------------------------------
+Top Feature Importances:
+  duration_days_log: 0.3116
+  duration_in_days: 0.2924
+  egfr: 0.1961
+  egfr_squared: 0.1913
+  egfr_missing: 0.0041
+  protein: 0.0013
+  protein_log: 0.0012
+  protein_missing: 0.0009
+  albumin: 0.0004
+  albumin_log: 0.0004
+
+================================================================================
+KEY INSIGHTS SUMMARY
+================================================================================
+1. FEATURE AVAILABILITY:
+   - 97.81% of records have eGFR only (protein & albumin missing)
+   - 0.00% of records have all features present
+   - This explains why heterogeneous models struggle!
+
+2. FEATURE IMPORTANCE:
+   - eGFR TV setup: Top feature is 'duration_days_log' (0.304)
+   - Heterogeneous setup: Top feature is 'duration_days_log' (0.312)
+   - Protein features max importance: 0.001
+   - Albumin features max importance: 0.000
+
+================================================================================
+CONCLUSION:
+The heterogeneous models underperform because they're essentially eGFR-only
+models with extremely sparse additional features that introduce noise rather
+than signal. The 'additional features' are mutually exclusive with eGFR,
+creating data fragmentation instead of feature enrichment.
+================================================================================
