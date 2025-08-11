@@ -154,25 +154,74 @@ class EGFRComponentsSHAPAnalysis:
             if model_name in self.models:
                 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
                 model = self.models[model_name]
-                X_tensor = torch.tensor(X, dtype=torch.float32).to(device)
                 
                 with torch.no_grad():
                     try:
                         if model_name == 'rnn_surv':
+                            X_tensor = torch.tensor(X, dtype=torch.float32).to(device)
                             X_tensor = X_tensor.unsqueeze(1)  # Add sequence dimension
                             _, risk_scores = model(X_tensor)
                             return 1 - risk_scores.squeeze().cpu().numpy()
+                            
                         elif model_name == 'ddh':
-                            # DDH model requires mask parameter - skip for now
-                            print(f"Skipping {model_name} - requires additional parameters")
-                            return None
+                            # DDH model requires features and mask
+                            batch_size = len(X)
+                            max_seq_length = 1  # For SHAP, we use single time point
+                            
+                            # Normalize features like in the original experiment
+                            features = np.zeros((batch_size, max_seq_length, len(self.features)))
+                            features[:, 0, 0] = (X[:, 0] - self.train_data['age'].mean()) / self.train_data['age'].std()
+                            features[:, 0, 1] = X[:, 1]  # gender, no normalization
+                            features[:, 0, 2] = (X[:, 2] - self.train_data['serum_creatinine'].mean()) / self.train_data['serum_creatinine'].std()
+                            
+                            mask = np.ones((batch_size, max_seq_length))  # All positions are valid
+                            
+                            features_tensor = torch.tensor(features, dtype=torch.float32).to(device)
+                            mask_tensor = torch.tensor(mask, dtype=torch.float32).to(device)
+                            
+                            hazard_preds, _ = model(features_tensor, mask_tensor)
+                            # Take the last time step prediction
+                            risk_scores = hazard_preds[:, -1, 0].cpu().numpy()
+                            return risk_scores
+                            
                         elif model_name == 'hazard_transformer':
-                            # Try direct prediction first
-                            risk_scores = model(X_tensor)
-                            return risk_scores.squeeze().cpu().numpy()
-                        else:
-                            risk_scores = model(X_tensor)
-                            return risk_scores.squeeze().cpu().numpy()
+                            # Similar to DDH but different normalization and output
+                            batch_size = len(X)
+                            max_seq_length = 1
+                            
+                            features = np.zeros((batch_size, max_seq_length, len(self.features)))
+                            features[:, 0, 0] = (X[:, 0] - self.train_data['age'].mean()) / self.train_data['age'].std()
+                            features[:, 0, 1] = X[:, 1]  # gender, no normalization
+                            features[:, 0, 2] = (X[:, 2] - self.train_data['serum_creatinine'].mean()) / self.train_data['serum_creatinine'].std()
+                            
+                            mask = np.ones((batch_size, max_seq_length))
+                            
+                            features_tensor = torch.tensor(features, dtype=torch.float32).to(device)
+                            mask_tensor = torch.tensor(mask, dtype=torch.float32).to(device)
+                            
+                            hazard_preds, _, _ = model(features_tensor, mask_tensor)
+                            risk_scores = hazard_preds[:, -1, 0].cpu().numpy()
+                            return risk_scores
+                            
+                        elif model_name == 'logistic_hazard':
+                            # LogisticHazard uses normalized features directly
+                            features = np.zeros((len(X), len(self.features)))
+                            features[:, 0] = (X[:, 0] - self.train_data['age'].mean()) / self.train_data['age'].std()
+                            features[:, 1] = X[:, 1]  # gender, no normalization
+                            features[:, 2] = (X[:, 2] - self.train_data['serum_creatinine'].mean()) / self.train_data['serum_creatinine'].std()
+                            
+                            X_tensor = torch.tensor(features, dtype=torch.float32).to(device)
+                            
+                            # The saved model is actually just the neural network
+                            # Get the raw outputs and convert to risk scores
+                            outputs = model(X_tensor)
+                            
+                            # Convert logits to probabilities and then to risk scores
+                            # For survival models, we typically use 1 - survival probability
+                            risk_scores = torch.sigmoid(outputs).mean(dim=1).cpu().numpy()
+                            
+                            return risk_scores
+                            
                     except Exception as e:
                         print(f"Error with {model_name}: {e}")
                         return None
@@ -254,7 +303,17 @@ class EGFRComponentsSHAPAnalysis:
             return None
             
         # Create SHAP explainer
-        explainer = shap.Explainer(surrogate, X_train)
+        try:
+            explainer = shap.Explainer(surrogate, X_train)
+        except Exception as e:
+            if "singular" in str(e).lower():
+                print(f"Handling singular covariance matrix for {model_name}")
+                # Add small random noise to avoid singular matrix
+                X_train_noisy = X_train + np.random.normal(0, 1e-8, X_train.shape)
+                explainer = shap.Explainer(surrogate, X_train_noisy)
+            else:
+                print(f"Failed to create explainer for {model_name}: {e}")
+                return None
         
         # Calculate SHAP values for a sample of test data
         sample_size = min(1000, len(X_test))

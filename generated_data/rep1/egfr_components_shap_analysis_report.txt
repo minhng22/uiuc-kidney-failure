@@ -11,18 +11,19 @@ EXPERIMENT OVERVIEW:
 MODELS ANALYZED:
   ✓ COX
   ✓ RNN_SURV
-  ✗ DDH
-  ✗ HAZARD_TRANSFORMER
+  ✓ DDH
+  ✓ HAZARD_TRANSFORMER
+  ✓ LOGISTIC_HAZARD
 
 FEATURE IMPORTANCE SUMMARY:
 --------------------------------------------------
-1. serum_creatinine: 0.0390 (mean absolute SHAP)
+1. serum_creatinine: 0.0165 (mean absolute SHAP)
    → Primary biomarker for kidney function
 
-2. gender: 0.0079 (mean absolute SHAP)
+2. gender: 0.0035 (mean absolute SHAP)
    → Gender differences in creatinine metabolism
 
-3. age: 0.0072 (mean absolute SHAP)
+3. age: 0.0034 (mean absolute SHAP)
    → Age-related decline in kidney function
 
 MODEL-SPECIFIC INSIGHTS:
@@ -37,6 +38,21 @@ RNN_SURV Model:
   - serum_creatinine: 0.0427 (80.9%)
   - gender: 0.0053 (10.0%)
   - age: 0.0048 (9.1%)
+
+DDH Model:
+  - age: 0.0001 (44.3%)
+  - serum_creatinine: 0.0001 (33.2%)
+  - gender: 0.0000 (22.6%)
+
+HAZARD_TRANSFORMER Model:
+  - age: 0.0000 (nan%)
+  - gender: 0.0000 (nan%)
+  - serum_creatinine: 0.0000 (nan%)
+
+LOGISTIC_HAZARD Model:
+  - serum_creatinine: 0.0045 (50.9%)
+  - age: 0.0026 (29.5%)
+  - gender: 0.0017 (19.6%)
 
 ================================================================================
 INTERPRETATION NOTES:
