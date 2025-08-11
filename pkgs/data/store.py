@@ -147,8 +147,12 @@ def get_ckd_patients_and_diagnoses(late_stage: bool = True):
     return patients_df, ckd_diagnose_df
 
 
-def get_esrd_patients_and_diagnoses():
-    diagnoses_df = pd.read_csv(diagnose_icd_file_path)
+def get_esrd_patients_and_diagnoses(diagnose_icd_file_path_supplied_s = '', patients_file_path_s = ''):
+    if not diagnose_icd_file_path_supplied_s:
+        diagnose_icd_file_path_supplied_s = diagnose_icd_file_path
+    if not patients_file_path_s:
+        patients_file_path_s = patients_file_path
+    diagnoses_df = pd.read_csv(diagnose_icd_file_path_supplied_s)
 
     esrd_diagnose_df = filter_df_on_icd_code(diagnoses_df, esrd_codes, ckd_codes_stage3_to_5)
     esrd_diagnose_df = esrd_diagnose_df[esrd_diagnose_df['icd_code'].isin(esrd_codes)]
@@ -157,7 +161,7 @@ def get_esrd_patients_and_diagnoses():
         f"percentage of subjects in dataset: {esrd_diagnose_df['subject_id'].nunique() / diagnoses_df['subject_id'].nunique() * 100:.3f}"
     )
 
-    patients_df = pd.read_csv(patients_file_path)
+    patients_df = pd.read_csv(patients_file_path_s)
     patients_df = patients_df[patients_df['subject_id'].isin(esrd_diagnose_df['subject_id'].unique())]
 
     print(f"number of subjects (for validation): {patients_df['subject_id'].nunique()}")
