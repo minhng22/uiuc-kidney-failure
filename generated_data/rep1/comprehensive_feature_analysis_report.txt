@@ -1,6 +1,6 @@
 COMPREHENSIVE FEATURE ANALYSIS REPORT
 ================================================================================
-Generated on: 2025-08-11 09:28:52
+Generated on: 2025-08-11 10:09:08
 ================================================================================
 
 ANALYSIS 1: FEATURE AVAILABILITY PATTERNS
@@ -31,25 +31,19 @@ ANALYSIS 2: FEATURE IMPORTANCE ANALYSIS
 eGFR TIME-VARIANT SETUP:
 --------------------------------------------------
 Top Feature Importances:
-  duration_days_log: 0.3037
-  duration_in_days: 0.2969
-  egfr_squared: 0.1363
-  egfr: 0.1349
-  egfr_sqrt: 0.1282
+  duration_in_days: 0.6095
+  egfr: 0.3905
 
 HETEROGENEOUS SETUP:
 --------------------------------------------------
 Top Feature Importances:
-  duration_days_log: 0.3116
-  duration_in_days: 0.2924
-  egfr: 0.1961
-  egfr_squared: 0.1913
-  egfr_missing: 0.0041
-  protein: 0.0013
-  protein_log: 0.0012
-  protein_missing: 0.0009
-  albumin: 0.0004
-  albumin_log: 0.0004
+  duration_in_days: 0.6024
+  egfr: 0.3866
+  egfr_missing: 0.0054
+  protein_missing: 0.0021
+  protein: 0.0020
+  albumin: 0.0008
+  albumin_missing: 0.0007
 
 ================================================================================
 KEY INSIGHTS SUMMARY
@@ -60,10 +54,10 @@ KEY INSIGHTS SUMMARY
    - This explains why heterogeneous models struggle!
 
 2. FEATURE IMPORTANCE:
-   - eGFR TV setup: Top feature is 'duration_days_log' (0.304)
-   - Heterogeneous setup: Top feature is 'duration_days_log' (0.312)
-   - Protein features max importance: 0.001
-   - Albumin features max importance: 0.000
+   - eGFR TV setup: Top feature is 'duration_in_days' (0.609)
+   - Heterogeneous setup: Top feature is 'duration_in_days' (0.602)
+   - Protein features max importance: 0.002
+   - Albumin features max importance: 0.001
 
 ================================================================================
 CONCLUSION:

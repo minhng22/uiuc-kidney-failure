@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from pkgs.commons import heterogen_train_data_path, heterogen_test_data_path, egfr_tv_train_data_path, egfr_tv_test_data_path
+from pkgs.commons import heterogen_train_data_path, heterogen_test_data_path, egfr_tv_train_data_path, egfr_tv_test_data_path, generate_data_path_latest_rep
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -123,8 +123,8 @@ def create_availability_visualization(train_stats, test_stats):
                 f'{pct:.2f}%', ha='center', va='bottom', fontsize=10)
     
     plt.tight_layout()
-    plt.savefig('../../generated_data/feature_availability_analysis.png', dpi=300, bbox_inches='tight')
-    print(f"\nFeature availability visualization saved to: ../../generated_data/feature_availability_analysis.png")
+    plt.savefig(f'{generate_data_path_latest_rep}/feature_availability_analysis.png', dpi=300, bbox_inches='tight')
+    print(f"\nFeature availability visualization saved to: {generate_data_path_latest_rep}/feature_availability_analysis.png")
     plt.close()
 
 def analysis_2_feature_importance():
@@ -143,20 +143,12 @@ def analysis_2_feature_importance():
     
     def prepare_egfr_data(train_df, test_df):
         """Prepare eGFR TV data for analysis"""
-        # Use only non-missing eGFR data and create simple features
+        # Use only non-missing eGFR data with actual features only
         train_clean = train_df.dropna(subset=['egfr']).copy()
         test_clean = test_df.dropna(subset=['egfr']).copy()
         
-        # Create additional time-based features
-        train_clean['duration_days_log'] = np.log1p(train_clean['duration_in_days'])
-        train_clean['egfr_squared'] = train_clean['egfr'] ** 2
-        train_clean['egfr_sqrt'] = np.sqrt(np.maximum(train_clean['egfr'], 0))
-        
-        test_clean['duration_days_log'] = np.log1p(test_clean['duration_in_days'])
-        test_clean['egfr_squared'] = test_clean['egfr'] ** 2
-        test_clean['egfr_sqrt'] = np.sqrt(np.maximum(test_clean['egfr'], 0))
-        
-        feature_cols = ['egfr', 'duration_in_days', 'duration_days_log', 'egfr_squared', 'egfr_sqrt']
+        # Use only the actual features present in the dataset
+        feature_cols = ['egfr', 'duration_in_days']
         
         X_train = train_clean[feature_cols]
         y_train = train_clean['has_esrd']
@@ -171,29 +163,16 @@ def analysis_2_feature_importance():
         train_prep = train_df.copy()
         test_prep = test_df.copy()
         
-        # Fill missing values
-        train_prep['egfr'] = train_prep['egfr'].fillna(0)
-        train_prep['protein'] = train_prep['protein'].fillna(0)
-        train_prep['albumin'] = train_prep['albumin'].fillna(0)
-        
-        test_prep['egfr'] = test_prep['egfr'].fillna(0)
-        test_prep['protein'] = test_prep['protein'].fillna(0)
-        test_prep['albumin'] = test_prep['albumin'].fillna(0)
-        
-        # Create additional features
-        train_prep['duration_days_log'] = np.log1p(train_prep['duration_in_days'])
-        train_prep['egfr_squared'] = train_prep['egfr'] ** 2
-        train_prep['protein_log'] = np.log1p(train_prep['protein'])
-        train_prep['albumin_log'] = np.log1p(train_prep['albumin'])
-        
-        test_prep['duration_days_log'] = np.log1p(test_prep['duration_in_days'])
-        test_prep['egfr_squared'] = test_prep['egfr'] ** 2
-        test_prep['protein_log'] = np.log1p(test_prep['protein'])
-        test_prep['albumin_log'] = np.log1p(test_prep['albumin'])
-        
+        # Use only the actual features from the dataset (no artificial transformations)
         feature_cols = ['egfr', 'protein', 'albumin', 'egfr_missing', 'protein_missing', 
-                       'albumin_missing', 'duration_in_days', 'duration_days_log', 
-                       'egfr_squared', 'protein_log', 'albumin_log']
+                       'albumin_missing', 'duration_in_days']
+        
+        X_train = train_prep[feature_cols]
+        y_train = train_prep['has_esrd']
+        X_test = test_prep[feature_cols]
+        y_test = test_prep['has_esrd']
+        
+        return X_train, y_train, X_test, y_test, feature_cols
         
         X_train = train_prep[feature_cols]
         y_train = train_prep['has_esrd']
@@ -295,14 +274,14 @@ def create_importance_visualization(importance_egfr, importance_hg):
                 f'{width:.3f}', ha='left', va='center', fontsize=10)
     
     plt.tight_layout()
-    plt.savefig('../../generated_data/feature_importance_comparison.png', dpi=300, bbox_inches='tight')
-    print(f"\nFeature importance visualization saved to: ../../generated_data/feature_importance_comparison.png")
+    plt.savefig(f'{generate_data_path_latest_rep}/feature_importance_comparison.png', dpi=300, bbox_inches='tight')
+    print(f"\nFeature importance visualization saved to: {generate_data_path_latest_rep}/feature_importance_comparison.png")
     plt.close()
 
 def main():
     """Run both analyses"""
     # Create output file
-    output_file = '../../generated_data/comprehensive_feature_analysis_report.txt'
+    output_file = f'{generate_data_path_latest_rep}/comprehensive_feature_analysis_report.txt'
     
     with open(output_file, 'w') as f:
         f.write("COMPREHENSIVE FEATURE ANALYSIS REPORT\n")
@@ -388,8 +367,8 @@ def main():
     
     print(f"Comprehensive analysis report saved to: {output_file}")
     print("Visualizations saved to:")
-    print("  - ../../generated_data/feature_availability_analysis.png") 
-    print("  - ../../generated_data/feature_importance_comparison.png")
+    print(f"  - {generate_data_path_latest_rep}/feature_availability_analysis.png") 
+    print(f"  - {generate_data_path_latest_rep}/feature_importance_comparison.png")
 
 if __name__ == "__main__":
     main()
