@@ -1,0 +1,50 @@
+================================================================================
+SHAP ANALYSIS REPORT - eGFR COMPONENTS EXPERIMENT
+================================================================================
+
+EXPERIMENT OVERVIEW:
+  - Scenario: eGFR Components
+  - Features: age, gender, serum_creatinine
+  - Training samples: 385,752
+  - Test samples: 96,894
+
+MODELS ANALYZED:
+  ✓ COX
+  ✓ RNN_SURV
+  ✗ DDH
+  ✗ HAZARD_TRANSFORMER
+
+FEATURE IMPORTANCE SUMMARY:
+--------------------------------------------------
+1. serum_creatinine: 0.0390 (mean absolute SHAP)
+   → Primary biomarker for kidney function
+
+2. gender: 0.0079 (mean absolute SHAP)
+   → Gender differences in creatinine metabolism
+
+3. age: 0.0072 (mean absolute SHAP)
+   → Age-related decline in kidney function
+
+MODEL-SPECIFIC INSIGHTS:
+--------------------------------------------------
+
+COX Model:
+  - serum_creatinine: 0.0352 (63.6%)
+  - gender: 0.0106 (19.1%)
+  - age: 0.0096 (17.3%)
+
+RNN_SURV Model:
+  - serum_creatinine: 0.0427 (80.9%)
+  - gender: 0.0053 (10.0%)
+  - age: 0.0048 (9.1%)
+
+================================================================================
+INTERPRETATION NOTES:
+================================================================================
+• Higher absolute SHAP values indicate greater feature importance
+• Positive SHAP values increase the risk prediction
+• Negative SHAP values decrease the risk prediction
+• eGFR components (age, gender, serum_creatinine) are used instead of
+  the calculated eGFR value to understand the individual contributions
+• This analysis helps identify which demographic and laboratory
+  factors are most predictive of ESRD risk
