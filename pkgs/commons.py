@@ -11,13 +11,15 @@ def project_dir():
 ----------MIMIC-V data paths----------
 """
 
-diagnose_icd_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/diagnoses_icd.csv"
-patients_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/patients.csv"
-admissions_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/admissions.csv"
-lab_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/labevents.csv"
-omr_file_path= f"{project_dir()}/data/mimic-iv-2.2/hosp/omr.csv"
-prescription_file_path = f"{project_dir()}/data/mimic-iv-2.2/hosp/prescriptions.csv"
-chart_events_file_path = f"{project_dir()}/data/mimic-iv-2.2/icu/chartevents.csv"
+data_path_prefix = "/Volumes/MBAir_Extended/uiuc_kidney_failure/data/mimic-iv-2.2"
+
+diagnose_icd_file_path = f"{data_path_prefix}/hosp/diagnoses_icd.csv"
+patients_file_path = f"{data_path_prefix}/hosp/patients.csv"
+admissions_file_path = f"{data_path_prefix}/hosp/admissions.csv"
+lab_events_file_path = f"{data_path_prefix}/hosp/labevents.csv"
+omr_file_path= f"{data_path_prefix}/hosp/omr.csv"
+prescription_file_path = f"{data_path_prefix}/hosp/prescriptions.csv"
+chart_events_file_path = f"{data_path_prefix}/icu/chartevents.csv"
 
 # Codes extracted from d_icd_diagnoses.csv
 # ESRD ICD codes

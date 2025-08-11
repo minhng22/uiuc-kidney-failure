@@ -182,7 +182,7 @@ def generate_detailed_report(results_df, patients_df, esrd_lab_events):
 
 def main():
     try:
-        patients_df, esrd_diagnose_df, d_labitems_df, labevents_df = load_data()
+        patients_df, _, d_labitems_df, labevents_df = load_data()
         
         print("\nAnalyzing top 10 lab measurements...")
         results_df, esrd_lab_events = analyze_top_lab_measurements(patients_df, labevents_df, d_labitems_df)
