@@ -281,6 +281,18 @@ class EGFRComponentsSHAPAnalysis:
         print(f"Computing SHAP values for {sample_size} samples...")
         shap_values = explainer(X_sample)
         
+        # Ensure feature names are properly set
+        if hasattr(shap_values, 'feature_names'):
+            shap_values.feature_names = self.features
+        elif hasattr(shap_values, 'data') and hasattr(shap_values.data, 'columns'):
+            shap_values.data.columns = self.features
+        
+        # For newer SHAP versions, set feature names directly
+        try:
+            shap_values.feature_names = self.features
+        except:
+            pass
+        
         self.shap_values['cox'] = shap_values
         self.explainers['cox'] = explainer
         
@@ -307,10 +319,16 @@ class EGFRComponentsSHAPAnalysis:
             explainer = shap.Explainer(surrogate, X_train)
         except Exception as e:
             if "singular" in str(e).lower():
-                print(f"Handling singular covariance matrix for {model_name}")
-                # Add small random noise to avoid singular matrix
-                X_train_noisy = X_train + np.random.normal(0, 1e-8, X_train.shape)
-                explainer = shap.Explainer(surrogate, X_train_noisy)
+                print(f"Handling singular covariance matrix for {model_name}, using TreeExplainer...")
+                try:
+                    # Use TreeExplainer for problematic models
+                    explainer = shap.TreeExplainer(surrogate)
+                except Exception as e2:
+                    print(f"TreeExplainer also failed for {model_name}, adding more noise...")
+                    # Add more substantial random noise to avoid singular matrix
+                    noise_scale = 1e-5 if model_name == 'hazard_transformer' else 1e-6
+                    X_train_noisy = X_train + np.random.normal(0, noise_scale, X_train.shape)
+                    explainer = shap.Explainer(surrogate, X_train_noisy)
             else:
                 print(f"Failed to create explainer for {model_name}: {e}")
                 return None
@@ -321,6 +339,18 @@ class EGFRComponentsSHAPAnalysis:
         
         print(f"Computing SHAP values for {sample_size} samples...")
         shap_values = explainer(X_sample)
+        
+        # Ensure feature names are properly set
+        if hasattr(shap_values, 'feature_names'):
+            shap_values.feature_names = self.features
+        elif hasattr(shap_values, 'data') and hasattr(shap_values.data, 'columns'):
+            shap_values.data.columns = self.features
+        
+        # For newer SHAP versions, set feature names directly
+        try:
+            shap_values.feature_names = self.features
+        except:
+            pass
         
         self.shap_values[model_name] = shap_values
         self.explainers[model_name] = explainer
@@ -357,7 +387,11 @@ class EGFRComponentsSHAPAnalysis:
             return
             
         plt.figure(figsize=(8, 6))
-        shap.plots.bar(self.shap_values[model_name], show=False)
+        # Set feature names on the SHAP values object before plotting
+        shap_values = self.shap_values[model_name]
+        if hasattr(shap_values, 'feature_names'):
+            shap_values.feature_names = self.features
+        shap.plots.bar(shap_values, show=False)
         plt.title(f'SHAP Feature Importance - {model_name.upper()} Model\neGFR Components Experiment')
         plt.tight_layout()
         
@@ -377,8 +411,20 @@ class EGFRComponentsSHAPAnalysis:
         shap_values = self.shap_values[model_name]
         
         for i in range(min(n_samples, len(shap_values))):
+            # Create a custom SHAP Explanation object with proper feature names
+            single_explanation = shap_values[i]
+            
+            # Create a new explanation object with proper feature names
+            import shap
+            explanation = shap.Explanation(
+                values=single_explanation.values,
+                base_values=single_explanation.base_values,
+                data=single_explanation.data,
+                feature_names=self.features
+            )
+            
             plt.figure(figsize=(10, 6))
-            shap.plots.waterfall(shap_values[i], show=False)
+            shap.plots.waterfall(explanation, show=False)
             plt.title(f'SHAP Waterfall Plot - {model_name.upper()} Model (Sample {i+1})\neGFR Components Experiment')
             plt.tight_layout()
             
