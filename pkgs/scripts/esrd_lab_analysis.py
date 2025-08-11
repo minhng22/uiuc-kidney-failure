@@ -1,10 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from collections import Counter
 import numpy as np
 from pkgs.data.store import get_esrd_patients_and_diagnoses
-from pkgs.commons import project_dir, generate_data_path_latest_rep
+from pkgs.commons import generate_data_path_latest_rep
 
 plt.style.use('default')
 sns.set_palette("husl")
