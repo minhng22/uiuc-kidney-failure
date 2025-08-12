@@ -56,16 +56,17 @@ class HazardTransformerDataset(Dataset):
             features[:seq_length, 1] = subject_data['gender'].values
             features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
         elif self.scenario_name == ExperimentScenario.FIVELABMS:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
-            features[:seq_length, 1] = subject_data['egfr_missing'].values
-            features[:seq_length, 2] = (subject_data['potassium'].values - self.df['potassium'].mean()) / self.df['potassium'].std()
-            features[:seq_length, 3] = subject_data['potassium_missing'].values
-            features[:seq_length, 4] = (subject_data['urea_nitrogen'].values - self.df['urea_nitrogen'].mean()) / self.df['urea_nitrogen'].std()
-            features[:seq_length, 5] = subject_data['urea_nitrogen_missing'].values
-            features[:seq_length, 6] = (subject_data['sodium'].values - self.df['sodium'].mean()) / self.df['sodium'].std()
-            features[:seq_length, 7] = subject_data['sodium_missing'].values
-            features[:seq_length, 8] = (subject_data['chloride'].values - self.df['chloride'].mean()) / self.df['chloride'].std()
-            features[:seq_length, 9] = subject_data['chloride_missing'].values
+            # eGFR + 9 additional lab measurements (total 10 labs + 10 missing indicators = 20 features)
+            lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+            
+            feature_idx = 0
+            for lab in lab_names:
+                # Normalize the lab value
+                features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / self.df[lab].std()
+                feature_idx += 1
+                # Missing indicator
+                features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
+                feature_idx += 1
         
         mask[:seq_length] = 1
         

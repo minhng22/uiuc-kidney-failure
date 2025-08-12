@@ -1,6 +1,9 @@
-COMPREHENSIVE FEATURE ANALYSIS REPORT
+COMPREHENSIVE FEATURE ANALYSIS REPORT - EXPANDED FIVELABMS
 ================================================================================
-Generated on: 2025-08-12 01:29:34
+Scenario: eGFR + 9 additional lab measurements
+Lab measurements: Potassium, Urea Nitrogen, Sodium, Chloride, Bicarbonate,
+                 Anion Gap, Hematocrit, Platelet Count, Hemoglobin
+Generated on: 2025-08-12 15:16:10
 ================================================================================
 
 ANALYSIS 1: FEATURE AVAILABILITY PATTERNS
@@ -8,18 +11,32 @@ ANALYSIS 1: FEATURE AVAILABILITY PATTERNS
 
 TRAINING Dataset:
 ----------------------------------------
-Total records: 558,520
-eGFR only (other labs missing): 385,752 (69.07%)
-Potassium only (eGFR missing): 43,620 (7.81%)
-Urea nitrogen only (eGFR missing): 43,689 (7.82%)
-Sodium only (eGFR missing): 42,939 (7.69%)
-Chloride only (eGFR missing): 42,520 (7.61%)
+Total records: 757,526
+
+Lab Measurement Availability:
+  Egfr: 383,188 (50.58%)
+  Potassium: 42,868 (5.66%)
+  Urea Nitrogen: 43,008 (5.68%)
+  Sodium: 42,155 (5.56%)
+  Chloride: 41,698 (5.50%)
+  Bicarbonate: 40,020 (5.28%)
+  Anion Gap: 39,942 (5.27%)
+  Hematocrit: 42,938 (5.67%)
+  Platelet Count: 40,955 (5.41%)
+  Hemoglobin: 40,754 (5.38%)
 
 TEST Dataset:
 ----------------------------------------
-Total records: 138,119
-eGFR only (other labs missing): 96,894 (70.15%)
-Potassium only (eGFR missing): 10,395 (7.53%)
-Urea nitrogen only (eGFR missing): 10,537 (7.63%)
-Sodium only (eGFR missing): 10,205 (7.39%)
-Chloride only (eGFR missing): 10,088 (7.30%)
+Total records: 196,670
+
+Lab Measurement Availability:
+  Egfr: 99,573 (50.63%)
+  Potassium: 11,260 (5.73%)
+  Urea Nitrogen: 11,331 (5.76%)
+  Sodium: 11,103 (5.65%)
+  Chloride: 10,991 (5.59%)
+  Bicarbonate: 10,523 (5.35%)
+  Anion Gap: 10,496 (5.34%)
+  Hematocrit: 10,786 (5.48%)
+  Platelet Count: 10,329 (5.25%)
+  Hemoglobin: 10,278 (5.23%)

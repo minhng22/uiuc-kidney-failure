@@ -2,7 +2,8 @@ import pandas as pd
 from pkgs.commons import (ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_path, esrd_codes, 
                           lab_events_file_path, lab_codes_creatinine, admissions_file_path, patients_file_path, 
                           lab_codes_proteins, lab_codes_albumin, lab_codes_potassium, lab_codes_urea_nitrogen, 
-                          lab_codes_sodium, lab_codes_chloride)
+                          lab_codes_sodium, lab_codes_chloride, lab_codes_bicarbonate, lab_codes_anion_gap,
+                          lab_codes_hematocrit, lab_codes_platelet_count, lab_codes_hemoglobin)
 from pkgs.data.utils_store import filter_df_on_icd_code
 from pkgs.data.utils import calculate_eGFR
 import numpy as np
@@ -130,6 +131,51 @@ def get_chloride_df(patient_df):
 
     lab_events_df['chloride'] = lab_events_df['chloride'].replace('', np.nan)
     lab_events_df = lab_events_df.dropna(subset=['chloride'])
+    return lab_events_df
+
+def get_bicarbonate_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_bicarbonate)] # unit is mEq/L
+    lab_events_df['bicarbonate'] = lab_events_df['valuenum']
+
+    lab_events_df['bicarbonate'] = lab_events_df['bicarbonate'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['bicarbonate'])
+    return lab_events_df
+
+def get_anion_gap_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_anion_gap)] # unit is mEq/L
+    lab_events_df['anion_gap'] = lab_events_df['valuenum']
+
+    lab_events_df['anion_gap'] = lab_events_df['anion_gap'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['anion_gap'])
+    return lab_events_df
+
+def get_hematocrit_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_hematocrit)] # unit is %
+    lab_events_df['hematocrit'] = lab_events_df['valuenum']
+
+    lab_events_df['hematocrit'] = lab_events_df['hematocrit'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['hematocrit'])
+    return lab_events_df
+
+def get_platelet_count_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_platelet_count)] # unit is K/uL
+    lab_events_df['platelet_count'] = lab_events_df['valuenum']
+
+    lab_events_df['platelet_count'] = lab_events_df['platelet_count'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['platelet_count'])
+    return lab_events_df
+
+def get_hemoglobin_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_hemoglobin)] # unit is g/dL
+    lab_events_df['hemoglobin'] = lab_events_df['valuenum']
+
+    lab_events_df['hemoglobin'] = lab_events_df['hemoglobin'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['hemoglobin'])
     return lab_events_df
 
 def get_first_time_esrd_df(diagnose_df):

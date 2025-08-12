@@ -21,59 +21,26 @@ def analysis_1_feature_availability():
         
         total_records = len(df)
         
-        # eGFR only (all other lab measurements missing)
-        egfr_only = df[(df['egfr_missing'] == 0) & 
-                       (df['potassium_missing'] == 1) & 
-                       (df['urea_nitrogen_missing'] == 1) &
-                       (df['sodium_missing'] == 1) &
-                       (df['chloride_missing'] == 1)]
+        # All 10 lab measurements (eGFR + 9 others)
+        all_labs = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 
+                   'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
         
-        # Individual lab measurements only (when eGFR missing)
-        potassium_only = df[(df['egfr_missing'] == 1) & 
-                           (df['potassium_missing'] == 0) & 
-                           (df['urea_nitrogen_missing'] == 1) &
-                           (df['sodium_missing'] == 1) &
-                           (df['chloride_missing'] == 1)]
-        
-        # Urea nitrogen only (when eGFR missing)
-        urea_nitrogen_only = df[(df['egfr_missing'] == 1) & 
-                               (df['potassium_missing'] == 1) & 
-                               (df['urea_nitrogen_missing'] == 0) &
-                               (df['sodium_missing'] == 1) &
-                               (df['chloride_missing'] == 1)]
-        
-        # Sodium only (when eGFR missing)
-        sodium_only = df[(df['egfr_missing'] == 1) & 
-                        (df['potassium_missing'] == 1) & 
-                        (df['urea_nitrogen_missing'] == 1) &
-                        (df['sodium_missing'] == 0) &
-                        (df['chloride_missing'] == 1)]
-        
-        # Chloride only (when eGFR missing)
-        chloride_only = df[(df['egfr_missing'] == 1) & 
-                          (df['potassium_missing'] == 1) & 
-                          (df['urea_nitrogen_missing'] == 1) &
-                          (df['sodium_missing'] == 1) &
-                          (df['chloride_missing'] == 0)]
-
+        lab_stats = {}
         print(f"Total records: {total_records:,}")
-        print(f"eGFR only (all other lab measurements missing): {len(egfr_only):,} ({len(egfr_only)/total_records*100:.2f}%)")
-        print(f"Potassium only (eGFR missing): {len(potassium_only):,} ({len(potassium_only)/total_records*100:.2f}%)")
-        print(f"Urea nitrogen only (eGFR missing): {len(urea_nitrogen_only):,} ({len(urea_nitrogen_only)/total_records*100:.2f}%)")
-        print(f"Sodium only (eGFR missing): {len(sodium_only):,} ({len(sodium_only)/total_records*100:.2f}%)")
-        print(f"Chloride only (eGFR missing): {len(chloride_only):,} ({len(chloride_only)/total_records*100:.2f}%)")
         
-        accounted_for = len(egfr_only) + len(potassium_only) + len(urea_nitrogen_only) + len(sodium_only) + len(chloride_only)
-        print(f"Verification: {accounted_for:,} / {total_records:,} records accounted for")
+        for lab in all_labs:
+            # Count records where this lab is available (not missing)
+            lab_available = df[df[f'{lab}_missing'] == 0]
+            count = len(lab_available)
+            lab_stats[lab] = count
+            lab_name = lab.replace('_', ' ').title()
+            print(f"{lab_name} available: {count:,} ({count/total_records*100:.2f}%)")
         
-        return {
-            'total': total_records,
-            'egfr_only': len(egfr_only),
-            'potassium_only': len(potassium_only),
-            'urea_nitrogen_only': len(urea_nitrogen_only),
-            'sodium_only': len(sodium_only),
-            'chloride_only': len(chloride_only)
-        }
+        result = {'total': total_records}
+        for lab in all_labs:
+            result[f'{lab}_available'] = lab_stats[lab]
+        
+        return result
     
     train_stats = analyze_availability(fl_train, "TRAINING")
     test_stats = analyze_availability(fl_test, "TEST")
@@ -83,22 +50,24 @@ def analysis_1_feature_availability():
     return train_stats, test_stats
 
 def create_availability_visualization(train_stats, test_stats):
-    _, (ax1, ax2) = plt.subplots(1, 2, figsize=(18, 8))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
     
-    categories = ['eGFR Only', 'Potassium Only', 'Urea Nitrogen Only', 'Sodium Only', 'Chloride Only']
-    train_counts = [train_stats['egfr_only'], 
-                   train_stats['potassium_only'], train_stats['urea_nitrogen_only'], 
-                   train_stats['sodium_only'], train_stats['chloride_only']]
-    test_counts = [test_stats['egfr_only'], 
-                  test_stats['potassium_only'], test_stats['urea_nitrogen_only'],
-                  test_stats['sodium_only'], test_stats['chloride_only']]
+    # All 10 lab measurements
+    lab_names = ['eGFR', 'Potassium', 'Urea Nitrogen', 'Sodium', 'Chloride', 
+                'Bicarbonate', 'Anion Gap', 'Hematocrit', 'Platelet Count', 'Hemoglobin']
+    lab_keys = ['egfr_available', 'potassium_available', 'urea_nitrogen_available', 'sodium_available', 'chloride_available',
+               'bicarbonate_available', 'anion_gap_available', 'hematocrit_available', 'platelet_count_available', 'hemoglobin_available']
+    
+    train_counts = [train_stats.get(key, 0) for key in lab_keys]
+    test_counts = [test_stats.get(key, 0) for key in lab_keys]
     
     train_pcts = [count/train_stats['total']*100 for count in train_counts]
     test_pcts = [count/test_stats['total']*100 for count in test_counts]
     
-    colors = ['#2E86C1', '#F39C12', '#E74C3C', '#8E44AD', '#17A2B8']
-    bars1 = ax1.bar(categories, train_pcts, color=colors, alpha=0.85, edgecolor='white', linewidth=0.8)
-    ax1.set_title('Training Data Feature Availability (FIVELABMS)', fontsize=16, fontweight='bold', color='#2C3E50')
+    colors = plt.cm.Set3(range(len(lab_names)))
+    
+    bars1 = ax1.bar(lab_names, train_pcts, color=colors, alpha=0.85, edgecolor='white', linewidth=0.8)
+    ax1.set_title('Training Data - Lab Measurement Availability (FIVELABMS)', fontsize=16, fontweight='bold', color='#2C3E50')
     ax1.set_ylabel('Percentage of Records', fontsize=13, fontweight='bold')
     ax1.tick_params(axis='x', rotation=45, labelsize=10)
     ax1.tick_params(axis='y', labelsize=11)
@@ -107,10 +76,10 @@ def create_availability_visualization(train_stats, test_stats):
     for bar, pct in zip(bars1, train_pcts):
         height = bar.get_height()
         ax1.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                f'{pct:.2f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
+                f'{pct:.1f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
-    bars2 = ax2.bar(categories, test_pcts, color=colors, alpha=0.85, edgecolor='white', linewidth=0.8)
-    ax2.set_title('Test Data Feature Availability (FIVELABMS)', fontsize=16, fontweight='bold', color='#2C3E50')
+    bars2 = ax2.bar(lab_names, test_pcts, color=colors, alpha=0.85, edgecolor='white', linewidth=0.8)
+    ax2.set_title('Test Data - Lab Measurement Availability (FIVELABMS)', fontsize=16, fontweight='bold', color='#2C3E50')
     ax2.set_ylabel('Percentage of Records', fontsize=13, fontweight='bold')
     ax2.tick_params(axis='x', rotation=45, labelsize=10)
     ax2.tick_params(axis='y', labelsize=11)
@@ -119,7 +88,7 @@ def create_availability_visualization(train_stats, test_stats):
     for bar, pct in zip(bars2, test_pcts):
         height = bar.get_height()
         ax2.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                f'{pct:.2f}%', ha='center', va='bottom', fontsize=11, fontweight='bold')
+                f'{pct:.1f}%', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     plt.tight_layout()
     plt.savefig(f'{generate_data_path_latest_rep}/fivelabms_feature_availability_analysis.png', dpi=300, bbox_inches='tight')
@@ -130,8 +99,11 @@ def main():
     output_file = f'{generate_data_path_latest_rep}/fivelabms_comprehensive_feature_analysis_report.txt'
     
     with open(output_file, 'w') as f:
-        f.write("COMPREHENSIVE FEATURE ANALYSIS REPORT\n")
+        f.write("COMPREHENSIVE FEATURE ANALYSIS REPORT - EXPANDED FIVELABMS\n")
         f.write("=" * 80 + "\n")
+        f.write("Scenario: eGFR + 9 additional lab measurements\n")
+        f.write("Lab measurements: Potassium, Urea Nitrogen, Sodium, Chloride, Bicarbonate,\n")
+        f.write("                 Anion Gap, Hematocrit, Platelet Count, Hemoglobin\n")
         f.write(f"Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write("=" * 80 + "\n\n")
         
@@ -141,21 +113,26 @@ def main():
         
         f.write("\nTRAINING Dataset:\n")
         f.write("-" * 40 + "\n")
-        f.write(f"Total records: {train_stats['total']:,}\n")
-        f.write(f"eGFR only (other labs missing): {train_stats['egfr_only']:,} ({train_stats['egfr_only']/train_stats['total']*100:.2f}%)\n")
-        f.write(f"Potassium only (eGFR missing): {train_stats['potassium_only']:,} ({train_stats['potassium_only']/train_stats['total']*100:.2f}%)\n")
-        f.write(f"Urea nitrogen only (eGFR missing): {train_stats['urea_nitrogen_only']:,} ({train_stats['urea_nitrogen_only']/train_stats['total']*100:.2f}%)\n")
-        f.write(f"Sodium only (eGFR missing): {train_stats['sodium_only']:,} ({train_stats['sodium_only']/train_stats['total']*100:.2f}%)\n")
-        f.write(f"Chloride only (eGFR missing): {train_stats['chloride_only']:,} ({train_stats['chloride_only']/train_stats['total']*100:.2f}%)\n")
+        f.write(f"Total records: {train_stats['total']:,}\n\n")
+        
+        # Individual lab availability
+        all_labs = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 
+                   'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+        f.write("Lab Measurement Availability:\n")
+        for lab in all_labs:
+            lab_display = lab.replace('_', ' ').title()
+            count = train_stats.get(f'{lab}_available', 0)
+            f.write(f"  {lab_display}: {count:,} ({count/train_stats['total']*100:.2f}%)\n")
         
         f.write("\nTEST Dataset:\n")
         f.write("-" * 40 + "\n")
-        f.write(f"Total records: {test_stats['total']:,}\n")
-        f.write(f"eGFR only (other labs missing): {test_stats['egfr_only']:,} ({test_stats['egfr_only']/test_stats['total']*100:.2f}%)\n")
-        f.write(f"Potassium only (eGFR missing): {test_stats['potassium_only']:,} ({test_stats['potassium_only']/test_stats['total']*100:.2f}%)\n")
-        f.write(f"Urea nitrogen only (eGFR missing): {test_stats['urea_nitrogen_only']:,} ({test_stats['urea_nitrogen_only']/test_stats['total']*100:.2f}%)\n")
-        f.write(f"Sodium only (eGFR missing): {test_stats['sodium_only']:,} ({test_stats['sodium_only']/test_stats['total']*100:.2f}%)\n")
-        f.write(f"Chloride only (eGFR missing): {test_stats['chloride_only']:,} ({test_stats['chloride_only']/test_stats['total']*100:.2f}%)\n")
+        f.write(f"Total records: {test_stats['total']:,}\n\n")
+        
+        f.write("Lab Measurement Availability:\n")
+        for lab in all_labs:
+            lab_display = lab.replace('_', ' ').title()
+            count = test_stats.get(f'{lab}_available', 0)
+            f.write(f"  {lab_display}: {count:,} ({count/test_stats['total']*100:.2f}%)\n")
     
     print(f"Comprehensive analysis report saved to: {output_file}")
     print("Visualizations saved to:")

@@ -197,6 +197,26 @@ def analyze_train_test_data():
             # Analyze the distribution of chloride values
             print(f"Distribution of chloride in train data:\n{data_train[data_train['chloride_missing'] == 0]['chloride'].describe()}")
             print(f"Distribution of chloride in test data:\n{data_test[data_test['chloride_missing'] == 0]['chloride'].describe()}")
+
+            # Analyze the distribution of bicarbonate values
+            print(f"Distribution of bicarbonate in train data:\n{data_train[data_train['bicarbonate_missing'] == 0]['bicarbonate'].describe()}")
+            print(f"Distribution of bicarbonate in test data:\n{data_test[data_test['bicarbonate_missing'] == 0]['bicarbonate'].describe()}")
+
+            # Analyze the distribution of anion_gap values
+            print(f"Distribution of anion_gap in train data:\n{data_train[data_train['anion_gap_missing'] == 0]['anion_gap'].describe()}")
+            print(f"Distribution of anion_gap in test data:\n{data_test[data_test['anion_gap_missing'] == 0]['anion_gap'].describe()}")
+
+            # Analyze the distribution of hematocrit values
+            print(f"Distribution of hematocrit in train data:\n{data_train[data_train['hematocrit_missing'] == 0]['hematocrit'].describe()}")
+            print(f"Distribution of hematocrit in test data:\n{data_test[data_test['hematocrit_missing'] == 0]['hematocrit'].describe()}")
+
+            # Analyze the distribution of platelet_count values
+            print(f"Distribution of platelet_count in train data:\n{data_train[data_train['platelet_count_missing'] == 0]['platelet_count'].describe()}")
+            print(f"Distribution of platelet_count in test data:\n{data_test[data_test['platelet_count_missing'] == 0]['platelet_count'].describe()}")
+
+            # Analyze the distribution of hemoglobin values
+            print(f"Distribution of hemoglobin in train data:\n{data_train[data_train['hemoglobin_missing'] == 0]['hemoglobin'].describe()}")
+            print(f"Distribution of hemoglobin in test data:\n{data_test[data_test['hemoglobin_missing'] == 0]['hemoglobin'].describe()}")
         elif scenario == ExperimentScenario.NON_TIME_VARIANT:
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")

@@ -148,11 +148,12 @@ def get_tv_rnn_model_features(scenario_name: ExperimentScenario):
     elif scenario_name == ExperimentScenario.EGFR_COMPONENTS:
         return ['age', 'gender', 'serum_creatinine']
     elif scenario_name == ExperimentScenario.FIVELABMS:
-        return ['egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing']
+        return ['egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 
+                'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing',
+                'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing',
+                'hemoglobin', 'hemoglobin_missing']
     elif scenario_name == ExperimentScenario.NON_TIME_VARIANT:
         return ['egfr']
-    elif scenario_name == ExperimentScenario.FIVELABMS:
-        return ['egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing']
 
 def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0.5, w2=0.1):
     batch_size = hazard_preds.size(0)

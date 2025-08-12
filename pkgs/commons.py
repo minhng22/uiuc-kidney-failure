@@ -61,6 +61,11 @@ lab_codes_potassium = ['50971']
 lab_codes_urea_nitrogen = ['51006']
 lab_codes_sodium = ['50983']
 lab_codes_chloride = ['50902']
+lab_codes_bicarbonate = ['50882']
+lab_codes_anion_gap = ['50868']
+lab_codes_hematocrit = ['51221']
+lab_codes_platelet_count = ['51265']
+lab_codes_hemoglobin = ['51222']
 
 ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']
 """

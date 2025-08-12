@@ -3,7 +3,7 @@ from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_cod
 from pkgs.data.time_series_utils_store import calculate_duration_in_days
 from pkgs.data.types import ExperimentScenario
 from pkgs.commons import esrd_codes, patients_file_path, esrd_patient_ids_path
-from pkgs.data.store import get_egfr_df, get_first_time_esrd_df, get_protein_df, get_albumin_df, get_potassium_df, get_urea_nitrogen_df, get_sodium_df, get_chloride_df
+from pkgs.data.store import get_egfr_df, get_first_time_esrd_df, get_protein_df, get_albumin_df, get_potassium_df, get_urea_nitrogen_df, get_sodium_df, get_chloride_df, get_bicarbonate_df, get_anion_gap_df, get_hematocrit_df, get_platelet_count_df, get_hemoglobin_df
 import pandas as pd
 from pkgs.data.types import ExperimentScenario
 import numpy as np
@@ -175,57 +175,47 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         
         lab_df = pd.concat([egfr_df, protein_df, albumin_df])
     elif scenario_name == ExperimentScenario.FIVELABMS:
+        # eGFR + 9 additional lab measurements
         egfr_df = get_egfr_df(patients)
         egfr_df['egfr_missing'] = 0
-        egfr_df['potassium_missing'] = 1; egfr_df['potassium'] = 0
-        egfr_df['urea_nitrogen_missing'] = 1; egfr_df['urea_nitrogen'] = 0
-        egfr_df['sodium_missing'] = 1; egfr_df['sodium'] = 0
-        egfr_df['chloride_missing'] = 1; egfr_df['chloride'] = 0
+        for lab in ['potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']:
+            egfr_df[f'{lab}_missing'] = 1
+            egfr_df[lab] = 0
 
         print('number of patients with egfr:', egfr_df['subject_id'].nunique())
         print('number of records with egfr:', len(egfr_df))
 
-        potassium_df = get_potassium_df(patients)
-        potassium_df['potassium_missing'] = 0
-        potassium_df['egfr_missing'] = 1; potassium_df['egfr'] = 0
-        potassium_df['urea_nitrogen_missing'] = 1; potassium_df['urea_nitrogen'] = 0
-        potassium_df['sodium_missing'] = 1; potassium_df['sodium'] = 0
-        potassium_df['chloride_missing'] = 1; potassium_df['chloride'] = 0
+        # Get all lab measurements
+        lab_dfs = [egfr_df]
+        lab_functions = [
+            ('potassium', get_potassium_df),
+            ('urea_nitrogen', get_urea_nitrogen_df),
+            ('sodium', get_sodium_df),
+            ('chloride', get_chloride_df),
+            ('bicarbonate', get_bicarbonate_df),
+            ('anion_gap', get_anion_gap_df),
+            ('hematocrit', get_hematocrit_df),
+            ('platelet_count', get_platelet_count_df),
+            ('hemoglobin', get_hemoglobin_df)
+        ]
 
-        print('number of patients with potassium:', potassium_df['subject_id'].nunique())
-        print('number of records with potassium:', len(potassium_df))
-
-        urea_nitrogen_df = get_urea_nitrogen_df(patients)
-        urea_nitrogen_df['urea_nitrogen_missing'] = 0
-        urea_nitrogen_df['egfr_missing'] = 1; urea_nitrogen_df['egfr'] = 0
-        urea_nitrogen_df['potassium_missing'] = 1; urea_nitrogen_df['potassium'] = 0
-        urea_nitrogen_df['sodium_missing'] = 1; urea_nitrogen_df['sodium'] = 0
-        urea_nitrogen_df['chloride_missing'] = 1; urea_nitrogen_df['chloride'] = 0
-
-        print('number of patients with urea_nitrogen:', urea_nitrogen_df['subject_id'].nunique())
-        print('number of records with urea_nitrogen:', len(urea_nitrogen_df))
-
-        sodium_df = get_sodium_df(patients)
-        sodium_df['sodium_missing'] = 0
-        sodium_df['egfr_missing'] = 1; sodium_df['egfr'] = 0
-        sodium_df['potassium_missing'] = 1; sodium_df['potassium'] = 0
-        sodium_df['urea_nitrogen_missing'] = 1; sodium_df['urea_nitrogen'] = 0
-        sodium_df['chloride_missing'] = 1; sodium_df['chloride'] = 0
-
-        print('number of patients with sodium:', sodium_df['subject_id'].nunique())
-        print('number of records with sodium:', len(sodium_df))
-
-        chloride_df = get_chloride_df(patients)
-        chloride_df['chloride_missing'] = 0
-        chloride_df['egfr_missing'] = 1; chloride_df['egfr'] = 0
-        chloride_df['potassium_missing'] = 1; chloride_df['potassium'] = 0
-        chloride_df['urea_nitrogen_missing'] = 1; chloride_df['urea_nitrogen'] = 0
-        chloride_df['sodium_missing'] = 1; chloride_df['sodium'] = 0
-
-        print('number of patients with chloride:', chloride_df['subject_id'].nunique())
-        print('number of records with chloride:', len(chloride_df))
+        all_labs = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
         
-        lab_df = pd.concat([egfr_df, potassium_df, urea_nitrogen_df, sodium_df, chloride_df])
+        for lab_name, lab_func in lab_functions:
+            lab_df = lab_func(patients)
+            lab_df[f'{lab_name}_missing'] = 0
+            
+            # Set missing indicators for all other labs
+            for other_lab in all_labs:
+                if other_lab != lab_name:
+                    lab_df[f'{other_lab}_missing'] = 1
+                    lab_df[other_lab] = 0
+
+            print(f'number of patients with {lab_name}:', lab_df['subject_id'].nunique())
+            print(f'number of records with {lab_name}:', len(lab_df))
+            lab_dfs.append(lab_df)
+        
+        lab_df = pd.concat(lab_dfs)
     else:
         assert scenario_name == ExperimentScenario.EGFR_COMPONENTS, f"Unknown scenario name: {scenario_name}"
         lab_df = get_egfr_df(patients)
@@ -250,7 +240,7 @@ def get_feature_columns(scenario):
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         return ['age', 'gender', 'serum_creatinine']
     elif scenario == ExperimentScenario.FIVELABMS:
-        return ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride']
+        return ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
 
 def add_time_variant_support(df):
     df = df.sort_values(by=['subject_id', 'duration_in_days'])
@@ -320,7 +310,7 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
     elif scenario == ExperimentScenario.HETEROGENEOUS:
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'protein', 'protein_missing', 'albumin', 'albumin_missing', 'has_esrd']]
     elif scenario == ExperimentScenario.FIVELABMS:
-        lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'has_esrd']]
+        lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'has_esrd']]
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']]
     
@@ -341,7 +331,7 @@ def get_final_columns(scenario):
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         return ['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']
     elif scenario == ExperimentScenario.FIVELABMS:
-        return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'has_esrd']
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'has_esrd']
 
 def get_data_with_null_analyze():
     # get_time_series_data_ckd_patients('egfr_components')
