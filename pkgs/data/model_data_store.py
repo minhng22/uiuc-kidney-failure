@@ -4,10 +4,13 @@ from sklearn.model_selection import train_test_split
 from pkgs.commons import (
     egfr_tv_train_data_path, egfr_tv_test_data_path, egfr_ti_train_data_path, egfr_ti_test_data_path,
     egfr_components_test_data_path, egfr_components_train_data_path,
-    heterogen_train_data_path, heterogen_test_data_path, prev_egfr_ti_train_data_path,
+    heterogen_train_data_path, heterogen_test_data_path, 
+    fivelabms_train_data_path, fivelabms_test_data_path,
+    prev_egfr_ti_train_data_path,
     prev_egfr_ti_test_data_path, prev_egfr_tv_train_data_path, prev_egfr_tv_test_data_path,
     prev_egfr_components_train_data_path, prev_egfr_components_test_data_path,
-    prev_heterogen_train_data_path, prev_heterogen_test_data_path
+    prev_heterogen_train_data_path, prev_heterogen_test_data_path,
+    prev_fivelabms_train_data_path, prev_fivelabms_test_data_path
 )
 from pkgs.data.types import ExperimentScenario
 from pkgs.data.time_series_store import get_time_series_data_ckd_patients
@@ -49,13 +52,15 @@ def get_train_test_data(scenario: ExperimentScenario):
         ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
         ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
         ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path,
+        ExperimentScenario.FIVELABMS: fivelabms_train_data_path
     }
     test_data_stored_path = {
         ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
         ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
         ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path,
+        ExperimentScenario.FIVELABMS: fivelabms_test_data_path
     }
     train_path = train_data_stored_path[scenario]
     test_path = test_data_stored_path[scenario]
@@ -91,7 +96,7 @@ def get_train_test_data(scenario: ExperimentScenario):
     return data_train, data_test
 
 def analyze_train_test_data():
-    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]:
         print(f"Analyzing scenario: {scenario}")
         data_train, data_test = get_train_test_data(scenario)
         print(f"Train data:\n{data_train.head()}")
@@ -172,6 +177,26 @@ def analyze_train_test_data():
             # Analyze the distribution of albumin values
             print(f"Distribution of albumin in train data:\n{data_train[data_train['albumin_missing'] == 0]['albumin'].describe()}")
             print(f"Distribution of albumin in test data:\n{data_test[data_test['albumin_missing'] == 0]['albumin'].describe()}")
+        elif scenario == ExperimentScenario.FIVELABMS:
+            # Analyze the distribution of eGFR values
+            print(f"Distribution of eGFR in train data:\n{data_train[data_train['egfr_missing'] == 0]['egfr'].describe()}")
+            print(f"Distribution of eGFR in test data:\n{data_test[data_test['egfr_missing'] == 0]['egfr'].describe()}")
+
+            # Analyze the distribution of potassium values
+            print(f"Distribution of potassium in train data:\n{data_train[data_train['potassium_missing'] == 0]['potassium'].describe()}")
+            print(f"Distribution of potassium in test data:\n{data_test[data_test['potassium_missing'] == 0]['potassium'].describe()}")
+
+            # Analyze the distribution of urea nitrogen values
+            print(f"Distribution of urea nitrogen in train data:\n{data_train[data_train['urea_nitrogen_missing'] == 0]['urea_nitrogen'].describe()}")
+            print(f"Distribution of urea nitrogen in test data:\n{data_test[data_test['urea_nitrogen_missing'] == 0]['urea_nitrogen'].describe()}")
+
+            # Analyze the distribution of sodium values
+            print(f"Distribution of sodium in train data:\n{data_train[data_train['sodium_missing'] == 0]['sodium'].describe()}")
+            print(f"Distribution of sodium in test data:\n{data_test[data_test['sodium_missing'] == 0]['sodium'].describe()}")
+
+            # Analyze the distribution of chloride values
+            print(f"Distribution of chloride in train data:\n{data_train[data_train['chloride_missing'] == 0]['chloride'].describe()}")
+            print(f"Distribution of chloride in test data:\n{data_test[data_test['chloride_missing'] == 0]['chloride'].describe()}")
         elif scenario == ExperimentScenario.NON_TIME_VARIANT:
             # Analyze the distribution of eGFR values
             print(f"Distribution of eGFR in train data:\n{data_train['egfr'].describe()}")
@@ -179,7 +204,7 @@ def analyze_train_test_data():
 
 def validate_subject_ids():
     # Make sure that the subject in train are not in test data
-    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]:
         print(f"Validating subject IDs for scenario: {scenario}")
         data_train, data_test = get_train_test_data(scenario)
 
@@ -193,25 +218,27 @@ def validate_subject_ids():
             print(f"No common subjects found in train and test data for scenario {scenario}.")
 
 def get_train_test_data_for_all_scenarios():
-    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]:
         print(f"Getting train and test data for scenario: {scenario}")
         get_train_test_data(scenario)
 
 def reshuffle_train_test_data():
-    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
+    for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]:
         print(f"Reshuffling train and test data for scenario: {scenario}")
         
         prev_train_data_stored_path = {
             ExperimentScenario.NON_TIME_VARIANT: prev_egfr_ti_train_data_path,
             ExperimentScenario.TIME_VARIANT: prev_egfr_tv_train_data_path,
             ExperimentScenario.HETEROGENEOUS: prev_heterogen_train_data_path,
-            ExperimentScenario.EGFR_COMPONENTS: prev_egfr_components_train_data_path
+            ExperimentScenario.EGFR_COMPONENTS: prev_egfr_components_train_data_path,
+            ExperimentScenario.FIVELABMS: prev_fivelabms_train_data_path
         }
         prev_test_data_stored_path = {
             ExperimentScenario.NON_TIME_VARIANT: prev_egfr_ti_test_data_path,
             ExperimentScenario.TIME_VARIANT: prev_egfr_tv_test_data_path,
             ExperimentScenario.HETEROGENEOUS: prev_heterogen_test_data_path,
-            ExperimentScenario.EGFR_COMPONENTS: prev_egfr_components_test_data_path
+            ExperimentScenario.EGFR_COMPONENTS: prev_egfr_components_test_data_path,
+            ExperimentScenario.FIVELABMS: prev_fivelabms_test_data_path
         }
         prev_train_path = prev_train_data_stored_path[scenario]
         prev_test_path = prev_test_data_stored_path[scenario]
@@ -233,13 +260,15 @@ def reshuffle_train_test_data():
             ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
             ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
             ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
-            ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path
+            ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path,
+            ExperimentScenario.FIVELABMS: fivelabms_train_data_path
         }
         test_data_path = {
             ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
             ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
             ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
-            ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path
+            ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path,
+            ExperimentScenario.FIVELABMS: fivelabms_test_data_path
         }
 
         data_train.to_csv(train_data_path[scenario])

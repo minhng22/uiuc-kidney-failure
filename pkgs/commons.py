@@ -57,6 +57,10 @@ lab_codes_egfr = ['50920', '52026', '53176']
 lab_codes_proteins_24hr = ['51068']
 lab_codes_proteins = ['51992', '51102', '51492']
 lab_codes_albumin = ['51069', '51070', '52703']
+lab_codes_potassium = ['50971']
+lab_codes_urea_nitrogen = ['51006']
+lab_codes_sodium = ['50983']
+lab_codes_chloride = ['50902']
 
 ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']
 """
@@ -107,6 +111,15 @@ egfr_components_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/e
 egfr_components_survtimesurvival_model_path = f'{generate_data_path_latest_rep}/egfr_components_survtimesurvival_model.pt'
 egfr_components_deeponet_model_path = f'{generate_data_path_latest_rep}/egfr_components_deeponet_model.pt'
 
+# trained models - fivelabms scenario
+fivelabms_cox_model_path = f'{generate_data_path_latest_rep}/fivelabms_cox_model.dill'
+fivelabms_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/fivelabms_ddh_model.pt'
+fivelabms_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/fivelabms_hazard_transformer_model.pt'
+fivelabms_rnn_surv_model_path = f'{generate_data_path_latest_rep}/fivelabms_rnn_surv_model.pt'
+fivelabms_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/fivelabms_logistic_hazard_model.pt'
+fivelabms_survtimesurvival_model_path = f'{generate_data_path_latest_rep}/fivelabms_survtimesurvival_model.pt'
+fivelabms_deeponet_model_path = f'{generate_data_path_latest_rep}/fivelabms_deeponet_model.pt'
+
 # train and test data
 heterogen_train_data_path = f'{generate_data_path_latest_rep}/heterogen_train_data.csv'
 heterogen_test_data_path = f'{generate_data_path_latest_rep}/heterogen_test_data.csv'
@@ -116,6 +129,8 @@ egfr_ti_train_data_path = f'{generate_data_path_latest_rep}/egfr_ti_train_data.c
 egfr_ti_test_data_path = f'{generate_data_path_latest_rep}/egfr_ti_test_data.csv'
 egfr_components_train_data_path = f'{generate_data_path_latest_rep}/egfr_components_train_data.csv'
 egfr_components_test_data_path = f'{generate_data_path_latest_rep}/egfr_components_test_data.csv'
+fivelabms_train_data_path = f'{generate_data_path_latest_rep}/fivelabms_train_data.csv'
+fivelabms_test_data_path = f'{generate_data_path_latest_rep}/fivelabms_test_data.csv'
 
 prev_heterogen_train_data_path = f'{generate_data_path}/heterogen_train_data.csv'
 prev_heterogen_test_data_path = f'{generate_data_path}/heterogen_test_data.csv'
@@ -125,6 +140,8 @@ prev_egfr_ti_train_data_path = f'{generate_data_path}/egfr_ti_train_data.csv'
 prev_egfr_ti_test_data_path = f'{generate_data_path}/egfr_ti_test_data.csv'
 prev_egfr_components_train_data_path = f'{generate_data_path}/egfr_components_train_data.csv'
 prev_egfr_components_test_data_path = f'{generate_data_path}/egfr_components_test_data.csv'
+prev_fivelabms_train_data_path = f'{generate_data_path}/fivelabms_train_data.csv'
+prev_fivelabms_test_data_path = f'{generate_data_path}/fivelabms_test_data.csv'
 
 esrd_patient_ids_path = f'{generate_data_path_latest_rep}/esrd_patient_ids.csv'
 

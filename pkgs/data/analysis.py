@@ -204,13 +204,13 @@ def analyze_ckd():
 
 def analyze_admission(patients_df=None):
     admission_df = get_admission_df(False)
-    print(f"Number of admissions: {len(admission_df)}")
-    print(f"Number of unique patients: {admission_df['subject_id'].nunique()}")
-
     if patients_df is not None:
         admission_df = admission_df[admission_df['subject_id'].isin(patients_df['subject_id'])]
-        print(f"Number of admissions for patients in cohort: {len(admission_df)}")
-        print(f"Number of unique patients in cohort: {admission_df['subject_id'].nunique()}")
+        print(f"Number of admissions: {len(admission_df)}")
+        print(f"Number of unique patients: {admission_df['subject_id'].nunique()}")
+    else:
+        print(f"Number of admissions: {len(admission_df)}")
+        print(f"Number of unique patients: {admission_df['subject_id'].nunique()}")
 
 def analyze_admission_aggregate():
     print("Analyzing admission of ESRD patients...")

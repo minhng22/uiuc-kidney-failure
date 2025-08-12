@@ -5,3 +5,4 @@ class ExperimentScenario(Enum):
     TIME_VARIANT = "time_variant"
     HETEROGENEOUS = "heterogeneous" # time-variant set up. Use egfr + protein + albumin as features
     EGFR_COMPONENTS = "egfr_components" # Use gender + age + serum creatinine as features
+    FIVELABMS = "fivelabms" # time-variant set up. Use egfr + potassium + urea nitrogen + sodium + chloride as features

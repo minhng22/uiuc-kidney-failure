@@ -1,5 +1,5 @@
 import pandas as pd
-from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path
+from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path, fivelabms_dynamic_deep_hit_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
@@ -20,6 +20,7 @@ model_saved_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_dynamic_deep_hit_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_dynamic_deep_hit_model_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_dynamic_deep_hit_model_path,
+        ExperimentScenario.FIVELABMS: fivelabms_dynamic_deep_hit_model_path,
     }
 
 class DynamicDeepHitDataset(Dataset):

@@ -1,6 +1,6 @@
 import math
 import pandas as pd
-from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path
+from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
@@ -55,6 +55,17 @@ class HazardTransformerDataset(Dataset):
             features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
             features[:seq_length, 1] = subject_data['gender'].values
             features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
+        elif self.scenario_name == ExperimentScenario.FIVELABMS:
+            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 1] = subject_data['egfr_missing'].values
+            features[:seq_length, 2] = (subject_data['potassium'].values - self.df['potassium'].mean()) / self.df['potassium'].std()
+            features[:seq_length, 3] = subject_data['potassium_missing'].values
+            features[:seq_length, 4] = (subject_data['urea_nitrogen'].values - self.df['urea_nitrogen'].mean()) / self.df['urea_nitrogen'].std()
+            features[:seq_length, 5] = subject_data['urea_nitrogen_missing'].values
+            features[:seq_length, 6] = (subject_data['sodium'].values - self.df['sodium'].mean()) / self.df['sodium'].std()
+            features[:seq_length, 7] = subject_data['sodium_missing'].values
+            features[:seq_length, 8] = (subject_data['chloride'].values - self.df['chloride'].mean()) / self.df['chloride'].std()
+            features[:seq_length, 9] = subject_data['chloride_missing'].values
         
         mask[:seq_length] = 1
         
@@ -245,6 +256,7 @@ def run(scenario_name: ExperimentScenario):
         ExperimentScenario.TIME_VARIANT: egfr_tv_hazard_transformer_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_hazard_transformer_model_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_hazard_transformer_model_path,
+        ExperimentScenario.FIVELABMS: fivelabms_hazard_transformer_model_path,
     }
     model_saved_path = model_saved_path_dict[scenario_name]
     

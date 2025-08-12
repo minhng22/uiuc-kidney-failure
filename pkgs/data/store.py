@@ -1,7 +1,8 @@
 import pandas as pd
 from pkgs.commons import (ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_path, esrd_codes, 
                           lab_events_file_path, lab_codes_creatinine, admissions_file_path, patients_file_path, 
-                          lab_codes_proteins, lab_codes_albumin)
+                          lab_codes_proteins, lab_codes_albumin, lab_codes_potassium, lab_codes_urea_nitrogen, 
+                          lab_codes_sodium, lab_codes_chloride)
 from pkgs.data.utils_store import filter_df_on_icd_code
 from pkgs.data.utils import calculate_eGFR
 import numpy as np
@@ -93,6 +94,42 @@ def get_albumin_df(patient_df):
 
     lab_events_df['albumin'] = lab_events_df['albumin'].replace('', np.nan)
     lab_events_df = lab_events_df.dropna(subset=['albumin'])
+    return lab_events_df
+
+def get_potassium_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_potassium)] # unit is mEq/L
+    lab_events_df['potassium'] = lab_events_df['valuenum']
+
+    lab_events_df['potassium'] = lab_events_df['potassium'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['potassium'])
+    return lab_events_df
+
+def get_urea_nitrogen_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_urea_nitrogen)] # unit is mg/dL
+    lab_events_df['urea_nitrogen'] = lab_events_df['valuenum']
+
+    lab_events_df['urea_nitrogen'] = lab_events_df['urea_nitrogen'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['urea_nitrogen'])
+    return lab_events_df
+
+def get_sodium_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_sodium)] # unit is mEq/L
+    lab_events_df['sodium'] = lab_events_df['valuenum']
+
+    lab_events_df['sodium'] = lab_events_df['sodium'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['sodium'])
+    return lab_events_df
+
+def get_chloride_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_chloride)] # unit is mEq/L
+    lab_events_df['chloride'] = lab_events_df['valuenum']
+
+    lab_events_df['chloride'] = lab_events_df['chloride'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['chloride'])
     return lab_events_df
 
 def get_first_time_esrd_df(diagnose_df):
