@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from pkgs.data.store import get_esrd_patients_and_diagnoses
+from pkgs.data.store import get_ckd_patients_and_diagnoses
 from pkgs.commons import generate_data_path_latest_rep
 
 plt.style.use('default')
@@ -11,20 +11,16 @@ sns.set_palette("husl")
 def load_data():
     print("Loading ESRD patients data...")
     
-    diagnoses_path = "/Volumes/MBAir_Extended/uiuc_kidney_failure/data/mimic-iv-2.2/hosp/diagnoses_icd.csv"
-    patients_path = "/Volumes/MBAir_Extended/uiuc_kidney_failure/data/mimic-iv-2.2/hosp/patients.csv"
-    
-    patients_df, esrd_diagnose_df = get_esrd_patients_and_diagnoses(
-        diagnose_icd_file_path_supplied_s=diagnoses_path,
-        patients_file_path_s=patients_path
+    patients_df, esrd_diagnose_df = get_ckd_patients_and_diagnoses(
+        late_stage=True,
     )
     
     print("Loading lab items dictionary...")
-    d_labitems_path = "/Volumes/MBAir_Extended/uiuc_kidney_failure/data/mimic-iv-2.2/hosp/d_labitems.csv"
+    d_labitems_path = "/home/minhn2/uiuc-kidney-failure/data/mimic-iv-2.2/hosp/d_labitems.csv"
     d_labitems_df = pd.read_csv(d_labitems_path)
     
     print("Loading lab events data...")
-    labevents_path = "/Volumes/MBAir_Extended/uiuc_kidney_failure/data/mimic-iv-2.2/hosp/labevents.csv"
+    labevents_path = "/home/minhn2/uiuc-kidney-failure/data/mimic-iv-2.2/hosp/labevents.csv"
     labevents_df = pd.read_csv(labevents_path)
     
     return patients_df, esrd_diagnose_df, d_labitems_df, labevents_df
