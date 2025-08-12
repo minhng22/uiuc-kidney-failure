@@ -11,7 +11,7 @@ def project_dir():
 ----------MIMIC-V data paths----------
 """
 
-data_path_prefix = "/Volumes/MBAir_Extended/uiuc_kidney_failure/data/mimic-iv-2.2"
+data_path_prefix = f"{project_dir()}/data/mimic-iv-2.2"
 
 diagnose_icd_file_path = f"{data_path_prefix}/hosp/diagnoses_icd.csv"
 patients_file_path = f"{data_path_prefix}/hosp/patients.csv"
