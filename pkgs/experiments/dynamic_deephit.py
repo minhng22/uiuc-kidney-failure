@@ -373,7 +373,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     return cindex
 
 def get_device():
-    return torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
+    return torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
@@ -402,6 +402,7 @@ def run(scenario_name: ExperimentScenario):
     brier_score_evaluation(model, test_dataset, df, device)
 
 if __name__ == '__main__':
-    run(ExperimentScenario.TIME_VARIANT)
-    run(ExperimentScenario.HETEROGENEOUS)
-    run(ExperimentScenario.EGFR_COMPONENTS)
+    #run(ExperimentScenario.TIME_VARIANT)
+    #run(ExperimentScenario.HETEROGENEOUS)
+    #run(ExperimentScenario.EGFR_COMPONENTS)
+    run(ExperimentScenario.FIVELABMS)

@@ -182,10 +182,6 @@ def analyze_train_test_data():
             print(f"Distribution of eGFR in train data:\n{data_train[data_train['egfr_missing'] == 0]['egfr'].describe()}")
             print(f"Distribution of eGFR in test data:\n{data_test[data_test['egfr_missing'] == 0]['egfr'].describe()}")
 
-            # Analyze the distribution of potassium values
-            print(f"Distribution of potassium in train data:\n{data_train[data_train['potassium_missing'] == 0]['potassium'].describe()}")
-            print(f"Distribution of potassium in test data:\n{data_test[data_test['potassium_missing'] == 0]['potassium'].describe()}")
-
             # Analyze the distribution of urea nitrogen values
             print(f"Distribution of urea nitrogen in train data:\n{data_train[data_train['urea_nitrogen_missing'] == 0]['urea_nitrogen'].describe()}")
             print(f"Distribution of urea nitrogen in test data:\n{data_test[data_test['urea_nitrogen_missing'] == 0]['urea_nitrogen'].describe()}")

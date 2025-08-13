@@ -6,7 +6,7 @@ from lifelines.utils import concordance_index
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
-from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path
+from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path
 from pkgs.data.model_data_store import get_train_test_data
 from pkgs.data.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
@@ -22,7 +22,7 @@ def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_t
     return auc_values, mean_auc
 
 def run_cox_model(scenario: ExperimentScenario):
-    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]
+    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]
 
     data_train, data_test = get_train_test_data(scenario)
 
@@ -58,13 +58,15 @@ def run_cox_model(scenario: ExperimentScenario):
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 def get_model_path(scenario: ExperimentScenario):
-    assert scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]
+    assert scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, 
+                        ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]
 
     model_path = {
         ExperimentScenario.NON_TIME_VARIANT: egfr_ti_cox_model_path,
         ExperimentScenario.TIME_VARIANT: egfr_tv_cox_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_cox_model_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_cox_model_path
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_cox_model_path,
+        ExperimentScenario.FIVELABMS: fivelabms_cox_model_path
     }
 
     return model_path[scenario]
@@ -115,6 +117,9 @@ def run_all():
     print("\nRunning egfr raw Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.EGFR_COMPONENTS)
 
+    print("\nRunning ExperimentScenario.FIVELABMS Cox model...")
+    run_cox_model(ExperimentScenario.FIVELABMS)
+
 def joblib_to_dill():
     for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS]:
         model_path = get_model_path(scenario)
@@ -127,4 +132,5 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
-    run_all()
+    print("\nRunning ExperimentScenario.FIVELABMS Cox model...")
+    run_cox_model(ExperimentScenario.FIVELABMS)
