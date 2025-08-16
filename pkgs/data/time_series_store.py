@@ -63,28 +63,38 @@ def process_positive_patients(diagnoses_df, patient_ids, scenario_name):
     # 188813    11206658   14083836.0  21087283.0  2200-02-17 07:55:00      2202-10-11 19:07:00
     # 188814    11206658   14083873.0         NaN  2202-10-11 16:40:00      2202-10-11 19:07:00
 
-    lab_df['has_esrd'] = lab_df['time'] >= lab_df['first_diagnose_esrd_time']
-    lab_df['has_esrd'] = lab_df['has_esrd'].astype(int)
-
+    # Initially set has_esrd to 0 for all records
+    lab_df['has_esrd'] = 0
+    
     lab_df = calculate_duration_in_days(lab_df)
 
     # empty value means they only have one record.
     lab_df = lab_df.groupby('subject_id').filter(lambda x: x['duration_in_days'].notna().all())
 
-    # These are patients who we have lab records prior to their first diagnose of ESRD.
+    # Sort by subject_id and time to process records chronologically
+    lab_df = lab_df.sort_values(by=['subject_id', 'time'])
+    
+    # For each patient, find the date of first ESRD diagnosis and mark all records on that day
+    def process_patient_esrd(g):
+        if g['first_diagnose_esrd_time'].isna().iloc[0]:
+            raise ValueError(f"Patient {g['subject_id'].iloc[0]} has no ESRD diagnosis time.")
+            
+        # Get the date (without time) of the first ESRD diagnosis
+        first_esrd_date = g['first_diagnose_esrd_time'].iloc[0].date()
+        
+        # Mark all records on the same date as has_esrd = 1
+        g['has_esrd'] = (g['time'].dt.date == first_esrd_date).astype(int)
+        
+        # Filter out records after the first ESRD date
+        return g[g['time'].dt.date <= first_esrd_date]
+    
+    # Apply the processing to each patient
+    lab_df = lab_df.groupby('subject_id', group_keys=False).apply(process_patient_esrd)
+    
+    # Keep only patients who have at least one ESRD record
     progressed_patients_ids = lab_df.loc[lab_df['has_esrd'] == 1, 'subject_id'].unique()
     lab_df = lab_df[lab_df['subject_id'].isin(progressed_patients_ids)]
     print(f"Number of ESRD who have lab records at or prior to their esrd diagnose: {len(progressed_patients_ids)}")
-
-    # Filter out records after the first 'has_esrd' == 1
-    lab_df = lab_df.sort_values(by=['subject_id', 'time'])
-    def filter_records(g):
-        first_esrd_index = g[g['has_esrd'] == 1].index.min()
-        if pd.isna(first_esrd_index):
-            print(f"subject_id: {g['subject_id'].iloc[0]} has no 'has_esrd' == 1")
-            return g
-        return g.loc[g.index <= first_esrd_index]
-    lab_df = lab_df.groupby('subject_id', group_keys=False).apply(filter_records)
     print(
         f"Number of patients after filtering out records after the first 'has_esrd' == 1: {lab_df['subject_id'].nunique()}\n"
         f"Number of records: {len(lab_df)}. Records sample:\n{lab_df[['subject_id', 'time', 'has_esrd', 'first_diagnose_esrd_time']].head()}")

@@ -291,4 +291,4 @@ def reshuffle_train_test_data():
         data_test.to_csv(test_data_path[scenario])
 
 if __name__ == '__main__':
-    reshuffle_train_test_data()
+    get_train_test_data(ExperimentScenario.FIVELABMS)
