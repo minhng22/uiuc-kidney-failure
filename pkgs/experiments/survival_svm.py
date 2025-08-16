@@ -7,8 +7,8 @@ from sksurv.util import Surv
 import pandas as pd
 
 from pkgs.commons import egfr_ti_survival_svm_model_path
-from pkgs.data.model_data_store import get_train_test_data
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model
 import dill
 

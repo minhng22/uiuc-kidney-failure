@@ -7,8 +7,8 @@ from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path
-from pkgs.data.model_data_store import get_train_test_data
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 import dill
 

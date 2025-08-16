@@ -19,8 +19,8 @@ from pkgs.commons import (
     egfr_components_train_data_path,
     egfr_components_test_data_path
 )
-from pkgs.data.types import ExperimentScenario
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.experiments.utils import get_tv_rnn_model_features
 
 # Suppress warnings for cleaner output

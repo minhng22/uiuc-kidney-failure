@@ -11,8 +11,8 @@ from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.metrics import make_scorer
 
 from pkgs.commons import egfr_ti_srf_model_path
-from pkgs.data.model_data_store import get_train_test_data, sample
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data, sample
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 
 def c_idx_score_fn(y, risk_score):

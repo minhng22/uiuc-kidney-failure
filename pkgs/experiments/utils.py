@@ -4,7 +4,7 @@ from sksurv.metrics import integrated_brier_score, brier_score
 from sksurv.util import Surv
 import torch
 import optuna
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.types import ExperimentScenario
 import os
 import dill
 import joblib

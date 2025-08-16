@@ -1,12 +1,12 @@
 import pandas as pd
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path, fivelabms_dynamic_deep_hit_model_path
-from pkgs.data.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader, Dataset
 
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss, compute_brier_score_from_risk_scores
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.types import ExperimentScenario
 
 import os
 import numpy as np

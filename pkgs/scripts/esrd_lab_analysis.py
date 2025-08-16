@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from pkgs.data.store import get_ckd_patients_and_diagnoses
+from pkgs.data_analysis.store import get_ckd_patients_and_diagnoses
 from pkgs.commons import generate_data_path_latest_rep
 
 plt.style.use('default')

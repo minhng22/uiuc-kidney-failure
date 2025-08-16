@@ -8,8 +8,8 @@ from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
 from pkgs.commons import egfr_ti_deepsurv_model_path
-from pkgs.data.model_data_store import get_train_test_data
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.models.deepsurv import DeepSurv
 from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric, compute_brier_score_from_risk_scores
 

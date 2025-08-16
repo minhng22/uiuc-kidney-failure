@@ -9,8 +9,8 @@ from pycox.preprocessing.label_transforms import LabTransDiscreteTime
 import torchtuples as tt
 
 from pkgs.commons import egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path, egfr_components_logistic_hazard_model_path
-from pkgs.data.model_data_store import get_train_test_data
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
 
 from sksurv.util import Surv

@@ -8,8 +8,8 @@ from sksurv.util import Surv
 import dill
 
 from pkgs.commons import egfr_ti_weibul_model_path
-from pkgs.data.model_data_store import get_train_test_data
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 
 def compute_time_dependent_auc(model: WeibullAFTFitter, data_train, data_test, duration_col, event_col, times):

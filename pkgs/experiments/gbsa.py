@@ -9,8 +9,8 @@ from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.metrics import make_scorer
 
 from pkgs.commons import egfr_ti_gbsa_model_path
-from pkgs.data.model_data_store import get_train_test_data
-from pkgs.data.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 import dill
 
