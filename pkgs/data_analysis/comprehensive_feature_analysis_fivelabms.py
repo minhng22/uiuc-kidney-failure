@@ -1,19 +1,21 @@
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from pkgs.commons import fivelabms_train_data_path, fivelabms_test_data_path, generate_data_path_latest_rep
+from pkgs.commons import generate_data_path_latest_rep
 import warnings
+
+from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.types import ExperimentScenario
 
 warnings.filterwarnings('ignore')
 matplotlib.use('Agg')
 
-def analysis_1_feature_availability():
+def analyze_feature_availability():
     print("=" * 80)
     print("ANALYSIS 1: FEATURE AVAILABILITY PATTERNS")
     print("=" * 80)
     
-    fl_train = pd.read_csv(fivelabms_train_data_path)
-    fl_test = pd.read_csv(fivelabms_test_data_path)
+    fl_train, fl_test = get_train_test_data(ExperimentScenario.FIVELABMS)
     
     def analyze_availability(df, dataset_name):
         print(f"\n{dataset_name} Dataset:")
@@ -21,9 +23,7 @@ def analysis_1_feature_availability():
         
         total_records = len(df)
         
-        # All 10 lab measurements (eGFR + 9 others)
-        all_labs = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 
-                   'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+        all_labs = ['egfr', 'hemoglobin']
         
         lab_stats = {}
         print(f"Total records: {total_records:,}")
@@ -109,7 +109,7 @@ def main():
         
         f.write("ANALYSIS 1: FEATURE AVAILABILITY PATTERNS\n")
         f.write("=" * 80 + "\n")
-        train_stats, test_stats = analysis_1_feature_availability()
+        train_stats, test_stats = analyze_feature_availability()
         
         f.write("\nTRAINING Dataset:\n")
         f.write("-" * 40 + "\n")

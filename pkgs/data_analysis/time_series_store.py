@@ -198,14 +198,13 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         # Get all lab measurements
         lab_dfs = [egfr_df]
         lab_functions = [
-            ('potassium', get_potassium_df),
-            ('urea_nitrogen', get_urea_nitrogen_df),
-            ('sodium', get_sodium_df),
-            ('chloride', get_chloride_df),
-            ('bicarbonate', get_bicarbonate_df),
-            ('anion_gap', get_anion_gap_df),
-            ('hematocrit', get_hematocrit_df),
-            ('platelet_count', get_platelet_count_df),
+            # ('urea_nitrogen', get_urea_nitrogen_df),
+            # ('sodium', get_sodium_df),
+            # ('chloride', get_chloride_df),
+            # ('bicarbonate', get_bicarbonate_df),
+            # ('anion_gap', get_anion_gap_df),
+            # ('hematocrit', get_hematocrit_df),
+            # ('platelet_count', get_platelet_count_df),
             ('hemoglobin', get_hemoglobin_df)
         ]
 
