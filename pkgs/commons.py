@@ -137,6 +137,13 @@ egfr_components_test_data_path = f'{generate_data_path_latest_rep}/egfr_componen
 fivelabms_train_data_path = f'{generate_data_path_latest_rep}/fivelabms_train_data.csv'
 fivelabms_test_data_path = f'{generate_data_path_latest_rep}/fivelabms_test_data.csv'
 
+five_labms_num_subsets_train = 10
+five_labms_num_subsets_test = 2
+def five_labms_train_subset_path(i):
+    return f'{generate_data_path_latest_rep}/fivelabms_train_subset_{i}.csv'
+def five_labms_test_subset_path(i):
+    return f'{generate_data_path_latest_rep}/fivelabms_test_subset_{i}.csv'
+
 prev_heterogen_train_data_path = f'{generate_data_path}/heterogen_train_data.csv'
 prev_heterogen_test_data_path = f'{generate_data_path}/heterogen_test_data.csv'
 prev_egfr_tv_train_data_path = f'{generate_data_path}/egfr_tv_train_data.csv'

@@ -11,7 +11,8 @@ from pkgs.commons import (
     prev_egfr_components_train_data_path, prev_egfr_components_test_data_path,
     prev_heterogen_train_data_path, prev_heterogen_test_data_path,
     prev_fivelabms_train_data_path, prev_fivelabms_test_data_path,
-    generate_data_path_latest_rep
+    generate_data_path_latest_rep, five_labms_train_subset_path, five_labms_test_subset_path,
+    five_labms_num_subsets_test, five_labms_num_subsets_train
 )
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.time_series_store import get_time_series_data_ckd_patients
@@ -49,41 +50,73 @@ def sample(df):
     return res
 
 def get_train_test_data(scenario: ExperimentScenario):
-    train_data_stored_path = {
-        ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
-        ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
-        ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path,
-        ExperimentScenario.FIVELABMS: fivelabms_train_data_path
-    }
-    test_data_stored_path = {
-        ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
-        ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
-        ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path,
-        ExperimentScenario.FIVELABMS: fivelabms_test_data_path
-    }
-    train_path = train_data_stored_path[scenario]
-    test_path = test_data_stored_path[scenario]
-
-    print(f'Train data path {train_path}\nTest data path {test_path}')
-
-    if not os.path.exists(train_path):
-        data = get_time_series_data_ckd_patients(scenario)
-
-        train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
-
-        data_test = data[data['subject_id'].isin(test_subjects)]
-        data_train = data[data['subject_id'].isin(train_subjects)]
-
-        data_train.reset_index(drop=True, inplace=True)
-        data_test.reset_index(drop=True, inplace=True)
-
-        data_train.to_csv(train_path)
-        data_test.to_csv(test_path)
+    if scenario == ExperimentScenario.FIVELABMS:
+        if not os.path.exists(five_labms_train_subset_path(0)):
+            print(f"Creating train and test subsets for FIVELABMS scenario.")
+            train_data = pd.read_csv(fivelabms_train_data_path)
+            for i in range(0, len(train_data), len(train_data) // 10):
+                start_idx = len(train_data) // 10 * i
+                end_idx = start_idx + len(train_data) // 10
+                if end_idx > len(train_data):
+                    end_idx = len(train_data)
+                subset = train_data.iloc[start_idx:end_idx]
+                subset.to_csv(five_labms_train_subset_path(i), index=False)
+            
+            test_data = pd.read_csv(fivelabms_test_data_path)
+            for i in range(0, len(test_data), len(test_data) // 2):
+                start_idx = len(test_data) // 2 * i
+                end_idx = start_idx + len(test_data) // 2
+                if end_idx > len(test_data):
+                    end_idx = len(test_data)
+                subset = test_data.iloc[start_idx:end_idx]
+                subset.to_csv(five_labms_test_subset_path(i), index=False)
+        else:
+            print(f"Using existing train and test subsets for FIVELABMS scenario.")
+            train_subsets = []
+            for i in range(five_labms_num_subsets_train):
+                data = pd.read_csv(five_labms_train_subset_path(i))
+                train_subsets.append(data)
+            data_train = pd.concat(train_subsets, ignore_index=True)
+            
+            test_subsets = []
+            for i in range(five_labms_num_subsets_test):
+                data = pd.read_csv(five_labms_test_subset_path(i))
+                test_subsets.append(data)
+            data_test = pd.concat(test_subsets, ignore_index=True)
     else:
-        data_train = pd.read_csv(train_path)
-        data_test = pd.read_csv(test_path)
+        train_data_stored_path = {
+            ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
+            ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
+            ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
+            ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path,
+        }
+        test_data_stored_path = {
+            ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
+            ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
+            ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
+            ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path,
+        }
+        train_path = train_data_stored_path[scenario]
+        test_path = test_data_stored_path[scenario]
+
+        print(f'Train data path {train_path}\nTest data path {test_path}')
+
+        if not os.path.exists(train_path):
+            data = get_time_series_data_ckd_patients(scenario)
+
+            train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
+
+            data_test = data[data['subject_id'].isin(test_subjects)]
+            data_train = data[data['subject_id'].isin(train_subjects)]
+
+            data_train.reset_index(drop=True, inplace=True)
+            data_test.reset_index(drop=True, inplace=True)
+
+            data_train.to_csv(train_path)
+            data_test.to_csv(test_path)
+        else:
+            data_train = pd.read_csv(train_path)
+            data_test = pd.read_csv(test_path)
 
     print(
         f'Number of patients: '
