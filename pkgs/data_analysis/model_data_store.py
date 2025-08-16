@@ -53,7 +53,17 @@ def get_train_test_data(scenario: ExperimentScenario):
     if scenario == ExperimentScenario.FIVELABMS:
         if not os.path.exists(five_labms_train_subset_path(0)):
             print(f"Creating train and test subsets for FIVELABMS scenario.")
-            train_data = pd.read_csv(fivelabms_train_data_path)
+
+            data = get_time_series_data_ckd_patients(scenario)
+
+            train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
+
+            test_data = data[data['subject_id'].isin(test_subjects)]
+            train_data = data[data['subject_id'].isin(train_subjects)]
+
+            train_data.reset_index(drop=True, inplace=True)
+            test_data.reset_index(drop=True, inplace=True)
+
             for i in range(0, len(train_data), len(train_data) // 10):
                 start_idx = len(train_data) // 10 * i
                 end_idx = start_idx + len(train_data) // 10
@@ -62,7 +72,6 @@ def get_train_test_data(scenario: ExperimentScenario):
                 subset = train_data.iloc[start_idx:end_idx]
                 subset.to_csv(five_labms_train_subset_path(i), index=False)
             
-            test_data = pd.read_csv(fivelabms_test_data_path)
             for i in range(0, len(test_data), len(test_data) // 2):
                 start_idx = len(test_data) // 2 * i
                 end_idx = start_idx + len(test_data) // 2
