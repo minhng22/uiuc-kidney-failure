@@ -57,7 +57,7 @@ class HazardTransformerDataset(Dataset):
             features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
         elif self.scenario_name == ExperimentScenario.FIVELABMS:
             # eGFR + 9 additional lab measurements (total 10 labs + 10 missing indicators = 20 features)
-            lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+            lab_names = ['egfr', 'hemoglobin']
             
             feature_idx = 0
             for lab in lab_names:

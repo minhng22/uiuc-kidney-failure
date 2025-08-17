@@ -208,7 +208,7 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
             ('hemoglobin', get_hemoglobin_df)
         ]
 
-        all_labs = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+        all_labs = ['egfr', 'hemoglobin']
         
         for lab_name, lab_func in lab_functions:
             lab_df = lab_func(patients)
@@ -249,7 +249,7 @@ def get_feature_columns(scenario):
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         return ['age', 'gender', 'serum_creatinine']
     elif scenario == ExperimentScenario.FIVELABMS:
-        return ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+        return ['egfr', 'hemoglobin']
 
 def add_time_variant_support(df):
     df = df.sort_values(by=['subject_id', 'duration_in_days'])
