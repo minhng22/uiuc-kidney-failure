@@ -394,7 +394,6 @@ def run(scenario_name: ExperimentScenario):
     print("model summary:")
     print(model)
 
-    # df_test = sample(df_test)
     test_dataset = DynamicDeepHitDataset(df_test, scenario_name)
 
     c_idx(model, test_dataset, device, True)
