@@ -58,27 +58,27 @@ def get_train_test_data(scenario: ExperimentScenario):
 
             train_subjects, test_subjects = train_test_split(data['subject_id'].unique(), test_size=0.2, random_state=42)
 
-            test_data = data[data['subject_id'].isin(test_subjects)]
-            train_data = data[data['subject_id'].isin(train_subjects)]
+            data_test = data[data['subject_id'].isin(test_subjects)]
+            data_train = data[data['subject_id'].isin(train_subjects)]
 
-            train_data.reset_index(drop=True, inplace=True)
-            test_data.reset_index(drop=True, inplace=True)
+            data_train.reset_index(drop=True, inplace=True)
+            data_test.reset_index(drop=True, inplace=True)
 
-            for i in range(0, len(train_data), len(train_data) // 10):
-                start_idx = len(train_data) // 10 * i
-                end_idx = start_idx + len(train_data) // 10
-                if end_idx > len(train_data):
-                    end_idx = len(train_data)
-                subset = train_data.iloc[start_idx:end_idx]
-                subset.to_csv(five_labms_train_subset_path(i), index=False)
+            for i in range(0, len(data_train), len(data_train) // 10):
+                start_idx = len(data_train) // 10 * i
+                end_idx = start_idx + len(data_train) // 10
+                if end_idx > len(data_train):
+                    end_idx = len(data_train)
+                subset = data_train.iloc[start_idx:end_idx]
+                subset.to_csv(five_labms_train_subset_path(i // (len(data_train) // 10)), index=False)
             
-            for i in range(0, len(test_data), len(test_data) // 2):
-                start_idx = len(test_data) // 2 * i
-                end_idx = start_idx + len(test_data) // 2
-                if end_idx > len(test_data):
-                    end_idx = len(test_data)
-                subset = test_data.iloc[start_idx:end_idx]
-                subset.to_csv(five_labms_test_subset_path(i), index=False)
+            for i in range(0, len(data_test), len(data_test) // 2):
+                start_idx = len(data_test) // 2 * i
+                end_idx = start_idx + len(data_test) // 2
+                if end_idx > len(data_test):
+                    end_idx = len(data_test)
+                subset = data_test.iloc[start_idx:end_idx]
+                subset.to_csv(five_labms_test_subset_path(i // (len(data_test) // 2)), index=False)
         else:
             print(f"Using existing train and test subsets for FIVELABMS scenario.")
             train_subsets = []

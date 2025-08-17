@@ -53,10 +53,8 @@ def create_availability_visualization(train_stats, test_stats):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
     
     # All 10 lab measurements
-    lab_names = ['eGFR', 'Potassium', 'Urea Nitrogen', 'Sodium', 'Chloride', 
-                'Bicarbonate', 'Anion Gap', 'Hematocrit', 'Platelet Count', 'Hemoglobin']
-    lab_keys = ['egfr_available', 'potassium_available', 'urea_nitrogen_available', 'sodium_available', 'chloride_available',
-               'bicarbonate_available', 'anion_gap_available', 'hematocrit_available', 'platelet_count_available', 'hemoglobin_available']
+    lab_names = ['eGFR', 'Hemoglobin']
+    lab_keys = ['egfr_available', 'hemoglobin_available']
     
     train_counts = [train_stats.get(key, 0) for key in lab_keys]
     test_counts = [test_stats.get(key, 0) for key in lab_keys]
@@ -102,12 +100,11 @@ def main():
         f.write("COMPREHENSIVE FEATURE ANALYSIS REPORT - EXPANDED FIVELABMS\n")
         f.write("=" * 80 + "\n")
         f.write("Scenario: eGFR + 9 additional lab measurements\n")
-        f.write("Lab measurements: Potassium, Urea Nitrogen, Sodium, Chloride, Bicarbonate,\n")
-        f.write("                 Anion Gap, Hematocrit, Platelet Count, Hemoglobin\n")
+        f.write("Lab measurements: Potassium, Hemoglobin\n")
         f.write(f"Generated on: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write("=" * 80 + "\n\n")
         
-        f.write("ANALYSIS 1: FEATURE AVAILABILITY PATTERNS\n")
+        f.write("ANALYSIS: FEATURE AVAILABILITY PATTERNS\n")
         f.write("=" * 80 + "\n")
         train_stats, test_stats = analyze_feature_availability()
         
@@ -116,8 +113,7 @@ def main():
         f.write(f"Total records: {train_stats['total']:,}\n\n")
         
         # Individual lab availability
-        all_labs = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 
-                   'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin']
+        all_labs = ['egfr', 'hemoglobin']
         f.write("Lab Measurement Availability:\n")
         for lab in all_labs:
             lab_display = lab.replace('_', ' ').title()
