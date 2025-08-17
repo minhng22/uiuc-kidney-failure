@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 export PYTHONPATH="${PROJECT_ROOT}"
 
-EXPERIMENTS=("cox" "deepsurv" "dynamic_deephit" "gbsa" "hazard_transformer" "logistic_hazard" "rnnsurv" "survival_svm" "weibul")
+EXPERIMENTS=("cox" "dynamic_deephit" "hazard_transformer" "logistic_hazard" "rnnsurv")
 
 main_execution() {
 

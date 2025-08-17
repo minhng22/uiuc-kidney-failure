@@ -278,6 +278,7 @@ def run(scenario_name: ExperimentScenario):
     brier_score_evaluation(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
 
 if __name__ == '__main__':
-    run(ExperimentScenario.TIME_VARIANT)
-    run(ExperimentScenario.HETEROGENEOUS)
-    run(ExperimentScenario.EGFR_COMPONENTS)
+    # run(ExperimentScenario.TIME_VARIANT)
+    # run(ExperimentScenario.HETEROGENEOUS)
+    # run(ExperimentScenario.EGFR_COMPONENTS)
+    run(ExperimentScenario.FIVELABMS)
