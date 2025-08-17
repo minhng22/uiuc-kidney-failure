@@ -47,7 +47,7 @@ run_experiment() {
 
 run_rep() {
     local rep_num=$1
-    local log_file="${SCRIPT_DIR}/eval_deeponet_survtimesurvival_rep${rep_num}.log"
+    local log_file="${SCRIPT_DIR}/eval_all_rep${rep_num}.log"
     
     echo "Starting repetition ${rep_num}..." | tee "$log_file"
     echo "Log file: $log_file" | tee -a "$log_file"
