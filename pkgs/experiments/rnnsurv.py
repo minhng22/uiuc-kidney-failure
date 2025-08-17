@@ -197,7 +197,8 @@ def run(scenario_name: ExperimentScenario):
     model_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_rnn_surv_model_path,
-        ExperimentScenario.EGFR_COMPONENTS: egfr_components_rnn_surv_model_path
+        ExperimentScenario.EGFR_COMPONENTS: egfr_components_rnn_surv_model_path,
+        ExperimentScenario.FIVELABMS: fivelabms_rnn_surv_model_path
     }
     model_saved_path = model_path_dict[scenario_name]
 

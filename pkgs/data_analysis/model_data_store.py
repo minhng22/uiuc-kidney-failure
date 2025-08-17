@@ -84,14 +84,16 @@ def get_train_test_data(scenario: ExperimentScenario):
             train_subsets = []
             for i in range(five_labms_num_subsets_train):
                 data = pd.read_csv(five_labms_train_subset_path(i))
-                train_subsets.append(data)
-            data_train = pd.concat(train_subsets, ignore_index=True)
+                if not data.empty:
+                    train_subsets.append(data)
+            data_train = pd.concat(train_subsets, ignore_index=True) if train_subsets else pd.DataFrame()
             
             test_subsets = []
             for i in range(five_labms_num_subsets_test):
                 data = pd.read_csv(five_labms_test_subset_path(i))
-                test_subsets.append(data)
-            data_test = pd.concat(test_subsets, ignore_index=True)
+                if not data.empty:
+                    test_subsets.append(data)
+            data_test = pd.concat(test_subsets, ignore_index=True) if test_subsets else pd.DataFrame()
     else:
         train_data_stored_path = {
             ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,
@@ -305,7 +307,8 @@ def reshuffle_train_test_data():
         train_data = pd.read_csv(prev_train_path)
         test_data = pd.read_csv(prev_test_path)
 
-        combined_data = pd.concat([train_data, test_data], ignore_index=True)
+        dfs_to_concat = [df for df in [train_data, test_data] if not df.empty]
+        combined_data = pd.concat(dfs_to_concat, ignore_index=True) if dfs_to_concat else pd.DataFrame()
 
         train_subjects, test_subjects = train_test_split(combined_data['subject_id'].unique(), test_size=0.2, random_state=42)
 

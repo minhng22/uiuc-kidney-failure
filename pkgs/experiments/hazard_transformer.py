@@ -60,10 +60,8 @@ class HazardTransformerDataset(Dataset):
             
             feature_idx = 0
             for lab in lab_names:
-                # Normalize the lab value
                 features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / self.df[lab].std()
                 feature_idx += 1
-                # Missing indicator
                 features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
                 feature_idx += 1
         

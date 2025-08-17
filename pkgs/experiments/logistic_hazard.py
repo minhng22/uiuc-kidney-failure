@@ -61,6 +61,15 @@ class LogisticHazardDataset(Dataset):
                     last_obs['gender'],
                     (last_obs['serum_creatinine'] - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
                 ]
+            elif self.scenario_name == ExperimentScenario.FIVELABMS:
+                features = [
+                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
+                    last_obs['egfr_missing'],
+                    (last_obs['hemoglobin'] - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std(),
+                    last_obs['hemoglobin_missing'],
+                ]
+            else:
+                raise ValueError(f"Unsupported scenario: {self.scenario_name}")
             
             all_features.append(features)
             all_durations.append(last_obs['duration_in_days'])
