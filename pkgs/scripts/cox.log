@@ -1,8 +1,45 @@
 
 Running ExperimentScenario.FIVELABMS Cox model...
-Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/fivelabms_train_data.csv
-Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/fivelabms_test_data.csv
-Number of patients: test 6519 and train 26076
-Number of records: test 887886 and train 3449437
+Using existing train and test subsets for FIVELABMS scenario.
+/home/minhn2/uiuc-kidney-failure/pkgs/data_analysis/model_data_store.py:88: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  data_train = pd.concat(train_subsets, ignore_index=True)
+/home/minhn2/uiuc-kidney-failure/pkgs/data_analysis/model_data_store.py:94: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  data_test = pd.concat(test_subsets, ignore_index=True)
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
 Fitting model:
 
+/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/__init__.py:1100: ConvergenceWarning: Column(s) ['urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing'] have very low variance. This may harm convergence. 1) Are you using formula's? Did you mean to add '-1' to the end. 2) Try dropping this redundant column before fitting if convergence fails.
+
+  warnings.warn(dedent(warning_text), ConvergenceWarning)
+Traceback (most recent call last):
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/cox_time_varying_fitter.py", line 416, in _newton_raphson_for_efron_model
+    inv_h_dot_g_T = spsolve(-h, g, assume_a="pos")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/scipy/linalg/_basic.py", line 256, in solve
+    anorm = _matrix_norm(norm, a1, check_finite)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/scipy/linalg/_basic.py", line 379, in _matrix_norm_general
+    a = np.asarray_chkfinite(a) if check_finite else a
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py", line 656, in asarray_chkfinite
+    raise ValueError(
+ValueError: array must not contain infs or NaNs
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/cox.py", line 136, in <module>
+    run_cox_model(ExperimentScenario.FIVELABMS)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/cox.py", line 37, in run_cox_model
+    model.fit(data_train, event_col='has_esrd', id_col='subject_id')
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/cox_time_varying_fitter.py", line 216, in fit
+    beta_, self.log_likelihood_, self._hessian_ = self._newton_raphson_for_efron_model(
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/cox_time_varying_fitter.py", line 419, in _newton_raphson_for_efron_model
+    raise ConvergenceError(
+lifelines.exceptions.ConvergenceError: hessian or gradient contains nan or inf value(s). Convergence halted. Please see the following tips in the lifelines documentation:
+https://lifelines.readthedocs.io/en/latest/Examples.html#problems-with-convergence-in-the-cox-proportional-hazard-model
+array must not contain infs or NaNs

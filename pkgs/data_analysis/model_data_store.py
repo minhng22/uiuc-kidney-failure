@@ -352,5 +352,16 @@ def resplit():
         subset = test_data.iloc[start_idx:end_idx]
         subset.to_csv(f'{generate_data_path_latest_rep}/fivelabms_test_subset_{(i // (len(train_data) // 10))}.csv', index=False)
 
+def remove_col():
+    # only keep final columns ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing','hemoglobin', 'hemoglobin_missing', 'has_esrd']
+    for i in range(five_labms_num_subsets_train):
+        data = pd.read_csv(five_labms_train_subset_path(i))
+        data = data[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'hemoglobin', 'hemoglobin_missing', 'has_esrd']]
+        data.to_csv(five_labms_train_subset_path(i), index=False)
+    for i in range(five_labms_num_subsets_test):
+        data = pd.read_csv(five_labms_test_subset_path(i))
+        data = data[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'hemoglobin', 'hemoglobin_missing', 'has_esrd']]
+        data.to_csv(five_labms_test_subset_path(i), index=False)
+
 if __name__ == '__main__':
-    resplit()
+    remove_col()
