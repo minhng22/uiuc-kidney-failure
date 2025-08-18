@@ -96,6 +96,11 @@ class DynamicDeepHitDataset(Dataset):
             features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
             features[:seq_length, 1] = subject_data['gender'].values
             features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
+        elif self.scenario_name == ExperimentScenario.FIVELABMS:
+            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 1] = subject_data['egfr_missing'].values
+            features[:seq_length, 2] = (subject_data['hemoglobin'].values - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std()
+            features[:seq_length, 3] = subject_data['hemoglobin_missing'].values
         
         mask[:seq_length] = 1
         
