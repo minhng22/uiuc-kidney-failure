@@ -1,0 +1,126 @@
+Starting repetition 3...
+Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep3.log
+Start time: Tue Aug 19 20:57:56 CDT 2025
+=========================================
+==================== Running cox for rep3 ====================
+Start time: Tue Aug 19 20:57:56 CDT 2025
+
+Running ExperimentScenario.FIVELABMS Cox model...
+Creating train and test subsets for FIVELABMS scenario.
+Sample patients with esrd: [10000764 10000980 10001338 10001401 10001877 10001884 10002013 10002131
+ 10002155 10002428]
+Number of patients progressed from ckd stage 3-5 to esrd are 31542 over 34332, accounts for 91.873%
+Number of patients who have not progressed to esrd are 2790 over 34332, accounts for 8.127%
+Processing patients who have not progressed to ESRD:
+Number of patients: 2790
+Stats on patients:
+Total patients: 2790
+Dead patients: 2057
+Alive patients: 733
+number of patients with egfr: 2782
+number of records with egfr: 55744
+number of patients with hemoglobin: 2778
+number of records with hemoglobin: 51032
+Finished getting raw lab records for scenario: ExperimentScenario.FIVELABMS
+   labevent_id  subject_id  ...  hemoglobin_missing  hemoglobin
+0      70444.0    10005012  ...                   1         0.0
+1      70477.0    10005012  ...                   1         0.0
+2      70489.0    10005012  ...                   1         0.0
+3      70517.0    10005012  ...                   1         0.0
+4      70525.0    10005012  ...                   1         0.0
+
+[5 rows x 42 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'potassium', 'urea_nitrogen_missing', 'urea_nitrogen', 'sodium_missing', 'sodium', 'chloride_missing', 'chloride', 'bicarbonate_missing', 'bicarbonate', 'anion_gap_missing', 'anion_gap', 'hematocrit_missing', 'hematocrit', 'platelet_count_missing', 'platelet_count', 'hemoglobin_missing', 'hemoglobin']
+Number of patients after filtering out NaN duration_in_days: 2785
+Records sample:
+   subject_id                time  has_esrd
+0    10005012 2169-10-23 20:00:00         0
+1    10005012 2169-10-24 06:30:00         0
+2    10005012 2169-10-25 12:45:00         0
+3    10005012 2169-10-26 06:25:00         0
+4    10005012 2169-10-27 06:05:00         0
+Stats on eGFR:
+Number of records: 106776. Number of patients: 2785
+mean 24.224 sd 29.099
+Processing patients who have progressed to ESRD:
+Number of patients: 31542
+Number of patients with ESRD: 31542
+first time having ESRD df:
+    subject_id first_diagnose_esrd_time
+0    10000764      2132-10-14 23:31:00
+1    10000980      2191-04-03 18:48:00
+2    10001338      2138-05-09 19:47:00
+3    10001401      2131-06-19 21:32:00
+4    10001877      2150-11-21 23:02:00
+Number of patients: 31542
+Number of patients after drop n/a: 31542
+Stats on patients:
+Total patients: 31542
+Dead patients: 18351
+Alive patients: 13191
+number of patients with egfr: 31533
+number of records with egfr: 1553436
+number of patients with hemoglobin: 31527
+number of records with hemoglobin: 1411678
+Finished getting raw lab records for scenario: ExperimentScenario.FIVELABMS
+   labevent_id  subject_id  ...  hemoglobin_missing  hemoglobin
+0       2491.0    10000764  ...                   1         0.0
+1       2521.0    10000764  ...                   1         0.0
+2       2571.0    10000764  ...                   1         0.0
+3       2599.0    10000764  ...                   1         0.0
+4       2622.0    10000764  ...                   1         0.0
+
+[5 rows x 42 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'potassium', 'urea_nitrogen_missing', 'urea_nitrogen', 'sodium_missing', 'sodium', 'chloride_missing', 'chloride', 'bicarbonate_missing', 'bicarbonate', 'anion_gap_missing', 'anion_gap', 'hematocrit_missing', 'hematocrit', 'platelet_count_missing', 'platelet_count', 'hemoglobin_missing', 'hemoglobin']
+Number of patients after merging: 31533
+
+Number of ESRD who have lab records at or prior to their esrd diagnose: 29737
+Number of patients after filtering out records after the first 'has_esrd' == 1: 29737
+Number of records: 782129. Records sample:
+         subject_id                time  has_esrd first_diagnose_esrd_time
+0          10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+1553436    10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+6          10000980 2185-09-17 12:10:00         0      2191-04-03 18:48:00
+7          10000980 2185-10-24 14:15:00         0      2191-04-03 18:48:00
+1553442    10000980 2185-10-24 14:15:00         0      2191-04-03 18:48:00
+Stats on eGFR:
+Number of records: 782129. Number of patients: 29737
+mean 36.584 sd 41.758
+After merge:
+Total number of patients: 32522
+Total number of records: 888905
+add_time_variant_support cols:  ['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'potassium', 'urea_nitrogen_missing', 'urea_nitrogen', 'sodium_missing', 'sodium', 'chloride_missing', 'chloride', 'bicarbonate_missing', 'bicarbonate', 'anion_gap_missing', 'anion_gap', 'hematocrit_missing', 'hematocrit', 'platelet_count_missing', 'platelet_count', 'hemoglobin_missing', 'hemoglobin', 'has_esrd', 'duration_in_days', 'first_diagnose_esrd_time', 'start', 'stop']
+No subjects found with 'stop' < 'start'.
+Data: 
+   subject_id  duration_in_days  ...  hemoglobin_missing  has_esrd
+0    10000764          0.000000  ...                   1         1
+1    10000764          0.000000  ...                   0         1
+2    10000980          0.000000  ...                   1         0
+3    10000980         37.086806  ...                   1         0
+4    10000980         37.086806  ...                   0         0
+
+[5 rows x 9 columns]
+Total number of patients: 32522
+Total number of records: 888905
+Number of patients: test 6505 and train 26017
+Number of records: test 178346 and train 710559
+Fitting model:
+
+Evaluate on test data
+Concordance Index Test: 0.406
+Integrated Brier Score Test: 0.308
+Risk scores test: (178346,)
+Mean time-dependent AUC: 0.3862
+✓ cox completed successfully
+End time: Tue Aug 19 21:23:04 CDT 2025
+
+==================== Running dynamic_deephit for rep3 ====================
+Start time: Tue Aug 19 21:23:04 CDT 2025
+[I 2025-08-19 21:23:09,493] A new study created in memory with name: no-name-db9a4df0-0a20-4f70-968e-ae6134fd65a7
+[I 2025-08-20 08:20:31,651] Trial 0 finished with value: 0.734868442311388 and parameters: {'num_layer': 11, 'hidden_dim_0': 41, 'hidden_dim_1': 144, 'hidden_dim_2': 200, 'hidden_dim_3': 89, 'hidden_dim_4': 243, 'hidden_dim_5': 244, 'hidden_dim_6': 169, 'hidden_dim_7': 201, 'hidden_dim_8': 121, 'hidden_dim_9': 171, 'hidden_dim_10': 59, 'learning_rate': 0.0008153934551721084, 'drop_out_rate': 0.26639891708150365, 'llh_loss': 0.11649452830249041}. Best is trial 0 with value: 0.734868442311388.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(saved_path, map_location=device)
+[I 2025-08-21 16:31:25,393] Trial 1 finished with value: 0.720576605503807 and parameters: {'num_layer': 11, 'hidden_dim_0': 220, 'hidden_dim_1': 210, 'hidden_dim_2': 104, 'hidden_dim_3': 178, 'hidden_dim_4': 39, 'hidden_dim_5': 103, 'hidden_dim_6': 92, 'hidden_dim_7': 219, 'hidden_dim_8': 244, 'hidden_dim_9': 233, 'hidden_dim_10': 117, 'learning_rate': 0.0004563803081641287, 'drop_out_rate': 0.20518655936184796, 'llh_loss': 0.11289568211581878}. Best is trial 0 with value: 0.734868442311388.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(saved_path, map_location=device)
+[I 2025-08-21 20:11:15,581] Trial 2 finished with value: 0.5250872034190883 and parameters: {'num_layer': 16, 'hidden_dim_0': 35, 'hidden_dim_1': 174, 'hidden_dim_2': 80, 'hidden_dim_3': 136, 'hidden_dim_4': 77, 'hidden_dim_5': 239, 'hidden_dim_6': 223, 'hidden_dim_7': 68, 'hidden_dim_8': 165, 'hidden_dim_9': 46, 'hidden_dim_10': 183, 'hidden_dim_11': 250, 'hidden_dim_12': 113, 'hidden_dim_13': 107, 'hidden_dim_14': 113, 'hidden_dim_15': 56, 'learning_rate': 0.0002690557795821534, 'drop_out_rate': 0.38968217621105417, 'llh_loss': 0.7962766443062981}. Best is trial 0 with value: 0.734868442311388.
