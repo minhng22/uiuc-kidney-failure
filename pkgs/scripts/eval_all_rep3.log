@@ -124,3 +124,3199 @@ Start time: Tue Aug 19 21:23:04 CDT 2025
 /home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   saved_model = torch.load(saved_path, map_location=device)
 [I 2025-08-21 20:11:15,581] Trial 2 finished with value: 0.5250872034190883 and parameters: {'num_layer': 16, 'hidden_dim_0': 35, 'hidden_dim_1': 174, 'hidden_dim_2': 80, 'hidden_dim_3': 136, 'hidden_dim_4': 77, 'hidden_dim_5': 239, 'hidden_dim_6': 223, 'hidden_dim_7': 68, 'hidden_dim_8': 165, 'hidden_dim_9': 46, 'hidden_dim_10': 183, 'hidden_dim_11': 250, 'hidden_dim_12': 113, 'hidden_dim_13': 107, 'hidden_dim_14': 113, 'hidden_dim_15': 56, 'learning_rate': 0.0002690557795821534, 'drop_out_rate': 0.38968217621105417, 'llh_loss': 0.7962766443062981}. Best is trial 0 with value: 0.734868442311388.
+[W 2025-08-22 03:33:26,521] Trial 3 failed with parameters: {'num_layer': 8, 'hidden_dim_0': 123, 'hidden_dim_1': 128, 'hidden_dim_2': 30, 'hidden_dim_3': 177, 'hidden_dim_4': 161, 'hidden_dim_5': 215, 'hidden_dim_6': 106, 'hidden_dim_7': 36, 'learning_rate': 0.009712427014860263, 'drop_out_rate': 0.37677167188458704, 'llh_loss': 0.4929485597969736} because of the following error: ValueError('NaNs detected in inputs, please correct or drop.').
+Traceback (most recent call last):
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 395, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 187, in objective
+    c_index = c_idx(model, dataset, device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 365, in c_idx
+    cindex = concordance_index(all_times, all_surv, all_events)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 91, in concordance_index
+    event_times, predicted_scores, event_observed = _preprocess_scoring_data(event_times, predicted_scores, event_observed)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 301, in _preprocess_scoring_data
+    raise ValueError("NaNs detected in inputs, please correct or drop.")
+ValueError: NaNs detected in inputs, please correct or drop.
+[W 2025-08-22 03:33:26,617] Trial 3 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 412, in <module>
+    run(ExperimentScenario.FIVELABMS)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 395, in run
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/utils.py", line 132, in ex_optuna
+    study.optimize(objective, n_trials=n_trials)
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 395, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 187, in objective
+    c_index = c_idx(model, dataset, device)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 365, in c_idx
+    cindex = concordance_index(all_times, all_surv, all_events)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 91, in concordance_index
+    event_times, predicted_scores, event_observed = _preprocess_scoring_data(event_times, predicted_scores, event_observed)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 301, in _preprocess_scoring_data
+    raise ValueError("NaNs detected in inputs, please correct or drop.")
+ValueError: NaNs detected in inputs, please correct or drop.
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Running Optuna hyperparameter optimization
+Running trial 0 for ExperimentScenario.FIVELABMS on device cpu
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.66533782265403
+Epoch 2/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.497685432434082
+Epoch 3/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.267294883728027
+Epoch 4/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.188287388194691
+Epoch 5/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.159181161360308
+Epoch 6/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.201969753612172
+Patience Counter: 1
+Epoch 7/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.384396336295388
+Patience Counter: 2
+Epoch 8/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.1897618553855205
+Patience Counter: 3
+Epoch 9/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.033425612883135
+Epoch 10/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.960288177837025
+Epoch 11/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.898754943500865
+Epoch 12/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.05515380339189
+Patience Counter: 1
+Epoch 13/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.939934665506536
+Patience Counter: 2
+Epoch 14/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.117940642616966
+Patience Counter: 3
+Epoch 15/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.008318575945768
+Patience Counter: 4
+Epoch 16/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.7175281698053535
+Epoch 17/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.931468465111473
+Patience Counter: 1
+Epoch 18/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.6253042004325176
+Epoch 19/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.722115841778842
+Patience Counter: 1
+Epoch 20/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.711476412686435
+Patience Counter: 2
+Epoch 21/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.466028972105547
+Epoch 22/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.508610552007502
+Patience Counter: 1
+Epoch 23/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.475814212452281
+Patience Counter: 2
+Epoch 24/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.501614527268843
+Patience Counter: 3
+Epoch 25/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.376762346787886
+Epoch 26/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.554065530950373
+Patience Counter: 1
+Epoch 27/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.28901557488875
+Epoch 28/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.592745087363503
+Patience Counter: 1
+Epoch 29/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.326099439100786
+Patience Counter: 2
+Epoch 30/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.506748849695379
+Patience Counter: 3
+Epoch 31/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.31860485943881
+Patience Counter: 4
+Epoch 32/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 82])
+fc_output shape: torch.Size([256, 600, 41])
+context shape: torch.Size([256, 41])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 59])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.347521846944636
+Patience Counter: 5
+Early stopping triggered
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [0.6229057]
+all_E shape: (2686,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (2686,) first 10 values: [0.6229057  0.45086908 0.44112897 0.46390805 0.4289004  0.42693835
+ 0.4166784  0.41462243 0.6229057  0.43552902]
+all_T shape: (2686,) first 10 values: [   0 2024   68  549 3240 1601  512 1700    0   71]
+Global test C-index (scikit-survival): 0.735 number of concordant pairs: 2160173
+Global test C-index: 0.735
+No existing model, saving current model
+Running trial 1 for ExperimentScenario.FIVELABMS on device cpu
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.119086785749956
+Epoch 2/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.020105101845481
+Epoch 3/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.239034934477373
+Patience Counter: 1
+Epoch 4/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.099213058298284
+Patience Counter: 2
+Epoch 5/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.447425495494496
+Patience Counter: 3
+Epoch 6/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.893515370108864
+Epoch 7/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.820898749611595
+Epoch 8/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.963311325420033
+Patience Counter: 1
+Epoch 9/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.803758209401911
+Epoch 10/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 7.117238283157349
+Patience Counter: 1
+Epoch 11/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.858905618840998
+Patience Counter: 2
+Epoch 12/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.755190090699629
+Epoch 13/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.9822305332530625
+Patience Counter: 1
+Epoch 14/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.98225736618042
+Patience Counter: 2
+Epoch 15/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.747986750169233
+Epoch 16/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.850016073747114
+Patience Counter: 1
+Epoch 17/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.890877810391513
+Patience Counter: 2
+Epoch 18/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.78510080684315
+Patience Counter: 3
+Epoch 19/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.704907330599698
+Epoch 20/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.795756686817516
+Patience Counter: 1
+Epoch 21/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.841881340200251
+Patience Counter: 2
+Epoch 22/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.692681095816872
+Epoch 23/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.812384778803045
+Patience Counter: 1
+Epoch 24/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.598946918140758
+Epoch 25/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.5546206127513535
+Epoch 26/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.6044793128967285
+Patience Counter: 1
+Epoch 27/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.657301555980336
+Patience Counter: 2
+Epoch 28/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.640785477378151
+Patience Counter: 3
+Epoch 29/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.531977566805753
+Epoch 30/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.6531758308410645
+Patience Counter: 1
+Epoch 31/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.5199689865112305
+Epoch 32/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.63356614112854
+Patience Counter: 1
+Epoch 33/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.438524549657648
+Epoch 34/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.347546078942039
+Epoch 35/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.506377306851474
+Patience Counter: 1
+Epoch 36/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.531352281570435
+Patience Counter: 2
+Epoch 37/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.3408965630964795
+Epoch 38/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.505298527804288
+Patience Counter: 1
+Epoch 39/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.146439357237383
+Epoch 40/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.558743736960671
+Patience Counter: 1
+Epoch 41/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.3082967671481045
+Patience Counter: 2
+Epoch 42/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.20883018320257
+Patience Counter: 3
+Epoch 43/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.343486894260753
+Patience Counter: 4
+Epoch 44/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.026286932555112
+Epoch 45/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.106595819646662
+Patience Counter: 1
+Epoch 46/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.060962958769365
+Patience Counter: 2
+Epoch 47/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.357270197434858
+Patience Counter: 3
+Epoch 48/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.321184288371693
+Patience Counter: 4
+Epoch 49/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.017724730751731
+Epoch 50/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 440])
+fc_output shape: torch.Size([256, 600, 220])
+context shape: torch.Size([256, 220])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 117])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 6.127065831964666
+Patience Counter: 1
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [0.72846377]
+all_E shape: (2686,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (2686,) first 10 values: [0.72846377 0.438358   0.42608985 0.43802023 0.43035594 0.44150177
+ 0.44463092 0.44906524 0.7275677  0.42757407]
+all_T shape: (2686,) first 10 values: [   0 2024   68  549 3240 1601  512 1700    0   71]
+Global test C-index (scikit-survival): 0.721 number of concordant pairs: 2118468
+Global test C-index: 0.721
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [0.6229057]
+all_E shape: (2686,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (2686,) first 10 values: [0.6229057  0.45086908 0.44112897 0.46390805 0.4289004  0.42693835
+ 0.4166784  0.41462243 0.6229057  0.43552902]
+all_T shape: (2686,) first 10 values: [   0 2024   68  549 3240 1601  512 1700    0   71]
+Global test C-index (scikit-survival): 0.735 number of concordant pairs: 2160173
+Global test C-index: 0.735
+Saved model C-index: 0.7349, Current trial C-index: 0.7206
+Saved model is better, keeping it
+Running trial 2 for ExperimentScenario.FIVELABMS on device cpu
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 43.760377016934484
+Epoch 2/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 46.90772819519043
+Patience Counter: 1
+Epoch 3/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 43.82533333518288
+Patience Counter: 2
+Epoch 4/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 43.94117910211737
+Patience Counter: 3
+Epoch 5/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 44.80216060985219
+Patience Counter: 4
+Epoch 6/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 42.313499277288265
+Epoch 7/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 43.98623345114968
+Patience Counter: 1
+Epoch 8/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 44.417047847401015
+Patience Counter: 2
+Epoch 9/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 43.737606568769976
+Patience Counter: 3
+Epoch 10/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 44.39016255465421
+Patience Counter: 4
+Epoch 11/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 70])
+fc_output shape: torch.Size([256, 600, 35])
+context shape: torch.Size([256, 35])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 56])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 44.141841194846414
+Patience Counter: 5
+Early stopping triggered
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [0.49388662]
+all_E shape: (2686,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (2686,) first 10 values: [0.49388662 0.49856058 0.47827724 0.4779459  0.499899   0.5063308
+ 0.46734118 0.5170979  0.49388662 0.4680959 ]
+all_T shape: (2686,) first 10 values: [   0 2024   68  549 3240 1601  512 1700    0   71]
+Global test C-index (scikit-survival): 0.525 number of concordant pairs: 1538753
+Global test C-index: 0.525
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [0.6229057]
+all_E shape: (2686,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (2686,) first 10 values: [0.6229057  0.45086908 0.44112897 0.46390805 0.4289004  0.42693835
+ 0.4166784  0.41462243 0.6229057  0.43552902]
+all_T shape: (2686,) first 10 values: [   0 2024   68  549 3240 1601  512 1700    0   71]
+Global test C-index (scikit-survival): 0.735 number of concordant pairs: 2160173
+Global test C-index: 0.735
+Saved model C-index: 0.7349, Current trial C-index: 0.5251
+Saved model is better, keeping it
+Running trial 3 for ExperimentScenario.FIVELABMS on device cpu
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 30.229164383628152
+Epoch 2/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 25.44399746981534
+Epoch 3/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 23.265446164391257
+Epoch 4/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 22.07069527019154
+Epoch 5/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 20.98894318667325
+Epoch 6/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 20.426900603554465
+Epoch 7/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 19.25675868988037
+Epoch 8/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: nan
+Patience Counter: 1
+Epoch 9/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: nan
+Patience Counter: 2
+Epoch 10/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: nan
+Patience Counter: 3
+Epoch 11/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: nan
+Patience Counter: 4
+Epoch 12/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 246])
+fc_output shape: torch.Size([256, 600, 123])
+context shape: torch.Size([256, 123])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 36])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: nan
+Patience Counter: 5
+Early stopping triggered
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), T shape: torch.Size([256, 1]), E shape: torch.Size([256, 1]) hazards shape: (256, 5475)
+Processing subject 0 with time 0 and event True hazards shape: [nan]
+all_E shape: (2686,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (2686,) first 10 values: [nan nan nan nan nan nan nan nan nan nan]
+all_T shape: (2686,) first 10 values: [   0 2024   68  549 3240 1601  512 1700    0   71]
+✗ dynamic_deephit failed with exit code 1
+End time: Fri Aug 22 03:33:27 CDT 2025
+
+==================== Running hazard_transformer for rep3 ====================
+Start time: Fri Aug 22 03:33:27 CDT 2025
+[I 2025-08-22 03:33:35,874] A new study created in memory with name: no-name-6e053c97-13ce-4ee8-8a9d-78893b071114
+[I 2025-08-22 03:46:51,946] Trial 0 finished with value: 0.5 and parameters: {'num_layers': 11, 'learning_rate': 0.000222489287771335, 'drop_out_rate': 0.40282397790816726, 'n_head': 1, 'nhead_factor': 12}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 04:22:40,093] Trial 1 finished with value: 0.5 and parameters: {'num_layers': 25, 'learning_rate': 1.1720948230439882e-05, 'drop_out_rate': 0.1200547054574487, 'n_head': 2, 'nhead_factor': 11}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 04:59:57,937] Trial 2 finished with value: 0.5 and parameters: {'num_layers': 46, 'learning_rate': 7.977969237348866e-05, 'drop_out_rate': 0.26425193692356885, 'n_head': 8, 'nhead_factor': 9}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 05:18:24,418] Trial 3 finished with value: 0.5 and parameters: {'num_layers': 24, 'learning_rate': 0.0020528388915710396, 'drop_out_rate': 0.27903272176085836, 'n_head': 4, 'nhead_factor': 11}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 06:21:43,578] Trial 4 finished with value: 0.5 and parameters: {'num_layers': 61, 'learning_rate': 0.00013012272064999978, 'drop_out_rate': 0.26065150618705646, 'n_head': 6, 'nhead_factor': 2}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 07:18:28,302] Trial 5 finished with value: 0.5 and parameters: {'num_layers': 58, 'learning_rate': 4.113131382910593e-05, 'drop_out_rate': 0.11115714554172307, 'n_head': 4, 'nhead_factor': 7}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 08:05:12,355] Trial 6 finished with value: 0.5 and parameters: {'num_layers': 55, 'learning_rate': 0.001120852715132653, 'drop_out_rate': 0.312960356360901, 'n_head': 3, 'nhead_factor': 5}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 08:39:42,738] Trial 7 finished with value: 0.5 and parameters: {'num_layers': 34, 'learning_rate': 0.00010017313093353667, 'drop_out_rate': 0.3920507672763871, 'n_head': 7, 'nhead_factor': 10}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 09:09:06,720] Trial 8 finished with value: 0.5 and parameters: {'num_layers': 40, 'learning_rate': 0.00030621634757412676, 'drop_out_rate': 0.31099920081361265, 'n_head': 6, 'nhead_factor': 14}. Best is trial 0 with value: 0.5.
+[I 2025-08-22 09:46:56,439] Trial 9 finished with value: 0.5 and parameters: {'num_layers': 33, 'learning_rate': 2.3056674311283732e-05, 'drop_out_rate': 0.4521603371886509, 'n_head': 8, 'nhead_factor': 10}. Best is trial 0 with value: 0.5.
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Running Optuna hyperparameter optimization
+Running trial 0 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.021300503715029513
+Epoch 2/50
+Average Loss: 0.00031327651525188475
+Epoch 3/50
+Average Loss: 4.273369377689055e-05
+Epoch 4/50
+Average Loss: 7.798368387935566e-06
+Epoch 5/50
+Average Loss: 1.5449074508480722e-06
+Epoch 6/50
+Average Loss: 3.1952622479300566e-07
+Epoch 7/50
+Average Loss: 8.774265318878484e-08
+Epoch 8/50
+Average Loss: 7.755704895383106e-08
+Epoch 9/50
+Average Loss: 7.764581240727297e-08
+Patience Counter: 1
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Epoch 11/50
+Average Loss: 7.751266723769154e-08
+Patience Counter: 1
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 13/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 14/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 15/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 1 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.13707006190662852
+Epoch 2/50
+Average Loss: 0.06388611844113223
+Epoch 3/50
+Average Loss: 0.02822417072807553
+Epoch 4/50
+Average Loss: 0.011525022378087332
+Epoch 5/50
+Average Loss: 0.0044520511380337835
+Epoch 6/50
+Average Loss: 0.001629129390659439
+Epoch 7/50
+Average Loss: 0.0005697703031196841
+Epoch 8/50
+Average Loss: 0.00019170537299877214
+Epoch 9/50
+Average Loss: 6.261463357332077e-05
+Epoch 10/50
+Average Loss: 1.988904725839038e-05
+Epoch 11/50
+Average Loss: 6.199203693817069e-06
+Epoch 12/50
+Average Loss: 1.898852418880054e-06
+Epoch 13/50
+Average Loss: 5.735007578051955e-07
+Epoch 14/50
+Average Loss: 1.7157972026707245e-07
+Epoch 15/50
+Average Loss: 7.749047637962176e-08
+Epoch 16/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 17/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 18/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 19/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 20/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 2 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.01217883202886479
+Epoch 2/50
+Average Loss: 0.00011093403391488214
+Epoch 3/50
+Average Loss: 1.4310395424874077e-05
+Epoch 4/50
+Average Loss: 2.553729863040024e-06
+Epoch 5/50
+Average Loss: 5.111666039546857e-07
+Epoch 6/50
+Average Loss: 1.1379472200176365e-07
+Epoch 7/50
+Average Loss: 7.749047637962176e-08
+Epoch 8/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 9/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 3 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.001331705613645543
+Epoch 2/50
+Average Loss: 8.464265791164409e-07
+Epoch 3/50
+Average Loss: 1.379383783328394e-07
+Epoch 4/50
+Average Loss: 7.791210268294732e-08
+Epoch 5/50
+Average Loss: 7.757923981190083e-08
+Epoch 6/50
+Average Loss: 7.749047637962176e-08
+Epoch 7/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 4 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.06506756899725127
+Epoch 2/50
+Average Loss: 0.0018840467255264008
+Epoch 3/50
+Average Loss: 0.00023963097335991942
+Epoch 4/50
+Average Loss: 4.2404786189948276e-05
+Epoch 5/50
+Average Loss: 8.372519728806628e-06
+Epoch 6/50
+Average Loss: 1.7526366231558423e-06
+Epoch 7/50
+Average Loss: 3.814387505625104e-07
+Epoch 8/50
+Average Loss: 9.619736989115562e-08
+Epoch 9/50
+Average Loss: 7.764581238611012e-08
+Epoch 10/50
+Average Loss: 7.751266723769154e-08
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 14/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 15/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 16/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 5 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.07206981616720214
+Epoch 2/50
+Average Loss: 0.0069483518758227
+Epoch 3/50
+Average Loss: 0.0010476980780465257
+Epoch 4/50
+Average Loss: 0.00019306942276136184
+Epoch 5/50
+Average Loss: 3.90804574072255e-05
+Epoch 6/50
+Average Loss: 8.320191741204638e-06
+Epoch 7/50
+Average Loss: 1.8241579375407914e-06
+Epoch 8/50
+Average Loss: 4.104200276134157e-07
+Epoch 9/50
+Average Loss: 1.0238861950424876e-07
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 13/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 14/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 15/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 6 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.010686120380321573
+Epoch 2/50
+Average Loss: 2.238808582784497e-05
+Epoch 3/50
+Average Loss: 3.295175015216763e-06
+Epoch 4/50
+Average Loss: 6.215440407284307e-07
+Epoch 5/50
+Average Loss: 1.3034910341274277e-07
+Epoch 6/50
+Average Loss: 7.764581238611012e-08
+Epoch 7/50
+Average Loss: 7.75348580957613e-08
+Epoch 8/50
+Average Loss: 7.749047637962176e-08
+Epoch 9/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 13/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 7 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.013802138466874886
+Epoch 2/50
+Average Loss: 0.00010151386614980898
+Epoch 3/50
+Average Loss: 8.735249968465525e-06
+Epoch 4/50
+Average Loss: 1.1389470311346313e-06
+Epoch 5/50
+Average Loss: 2.030463711044592e-07
+Epoch 6/50
+Average Loss: 7.986489821424954e-08
+Epoch 7/50
+Average Loss: 7.771238496031943e-08
+Epoch 8/50
+Average Loss: 7.757923981190083e-08
+Epoch 9/50
+Average Loss: 7.75348580957613e-08
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 13/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 14/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 15/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 8 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.007018772084703778
+Epoch 2/50
+Average Loss: 4.990705317683749e-06
+Epoch 3/50
+Average Loss: 7.727305504295789e-07
+Epoch 4/50
+Average Loss: 1.576882444698216e-07
+Epoch 5/50
+Average Loss: 7.769019410224965e-08
+Epoch 6/50
+Average Loss: 7.749047637962176e-08
+Epoch 7/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 10/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 11/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Running trial 9 for ExperimentScenario.FIVELABMS on device cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 0.034825263237365685
+Epoch 2/50
+Average Loss: 0.0017436979506605139
+Epoch 3/50
+Average Loss: 0.0002736049262906979
+Epoch 4/50
+Average Loss: 5.35319403117963e-05
+Epoch 5/50
+Average Loss: 1.1207282496525228e-05
+Epoch 6/50
+Average Loss: 2.452339535435156e-06
+Epoch 7/50
+Average Loss: 5.566801134821089e-07
+Epoch 8/50
+Average Loss: 1.3514233022663035e-07
+Epoch 9/50
+Average Loss: 7.840030156048216e-08
+Epoch 10/50
+Average Loss: 7.757923981190083e-08
+Epoch 11/50
+Average Loss: 7.751266723769154e-08
+Epoch 12/50
+Average Loss: 7.749047637962176e-08
+Epoch 13/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 1
+Epoch 14/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 2
+Epoch 15/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 3
+Epoch 16/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 4
+Epoch 17/50
+Average Loss: 7.749047637962176e-08
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layers': 11, 'learning_rate': 0.000222489287771335, 'drop_out_rate': 0.40282397790816726, 'n_head': 1, 'nhead_factor': 12}
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=4, out_features=12, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=6, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=6, out_features=12, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-10): 11 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=12, out_features=12, bias=True)
+        )
+        (linear1): Linear(in_features=12, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.40282397790816726, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=12, bias=True)
+        (norm1): LayerNorm((12,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((12,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.40282397790816726, inplace=False)
+        (dropout2): Dropout(p=0.40282397790816726, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=12, out_features=6, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=6, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.5000
+Mean time-dependent AUC: 0.50
+Integrated Brier Score Test: 0.546
+✓ hazard_transformer completed successfully
+End time: Fri Aug 22 09:47:18 CDT 2025
+
+==================== Running logistic_hazard for rep3 ====================
+Start time: Fri Aug 22 09:47:18 CDT 2025
+[I 2025-08-22 09:47:26,741] A new study created in memory with name: no-name-6e42b28f-c983-4005-aaae-fd1c44976545
+[I 2025-08-22 09:47:58,402] Trial 0 finished with value: 0.4970024696058898 and parameters: {'num_nodes': 32, 'num_layers': 3, 'lr': 0.001535075894006755, 'batch_size': 32, 'dropout': 0.14389378450330698}. Best is trial 0 with value: 0.4970024696058898.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:48:13,532] Trial 1 finished with value: 0.4927167202835661 and parameters: {'num_nodes': 32, 'num_layers': 3, 'lr': 0.0033129750414152854, 'batch_size': 128, 'dropout': 0.4216342573367468}. Best is trial 0 with value: 0.4970024696058898.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:48:32,399] Trial 2 finished with value: 0.4979850535011995 and parameters: {'num_nodes': 32, 'num_layers': 2, 'lr': 0.02552228602414715, 'batch_size': 64, 'dropout': 0.03961152993411221}. Best is trial 2 with value: 0.4979850535011995.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:48:49,427] Trial 3 finished with value: 0.4660991408963992 and parameters: {'num_nodes': 64, 'num_layers': 1, 'lr': 0.05818988249897031, 'batch_size': 64, 'dropout': 0.4648588495717815}. Best is trial 2 with value: 0.4979850535011995.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:49:02,255] Trial 4 finished with value: 0.4731251093780592 and parameters: {'num_nodes': 64, 'num_layers': 1, 'lr': 0.0002515473533047888, 'batch_size': 128, 'dropout': 0.3451656069398614}. Best is trial 2 with value: 0.4979850535011995.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:49:21,199] Trial 5 finished with value: 0.4669372730080515 and parameters: {'num_nodes': 64, 'num_layers': 2, 'lr': 0.00013392041707836693, 'batch_size': 64, 'dropout': 0.44671031177124737}. Best is trial 2 with value: 0.4979850535011995.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:49:39,302] Trial 6 finished with value: 0.5122812075088323 and parameters: {'num_nodes': 128, 'num_layers': 2, 'lr': 0.05779659529467984, 'batch_size': 64, 'dropout': 0.04663680576067286}. Best is trial 6 with value: 0.5122812075088323.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:49:53,351] Trial 7 finished with value: 0.49606176633562615 and parameters: {'num_nodes': 128, 'num_layers': 2, 'lr': 0.08749744103478058, 'batch_size': 128, 'dropout': 0.025695720264044486}. Best is trial 6 with value: 0.5122812075088323.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:50:12,482] Trial 8 finished with value: 0.5189811722168713 and parameters: {'num_nodes': 16, 'num_layers': 3, 'lr': 0.022117696440370642, 'batch_size': 64, 'dropout': 0.3158337026678655}. Best is trial 8 with value: 0.5189811722168713.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:131: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+[I 2025-08-22 09:50:37,553] Trial 9 finished with value: 0.4913678108217872 and parameters: {'num_nodes': 32, 'num_layers': 1, 'lr': 0.0005175753995194728, 'batch_size': 32, 'dropout': 0.188423593412904}. Best is trial 8 with value: 0.5189811722168713.
+Using GPU: cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Training new model with Optuna optimization
+Running Optuna hyperparameter optimization
+Using GPU: cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+No existing model, saving current model
+Using GPU: cuda:4
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.4970, Current trial C-index: 0.4927
+Saved model is better, keeping it
+Using GPU: cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.4970, Current trial C-index: 0.4980
+New model is better, saving current model
+Using GPU: cuda:1
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.4980, Current trial C-index: 0.4661
+Saved model is better, keeping it
+Using GPU: cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.4980, Current trial C-index: 0.4731
+Saved model is better, keeping it
+Using GPU: cuda:5
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.4980, Current trial C-index: 0.4669
+Saved model is better, keeping it
+Using GPU: cuda:3
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.4980, Current trial C-index: 0.5123
+New model is better, saving current model
+Using GPU: cuda:6
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.5123, Current trial C-index: 0.4961
+Saved model is better, keeping it
+Using GPU: cuda:2
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.5123, Current trial C-index: 0.5190
+New model is better, saving current model
+Using GPU: cuda:6
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Saved model C-index: 0.5190, Current trial C-index: 0.4914
+Saved model is better, keeping it
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_nodes': 16, 'num_layers': 3, 'lr': 0.022117696440370642, 'batch_size': 64, 'dropout': 0.3158337026678655}
+Loading best model from disk after optimization
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=4, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3158337026678655, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=16, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3158337026678655, inplace=False)
+    )
+    (2): DenseVanillaBlock(
+      (linear): Linear(in_features=16, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3158337026678655, inplace=False)
+    )
+    (3): Linear(in_features=16, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for fivelabms ===
+Global test C-index: 0.519
+Event rate: 2982/3268 (91.25%)
+Mean time-dependent AUC: 0.527
+Integrated Brier Score Test: 0.540
+✓ logistic_hazard completed successfully
+End time: Fri Aug 22 09:50:53 CDT 2025
+
+==================== Running rnnsurv for rep3 ====================
+Start time: Fri Aug 22 09:50:53 CDT 2025
+[I 2025-08-22 09:50:59,526] A new study created in memory with name: no-name-f8202e4b-1caf-4d4e-ada4-eadc8460b22b
+[I 2025-08-22 10:46:23,993] Trial 0 finished with value: 0.557 and parameters: {'num_time_intervals': 40, 'embedding_size': 114, 'num_embedding_layers': 1, 'hidden_dims': 143, 'num_recurrent_layers': 3, 'learning_rate': 0.0003880273208445056, 'cross_entropy_loss_weight': 0.2882758773996106}. Best is trial 0 with value: 0.557.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 11:58:55,100] Trial 1 finished with value: 0.578 and parameters: {'num_time_intervals': 28, 'embedding_size': 97, 'num_embedding_layers': 1, 'hidden_dims': 72, 'num_recurrent_layers': 3, 'learning_rate': 5.27528420161406e-05, 'cross_entropy_loss_weight': 0.16889713097996087}. Best is trial 1 with value: 0.578.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 13:15:48,335] Trial 2 finished with value: 0.654 and parameters: {'num_time_intervals': 33, 'embedding_size': 83, 'num_embedding_layers': 3, 'hidden_dims': 221, 'num_recurrent_layers': 3, 'learning_rate': 0.00017055273698363206, 'cross_entropy_loss_weight': 0.6386958134366338}. Best is trial 2 with value: 0.654.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 14:33:58,610] Trial 3 finished with value: 0.58 and parameters: {'num_time_intervals': 35, 'embedding_size': 51, 'num_embedding_layers': 1, 'hidden_dims': 102, 'num_recurrent_layers': 1, 'learning_rate': 0.0001367705373328895, 'cross_entropy_loss_weight': 0.12714678834269888}. Best is trial 2 with value: 0.654.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 16:00:12,474] Trial 4 finished with value: 0.651 and parameters: {'num_time_intervals': 45, 'embedding_size': 91, 'num_embedding_layers': 3, 'hidden_dims': 221, 'num_recurrent_layers': 1, 'learning_rate': 0.00017356775784388453, 'cross_entropy_loss_weight': 0.6178293279557462}. Best is trial 2 with value: 0.654.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 17:07:34,952] Trial 5 finished with value: 0.655 and parameters: {'num_time_intervals': 21, 'embedding_size': 119, 'num_embedding_layers': 1, 'hidden_dims': 133, 'num_recurrent_layers': 3, 'learning_rate': 0.0005153637936028062, 'cross_entropy_loss_weight': 0.3862310037637492}. Best is trial 5 with value: 0.655.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 18:08:54,687] Trial 6 finished with value: 0.654 and parameters: {'num_time_intervals': 38, 'embedding_size': 72, 'num_embedding_layers': 2, 'hidden_dims': 108, 'num_recurrent_layers': 2, 'learning_rate': 0.0009875581316247603, 'cross_entropy_loss_weight': 0.5795425203090828}. Best is trial 5 with value: 0.655.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 19:20:50,121] Trial 7 finished with value: 0.651 and parameters: {'num_time_intervals': 27, 'embedding_size': 106, 'num_embedding_layers': 1, 'hidden_dims': 133, 'num_recurrent_layers': 2, 'learning_rate': 0.00032263504200595936, 'cross_entropy_loss_weight': 0.24394629307576654}. Best is trial 5 with value: 0.655.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 20:19:56,567] Trial 8 finished with value: 0.632 and parameters: {'num_time_intervals': 11, 'embedding_size': 53, 'num_embedding_layers': 2, 'hidden_dims': 122, 'num_recurrent_layers': 2, 'learning_rate': 2.4582856231454332e-05, 'cross_entropy_loss_weight': 0.7529684791784031}. Best is trial 5 with value: 0.655.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2025-08-22 21:18:16,708] Trial 9 finished with value: 0.639 and parameters: {'num_time_intervals': 20, 'embedding_size': 89, 'num_embedding_layers': 2, 'hidden_dims': 249, 'num_recurrent_layers': 1, 'learning_rate': 0.00027815766149388177, 'cross_entropy_loss_weight': 0.11432945881237187}. Best is trial 5 with value: 0.655.
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Running Optuna hyperparameter optimization
+Running trial number 0 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 32.86064776220768
+Epoch 2/50
+Average Loss: 0.3205975665570163
+Epoch 3/50
+Average Loss: 0.21293016892971753
+Epoch 4/50
+Average Loss: 0.17679026144013987
+Epoch 5/50
+Average Loss: 0.15979328681882338
+Epoch 6/50
+Average Loss: 0.15042163147557552
+Epoch 7/50
+Average Loss: 0.1446724683046341
+Epoch 8/50
+Average Loss: 0.14085827435520912
+Epoch 9/50
+Average Loss: 0.1382094208392308
+Epoch 10/50
+Average Loss: 0.13623219749910367
+Epoch 11/50
+Average Loss: 0.13484812830742315
+Epoch 12/50
+Average Loss: 0.1336422689902268
+Epoch 13/50
+Average Loss: 0.13272939885048557
+Epoch 14/50
+Average Loss: 0.1321459873277935
+Epoch 15/50
+Average Loss: 0.13153885936083123
+Epoch 16/50
+Average Loss: 0.1310682097222093
+Epoch 17/50
+Average Loss: 0.1308387379101712
+Epoch 18/50
+Average Loss: 0.13059126767966386
+Epoch 19/50
+Average Loss: 0.13035630382490243
+Epoch 20/50
+Average Loss: 0.13010353814783715
+Epoch 21/50
+Average Loss: 0.13014960313122048
+Patience Counter: 1
+Epoch 22/50
+Average Loss: 0.13003497854839985
+Epoch 23/50
+Average Loss: 0.1298470078773207
+Epoch 24/50
+Average Loss: 0.12974732747073653
+Epoch 25/50
+Average Loss: 0.12977378617087715
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 0.12960877521432562
+Epoch 27/50
+Average Loss: 0.1295433309760025
+Epoch 28/50
+Average Loss: 0.1294914505732574
+Epoch 29/50
+Average Loss: 0.12963297065320634
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 0.12952128068791877
+Patience Counter: 2
+Epoch 31/50
+Average Loss: 0.12951594542899578
+Patience Counter: 3
+Epoch 32/50
+Average Loss: 0.1295371433492187
+Patience Counter: 4
+Epoch 33/50
+Average Loss: 0.12951398568509295
+Patience Counter: 5
+Early stopping triggered
+No existing model found, saving current model
+C-Index on Test Data: 0.557
+Running trial number 1 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 131.02566874113015
+Epoch 2/50
+Average Loss: 32.69111260407263
+Epoch 3/50
+Average Loss: 7.426780693822628
+Epoch 4/50
+Average Loss: 3.4669983644279645
+Epoch 5/50
+Average Loss: 2.069185328998154
+Epoch 6/50
+Average Loss: 1.3922323996214558
+Epoch 7/50
+Average Loss: 1.0130065617372663
+Epoch 8/50
+Average Loss: 0.7746794442478702
+Epoch 9/50
+Average Loss: 0.6133939857534367
+Epoch 10/50
+Average Loss: 0.4979068258469053
+Epoch 11/50
+Average Loss: 0.4141853013270193
+Epoch 12/50
+Average Loss: 0.350935032149013
+Epoch 13/50
+Average Loss: 0.3020249738110055
+Epoch 14/50
+Average Loss: 0.26351125377545254
+Epoch 15/50
+Average Loss: 0.23278781551894523
+Epoch 16/50
+Average Loss: 0.20785568820701228
+Epoch 17/50
+Average Loss: 0.1875425888587245
+Epoch 18/50
+Average Loss: 0.1707743571923791
+Epoch 19/50
+Average Loss: 0.15681044130230978
+Epoch 20/50
+Average Loss: 0.14505488275409603
+Epoch 21/50
+Average Loss: 0.1352874095812976
+Epoch 22/50
+Average Loss: 0.12696038256231829
+Epoch 23/50
+Average Loss: 0.11975610427719226
+Epoch 24/50
+Average Loss: 0.11359943867587358
+Epoch 25/50
+Average Loss: 0.10840660596279789
+Epoch 26/50
+Average Loss: 0.1038713074898977
+Epoch 27/50
+Average Loss: 0.10000879078996268
+Epoch 28/50
+Average Loss: 0.09674565084010577
+Epoch 29/50
+Average Loss: 0.09390529730229927
+Epoch 30/50
+Average Loss: 0.09145222434090625
+Epoch 31/50
+Average Loss: 0.08935861716971552
+Epoch 32/50
+Average Loss: 0.08750114715892635
+Epoch 33/50
+Average Loss: 0.08599145226716566
+Epoch 34/50
+Average Loss: 0.08460331374524738
+Epoch 35/50
+Average Loss: 0.08348343532076842
+Epoch 36/50
+Average Loss: 0.08254478768639856
+Epoch 37/50
+Average Loss: 0.08165535464775649
+Epoch 38/50
+Average Loss: 0.08095243823774856
+Epoch 39/50
+Average Loss: 0.0802801781662291
+Epoch 40/50
+Average Loss: 0.07969307226778792
+Epoch 41/50
+Average Loss: 0.07925854778761486
+Epoch 42/50
+Average Loss: 0.0788846342228085
+Epoch 43/50
+Average Loss: 0.07844579331040812
+Epoch 44/50
+Average Loss: 0.07816082882366591
+Epoch 45/50
+Average Loss: 0.07791872630766827
+Epoch 46/50
+Average Loss: 0.07769810940346701
+Epoch 47/50
+Average Loss: 0.07752608899161112
+Epoch 48/50
+Average Loss: 0.07733181775581065
+Epoch 49/50
+Average Loss: 0.07722555866076362
+Epoch 50/50
+Average Loss: 0.07711121681139624
+C-Index on Test Data: 0.578
+C-Index on Test Data: 0.557
+Current trial C-index: 0.5780, Previously saved model C-index: 0.5570
+Current model performs better, saving it...
+C-Index on Test Data: 0.578
+Running trial number 2 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 16.08004653003576
+Epoch 2/50
+Average Loss: 0.34241280501051774
+Epoch 3/50
+Average Loss: 0.2859615100373467
+Epoch 4/50
+Average Loss: 0.26911970056432616
+Epoch 5/50
+Average Loss: 0.2615741016946251
+Epoch 6/50
+Average Loss: 0.2575287804972354
+Epoch 7/50
+Average Loss: 0.25498957031493563
+Epoch 8/50
+Average Loss: 0.25347420760839107
+Epoch 9/50
+Average Loss: 0.2524589406822225
+Epoch 10/50
+Average Loss: 0.25165366349246004
+Epoch 11/50
+Average Loss: 0.2510733487044307
+Epoch 12/50
+Average Loss: 0.2508169794254166
+Epoch 13/50
+Average Loss: 0.25040489858646187
+Epoch 14/50
+Average Loss: 0.25021423924741126
+Epoch 15/50
+Average Loss: 0.2500108416131932
+Epoch 16/50
+Average Loss: 0.24991568724671714
+Epoch 17/50
+Average Loss: 0.2500509727987454
+Patience Counter: 1
+Epoch 18/50
+Average Loss: 0.2499320972308838
+Patience Counter: 2
+Epoch 19/50
+Average Loss: 0.2497326069169765
+Epoch 20/50
+Average Loss: 0.24960376027462294
+Epoch 21/50
+Average Loss: 0.24971447418705164
+Patience Counter: 1
+Epoch 22/50
+Average Loss: 0.2495967012515171
+Epoch 23/50
+Average Loss: 0.24894399029745473
+Epoch 24/50
+Average Loss: 0.24801162775043104
+Epoch 25/50
+Average Loss: 0.24746739655304298
+Epoch 26/50
+Average Loss: 0.24717700679739601
+Epoch 27/50
+Average Loss: 0.2467702814250541
+Epoch 28/50
+Average Loss: 0.24619269371032715
+Epoch 29/50
+Average Loss: 0.24557949452520275
+Epoch 30/50
+Average Loss: 0.24516923516559944
+Epoch 31/50
+Average Loss: 0.2451068435748704
+Epoch 32/50
+Average Loss: 0.24483040650542692
+Epoch 33/50
+Average Loss: 0.2445788790317748
+Epoch 34/50
+Average Loss: 0.24432564135506857
+Epoch 35/50
+Average Loss: 0.24408200466268354
+Epoch 36/50
+Average Loss: 0.2439496843077296
+Epoch 37/50
+Average Loss: 0.24407279818392486
+Patience Counter: 1
+Epoch 38/50
+Average Loss: 0.24387771920334522
+Epoch 39/50
+Average Loss: 0.24395486385487825
+Patience Counter: 1
+Epoch 40/50
+Average Loss: 0.24393756650120235
+Patience Counter: 2
+Epoch 41/50
+Average Loss: 0.24388339895781852
+Patience Counter: 3
+Epoch 42/50
+Average Loss: 0.24385683198305344
+Epoch 43/50
+Average Loss: 0.24362313961811202
+Epoch 44/50
+Average Loss: 0.24361883811384655
+Epoch 45/50
+Average Loss: 0.24339120336573758
+Epoch 46/50
+Average Loss: 0.24340356974829014
+Patience Counter: 1
+Epoch 47/50
+Average Loss: 0.24363535487180132
+Patience Counter: 2
+Epoch 48/50
+Average Loss: 0.24348459730474212
+Patience Counter: 3
+Epoch 49/50
+Average Loss: 0.24361090774801994
+Patience Counter: 4
+Epoch 50/50
+Average Loss: 0.24350908178862907
+Patience Counter: 5
+Early stopping triggered
+C-Index on Test Data: 0.654
+C-Index on Test Data: 0.578
+Current trial C-index: 0.6540, Previously saved model C-index: 0.5780
+Current model performs better, saving it...
+C-Index on Test Data: 0.654
+Running trial number 3 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 91.05648986898738
+Epoch 2/50
+Average Loss: 9.11585148289907
+Epoch 3/50
+Average Loss: 2.5680551520354458
+Epoch 4/50
+Average Loss: 1.2133598473432252
+Epoch 5/50
+Average Loss: 0.8123692462770201
+Epoch 6/50
+Average Loss: 0.5472743248553584
+Epoch 7/50
+Average Loss: 0.39359549867163457
+Epoch 8/50
+Average Loss: 0.29646763312730856
+Epoch 9/50
+Average Loss: 0.24616995502075703
+Epoch 10/50
+Average Loss: 0.21031357653492647
+Epoch 11/50
+Average Loss: 0.17049989211473535
+Epoch 12/50
+Average Loss: 0.14726256836446927
+Epoch 13/50
+Average Loss: 0.13133550491586005
+Epoch 14/50
+Average Loss: 0.11917319406065152
+Epoch 15/50
+Average Loss: 0.11062388832298972
+Epoch 16/50
+Average Loss: 0.10346324120065291
+Epoch 17/50
+Average Loss: 0.09695857487243714
+Epoch 18/50
+Average Loss: 0.09136435806268839
+Epoch 19/50
+Average Loss: 0.08708247656284047
+Epoch 20/50
+Average Loss: 0.08296064517909674
+Epoch 21/50
+Average Loss: 0.0795946937027595
+Epoch 22/50
+Average Loss: 0.07641813302372429
+Epoch 23/50
+Average Loss: 0.07438153185271959
+Epoch 24/50
+Average Loss: 0.0725578230758794
+Epoch 25/50
+Average Loss: 0.0709797865811655
+Epoch 26/50
+Average Loss: 0.06965077385681567
+Epoch 27/50
+Average Loss: 0.06843445928459116
+Epoch 28/50
+Average Loss: 0.06736324967401063
+Epoch 29/50
+Average Loss: 0.06646713835569165
+Epoch 30/50
+Average Loss: 0.0657500770318208
+Epoch 31/50
+Average Loss: 0.06507681536642339
+Epoch 32/50
+Average Loss: 0.06449999913519663
+Epoch 33/50
+Average Loss: 0.06396763645809331
+Epoch 34/50
+Average Loss: 0.06358348483072339
+Epoch 35/50
+Average Loss: 0.0630901995108282
+Epoch 36/50
+Average Loss: 0.06275959299515477
+Epoch 37/50
+Average Loss: 0.06243761183975412
+Epoch 38/50
+Average Loss: 0.06214577035321821
+Epoch 39/50
+Average Loss: 0.06197039178646297
+Epoch 40/50
+Average Loss: 0.06183098311529314
+Epoch 41/50
+Average Loss: 0.06169624137524649
+Epoch 42/50
+Average Loss: 0.06154246791768417
+Epoch 43/50
+Average Loss: 0.061495912388610324
+Epoch 44/50
+Average Loss: 0.06140428824390439
+Epoch 45/50
+Average Loss: 0.06131728485280232
+Epoch 46/50
+Average Loss: 0.06127931903913724
+Epoch 47/50
+Average Loss: 0.06124115168458695
+Epoch 48/50
+Average Loss: 0.06116867479499724
+Epoch 49/50
+Average Loss: 0.061115664704669295
+Epoch 50/50
+Average Loss: 0.06115126455698511
+Patience Counter: 1
+C-Index on Test Data: 0.58
+C-Index on Test Data: 0.654
+Current trial C-index: 0.5800, Previously saved model C-index: 0.6540
+C-Index on Test Data: 0.58
+Running trial number 4 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 25.3724160567462
+Epoch 2/50
+Average Loss: 0.5524456418461079
+Epoch 3/50
+Average Loss: 0.377018379543325
+Epoch 4/50
+Average Loss: 0.3207462158241718
+Epoch 5/50
+Average Loss: 0.2950997777122388
+Epoch 6/50
+Average Loss: 0.28122223854708156
+Epoch 7/50
+Average Loss: 0.27288792577150056
+Epoch 8/50
+Average Loss: 0.267663562790953
+Epoch 9/50
+Average Loss: 0.2640293262523713
+Epoch 10/50
+Average Loss: 0.2612397929640125
+Epoch 11/50
+Average Loss: 0.25949392942108696
+Epoch 12/50
+Average Loss: 0.2578952122720883
+Epoch 13/50
+Average Loss: 0.2568327008927469
+Epoch 14/50
+Average Loss: 0.25607689802380773
+Epoch 15/50
+Average Loss: 0.2553546270020574
+Epoch 16/50
+Average Loss: 0.2546406309488866
+Epoch 17/50
+Average Loss: 0.25444645627582674
+Epoch 18/50
+Average Loss: 0.25401028980025286
+Epoch 19/50
+Average Loss: 0.25353136385301894
+Epoch 20/50
+Average Loss: 0.2535855258218676
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 0.2533469228542966
+Epoch 22/50
+Average Loss: 0.25331430121077053
+Epoch 23/50
+Average Loss: 0.25308167216160316
+Epoch 24/50
+Average Loss: 0.25320302812958795
+Patience Counter: 1
+Epoch 25/50
+Average Loss: 0.2528979406832791
+Epoch 26/50
+Average Loss: 0.2530149938069659
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 0.25287433215182464
+Epoch 28/50
+Average Loss: 0.2528530482015164
+Epoch 29/50
+Average Loss: 0.2529221683633413
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 0.2527932987796317
+Epoch 31/50
+Average Loss: 0.252792779222238
+Epoch 32/50
+Average Loss: 0.2526984632872849
+Epoch 33/50
+Average Loss: 0.25257628813064353
+Epoch 34/50
+Average Loss: 0.2526192722989501
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 0.2526686789749338
+Patience Counter: 2
+Epoch 36/50
+Average Loss: 0.25245537501659326
+Epoch 37/50
+Average Loss: 0.25203315318702796
+Epoch 38/50
+Average Loss: 0.2519791130807331
+Epoch 39/50
+Average Loss: 0.25164684042227353
+Epoch 40/50
+Average Loss: 0.2506272173721156
+Epoch 41/50
+Average Loss: 0.24979189467087065
+Epoch 42/50
+Average Loss: 0.24922716708706438
+Epoch 43/50
+Average Loss: 0.24900457000346493
+Epoch 44/50
+Average Loss: 0.24843837111759529
+Epoch 45/50
+Average Loss: 0.24810390383433953
+Epoch 46/50
+Average Loss: 0.24804630671902525
+Epoch 47/50
+Average Loss: 0.24799250870299855
+Epoch 48/50
+Average Loss: 0.24763740170345033
+Epoch 49/50
+Average Loss: 0.24776045367014493
+Patience Counter: 1
+Epoch 50/50
+Average Loss: 0.24758525401782647
+C-Index on Test Data: 0.651
+C-Index on Test Data: 0.654
+Current trial C-index: 0.6510, Previously saved model C-index: 0.6540
+C-Index on Test Data: 0.651
+Running trial number 5 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 6.3233996430854145
+Epoch 2/50
+Average Loss: 0.17659861631959461
+Epoch 3/50
+Average Loss: 0.1628313730839345
+Epoch 4/50
+Average Loss: 0.15848155405452782
+Epoch 5/50
+Average Loss: 0.15651692969979142
+Epoch 6/50
+Average Loss: 0.15540611880610314
+Epoch 7/50
+Average Loss: 0.15472881857761375
+Epoch 8/50
+Average Loss: 0.15447155758738518
+Epoch 9/50
+Average Loss: 0.15416648598026028
+Epoch 10/50
+Average Loss: 0.1539639134308417
+Epoch 11/50
+Average Loss: 0.15390920928485102
+Epoch 12/50
+Average Loss: 0.15377467224816624
+Epoch 13/50
+Average Loss: 0.1537054388535966
+Epoch 14/50
+Average Loss: 0.15383545521030323
+Patience Counter: 1
+Epoch 15/50
+Average Loss: 0.1537507615393872
+Patience Counter: 2
+Epoch 16/50
+Average Loss: 0.1537160586646135
+Patience Counter: 3
+Epoch 17/50
+Average Loss: 0.15372141622167698
+Patience Counter: 4
+Epoch 18/50
+Average Loss: 0.15362889349138995
+Epoch 19/50
+Average Loss: 0.1534834063256816
+Epoch 20/50
+Average Loss: 0.15334376834815355
+Epoch 21/50
+Average Loss: 0.15300762559548556
+Epoch 22/50
+Average Loss: 0.1522636069185871
+Epoch 23/50
+Average Loss: 0.15179643404783963
+Epoch 24/50
+Average Loss: 0.1513622390548531
+Epoch 25/50
+Average Loss: 0.1509616005388524
+Epoch 26/50
+Average Loss: 0.15080586810120575
+Epoch 27/50
+Average Loss: 0.15048516045907417
+Epoch 28/50
+Average Loss: 0.15035738737034282
+Epoch 29/50
+Average Loss: 0.1503469801956801
+Epoch 30/50
+Average Loss: 0.1504043927885217
+Patience Counter: 1
+Epoch 31/50
+Average Loss: 0.15026900952132485
+Epoch 32/50
+Average Loss: 0.15023088728566822
+Epoch 33/50
+Average Loss: 0.1504889360005907
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 0.15028022725483497
+Patience Counter: 2
+Epoch 35/50
+Average Loss: 0.15047613073059982
+Patience Counter: 3
+Epoch 36/50
+Average Loss: 0.1505717674551679
+Patience Counter: 4
+Epoch 37/50
+Average Loss: 0.1502185172582273
+Epoch 38/50
+Average Loss: 0.15029719836420294
+Patience Counter: 1
+Epoch 39/50
+Average Loss: 0.15022868301263817
+Patience Counter: 2
+Epoch 40/50
+Average Loss: 0.15021391783794052
+Epoch 41/50
+Average Loss: 0.15012521470943802
+Epoch 42/50
+Average Loss: 0.15007039097894867
+Epoch 43/50
+Average Loss: 0.15011404269783618
+Patience Counter: 1
+Epoch 44/50
+Average Loss: 0.1501018788745935
+Patience Counter: 2
+Epoch 45/50
+Average Loss: 0.1499055380122267
+Epoch 46/50
+Average Loss: 0.15008026398986363
+Patience Counter: 1
+Epoch 47/50
+Average Loss: 0.14992403255092154
+Patience Counter: 2
+Epoch 48/50
+Average Loss: 0.14993073027446974
+Patience Counter: 3
+Epoch 49/50
+Average Loss: 0.1500929245095459
+Patience Counter: 4
+Epoch 50/50
+Average Loss: 0.15016792827158523
+Patience Counter: 5
+Early stopping triggered
+C-Index on Test Data: 0.655
+C-Index on Test Data: 0.654
+Current trial C-index: 0.6550, Previously saved model C-index: 0.6540
+Current model performs better, saving it...
+C-Index on Test Data: 0.655
+Running trial number 6 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 9.973499564654965
+Epoch 2/50
+Average Loss: 0.2681734348586995
+Epoch 3/50
+Average Loss: 0.24814525461025375
+Epoch 4/50
+Average Loss: 0.2418533092458471
+Epoch 5/50
+Average Loss: 0.2386463120472517
+Epoch 6/50
+Average Loss: 0.2372163722304989
+Epoch 7/50
+Average Loss: 0.23612343391282953
+Epoch 8/50
+Average Loss: 0.23546310331967238
+Epoch 9/50
+Average Loss: 0.2353303111392817
+Epoch 10/50
+Average Loss: 0.2349894277269034
+Epoch 11/50
+Average Loss: 0.23492193532933434
+Epoch 12/50
+Average Loss: 0.23461503835676387
+Epoch 13/50
+Average Loss: 0.23471851620099526
+Patience Counter: 1
+Epoch 14/50
+Average Loss: 0.23442485145956493
+Epoch 15/50
+Average Loss: 0.23443979566260206
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 0.23446005019995805
+Patience Counter: 2
+Epoch 17/50
+Average Loss: 0.23416066609269423
+Epoch 18/50
+Average Loss: 0.2338961315133589
+Epoch 19/50
+Average Loss: 0.2333378755628205
+Epoch 20/50
+Average Loss: 0.23242506082002207
+Epoch 21/50
+Average Loss: 0.2315708208802364
+Epoch 22/50
+Average Loss: 0.2310208786520169
+Epoch 23/50
+Average Loss: 0.230168598000523
+Epoch 24/50
+Average Loss: 0.23006832369154306
+Epoch 25/50
+Average Loss: 0.2298905632371525
+Epoch 26/50
+Average Loss: 0.22965758111622694
+Epoch 27/50
+Average Loss: 0.22964589067285868
+Epoch 28/50
+Average Loss: 0.22956488471773032
+Epoch 29/50
+Average Loss: 0.22952912179686183
+Epoch 30/50
+Average Loss: 0.22949849353205387
+Epoch 31/50
+Average Loss: 0.22954528248138564
+Patience Counter: 1
+Epoch 32/50
+Average Loss: 0.22929401041792452
+Epoch 33/50
+Average Loss: 0.22906075589519612
+Epoch 34/50
+Average Loss: 0.2296876302189964
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 0.2294457102958247
+Patience Counter: 2
+Epoch 36/50
+Average Loss: 0.2294306734697424
+Patience Counter: 3
+Epoch 37/50
+Average Loss: 0.22972121738272605
+Patience Counter: 4
+Epoch 38/50
+Average Loss: 0.2295008498183686
+Patience Counter: 5
+Early stopping triggered
+C-Index on Test Data: 0.654
+C-Index on Test Data: 0.655
+Current trial C-index: 0.6540, Previously saved model C-index: 0.6550
+C-Index on Test Data: 0.654
+Running trial number 7 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 17.434858049848955
+Epoch 2/50
+Average Loss: 0.2451013348085417
+Epoch 3/50
+Average Loss: 0.16435751439534502
+Epoch 4/50
+Average Loss: 0.13826525128252215
+Epoch 5/50
+Average Loss: 0.12673391056039351
+Epoch 6/50
+Average Loss: 0.12026062621165523
+Epoch 7/50
+Average Loss: 0.11636734756527187
+Epoch 8/50
+Average Loss: 0.11377777990034159
+Epoch 9/50
+Average Loss: 0.11181849820150745
+Epoch 10/50
+Average Loss: 0.1104465159956071
+Epoch 11/50
+Average Loss: 0.10943388429691465
+Epoch 12/50
+Average Loss: 0.10878469899511166
+Epoch 13/50
+Average Loss: 0.10812313222199035
+Epoch 14/50
+Average Loss: 0.10769918992472209
+Epoch 15/50
+Average Loss: 0.10732178065738232
+Epoch 16/50
+Average Loss: 0.10700632283370272
+Epoch 17/50
+Average Loss: 0.10673336657903178
+Epoch 18/50
+Average Loss: 0.10660479173546644
+Epoch 19/50
+Average Loss: 0.10645559036152825
+Epoch 20/50
+Average Loss: 0.10631138941259693
+Epoch 21/50
+Average Loss: 0.1062035244092238
+Epoch 22/50
+Average Loss: 0.10610698970208923
+Epoch 23/50
+Average Loss: 0.10613522574091129
+Patience Counter: 1
+Epoch 24/50
+Average Loss: 0.10603269473683062
+Epoch 25/50
+Average Loss: 0.1059274224685036
+Epoch 26/50
+Average Loss: 0.10592934231963946
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 0.10585879010530255
+Epoch 28/50
+Average Loss: 0.10586978627784217
+Patience Counter: 1
+Epoch 29/50
+Average Loss: 0.10588951974356775
+Patience Counter: 2
+Epoch 30/50
+Average Loss: 0.10586337388741027
+Patience Counter: 3
+Epoch 31/50
+Average Loss: 0.1057837526414463
+Epoch 32/50
+Average Loss: 0.1057581176860727
+Epoch 33/50
+Average Loss: 0.10570616225490896
+Epoch 34/50
+Average Loss: 0.10561158215935282
+Epoch 35/50
+Average Loss: 0.105327669450705
+Epoch 36/50
+Average Loss: 0.1050127087656757
+Epoch 37/50
+Average Loss: 0.10447720556164818
+Epoch 38/50
+Average Loss: 0.10423830632629583
+Epoch 39/50
+Average Loss: 0.10416984454922967
+Epoch 40/50
+Average Loss: 0.10398330007472055
+Epoch 41/50
+Average Loss: 0.10414707403388812
+Patience Counter: 1
+Epoch 42/50
+Average Loss: 0.10400260799973131
+Patience Counter: 2
+Epoch 43/50
+Average Loss: 0.10399164424257741
+Patience Counter: 3
+Epoch 44/50
+Average Loss: 0.10394537806671729
+Epoch 45/50
+Average Loss: 0.10392589767952617
+Epoch 46/50
+Average Loss: 0.10392503288956426
+Epoch 47/50
+Average Loss: 0.10385625294858603
+Epoch 48/50
+Average Loss: 0.10394165761393609
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 0.10388633370292273
+Patience Counter: 2
+Epoch 50/50
+Average Loss: 0.1038234573956445
+C-Index on Test Data: 0.651
+C-Index on Test Data: 0.655
+Current trial C-index: 0.6510, Previously saved model C-index: 0.6550
+C-Index on Test Data: 0.651
+Running trial number 8 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 5.518603944092345
+Epoch 2/50
+Average Loss: 2.129212956848762
+Epoch 3/50
+Average Loss: 0.6142533414012237
+Epoch 4/50
+Average Loss: 0.38700138922217936
+Epoch 5/50
+Average Loss: 0.3230033192059977
+Epoch 6/50
+Average Loss: 0.2958833908112787
+Epoch 7/50
+Average Loss: 0.2813394351078452
+Epoch 8/50
+Average Loss: 0.2729141113998221
+Epoch 9/50
+Average Loss: 0.267385174902223
+Epoch 10/50
+Average Loss: 0.2638236369482047
+Epoch 11/50
+Average Loss: 0.26150774580540415
+Epoch 12/50
+Average Loss: 0.25988524857399276
+Epoch 13/50
+Average Loss: 0.25885969464727443
+Epoch 14/50
+Average Loss: 0.2579360529780388
+Epoch 15/50
+Average Loss: 0.2572600256196029
+Epoch 16/50
+Average Loss: 0.25680372419117165
+Epoch 17/50
+Average Loss: 0.2564278902124158
+Epoch 18/50
+Average Loss: 0.2562216233542497
+Epoch 19/50
+Average Loss: 0.2557321307148865
+Epoch 20/50
+Average Loss: 0.2557267606687203
+Epoch 21/50
+Average Loss: 0.25549615190612324
+Epoch 22/50
+Average Loss: 0.25554937451220244
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 0.2553217396032896
+Epoch 24/50
+Average Loss: 0.2550551429819718
+Epoch 25/50
+Average Loss: 0.25524886268720354
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 0.25482840970051374
+Epoch 27/50
+Average Loss: 0.2547961628372721
+Epoch 28/50
+Average Loss: 0.2547158255851526
+Epoch 29/50
+Average Loss: 0.2544120933940942
+Epoch 30/50
+Average Loss: 0.2542954615230183
+Epoch 31/50
+Average Loss: 0.25437597271135387
+Patience Counter: 1
+Epoch 32/50
+Average Loss: 0.25402604633098025
+Epoch 33/50
+Average Loss: 0.25356967597127816
+Epoch 34/50
+Average Loss: 0.2533138241592071
+Epoch 35/50
+Average Loss: 0.25273171437086817
+Epoch 36/50
+Average Loss: 0.2524825000076843
+Epoch 37/50
+Average Loss: 0.25193809830456326
+Epoch 38/50
+Average Loss: 0.2515214765779406
+Epoch 39/50
+Average Loss: 0.25107242783410944
+Epoch 40/50
+Average Loss: 0.25086710307237914
+Epoch 41/50
+Average Loss: 0.2504947530708725
+Epoch 42/50
+Average Loss: 0.25016036056142915
+Epoch 43/50
+Average Loss: 0.249825235322225
+Epoch 44/50
+Average Loss: 0.24971595095644752
+Epoch 45/50
+Average Loss: 0.24951358798810905
+Epoch 46/50
+Average Loss: 0.24905551358950223
+Epoch 47/50
+Average Loss: 0.24896974121923926
+Epoch 48/50
+Average Loss: 0.24879208909307451
+Epoch 49/50
+Average Loss: 0.24870786076183798
+Epoch 50/50
+Average Loss: 0.2484051849987867
+C-Index on Test Data: 0.632
+C-Index on Test Data: 0.655
+Current trial C-index: 0.6320, Previously saved model C-index: 0.6550
+C-Index on Test Data: 0.632
+Running trial number 9 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 5.435154371928397
+Epoch 2/50
+Average Loss: 0.09333801198509528
+Epoch 3/50
+Average Loss: 0.06729765016612389
+Epoch 4/50
+Average Loss: 0.06000301949411845
+Epoch 5/50
+Average Loss: 0.056776380019007824
+Epoch 6/50
+Average Loss: 0.054943912736267496
+Epoch 7/50
+Average Loss: 0.05386521604260523
+Epoch 8/50
+Average Loss: 0.0531633177758764
+Epoch 9/50
+Average Loss: 0.05264047956723961
+Epoch 10/50
+Average Loss: 0.05228648764892019
+Epoch 11/50
+Average Loss: 0.052015388853472774
+Epoch 12/50
+Average Loss: 0.051809305016943016
+Epoch 13/50
+Average Loss: 0.05165294559149862
+Epoch 14/50
+Average Loss: 0.05148256196901738
+Epoch 15/50
+Average Loss: 0.05141781470168837
+Epoch 16/50
+Average Loss: 0.05133311378119661
+Epoch 17/50
+Average Loss: 0.051287577762234984
+Epoch 18/50
+Average Loss: 0.05126297350624483
+Epoch 19/50
+Average Loss: 0.0511411227245661
+Epoch 20/50
+Average Loss: 0.05104163905485071
+Epoch 21/50
+Average Loss: 0.05094671806173145
+Epoch 22/50
+Average Loss: 0.05089886551521879
+Epoch 23/50
+Average Loss: 0.050842819058691424
+Epoch 24/50
+Average Loss: 0.0507835231506996
+Epoch 25/50
+Average Loss: 0.05069395053542132
+Epoch 26/50
+Average Loss: 0.05063992027166507
+Epoch 27/50
+Average Loss: 0.05059638212053038
+Epoch 28/50
+Average Loss: 0.05061339364527798
+Patience Counter: 1
+Epoch 29/50
+Average Loss: 0.050535435607429034
+Epoch 30/50
+Average Loss: 0.050564483578631775
+Patience Counter: 1
+Epoch 31/50
+Average Loss: 0.050531982906537945
+Epoch 32/50
+Average Loss: 0.05053217418277435
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 0.05048263770454436
+Epoch 34/50
+Average Loss: 0.050489605545139996
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 0.05052464019855578
+Patience Counter: 2
+Epoch 36/50
+Average Loss: 0.05044022179041192
+Epoch 37/50
+Average Loss: 0.05043891853512191
+Epoch 38/50
+Average Loss: 0.050451579570716665
+Patience Counter: 1
+Epoch 39/50
+Average Loss: 0.050433744709911965
+Epoch 40/50
+Average Loss: 0.0504837155462705
+Patience Counter: 1
+Epoch 41/50
+Average Loss: 0.050470261921663935
+Patience Counter: 2
+Epoch 42/50
+Average Loss: 0.05047526893293043
+Patience Counter: 3
+Epoch 43/50
+Average Loss: 0.05045025316636554
+Patience Counter: 4
+Epoch 44/50
+Average Loss: 0.050462129465538824
+Patience Counter: 5
+Early stopping triggered
+C-Index on Test Data: 0.639
+C-Index on Test Data: 0.655
+Current trial C-index: 0.6390, Previously saved model C-index: 0.6550
+C-Index on Test Data: 0.639
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_time_intervals': 21, 'embedding_size': 119, 'num_embedding_layers': 1, 'hidden_dims': 133, 'num_recurrent_layers': 3, 'learning_rate': 0.0005153637936028062, 'cross_entropy_loss_weight': 0.3862310037637492}
+C-Index on Test Data: 0.648
+Integrated Brier Score Test: 0.09
+Mean time-dependent AUC: 0.6518
+✓ rnnsurv completed successfully
+End time: Fri Aug 22 21:18:23 CDT 2025
+
+=========================================
+Repetition 3 Summary:
+Total experiments: 5
+Failed experiments: 1
+✗ Failed experiments: dynamic_deephit
+End time: Fri Aug 22 21:18:23 CDT 2025
+=========================================
