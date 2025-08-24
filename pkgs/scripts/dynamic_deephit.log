@@ -1,0 +1,32 @@
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Running Optuna hyperparameter optimization
+[I 2025-08-24 16:05:03,573] A new study created in memory with name: no-name-ec4c4177-930e-49ed-aec3-f061dc47129d
+Running trial 0 for ExperimentScenario.FIVELABMS on device cuda:5
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 492])
+fc_output shape: torch.Size([256, 600, 246])
+context shape: torch.Size([256, 246])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 26])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
+Average Loss: 13.942762461575596
+Epoch 2/50
+features shape: torch.Size([256, 600, 4]), mask shape: torch.Size([256, 600]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 600]), event_indicators shape: torch.Size([256, 600]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 600, 4])
+mask shape: torch.Size([256, 600])
+lstm_output shape: torch.Size([256, 600, 492])
+fc_output shape: torch.Size([256, 600, 246])
+context shape: torch.Size([256, 246])
+attention_weights shape: torch.Size([256, 600, 1])
+x shape after cause_specific_fc: torch.Size([256, 26])
+hazard_preds shape: [torch.Size([256, 5475])]
+res shape: torch.Size([256, 1, 5475])
