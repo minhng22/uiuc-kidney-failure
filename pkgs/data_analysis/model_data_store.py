@@ -367,4 +367,4 @@ def remove_col():
         data.to_csv(five_labms_test_subset_path(i), index=False)
 
 if __name__ == '__main__':
-    remove_col()
+    get_train_test_data(ExperimentScenario.FIVELABMS)
