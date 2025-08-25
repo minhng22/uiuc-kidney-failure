@@ -27,31 +27,31 @@ def parse_log_file(log_path):
     model_patterns = {
         # Cox models - different variants
         'cox_ti': {
-            'section': r'Running non-time-variant Cox model evaluation\.\.\.(.*?)(?=Running time-variant Cox|Running heterogeneous Cox|Running egfr raw Cox|✓ cox completed)',
+            'section': r'Running non-time-variant Cox model evaluation\.\.\.(.*?)(?=Running time-variant Cox|Running heterogeneous Cox|Running egfr raw Cox|Running fivelabms Cox|✓ cox completed)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
         'cox_tv': {
-            'section': r'Running time-variant Cox model evaluation.*?\.\.\.(.*?)(?=Running heterogeneous Cox|Running egfr raw Cox|✓ cox completed)',
+            'section': r'Running time-variant Cox model evaluation.*?\.\.\.(.*?)(?=Running heterogeneous Cox|Running egfr raw Cox|Running fivelabms Cox|✓ cox completed)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
         'cox_hg': {
-            'section': r'Running heterogeneous Cox model evaluation.*?\.\.\.(.*?)(?=Running egfr raw Cox|✓ cox completed)',
+            'section': r'Running heterogeneous Cox model evaluation.*?\.\.\.(.*?)(?=Running egfr raw Cox|Running fivelabms Cox|✓ cox completed)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
         'cox_egfr': {
-            'section': r'Running egfr raw Cox model evaluation.*?\.\.\.(.*?)(?=✓ cox completed)',
+            'section': r'Running egfr raw Cox model evaluation.*?\.\.\.(.*?)(?=Running fivelabms Cox|✓ cox completed)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
         'cox_fivelabms': {
-            'section': r'Running ExperimentScenario.FIVELABMS Cox model.*?\.\.\.(.*?)(?=✓ cox completed)',
+            'section': r'Running fivelabms Cox model evaluation.*?\.\.\.(.*?)(?=✓ cox completed)',
             'c_index': r'Concordance Index Test:\s*([\d.]+)',
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)',
@@ -180,7 +180,7 @@ def parse_dynamic_deephit(content):
             'end_marker': r'(?=✓ dynamic_deephit completed|$)'
         },
         'ddh_fivelabms': {
-            'start_marker': r'egfr_components_train_data\.csv',
+            'start_marker': r'Using existing train and test subsets for FIVELABMS scenario\.',
             'end_marker': r'(?=✓ dynamic_deephit completed|$)',
             'need_to_parse': True
         }
@@ -262,7 +262,7 @@ def parse_hazard_transformer(content):
             'end_marker': r'(?=✓ hazard_transformer completed|$)'
         },
         'hazard_transformer_fivelabms': {
-            'start_marker': r'egfr_components_train_data\.csv',
+            'start_marker': r'Using existing train and test subsets for FIVELABMS scenario\.',
             'end_marker': r'(?=✓ hazard_transformer completed|$)',
             'need_to_parse': True
         }
@@ -344,7 +344,7 @@ def parse_rnnsurv(content):
             'end_marker': r'(?=✓ rnnsurv completed|$)'
         },
         'rnnsurv_fivelabms': {
-            'start_marker': r'egfr_components_train_data\.csv',
+            'start_marker': r'Using existing train and test subsets for FIVELABMS scenario\.',
             'end_marker': r'(?=✓ rnnsurv completed|$)',
             'need_to_parse': True
         }
@@ -426,7 +426,7 @@ def parse_logistic_hazard(content):
             'end_marker': r'(?=✓ logistic_hazard completed|$)'
         },
         'logistic_hazard_fivelabms': {
-            'start_marker': r'=== Evaluation Results for egfr_components ===',
+            'start_marker': r'=== Evaluation Results for fivelabms ===',
             'end_marker': r'(?=✓ logistic_hazard completed|$)',
             'need_to_parse': True
         }

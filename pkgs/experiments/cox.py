@@ -117,7 +117,7 @@ def run_all():
     print("\nRunning egfr raw Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.EGFR_COMPONENTS)
 
-    print("\nRunning ExperimentScenario.FIVELABMS Cox model...")
+    print("\nRunning fivelabms Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.FIVELABMS)
 
 def joblib_to_dill():
