@@ -864,3 +864,244 @@ Epoch 38/50
 Average Loss: 0.22756138792355285
 Patience Counter: 3
 Epoch 39/50
+Average Loss: 0.22774053825963314
+Patience Counter: 4
+Epoch 40/50
+Average Loss: 0.22762659304647995
+Patience Counter: 5
+Early stopping triggered
+C-Index on Test Data: 0.654
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+C-Index on Test Data: 0.656
+Current trial C-index: 0.6540, Previously saved model C-index: 0.6560
+C-Index on Test Data: 0.654
+[I 2025-08-25 00:08:56,283] Trial 7 finished with value: 0.654 and parameters: {'num_time_intervals': 16, 'embedding_size': 73, 'num_embedding_layers': 3, 'hidden_dims': 238, 'num_recurrent_layers': 2, 'learning_rate': 0.00020387629930951993, 'cross_entropy_loss_weight': 0.6552533423006479}. Best is trial 3 with value: 0.656.
+Running trial number 8 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 479.2890601947153
+Epoch 2/50
+Average Loss: 369.0800263109825
+Epoch 3/50
+Average Loss: 236.94071356684185
+Epoch 4/50
+Average Loss: 135.55815750231847
+Epoch 5/50
+Average Loss: 80.52770407422841
+Epoch 6/50
+Average Loss: 52.51048201965771
+Epoch 7/50
+Average Loss: 37.03409401461375
+Epoch 8/50
+Average Loss: 27.318907463293282
+Epoch 9/50
+Average Loss: 21.24576452653185
+Epoch 10/50
+Average Loss: 16.99286673223372
+Epoch 11/50
+Average Loss: 13.840525565387534
+Epoch 12/50
+Average Loss: 11.41954782883898
+Epoch 13/50
+Average Loss: 9.51469028939446
+Epoch 14/50
+Average Loss: 7.9771690660243415
+Epoch 15/50
+Average Loss: 6.66980590923227
+Epoch 16/50
+Average Loss: 5.583261236012411
+Epoch 17/50
+Average Loss: 4.713230112473742
+Epoch 18/50
+Average Loss: 4.018114023929019
+Epoch 19/50
+Average Loss: 3.450043384119761
+Epoch 20/50
+Average Loss: 2.9736950517558367
+Epoch 21/50
+Average Loss: 2.5719176325009023
+Epoch 22/50
+Average Loss: 2.2303354439975545
+Epoch 23/50
+Average Loss: 1.9386450914170246
+Epoch 24/50
+Average Loss: 1.6887355639780168
+Epoch 25/50
+Average Loss: 1.473986819493685
+Epoch 26/50
+Average Loss: 1.2889563990153854
+Epoch 27/50
+Average Loss: 1.1289362791630861
+Epoch 28/50
+Average Loss: 0.9907751147695583
+Epoch 29/50
+Average Loss: 0.8709855641392495
+Epoch 30/50
+Average Loss: 0.7670834360362815
+Epoch 31/50
+Average Loss: 0.6766928303584778
+Epoch 32/50
+Average Loss: 0.5978545730920146
+Epoch 33/50
+Average Loss: 0.5265241635145901
+Epoch 34/50
+Average Loss: 0.4639545701604953
+Epoch 35/50
+Average Loss: 0.41121975605865174
+Epoch 36/50
+Average Loss: 0.36600333752392006
+Epoch 37/50
+Average Loss: 0.32702342351134733
+Epoch 38/50
+Average Loss: 0.2933455336865761
+Epoch 39/50
+Average Loss: 0.2641808708473075
+Epoch 40/50
+Average Loss: 0.2388133561010841
+Epoch 41/50
+Average Loss: 0.21677371141293067
+Epoch 42/50
+Average Loss: 0.19756528376032123
+Epoch 43/50
+Average Loss: 0.18073013038943997
+Epoch 44/50
+Average Loss: 0.16609275480397315
+Epoch 45/50
+Average Loss: 0.1532860858727702
+Epoch 46/50
+Average Loss: 0.14208532939497515
+Epoch 47/50
+Average Loss: 0.13228905217038642
+Epoch 48/50
+Average Loss: 0.12371035885038993
+Epoch 49/50
+Average Loss: 0.11614639475512847
+Epoch 50/50
+Average Loss: 0.10951568301525905
+C-Index on Test Data: 0.57
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+C-Index on Test Data: 0.656
+Current trial C-index: 0.5700, Previously saved model C-index: 0.6560
+C-Index on Test Data: 0.57
+[I 2025-08-25 01:27:24,215] Trial 8 finished with value: 0.57 and parameters: {'num_time_intervals': 50, 'embedding_size': 75, 'num_embedding_layers': 2, 'hidden_dims': 95, 'num_recurrent_layers': 1, 'learning_rate': 1.387877199989176e-05, 'cross_entropy_loss_weight': 0.12481646581361723}. Best is trial 3 with value: 0.656.
+Running trial number 9 for ExperimentScenario.FIVELABMS on device cuda:7
+Using existing train and test subsets for FIVELABMS scenario.
+Number of patients: test 3268 and train 2686
+Number of records: test 89173 and train 71055
+Epoch 1/50
+Average Loss: 175.02010142374382
+Epoch 2/50
+Average Loss: 149.17055626738843
+Epoch 3/50
+Average Loss: 86.56146710896664
+Epoch 4/50
+Average Loss: 35.10455770972821
+Epoch 5/50
+Average Loss: 14.901634422137583
+Epoch 6/50
+Average Loss: 7.99631218772998
+Epoch 7/50
+Average Loss: 5.012063304297358
+Epoch 8/50
+Average Loss: 3.4392749765794055
+Epoch 9/50
+Average Loss: 2.4985739661635256
+Epoch 10/50
+Average Loss: 1.8967488691103545
+Epoch 11/50
+Average Loss: 1.4851369261741638
+Epoch 12/50
+Average Loss: 1.1906101463509977
+Epoch 13/50
+Average Loss: 0.972280388041366
+Epoch 14/50
+Average Loss: 0.805157785149787
+Epoch 15/50
+Average Loss: 0.6754252751954168
+Epoch 16/50
+Average Loss: 0.5720650637321335
+Epoch 17/50
+Average Loss: 0.4890049051681011
+Epoch 18/50
+Average Loss: 0.4218837975812473
+Epoch 19/50
+Average Loss: 0.36681064019957893
+Epoch 20/50
+Average Loss: 0.32122046420042466
+Epoch 21/50
+Average Loss: 0.2831286240181477
+Epoch 22/50
+Average Loss: 0.25112329343025636
+Epoch 23/50
+Average Loss: 0.224179809202822
+Epoch 24/50
+Average Loss: 0.2012751662045074
+Epoch 25/50
+Average Loss: 0.18163349704562332
+Epoch 26/50
+Average Loss: 0.16492724397199618
+Epoch 27/50
+Average Loss: 0.15065924220269533
+Epoch 28/50
+Average Loss: 0.13838723360848942
+Epoch 29/50
+Average Loss: 0.12782659180623165
+Epoch 30/50
+Average Loss: 0.11868519440507717
+Epoch 31/50
+Average Loss: 0.11080459960930639
+Epoch 32/50
+Average Loss: 0.10400150373256464
+Epoch 33/50
+Average Loss: 0.09811521021367835
+Epoch 34/50
+Average Loss: 0.0928902241180269
+Epoch 35/50
+Average Loss: 0.08840369937016809
+Epoch 36/50
+Average Loss: 0.08447408220536418
+Epoch 37/50
+Average Loss: 0.0810224552565127
+Epoch 38/50
+Average Loss: 0.07794580000231592
+Epoch 39/50
+Average Loss: 0.0753570872245075
+Epoch 40/50
+Average Loss: 0.07304657960859992
+Epoch 41/50
+Average Loss: 0.07095646729572214
+Epoch 42/50
+Average Loss: 0.06923386250897277
+Epoch 43/50
+Average Loss: 0.0677195848669294
+Epoch 44/50
+Average Loss: 0.06634038637171118
+Epoch 45/50
+Average Loss: 0.06519692342915981
+Epoch 46/50
+Average Loss: 0.06416572003270225
+Epoch 47/50
+Average Loss: 0.06324412537028463
+Epoch 48/50
+Average Loss: 0.06250427151433856
+Epoch 49/50
+Average Loss: 0.061792101979041274
+Epoch 50/50
+Average Loss: 0.0612147668872377
+C-Index on Test Data: 0.562
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:161: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+C-Index on Test Data: 0.656
+Current trial C-index: 0.5620, Previously saved model C-index: 0.6560
+C-Index on Test Data: 0.562
+[I 2025-08-25 02:31:46,328] Trial 9 finished with value: 0.562 and parameters: {'num_time_intervals': 30, 'embedding_size': 44, 'num_embedding_layers': 3, 'hidden_dims': 152, 'num_recurrent_layers': 2, 'learning_rate': 1.146462324241231e-05, 'cross_entropy_loss_weight': 0.12158848178935983}. Best is trial 3 with value: 0.656.
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_time_intervals': 16, 'embedding_size': 75, 'num_embedding_layers': 3, 'hidden_dims': 85, 'num_recurrent_layers': 2, 'learning_rate': 0.00031801286544580986, 'cross_entropy_loss_weight': 0.7606279850870898}
+C-Index on Test Data: 0.648
+Integrated Brier Score Test: 0.153
+Mean time-dependent AUC: 0.6522
