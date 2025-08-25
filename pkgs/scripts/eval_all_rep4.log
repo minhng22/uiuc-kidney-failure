@@ -1,138 +1,66 @@
 Starting repetition 4...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep4.log
-Start time: Fri Aug 22 21:18:23 CDT 2025
+Start time: Mon Aug 25 09:44:20 CDT 2025
 =========================================
 ==================== Running cox for rep4 ====================
-Start time: Fri Aug 22 21:18:23 CDT 2025
-
-Running ExperimentScenario.FIVELABMS Cox model...
-Creating train and test subsets for FIVELABMS scenario.
-Sample patients with esrd: [10000764 10000980 10001338 10001401 10001877 10001884 10002013 10002131
- 10002155 10002428]
-Number of patients progressed from ckd stage 3-5 to esrd are 31542 over 34332, accounts for 91.873%
-Number of patients who have not progressed to esrd are 2790 over 34332, accounts for 8.127%
-Processing patients who have not progressed to ESRD:
-Number of patients: 2790
-Stats on patients:
-Total patients: 2790
-Dead patients: 2057
-Alive patients: 733
-number of patients with egfr: 2782
-number of records with egfr: 55744
-number of patients with hemoglobin: 2778
-number of records with hemoglobin: 51032
-Finished getting raw lab records for scenario: ExperimentScenario.FIVELABMS
-   labevent_id  subject_id  ...  hemoglobin_missing  hemoglobin
-0      70444.0    10005012  ...                   1         0.0
-1      70477.0    10005012  ...                   1         0.0
-2      70489.0    10005012  ...                   1         0.0
-3      70517.0    10005012  ...                   1         0.0
-4      70525.0    10005012  ...                   1         0.0
-
-[5 rows x 42 columns]
-['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'potassium', 'urea_nitrogen_missing', 'urea_nitrogen', 'sodium_missing', 'sodium', 'chloride_missing', 'chloride', 'bicarbonate_missing', 'bicarbonate', 'anion_gap_missing', 'anion_gap', 'hematocrit_missing', 'hematocrit', 'platelet_count_missing', 'platelet_count', 'hemoglobin_missing', 'hemoglobin']
-Number of patients after filtering out NaN duration_in_days: 2785
-Records sample:
-   subject_id                time  has_esrd
-0    10005012 2169-10-23 20:00:00         0
-1    10005012 2169-10-24 06:30:00         0
-2    10005012 2169-10-25 12:45:00         0
-3    10005012 2169-10-26 06:25:00         0
-4    10005012 2169-10-27 06:05:00         0
-Stats on eGFR:
-Number of records: 106776. Number of patients: 2785
-mean 24.224 sd 29.099
-Processing patients who have progressed to ESRD:
-Number of patients: 31542
-Number of patients with ESRD: 31542
-first time having ESRD df:
-    subject_id first_diagnose_esrd_time
-0    10000764      2132-10-14 23:31:00
-1    10000980      2191-04-03 18:48:00
-2    10001338      2138-05-09 19:47:00
-3    10001401      2131-06-19 21:32:00
-4    10001877      2150-11-21 23:02:00
-Number of patients: 31542
-Number of patients after drop n/a: 31542
-Stats on patients:
-Total patients: 31542
-Dead patients: 18351
-Alive patients: 13191
-number of patients with egfr: 31533
-number of records with egfr: 1553436
-number of patients with hemoglobin: 31527
-number of records with hemoglobin: 1411678
-Finished getting raw lab records for scenario: ExperimentScenario.FIVELABMS
-   labevent_id  subject_id  ...  hemoglobin_missing  hemoglobin
-0       2491.0    10000764  ...                   1         0.0
-1       2521.0    10000764  ...                   1         0.0
-2       2571.0    10000764  ...                   1         0.0
-3       2599.0    10000764  ...                   1         0.0
-4       2622.0    10000764  ...                   1         0.0
-
-[5 rows x 42 columns]
-['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'potassium', 'urea_nitrogen_missing', 'urea_nitrogen', 'sodium_missing', 'sodium', 'chloride_missing', 'chloride', 'bicarbonate_missing', 'bicarbonate', 'anion_gap_missing', 'anion_gap', 'hematocrit_missing', 'hematocrit', 'platelet_count_missing', 'platelet_count', 'hemoglobin_missing', 'hemoglobin']
-Number of patients after merging: 31533
-
-Number of ESRD who have lab records at or prior to their esrd diagnose: 29737
-Number of patients after filtering out records after the first 'has_esrd' == 1: 29737
-Number of records: 782129. Records sample:
-         subject_id                time  has_esrd first_diagnose_esrd_time
-0          10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
-1553436    10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
-6          10000980 2185-09-17 12:10:00         0      2191-04-03 18:48:00
-7          10000980 2185-10-24 14:15:00         0      2191-04-03 18:48:00
-1553442    10000980 2185-10-24 14:15:00         0      2191-04-03 18:48:00
-Stats on eGFR:
-Number of records: 782129. Number of patients: 29737
-mean 36.584 sd 41.758
-After merge:
-Total number of patients: 32522
-Total number of records: 888905
-add_time_variant_support cols:  ['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'potassium', 'urea_nitrogen_missing', 'urea_nitrogen', 'sodium_missing', 'sodium', 'chloride_missing', 'chloride', 'bicarbonate_missing', 'bicarbonate', 'anion_gap_missing', 'anion_gap', 'hematocrit_missing', 'hematocrit', 'platelet_count_missing', 'platelet_count', 'hemoglobin_missing', 'hemoglobin', 'has_esrd', 'duration_in_days', 'first_diagnose_esrd_time', 'start', 'stop']
-No subjects found with 'stop' < 'start'.
-Data: 
-   subject_id  duration_in_days  ...  hemoglobin_missing  has_esrd
-0    10000764          0.000000  ...                   1         1
-1    10000764          0.000000  ...                   0         1
-2    10000980          0.000000  ...                   1         0
-3    10000980         37.086806  ...                   1         0
-4    10000980         37.086806  ...                   0         0
-
-[5 rows x 9 columns]
-Total number of patients: 32522
-Total number of records: 888905
-Number of patients: test 6505 and train 26017
-Number of records: test 178346 and train 710559
-Fitting model:
-
-Evaluate on test data
-Concordance Index Test: 0.406
-Integrated Brier Score Test: 0.308
-Risk scores test: (178346,)
-Mean time-dependent AUC: 0.3862
-✓ cox completed successfully
-End time: Fri Aug 22 21:43:33 CDT 2025
+Start time: Mon Aug 25 09:44:20 CDT 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/cox.py", line 2, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
+✗ cox failed with exit code 1
+End time: Mon Aug 25 09:44:20 CDT 2025
 
 ==================== Running dynamic_deephit for rep4 ====================
-Start time: Fri Aug 22 21:43:33 CDT 2025
-[I 2025-08-22 21:43:38,346] A new study created in memory with name: no-name-cd9187b2-e2b1-4d75-bbcf-65fd20965a0b
-[I 2025-08-23 00:33:23,504] Trial 0 finished with value: 0.5294219489007522 and parameters: {'num_layer': 13, 'hidden_dim_0': 84, 'hidden_dim_1': 83, 'hidden_dim_2': 32, 'hidden_dim_3': 129, 'hidden_dim_4': 74, 'hidden_dim_5': 199, 'hidden_dim_6': 216, 'hidden_dim_7': 226, 'hidden_dim_8': 137, 'hidden_dim_9': 184, 'hidden_dim_10': 208, 'hidden_dim_11': 23, 'hidden_dim_12': 87, 'learning_rate': 0.003970523316979998, 'drop_out_rate': 0.3367724079146638, 'llh_loss': 0.29240465503760715}. Best is trial 0 with value: 0.5294219489007522.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2025-08-23 03:58:18,733] Trial 1 finished with value: 0.5049136639381762 and parameters: {'num_layer': 2, 'hidden_dim_0': 116, 'hidden_dim_1': 73, 'learning_rate': 4.678764935012681e-05, 'drop_out_rate': 0.25180460781112346, 'llh_loss': 0.7620446918550091}. Best is trial 0 with value: 0.5294219489007522.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2025-08-23 12:03:14,303] Trial 2 finished with value: 0.4952931412448788 and parameters: {'num_layer': 5, 'hidden_dim_0': 159, 'hidden_dim_1': 163, 'hidden_dim_2': 108, 'hidden_dim_3': 118, 'hidden_dim_4': 61, 'learning_rate': 0.00012134130518366685, 'drop_out_rate': 0.4864974849192717, 'llh_loss': 0.6116402654293918}. Best is trial 0 with value: 0.5294219489007522.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2025-08-23 20:36:29,430] Trial 3 finished with value: 0.45993302641357975 and parameters: {'num_layer': 14, 'hidden_dim_0': 180, 'hidden_dim_1': 145, 'hidden_dim_2': 165, 'hidden_dim_3': 128, 'hidden_dim_4': 250, 'hidden_dim_5': 157, 'hidden_dim_6': 212, 'hidden_dim_7': 239, 'hidden_dim_8': 230, 'hidden_dim_9': 216, 'hidden_dim_10': 26, 'hidden_dim_11': 181, 'hidden_dim_12': 223, 'hidden_dim_13': 194, 'learning_rate': 1.751345131658391e-05, 'drop_out_rate': 0.4049847624543562, 'llh_loss': 0.8984411782241715}. Best is trial 0 with value: 0.5294219489007522.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2025-08-23 22:16:01,892] Trial 4 finished with value: 0.39569756782818843 and parameters: {'num_layer': 18, 'hidden_dim_0': 95, 'hidden_dim_1': 146, 'hidden_dim_2': 184, 'hidden_dim_3': 124, 'hidden_dim_4': 19, 'hidden_dim_5': 235, 'hidden_dim_6': 89, 'hidden_dim_7': 226, 'hidden_dim_8': 101, 'hidden_dim_9': 54, 'hidden_dim_10': 146, 'hidden_dim_11': 113, 'hidden_dim_12': 86, 'hidden_dim_13': 200, 'hidden_dim_14': 235, 'hidden_dim_15': 144, 'hidden_dim_16': 159, 'hidden_dim_17': 195, 'learning_rate': 3.0459433551086475e-05, 'drop_out_rate': 0.4272369730275486, 'llh_loss': 0.46041476215264465}. Best is trial 0 with value: 0.5294219489007522.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2025-08-24 03:05:22,724] Trial 5 finished with value: 0.7644232159226385 and parameters: {'num_layer': 11, 'hidden_dim_0': 198, 'hidden_dim_1': 251, 'hidden_dim_2': 89, 'hidden_dim_3': 72, 'hidden_dim_4': 84, 'hidden_dim_5': 19, 'hidden_dim_6': 194, 'hidden_dim_7': 231, 'hidden_dim_8': 212, 'hidden_dim_9': 199, 'hidden_dim_10': 245, 'learning_rate': 0.00010798563023494606, 'drop_out_rate': 0.2186231592349558, 'llh_loss': 0.6533398562988196}. Best is trial 5 with value: 0.7644232159226385.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:191: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2025-08-25 09:02:51,304] Trial 6 finished with value: 0.7239892311643166 and parameters: {'num_layer': 3, 'hidden_dim_0': 41, 'hidden_dim_1': 85, 'hidden_dim_2': 23, 'learning_rate': 0.002080123835076095, 'drop_out_rate': 0.2559780011764581, 'llh_loss': 0.6861887264532671}. Best is trial 5 with value: 0.7644232159226385.
+Start time: Mon Aug 25 09:44:20 CDT 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 1, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+✗ dynamic_deephit failed with exit code 1
+End time: Mon Aug 25 09:44:20 CDT 2025
+
+==================== Running hazard_transformer for rep4 ====================
+Start time: Mon Aug 25 09:44:20 CDT 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/hazard_transformer.py", line 2, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+✗ hazard_transformer failed with exit code 1
+End time: Mon Aug 25 09:44:20 CDT 2025
+
+==================== Running logistic_hazard for rep4 ====================
+Start time: Mon Aug 25 09:44:20 CDT 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py", line 1, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+✗ logistic_hazard failed with exit code 1
+End time: Mon Aug 25 09:44:20 CDT 2025
+
+==================== Running rnnsurv for rep4 ====================
+Start time: Mon Aug 25 09:44:20 CDT 2025
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py", line 1, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
+✗ rnnsurv failed with exit code 1
+End time: Mon Aug 25 09:44:21 CDT 2025
+
+=========================================
+Repetition 4 Summary:
+Total experiments: 5
+Failed experiments: 5
+✗ Failed experiments: cox dynamic_deephit hazard_transformer logistic_hazard rnnsurv
+End time: Mon Aug 25 09:44:21 CDT 2025
+=========================================
