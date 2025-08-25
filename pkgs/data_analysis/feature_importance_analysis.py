@@ -27,6 +27,13 @@ class FeatureImportanceAnalyzer:
         self.report_lines = []
         self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv']
         self.all_importances = {}
+        self.model_pretty_names = {
+            'cox': 'Cox',
+            'ddh': 'Dynamic DeepHit',
+            'hazard_transformer': 'Hazard Transformer',
+            'logistic_hazard': 'Logistic Hazard',
+            'rnn_surv': 'RNN-Surv'
+        }
         
     def log(self, message):
         print(message)
@@ -536,7 +543,7 @@ class FeatureImportanceAnalyzer:
                     ax.set_yticks(range(len(feature_cols)))
                     ax.set_yticklabels(feature_cols)
                     ax.set_xlabel('Feature Importance')
-                    ax.set_title(f'{model_name.upper()}')
+                    ax.set_title(f'{self.model_pretty_names[model_name].upper()}')
                     
                     for j, bar in enumerate(bars):
                         bar.set_color(colors[j])
@@ -561,7 +568,7 @@ class FeatureImportanceAnalyzer:
     
     def create_shap_plot(self, scenario_name, feature_cols, test_data, background_size=100, eval_size=1000):
         import shap
-        n_samples = len(test_data)
+        n_samples = min(100, len(test_data))
         if n_samples == 0:
             self.log("Empty test data; skipping SHAP computation.")
             return
