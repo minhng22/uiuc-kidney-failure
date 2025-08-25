@@ -132,5 +132,5 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
-    print("\nRunning ExperimentScenario.FIVELABMS Cox model...")
+    print("\nRunning fivelabms Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.FIVELABMS)
