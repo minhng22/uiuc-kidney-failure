@@ -7,7 +7,6 @@ and calculate mean ± standard deviation for each model.
 import re
 import os
 import numpy as np
-from collections import defaultdict
 from datetime import datetime
 
 def parse_log_file(log_path):
@@ -51,6 +50,13 @@ def parse_log_file(log_path):
             'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
             'auc': r'Mean time-dependent AUC:\s*([\d.]+)'
         },
+        'cox_fivelabms': {
+            'section': r'Running ExperimentScenario.FIVELABMS Cox model.*?\.\.\.(.*?)(?=✓ cox completed)',
+            'c_index': r'Concordance Index Test:\s*([\d.]+)',
+            'brier': r'Integrated Brier Score Test:\s*([\d.]+)',
+            'auc': r'Mean time-dependent AUC:\s*([\d.]+)',
+            'need_to_parse': True
+        },
         # DeepSurv
         'deepsurv': {
             'section': r'==================== Running deepsurv.*?====================.*?(.*?)(?=✓ deepsurv completed|✗ deepsurv failed|===================)',
@@ -92,6 +98,8 @@ def parse_log_file(log_path):
     # Extract metrics for each model
     for model_name, patterns in model_patterns.items():
         try:
+            if not 'need_to_parse' in patterns:
+                continue
             # Find the section for this model
             section_match = re.search(patterns['section'], content, re.DOTALL | re.IGNORECASE)
             if not section_match:
@@ -160,24 +168,28 @@ def parse_dynamic_deephit(content):
     # Define the three settings and their patterns
     settings = {
         'ddh_egfr_tv': {
-            'data_path_pattern': r'egfr_tv_train_data\.csv.*?egfr_tv_test_data\.csv',
             'start_marker': r'egfr_tv_train_data\.csv',
             'end_marker': r'(?=Train data path.*?heterogen_train_data\.csv|Train data path.*?egfr_components_train_data\.csv|✓ dynamic_deephit completed|$)'
         },
         'ddh_heterogen': {
-            'data_path_pattern': r'heterogen_train_data\.csv.*?heterogen_test_data\.csv',
             'start_marker': r'heterogen_train_data\.csv',
             'end_marker': r'(?=Train data path.*?egfr_components_train_data\.csv|✓ dynamic_deephit completed|$)'
         },
         'ddh_egfr_components': {
-            'data_path_pattern': r'egfr_components_train_data\.csv.*?egfr_components_test_data\.csv',
             'start_marker': r'egfr_components_train_data\.csv',
             'end_marker': r'(?=✓ dynamic_deephit completed|$)'
+        },
+        'ddh_fivelabms': {
+            'start_marker': r'egfr_components_train_data\.csv',
+            'end_marker': r'(?=✓ dynamic_deephit completed|$)',
+            'need_to_parse': True
         }
     }
     
     for setting_name, patterns in settings.items():
         try:
+            if not 'need_to_parse' in patterns:
+                continue
             # Find the start position of this setting
             start_match = re.search(patterns['start_marker'], ddh_section)
             if not start_match:
@@ -238,24 +250,28 @@ def parse_hazard_transformer(content):
     # Define the three settings and their patterns
     settings = {
         'hazard_transformer_egfr_tv': {
-            'data_path_pattern': r'egfr_tv_train_data\.csv.*?egfr_tv_test_data\.csv',
             'start_marker': r'egfr_tv_train_data\.csv',
             'end_marker': r'(?=Train data path.*?heterogen_train_data\.csv|Train data path.*?egfr_components_train_data\.csv|✓ hazard_transformer completed|$)'
         },
         'hazard_transformer_heterogen': {
-            'data_path_pattern': r'heterogen_train_data\.csv.*?heterogen_test_data\.csv',
             'start_marker': r'heterogen_train_data\.csv',
             'end_marker': r'(?=Train data path.*?egfr_components_train_data\.csv|✓ hazard_transformer completed|$)'
         },
         'hazard_transformer_egfr_components': {
-            'data_path_pattern': r'egfr_components_train_data\.csv.*?egfr_components_test_data\.csv',
             'start_marker': r'egfr_components_train_data\.csv',
             'end_marker': r'(?=✓ hazard_transformer completed|$)'
+        },
+        'hazard_transformer_fivelabms': {
+            'start_marker': r'egfr_components_train_data\.csv',
+            'end_marker': r'(?=✓ hazard_transformer completed|$)',
+            'need_to_parse': True
         }
     }
     
     for setting_name, patterns in settings.items():
         try:
+            if not 'need_to_parse' in patterns:
+                continue
             # Find the start position of this setting
             start_match = re.search(patterns['start_marker'], ht_section)
             if not start_match:
@@ -316,24 +332,28 @@ def parse_rnnsurv(content):
     # Define the three settings and their patterns
     settings = {
         'rnnsurv_egfr_tv': {
-            'data_path_pattern': r'egfr_tv_train_data\.csv.*?egfr_tv_test_data\.csv',
             'start_marker': r'egfr_tv_train_data\.csv',
             'end_marker': r'(?=Train data path.*?heterogen_train_data\.csv|Train data path.*?egfr_components_train_data\.csv|✓ rnnsurv completed|$)'
         },
         'rnnsurv_heterogen': {
-            'data_path_pattern': r'heterogen_train_data\.csv.*?heterogen_test_data\.csv',
             'start_marker': r'heterogen_train_data\.csv',
             'end_marker': r'(?=Train data path.*?egfr_components_train_data\.csv|✓ rnnsurv completed|$)'
         },
         'rnnsurv_egfr_components': {
-            'data_path_pattern': r'egfr_components_train_data\.csv.*?egfr_components_test_data\.csv',
             'start_marker': r'egfr_components_train_data\.csv',
             'end_marker': r'(?=✓ rnnsurv completed|$)'
+        },
+        'rnnsurv_fivelabms': {
+            'start_marker': r'egfr_components_train_data\.csv',
+            'end_marker': r'(?=✓ rnnsurv completed|$)',
+            'need_to_parse': True
         }
     }
     
     for setting_name, patterns in settings.items():
         try:
+            if not 'need_to_parse' in patterns:
+                continue
             # Find the start position of this setting
             start_match = re.search(patterns['start_marker'], rnn_section)
             if not start_match:
@@ -394,24 +414,28 @@ def parse_logistic_hazard(content):
     # Define the three settings and their patterns
     settings = {
         'logistic_hazard_egfr_tv': {
-            'data_path_pattern': r'time_variant',
             'start_marker': r'=== Evaluation Results for time_variant ===',
             'end_marker': r'(?=== Evaluation Results for heterogeneous ===|=== Evaluation Results for egfr_components ===|✓ logistic_hazard completed|$)'
         },
         'logistic_hazard_heterogen': {
-            'data_path_pattern': r'heterogeneous',
             'start_marker': r'=== Evaluation Results for heterogeneous ===',
             'end_marker': r'(?=== Evaluation Results for egfr_components ===|✓ logistic_hazard completed|$)'
         },
         'logistic_hazard_egfr_components': {
-            'data_path_pattern': r'egfr_components',
             'start_marker': r'=== Evaluation Results for egfr_components ===',
             'end_marker': r'(?=✓ logistic_hazard completed|$)'
+        },
+        'logistic_hazard_fivelabms': {
+            'start_marker': r'=== Evaluation Results for egfr_components ===',
+            'end_marker': r'(?=✓ logistic_hazard completed|$)',
+            'need_to_parse': True
         }
     }
     
     for setting_name, patterns in settings.items():
         try:
+            if not 'need_to_parse' in patterns:
+                continue
             # Find the start position of this setting
             start_match = re.search(patterns['start_marker'], lh_section)
             if not start_match:
