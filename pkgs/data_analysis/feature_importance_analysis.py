@@ -162,7 +162,7 @@ class FeatureImportanceAnalyzer:
                 self.log(f"Model file not found: {model_path}")
         
         self.create_consolidated_importance_plot(scenario_name, feature_cols)
-        self.create_shap_plot(scenario_name, feature_cols, test_data)
+        # self.create_shap_plot(scenario_name, feature_cols, test_data)
     
     def get_model_feature_importance(self, model_name, model_path, test_data, feature_cols):
         importance_data = {'features': feature_cols, 'importance': None, 'coefficients': None}
@@ -548,7 +548,6 @@ class FeatureImportanceAnalyzer:
                     ax.set_xticks([])
                     ax.set_yticks([])
             
-            plt.suptitle(f'Feature Importance Analysis - {scenario_name.upper()}', fontsize=16)
             plt.tight_layout()
             
             output_path = self.output_dir / f'{scenario_name}_all_models_feature_importance.png'

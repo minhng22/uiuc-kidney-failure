@@ -1,0 +1,140 @@
+FEATURE IMPORTANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2025-08-25 16:23:38
+Repetition: 5
+Analysis scenarios: egfr_components_and_fivelabms
+Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv
+================================================================================
+
+Starting Feature Importance Analysis...
+Output directory: /home/minhn2/uiuc-kidney-failure/generated_data/rep5
+Current repetition: 5
+Models to analyze: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv
+
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - eGFR COMPONENTS SCENARIO
+================================================================================
+
+Training samples: 385387
+Test samples: 97259
+Features: ['Unnamed: 0.1', 'Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=64.880, std=15.376
+  gender: mean=0.549, std=0.498
+  serum_creatinine: mean=1.418, std=1.440
+
+ANALYZING ALL MODELS FOR EGFR_COMPONENTS
+------------------------------------------------------------
+
+Analyzing COX model...
+  COX Feature Importance:
+    age: 0.0010 (coeff=0.0010, HR=1.001)
+    gender: 0.0277 (coeff=0.0277, HR=1.028)
+    serum_creatinine: 0.0873 (coeff=0.0873, HR=1.091)
+
+Analyzing DDH model...
+Error with mask: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 6053960371840 bytes. Error code 12 (Cannot allocate memory)
+  DDH Feature Importance:
+    age: 0.3333
+    gender: 0.3333
+    serum_creatinine: 0.3333
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    age: 0.3238
+    gender: 0.3485
+    serum_creatinine: 0.3277
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    age: 0.2548
+    gender: 0.4352
+    serum_creatinine: 0.3100
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    age: 0.0048
+    gender: 0.0707
+    serum_creatinine: 0.9244
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_components_all_models_feature_importance.png
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - FIVELABMS SCENARIO
+================================================================================
+
+Loaded training subset 0: 71055 samples
+Loaded training subset 1: 0 samples
+Loaded training subset 2: 0 samples
+Loaded training subset 3: 0 samples
+Loaded training subset 4: 0 samples
+Loaded training subset 5: 0 samples
+Loaded training subset 6: 0 samples
+Loaded training subset 7: 0 samples
+Loaded training subset 8: 0 samples
+Loaded training subset 9: 0 samples
+Loaded test subset 0: 89173 samples
+Loaded test subset 1: 0 samples
+Total training samples: 71055
+Total test samples: 89173
+Features: ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'hemoglobin', 'hemoglobin_missing', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  egfr: mean=34.727, std=39.670, missing%=48.4
+  egfr_missing: mean=0.484, std=0.500, missing%=48.4
+  hemoglobin: mean=5.389, std=5.760, missing%=51.6
+  hemoglobin_missing: mean=0.516, std=0.500, missing%=51.6
+
+ANALYZING ALL MODELS FOR FIVELABMS
+------------------------------------------------------------
+
+Analyzing COX model...
+  COX Feature Importance:
+    egfr: 0.0020 (coeff=-0.0020, HR=0.998)
+    egfr_missing: 0.2806 (coeff=-0.2806, HR=0.755)
+    hemoglobin: 0.0376 (coeff=-0.0376, HR=0.963)
+    hemoglobin_missing: 0.2806 (coeff=0.2806, HR=1.324)
+
+Analyzing DDH model...
+Error with mask: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 5661698637448 bytes. Error code 12 (Cannot allocate memory)
+  DDH Feature Importance:
+    egfr: 0.2500
+    egfr_missing: 0.2500
+    hemoglobin: 0.2500
+    hemoglobin_missing: 0.2500
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    egfr: 0.1899
+    egfr_missing: 0.2479
+    hemoglobin: 0.2942
+    hemoglobin_missing: 0.2680
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    egfr: 0.1789
+    egfr_missing: 0.2733
+    hemoglobin: 0.1279
+    hemoglobin_missing: 0.4199
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    egfr: 0.1481
+    egfr_missing: 0.3359
+    hemoglobin: 0.2047
+    hemoglobin_missing: 0.3113
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep5/fivelabms_all_models_feature_importance.png
+================================================================================
+ANALYSIS COMPLETE
+================================================================================
+
+Key findings:
+- Cox model coefficients show direct impact on hazard ratio
+- Neural network models analyzed using gradient-based importance and attention weights
+- Model-specific feature importance extracted from actual trained models
+
+Files generated:
+- feature_importance_analysis_report.txt (this report)
+- *_all_models_feature_importance.png (consolidated importance plots)
+- *_all_models_shap.png (consolidated model-specific plots)
