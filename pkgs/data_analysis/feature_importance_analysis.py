@@ -49,6 +49,8 @@ class FeatureImportanceAnalyzer:
         try:
             train_data = pd.read_csv(egfr_components_train_data_path)
             test_data = pd.read_csv(egfr_components_test_data_path)
+
+            test_data = test_data.sample(frac=1, random_state=42).reset_index(drop=True)
             
             self.log(f"Training samples: {len(train_data)}")
             self.log(f"Test samples: {len(test_data)}")
@@ -108,6 +110,8 @@ class FeatureImportanceAnalyzer:
                 return
                 
             test_data = pd.concat(test_dfs, ignore_index=True)
+
+            test_data = test_data.sample(frac=1, random_state=42).reset_index(drop=True)
             
             self.log(f"Total training samples: {len(train_data)}")
             self.log(f"Total test samples: {len(test_data)}")
@@ -170,7 +174,6 @@ class FeatureImportanceAnalyzer:
                 self.log(f"Model file not found: {model_path}")
         
         self.create_consolidated_importance_plot(scenario_name, feature_cols)
-        self.create_shap_plot(scenario_name, feature_cols, test_data)
     
     def get_model_feature_importance(self, model_name, model_path, test_data, feature_cols):
         importance_data = {'features': feature_cols, 'importance': None, 'coefficients': None}
@@ -193,15 +196,14 @@ class FeatureImportanceAnalyzer:
                 
         else:
             try:
-                importance_data['importance'] = self.extract_nn_feature_importance(
-                    model_name, model_path, test_data, feature_cols)
+                importance_data['importance'] = self.extract_nn_feature_importance(model_path, test_data, feature_cols)
             except Exception as e:
                 self.log(f"Error extracting feature importance from {model_name}: {e}")
                 importance_data['importance'] = [0.0] * len(feature_cols)
         
         return importance_data
     
-    def extract_nn_feature_importance(self, model_name, model_path, test_data, feature_cols):        
+    def extract_nn_feature_importance(self, model_path, test_data, feature_cols):        
         X_test = test_data[feature_cols].fillna(0).values.astype(np.float32)
         sample_size = len(X_test)
         X_sample = X_test[:sample_size]
@@ -210,41 +212,11 @@ class FeatureImportanceAnalyzer:
             model = torch.load(model_path, map_location='cpu', weights_only=False)
             model.eval()
             
-            if model_name == 'hazard_transformer':
-                return self.extract_model_weights_importance(model, feature_cols)
-            elif model_name in ['ddh', 'logistic_hazard', 'rnn_surv']:
-                return self.extract_gradient_based_importance(model, X_sample, feature_cols)
-            else:
-                return self.extract_gradient_based_importance(model, X_sample, feature_cols)
+            # Use gradient-based importance for all neural network models
+            return self.extract_gradient_based_importance(model, X_sample, feature_cols)
                 
         except Exception as e:
             raise ValueError(f"Error loading model {model_path}: {e}")
-    
-    def extract_transformer_attention_weights(self, model, X_sample, feature_cols):
-        try:
-            with torch.no_grad():
-                X_tensor = torch.FloatTensor(X_sample)
-                
-                if X_tensor.dim() == 2:
-                    X_tensor = X_tensor.unsqueeze(1)
-                
-                batch_size, seq_len = X_tensor.shape[:2]
-                mask = torch.ones(batch_size, seq_len, dtype=torch.float32)
-                mask.requires_grad_(False)
-                
-                if hasattr(model, 'transformer_encoder') or hasattr(model, 'attention_weights'):
-                    try:                        
-                        return self.extract_gradient_based_importance(model, X_sample, feature_cols)
-                        
-                    except Exception as e:
-                        self.log(f"Error in transformer forward pass: {e}")
-                        return self.extract_gradient_based_importance(model, X_sample, feature_cols)
-                else:
-                    return self.extract_gradient_based_importance(model, X_sample, feature_cols)
-                    
-        except Exception as e:
-            self.log(f"Error extracting transformer attention: {e}")
-            return [1.0/len(feature_cols)] * len(feature_cols)
     
     def extract_gradient_based_importance(self, model, X_sample, feature_cols):
         try:
@@ -307,7 +279,32 @@ class FeatureImportanceAnalyzer:
                 
                 if gradients is None:
                     self.log("Gradients are None, falling back to weight-based importance")
-                    return self.extract_model_weights_importance(model, feature_cols)
+                    # Inline weight-based importance as fallback
+                    try:
+                        first_layer = None
+                        for _, module in model.named_modules():
+                            if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                                first_layer = module
+                                break
+                        
+                        if first_layer is not None:
+                            weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                            if weights.sum() > 0:
+                                weights = weights / weights.sum()
+                                return weights.tolist()
+                        
+                        for module in model.modules():
+                            if isinstance(module, torch.nn.Linear):
+                                weights = module.weight.data.abs().mean(dim=0).numpy()
+                                if len(weights) == len(feature_cols):
+                                    if weights.sum() > 0:
+                                        weights = weights / weights.sum()
+                                    return weights.tolist()
+                        
+                        return [1.0/len(feature_cols)] * len(feature_cols)
+                    except Exception as weight_e:
+                        self.log(f"Error extracting model weights: {weight_e}")
+                        return [1.0/len(feature_cols)] * len(feature_cols)
                 
                 if is_rnn_surv or is_hazard_transformer:
                     if gradients.dim() == 3:
@@ -397,7 +394,32 @@ class FeatureImportanceAnalyzer:
                         
                     except Exception as mask_e:
                         self.log(f"Error with mask: {mask_e}")
-                        return self.extract_model_weights_importance(model, feature_cols)
+                        # Inline weight-based importance as fallback
+                        try:
+                            first_layer = None
+                            for _, module in model.named_modules():
+                                if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                                    first_layer = module
+                                    break
+                            
+                            if first_layer is not None:
+                                weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                                if weights.sum() > 0:
+                                    weights = weights / weights.sum()
+                                    return weights.tolist()
+                            
+                            for module in model.modules():
+                                if isinstance(module, torch.nn.Linear):
+                                    weights = module.weight.data.abs().mean(dim=0).numpy()
+                                    if len(weights) == len(feature_cols):
+                                        if weights.sum() > 0:
+                                            weights = weights / weights.sum()
+                                        return weights.tolist()
+                            
+                            return [1.0/len(feature_cols)] * len(feature_cols)
+                        except Exception as weight_e:
+                            self.log(f"Error extracting model weights: {weight_e}")
+                            return [1.0/len(feature_cols)] * len(feature_cols)
                         
                 elif "size of tensor" in error_str or "dimension" in error_str or "indices" in error_str:
                     try:
@@ -431,7 +453,32 @@ class FeatureImportanceAnalyzer:
                             )[0]
                             
                             if gradients is None:
-                                return self.extract_model_weights_importance(model, feature_cols)
+                                # Inline weight-based importance as fallback
+                                try:
+                                    first_layer = None
+                                    for _, module in model.named_modules():
+                                        if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                                            first_layer = module
+                                            break
+                                    
+                                    if first_layer is not None:
+                                        weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                                        if weights.sum() > 0:
+                                            weights = weights / weights.sum()
+                                            return weights.tolist()
+                                    
+                                    for module in model.modules():
+                                        if isinstance(module, torch.nn.Linear):
+                                            weights = module.weight.data.abs().mean(dim=0).numpy()
+                                            if len(weights) == len(feature_cols):
+                                                if weights.sum() > 0:
+                                                    weights = weights / weights.sum()
+                                                return weights.tolist()
+                                    
+                                    return [1.0/len(feature_cols)] * len(feature_cols)
+                                except Exception as weight_e:
+                                    self.log(f"Error extracting model weights: {weight_e}")
+                                    return [1.0/len(feature_cols)] * len(feature_cols)
                             
                             if gradients.dim() > 2:
                                 gradients = gradients.squeeze(1)
@@ -469,48 +516,120 @@ class FeatureImportanceAnalyzer:
                             
                             return importance.tolist()
                         else:
-                            return self.extract_model_weights_importance(model, feature_cols)
+                            # Inline weight-based importance as fallback
+                            try:
+                                first_layer = None
+                                for _, module in model.named_modules():
+                                    if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                                        first_layer = module
+                                        break
+                                
+                                if first_layer is not None:
+                                    weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                                    if weights.sum() > 0:
+                                        weights = weights / weights.sum()
+                                        return weights.tolist()
+                                
+                                for module in model.modules():
+                                    if isinstance(module, torch.nn.Linear):
+                                        weights = module.weight.data.abs().mean(dim=0).numpy()
+                                        if len(weights) == len(feature_cols):
+                                            if weights.sum() > 0:
+                                                weights = weights / weights.sum()
+                                            return weights.tolist()
+                                
+                                return [1.0/len(feature_cols)] * len(feature_cols)
+                            except Exception as weight_e:
+                                self.log(f"Error extracting model weights: {weight_e}")
+                                return [1.0/len(feature_cols)] * len(feature_cols)
                             
                     except Exception as reshape_e:
                         self.log(f"Error with reshape: {reshape_e}")
-                        return self.extract_model_weights_importance(model, feature_cols)
+                        # Inline weight-based importance as fallback
+                        try:
+                            first_layer = None
+                            for _, module in model.named_modules():
+                                if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                                    first_layer = module
+                                    break
+                            
+                            if first_layer is not None:
+                                weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                                if weights.sum() > 0:
+                                    weights = weights / weights.sum()
+                                    return weights.tolist()
+                            
+                            for module in model.modules():
+                                if isinstance(module, torch.nn.Linear):
+                                    weights = module.weight.data.abs().mean(dim=0).numpy()
+                                    if len(weights) == len(feature_cols):
+                                        if weights.sum() > 0:
+                                            weights = weights / weights.sum()
+                                        return weights.tolist()
+                            
+                            return [1.0/len(feature_cols)] * len(feature_cols)
+                        except Exception as weight_e:
+                            self.log(f"Error extracting model weights: {weight_e}")
+                            return [1.0/len(feature_cols)] * len(feature_cols)
                 else:
                     self.log(f"Error in gradient calculation: {e}")
-                    return self.extract_model_weights_importance(model, feature_cols)
+                    # Inline weight-based importance as fallback
+                    try:
+                        first_layer = None
+                        for _, module in model.named_modules():
+                            if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                                first_layer = module
+                                break
+                        
+                        if first_layer is not None:
+                            weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                            if weights.sum() > 0:
+                                weights = weights / weights.sum()
+                                return weights.tolist()
+                        
+                        for module in model.modules():
+                            if isinstance(module, torch.nn.Linear):
+                                weights = module.weight.data.abs().mean(dim=0).numpy()
+                                if len(weights) == len(feature_cols):
+                                    if weights.sum() > 0:
+                                        weights = weights / weights.sum()
+                                    return weights.tolist()
+                        
+                        return [1.0/len(feature_cols)] * len(feature_cols)
+                    except Exception as weight_e:
+                        self.log(f"Error extracting model weights: {weight_e}")
+                        return [1.0/len(feature_cols)] * len(feature_cols)
                     
         except Exception as e:
             self.log(f"Error in gradient-based importance: {e}")
-            return self.extract_model_weights_importance(model, feature_cols)
+            # Inline weight-based importance as fallback
+            try:
+                first_layer = None
+                for _, module in model.named_modules():
+                    if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
+                        first_layer = module
+                        break
+                
+                if first_layer is not None:
+                    weights = first_layer.weight.data.abs().mean(dim=0).numpy()
+                    if weights.sum() > 0:
+                        weights = weights / weights.sum()
+                        return weights.tolist()
+                
+                for module in model.modules():
+                    if isinstance(module, torch.nn.Linear):
+                        weights = module.weight.data.abs().mean(dim=0).numpy()
+                        if len(weights) == len(feature_cols):
+                            if weights.sum() > 0:
+                                weights = weights / weights.sum()
+                            return weights.tolist()
+                
+                return [1.0/len(feature_cols)] * len(feature_cols)
+            except Exception as weight_e:
+                self.log(f"Error extracting model weights: {weight_e}")
+                return [1.0/len(feature_cols)] * len(feature_cols)
         finally:
             model.eval()
-    
-    def extract_model_weights_importance(self, model, feature_cols):
-        try:
-            first_layer = None
-            for _, module in model.named_modules():
-                if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
-                    first_layer = module
-                    break
-            
-            if first_layer is not None:
-                weights = first_layer.weight.data.abs().mean(dim=0).numpy()
-                if weights.sum() > 0:
-                    weights = weights / weights.sum()
-                    return weights.tolist()
-            
-            for module in model.modules():
-                if isinstance(module, torch.nn.Linear):
-                    weights = module.weight.data.abs().mean(dim=0).numpy()
-                    if len(weights) == len(feature_cols):
-                        if weights.sum() > 0:
-                            weights = weights / weights.sum()
-                        return weights.tolist()
-            
-            return [1.0/len(feature_cols)] * len(feature_cols)
-            
-        except Exception as e:
-            self.log(f"Error extracting model weights: {e}")
-            return [1.0/len(feature_cols)] * len(feature_cols)
     
     def log_model_feature_importance(self, model_name, importance_data):
         if importance_data['importance'] is not None:
@@ -566,171 +685,6 @@ class FeatureImportanceAnalyzer:
             
         except Exception as e:
             self.log(f"Error creating consolidated importance plot: {e}")
-    
-    def create_shap_plot(self, scenario_name, feature_cols, test_data, background_size=100, eval_size=1000):
-        """Simple SHAP analysis for feature importance."""
-        self.log(f"\nCreating SHAP plots for {scenario_name}...")
-        
-        # Get test data
-        X_test = test_data[feature_cols].fillna(0).values.astype(np.float32)
-        
-        # Sample background and evaluation data
-        background_sample = X_test[:min(background_size, len(X_test))]
-        eval_sample = X_test[:min(eval_size, len(X_test))]
-        
-        # Load training data for background
-        if scenario_name == 'egfr_components':
-            train_data = pd.read_csv(egfr_components_train_data_path)
-            X_train = train_data[feature_cols].fillna(0).values.astype(np.float32)
-        else:  # fivelabms
-            train_dfs = []
-            for i in range(five_labms_num_subsets_train):
-                subset_path = five_labms_train_subset_path(i)
-                if os.path.exists(subset_path):
-                    df = pd.read_csv(subset_path)
-                    train_dfs.append(df)
-            if train_dfs:
-                train_data = pd.concat(train_dfs, ignore_index=True)
-                X_train = train_data[feature_cols].fillna(0).values.astype(np.float32)
-            else:
-                X_train = background_sample
-        
-        background_train = X_train[:min(background_size, len(X_train))]
-        
-        # Get model paths
-        if scenario_name == 'egfr_components':
-            model_paths = {
-                'cox': generate_data_path_latest_rep + '/egfr_components_cox_model.dill',
-                'ddh': generate_data_path_latest_rep + '/egfr_components_ddh_model.pt',
-                'hazard_transformer': generate_data_path_latest_rep + '/egfr_components_hazard_transformer_model.pt',
-                'logistic_hazard': generate_data_path_latest_rep + '/egfr_components_logistic_hazard_model.pt',
-                'rnn_surv': generate_data_path_latest_rep + '/egfr_components_rnn_surv_model.pt'
-            }
-        else:
-            model_paths = {
-                'cox': generate_data_path_latest_rep + '/fivelabms_cox_model.dill',
-                'ddh': generate_data_path_latest_rep + '/fivelabms_ddh_model.pt',
-                'hazard_transformer': generate_data_path_latest_rep + '/fivelabms_hazard_transformer_model.pt',
-                'logistic_hazard': generate_data_path_latest_rep + '/fivelabms_logistic_hazard_model.pt',
-                'rnn_surv': generate_data_path_latest_rep + '/fivelabms_rnn_surv_model.pt'
-            }
-        
-        # Create subplots for each model
-        fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-        axes = axes.flatten()
-        
-        model_idx = 0
-        for model_name, model_path in model_paths.items():
-            if not os.path.exists(model_path):
-                self.log(f"Model file not found: {model_path}")
-                continue
-                
-            try:
-                self.log(f"Creating SHAP plot for {model_name}...")
-                
-                if model_name == 'cox':
-                    # Load Cox model
-                    cox_model = load_pkl_and_dill_model(model_path)
-                    if cox_model and hasattr(cox_model, 'predict'):
-                        explainer = shap.Explainer(cox_model.predict, background_train)
-                        shap_values = explainer(eval_sample)
-                        
-                        # Create SHAP summary plot
-                        plt.sca(axes[model_idx])
-                        shap.summary_plot(shap_values, eval_sample, 
-                                        feature_names=feature_cols, 
-                                        show=False, plot_size=None)
-                        plt.title(f'{self.model_pretty_names[model_name]} SHAP')
-                    else:
-                        axes[model_idx].text(0.5, 0.5, 'Model not available', 
-                                           ha='center', va='center', transform=axes[model_idx].transAxes)
-                        axes[model_idx].set_title(f'{self.model_pretty_names[model_name]} SHAP')
-                        
-                else:
-                    # Load neural network model
-                    model = torch.load(model_path, map_location='cpu', weights_only=False)
-                    model.eval()
-                    
-                    # Create a wrapper function for SHAP
-                    def model_predict(x):
-                        with torch.no_grad():
-                            x_tensor = torch.FloatTensor(x)
-                            
-                            # Handle different model architectures
-                            if hasattr(model, 'rnn') and hasattr(model, 'embedding_layers'):
-                                # RNN-Surv
-                                if x_tensor.dim() == 2:
-                                    x_tensor = x_tensor.unsqueeze(1)
-                                output = model(x_tensor)
-                                if isinstance(output, tuple):
-                                    output = output[1]  # Get hazard prediction
-                            elif hasattr(model, 'transformer_encoder'):
-                                # Hazard Transformer
-                                if x_tensor.dim() == 2:
-                                    x_tensor = x_tensor.unsqueeze(1)
-                                batch_size, seq_len = x_tensor.shape[:2]
-                                mask = torch.ones(batch_size, seq_len, dtype=torch.float32)
-                                hazard_preds, _, _ = model(x_tensor, mask)
-                                output = hazard_preds
-                            else:
-                                # DDH, Logistic Hazard - may need mask
-                                try:
-                                    output = model(x_tensor)
-                                    if isinstance(output, tuple):
-                                        output = output[0]
-                                except TypeError as e:
-                                    if "missing" in str(e) and "mask" in str(e):
-                                        # DDH model needs mask
-                                        if x_tensor.dim() == 2:
-                                            x_tensor = x_tensor.unsqueeze(1)
-                                        batch_size, seq_len = x_tensor.shape[:2]
-                                        mask = torch.ones(batch_size, seq_len, dtype=torch.bool)
-                                        output = model(x_tensor, mask)
-                                        if isinstance(output, tuple):
-                                            output = output[0]
-                                    else:
-                                        raise e
-                            
-                            # Ensure output is 2D for SHAP
-                            if output.dim() == 1:
-                                output = output.unsqueeze(1)
-                            elif output.dim() > 2:
-                                output = output.view(output.shape[0], -1)
-                            
-                            return output.numpy()
-                    
-                    # Create SHAP explainer
-                    explainer = shap.Explainer(model_predict, background_train)
-                    shap_values = explainer(eval_sample)
-                    
-                    # Create SHAP summary plot
-                    plt.sca(axes[model_idx])
-                    shap.summary_plot(shap_values, eval_sample, 
-                                    feature_names=feature_cols, 
-                                    show=False, plot_size=None)
-                    plt.title(f'{self.model_pretty_names[model_name]} SHAP')
-                
-                model_idx += 1
-                
-            except Exception as e:
-                self.log(f"Error creating SHAP plot for {model_name}: {e}")
-                axes[model_idx].text(0.5, 0.5, f'Error: {str(e)[:50]}...', 
-                                   ha='center', va='center', transform=axes[model_idx].transAxes)
-                axes[model_idx].set_title(f'{self.model_pretty_names[model_name]} SHAP')
-                model_idx += 1
-        
-        # Hide unused subplots
-        for i in range(model_idx, len(axes)):
-            axes[i].axis('off')
-        
-        plt.tight_layout()
-        
-        # Save the plot
-        output_path = self.output_dir / f'{scenario_name}_all_models_shap.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
-        
-        self.log(f"SHAP plots saved to: {output_path}")
     
     def save_report(self):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
