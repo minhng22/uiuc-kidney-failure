@@ -602,32 +602,7 @@ class FeatureImportanceAnalyzer:
                     
         except Exception as e:
             self.log(f"Error in gradient-based importance: {e}")
-            # Inline weight-based importance as fallback
-            try:
-                first_layer = None
-                for _, module in model.named_modules():
-                    if isinstance(module, torch.nn.Linear) and module.in_features == len(feature_cols):
-                        first_layer = module
-                        break
-                
-                if first_layer is not None:
-                    weights = first_layer.weight.data.abs().mean(dim=0).numpy()
-                    if weights.sum() > 0:
-                        weights = weights / weights.sum()
-                        return weights.tolist()
-                
-                for module in model.modules():
-                    if isinstance(module, torch.nn.Linear):
-                        weights = module.weight.data.abs().mean(dim=0).numpy()
-                        if len(weights) == len(feature_cols):
-                            if weights.sum() > 0:
-                                weights = weights / weights.sum()
-                            return weights.tolist()
-                
-                return [1.0/len(feature_cols)] * len(feature_cols)
-            except Exception as weight_e:
-                self.log(f"Error extracting model weights: {weight_e}")
-                return [1.0/len(feature_cols)] * len(feature_cols)
+            raise e
         finally:
             model.eval()
     
