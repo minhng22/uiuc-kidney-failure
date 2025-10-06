@@ -4,7 +4,6 @@ from pkgs.data_analysis.graphics import plot_icd_codes
 from pkgs.commons import lab_codes_creatinine, esrd_codes, ckd_codes_stage3_to_5, ckd_codes_hypertension, \
     ckd_codes_diabetes_mellitus, ace_inhibitor_drugs, diagnose_icd_file_path, age_bins, prescription_file_path,\
     lab_codes_proteins_24hr, ckd_codes
-from pkgs.data_analysis.utils_store import filter_df_on_icd_code
 import pandas as pd
 
 
@@ -54,7 +53,6 @@ def laboratory_params(patient_df):
 def analyze_esrd():
     patients_df, diagnoses_df = get_esrd_patients_and_diagnoses()
 
-    #plot_icd_codes(diagnoses_df)
     age_statistics(patients_df)
     gender_statistics(patients_df)
     ethnicity_and_race_statistics(patients_df, True, True)
@@ -222,4 +220,4 @@ def analyze_admission_aggregate():
     analyze_admission(patients_df)
     
 if __name__ == '__main__':
-    analyze_admission_aggregate()
+    analyze_esrd()
