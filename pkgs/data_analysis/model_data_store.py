@@ -94,6 +94,73 @@ def get_train_test_data(scenario: ExperimentScenario):
                 if not data.empty:
                     test_subsets.append(data)
             data_test = pd.concat(test_subsets, ignore_index=True) if test_subsets else pd.DataFrame()
+    elif scenario == ExperimentScenario.HETEROGENEOUS_IMPUTE:
+        # Reuse existing saved subsets for FIVELABMS if available
+        print(f"Preparing HETEROGENEOUS_IMPUTE (imputed heterogeneous) data based on FIVELABMS subsets")
+        train_subsets = []
+        for i in range(five_labms_num_subsets_train):
+            path = five_labms_train_subset_path(i)
+            if os.path.exists(path):
+                data = pd.read_csv(path)
+                if not data.empty:
+                    train_subsets.append(data)
+        data_train = pd.concat(train_subsets, ignore_index=True) if train_subsets else pd.DataFrame()
+
+        test_subsets = []
+        for i in range(five_labms_num_subsets_test):
+            path = five_labms_test_subset_path(i)
+            if os.path.exists(path):
+                data = pd.read_csv(path)
+                if not data.empty:
+                    test_subsets.append(data)
+        data_test = pd.concat(test_subsets, ignore_index=True) if test_subsets else pd.DataFrame()
+
+        # Basic median imputation fitted on training data for numeric columns
+        if not data_train.empty:
+            numeric_cols = data_train.select_dtypes(include=['number']).columns.tolist()
+            # Remove identifiers and target columns from imputation
+            for c in ['subject_id', 'duration_in_days', 'start', 'stop', 'has_esrd']:
+                if c in numeric_cols:
+                    numeric_cols.remove(c)
+
+            impute_values = {}
+            for c in numeric_cols:
+                median_val = data_train[c].median()
+                impute_values[c] = median_val
+                data_train[c] = data_train[c].fillna(median_val)
+
+            # Apply same imputation to test set
+            for c, v in impute_values.items():
+                if c in data_test.columns:
+                    data_test[c] = data_test[c].fillna(v)
+
+        else:
+            print("Warning: HETEROGENEOUS_IMPUTE training data is empty — returning empty frames")
+            data_train = pd.DataFrame()
+            data_test = pd.DataFrame()
+
+        print(f"HETEROGENEOUS_IMPUTE: train subjects {data_train['subject_id'].nunique() if not data_train.empty else 0}, records {len(data_train)}")
+        print(f"HETEROGENEOUS_IMPUTE: test subjects {data_test['subject_id'].nunique() if not data_test.empty else 0}, records {len(data_test)}")
+
+        # Print a concise sample of the imputed training data for inspection
+        # Remove missingness indicator columns since values were imputed
+        for col in ['egfr_missing', 'hemoglobin_missing']:
+            if col in data_train.columns:
+                data_train.drop(columns=[col], inplace=True)
+            if col in data_test.columns:
+                data_test.drop(columns=[col], inplace=True)
+
+        print("Sample of imputed training data (head):")
+        try:
+            print(data_train.head().to_string(index=False))
+            print("Columns:", data_train.columns.tolist())
+            print("NA counts in train sample:\n", data_train.isna().sum())
+        except Exception:
+            # fallback if data_train is not a DataFrame-like
+            print(repr(data_train))
+        data_train.reset_index(drop=True, inplace=True)
+        data_test.reset_index(drop=True, inplace=True)
+        return data_train, data_test
     else:
         train_data_stored_path = {
             ExperimentScenario.NON_TIME_VARIANT: egfr_ti_train_data_path,

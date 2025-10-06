@@ -107,6 +107,10 @@ hg_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/hg_logistic_ha
 hg_survtimesurvival_model_path = f'{generate_data_path_latest_rep}/hg_survtimesurvival_model.pt'
 hg_deeponet_model_path = f'{generate_data_path_latest_rep}/hg_deeponet_model.pt'
 
+# trained models - heterogeneous impute scenario (no explicit missingness indicator, median-imputed)
+heterogen_impute_cox_model_path = f'{generate_data_path_latest_rep}/heterogen_impute_cox_model.dill'
+heterogen_impute_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/heterogen_impute_logistic_hazard_model.pt'
+
 # trained models - egfr components scenario
 egfr_components_cox_model_path = f'{generate_data_path_latest_rep}/egfr_components_cox_model.dill'
 egfr_components_rnn_surv_model_path = f'{generate_data_path_latest_rep}/egfr_components_rnn_surv_model.pt'

@@ -9,7 +9,7 @@ from pycox.preprocessing.label_transforms import LabTransDiscreteTime
 import torchtuples as tt
 
 from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path, 
-                          egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path)
+                          egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path, heterogen_impute_logistic_hazard_model_path)
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
@@ -24,6 +24,7 @@ model_saved_path_dict = {
     ExperimentScenario.HETEROGENEOUS: hg_logistic_hazard_model_path,
     ExperimentScenario.EGFR_COMPONENTS: egfr_components_logistic_hazard_model_path,
     ExperimentScenario.FIVELABMS: fivelabms_logistic_hazard_model_path
+    ,ExperimentScenario.HETEROGENEOUS_IMPUTE: heterogen_impute_logistic_hazard_model_path
 }
 
 class LogisticHazardDataset(Dataset):
@@ -67,6 +68,12 @@ class LogisticHazardDataset(Dataset):
                     last_obs['egfr_missing'],
                     (last_obs['hemoglobin'] - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std(),
                     last_obs['hemoglobin_missing'],
+                ]
+            elif self.scenario_name == ExperimentScenario.HETEROGENEOUS_IMPUTE:
+                # Imputed heterogeneous: same features as FIVELABMS but without missingness indicators
+                features = [
+                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
+                    (last_obs['hemoglobin'] - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std(),
                 ]
             else:
                 raise ValueError(f"Unsupported scenario: {self.scenario_name}")
@@ -277,4 +284,4 @@ if __name__ == '__main__':
     # run(ExperimentScenario.TIME_VARIANT)
     # run(ExperimentScenario.HETEROGENEOUS)
     # run(ExperimentScenario.EGFR_COMPONENTS)
-    run(ExperimentScenario.FIVELABMS)
+    run(ExperimentScenario.HETEROGENEOUS_IMPUTE)
