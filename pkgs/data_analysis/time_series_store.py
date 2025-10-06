@@ -361,4 +361,4 @@ def get_esrd_patient_ids():
         pd.DataFrame(esrd_patients, columns=['subject_id']).to_csv(esrd_patient_ids_path, index=False)
 
 if __name__ == '__main__':
-    get_esrd_patient_ids()
+    get_time_series_data_ckd_patients(scenario=ExperimentScenario.TIME_VARIANT)
