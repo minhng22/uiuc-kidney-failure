@@ -103,27 +103,57 @@ def analyze_file(path, threshold=THRESHOLD_DAYS):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Check per-subject eGFR span in generated CSVs.")
-    parser.add_argument("--reps", nargs="*", default=["rep1"],
+    parser.add_argument("--reps", nargs="*", default=["rep5"],
                         help="Which rep directories to check (default: rep1). Example: --reps rep1 rep2")
     parser.add_argument("--all", action="store_true", help="Check all reps (overrides --reps)")
     parser.add_argument("--threshold", type=float, default=THRESHOLD_DAYS, help="Threshold in days (default 90)")
     args = parser.parse_args(argv)
 
+    # We will combine per-rep train + test files first (if present), write a combined CSV
+    # and then analyze the combined file. If only one of train/test exists, analyze that file.
+    reps_to_check = []
     if args.all:
-        base_glob = os.path.join("generated_data", "rep*", "egfr_tv_*_data.csv")
-        files = sorted(glob.glob(base_glob))
+        # find rep directories under generated_data
+        rep_dirs = sorted(glob.glob(os.path.join("generated_data", "rep*")))
+        reps_to_check = [os.path.basename(d) for d in rep_dirs]
     else:
-        files = []
-        for rep in args.reps:
-            files.extend(sorted(glob.glob(os.path.join("generated_data", rep, "egfr_tv_*_data.csv"))))
-
-    if not files:
-        print("No files found to check. Use --all or specify --reps. Checked reps:", args.reps)
-        return 1
+        reps_to_check = args.reps
 
     results = []
-    for f in files:
-        res = analyze_file(f, threshold=args.threshold)
+    any_found = False
+    for rep in reps_to_check:
+        rep_dir = os.path.join("generated_data", rep)
+        if not os.path.isdir(rep_dir):
+            print(f"Skipping missing rep directory: {rep_dir}")
+            continue
+        # strictly read the canonical train/test files, combine them, and analyze the combined file
+        train_file = os.path.join(rep_dir, "egfr_tv_train_data.csv")
+        test_file = os.path.join(rep_dir, "egfr_tv_test_data.csv")
+        if not os.path.isfile(train_file) or not os.path.isfile(test_file):
+            print(f"Skipping {rep}: both train and test files required.\n  train present: {os.path.isfile(train_file)}\n  test present:  {os.path.isfile(test_file)}")
+            continue
+        any_found = True
+
+        try:
+            import pandas as pd
+        except Exception:
+            print("pandas is required to run this script. Please install it (pip install pandas)")
+            sys.exit(2)
+
+        print(f"Combining train+test for rep {rep}:\n  train: {train_file}\n  test:  {test_file}")
+        try:
+            df_train = pd.read_csv(train_file)
+            df_test = pd.read_csv(test_file)
+        except Exception as e:
+            print(f"Failed to read train/test for {rep}: {e}")
+            continue
+
+        combined_df = pd.concat([df_train, df_test], ignore_index=True)
+        combined_path = os.path.join(rep_dir, "egfr_tv_combined_data.csv")
+        combined_df.to_csv(combined_path, index=False)
+        print(f"  wrote combined file: {combined_path}")
+
+        res = analyze_file(combined_path, threshold=args.threshold)
         if res:
             results.append(res)
 
