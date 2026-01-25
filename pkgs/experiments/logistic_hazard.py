@@ -9,7 +9,8 @@ from pycox.preprocessing.label_transforms import LabTransDiscreteTime
 import torchtuples as tt
 
 from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path, 
-                          egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path, heterogen_impute_logistic_hazard_model_path)
+                          egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path, 
+                          heterogen_impute_logistic_hazard_model_path, ckd_fifty_features_heterogeneous_logistic_hazard_model_path)
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
@@ -23,8 +24,9 @@ model_saved_path_dict = {
     ExperimentScenario.TIME_VARIANT: egfr_tv_logistic_hazard_model_path,
     ExperimentScenario.HETEROGENEOUS: hg_logistic_hazard_model_path,
     ExperimentScenario.EGFR_COMPONENTS: egfr_components_logistic_hazard_model_path,
-    ExperimentScenario.FIVELABMS: fivelabms_logistic_hazard_model_path
-    ,ExperimentScenario.HETEROGENEOUS_IMPUTE: heterogen_impute_logistic_hazard_model_path
+    ExperimentScenario.FIVELABMS: fivelabms_logistic_hazard_model_path,
+    ExperimentScenario.HETEROGENEOUS_IMPUTE: heterogen_impute_logistic_hazard_model_path,
+    ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_logistic_hazard_model_path,
 }
 
 class LogisticHazardDataset(Dataset):
@@ -75,6 +77,21 @@ class LogisticHazardDataset(Dataset):
                     (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
                     (last_obs['hemoglobin'] - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std(),
                 ]
+            elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
+                # 50 lab features with missingness indicators
+                lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 
+                             'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
+                             'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
+                             'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
+                             'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
+                             'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
+                             'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate',
+                             'base_excess', 'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect',
+                             'ggt', 'amylase', 'lipase', 'ck', 'troponin', 'bnp']
+                features = []
+                for lab_name in lab_names:
+                    features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
+                    features.append(last_obs[f'{lab_name}_missing'])
             else:
                 raise ValueError(f"Unsupported scenario: {self.scenario_name}")
             
@@ -284,4 +301,5 @@ if __name__ == '__main__':
     # run(ExperimentScenario.TIME_VARIANT)
     # run(ExperimentScenario.HETEROGENEOUS)
     # run(ExperimentScenario.EGFR_COMPONENTS)
-    run(ExperimentScenario.HETEROGENEOUS_IMPUTE)
+    # run(ExperimentScenario.HETEROGENEOUS_IMPUTE)
+    run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)

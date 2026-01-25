@@ -1,6 +1,6 @@
 import math
 import pandas as pd
-from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path
+from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
@@ -61,6 +61,23 @@ class HazardTransformerDataset(Dataset):
             feature_idx = 0
             for lab in lab_names:
                 features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / self.df[lab].std()
+                feature_idx += 1
+                features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
+                feature_idx += 1
+        elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
+            # 50 lab features with missingness indicators (100 features total)
+            lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 
+                         'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
+                         'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
+                         'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
+                         'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
+                         'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
+                         'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate',
+                         'base_excess', 'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect',
+                         'ggt', 'amylase', 'lipase', 'ck', 'troponin', 'bnp']
+            feature_idx = 0
+            for lab in lab_names:
+                features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / (self.df[lab].std() + 1e-8)
                 feature_idx += 1
                 features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
                 feature_idx += 1
@@ -255,6 +272,7 @@ def run(scenario_name: ExperimentScenario):
         ExperimentScenario.HETEROGENEOUS: hg_hazard_transformer_model_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_hazard_transformer_model_path,
         ExperimentScenario.FIVELABMS: fivelabms_hazard_transformer_model_path,
+        ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_hazard_transformer_model_path,
     }
     model_saved_path = model_saved_path_dict[scenario_name]
     
@@ -278,4 +296,5 @@ if __name__ == '__main__':
     # run(ExperimentScenario.TIME_VARIANT)
     # run(ExperimentScenario.HETEROGENEOUS)
     # run(ExperimentScenario.EGFR_COMPONENTS)
-    run(ExperimentScenario.FIVELABMS)
+    # run(ExperimentScenario.FIVELABMS)
+    run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)

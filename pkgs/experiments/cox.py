@@ -6,7 +6,7 @@ from lifelines.utils import concordance_index
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
-from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path
+from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path, ckd_fifty_features_heterogeneous_cox_model_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
@@ -22,7 +22,7 @@ def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_t
     return auc_values, mean_auc
 
 def run_cox_model(scenario: ExperimentScenario):
-    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS, ExperimentScenario.HETEROGENEOUS_IMPUTE]
+    assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS, ExperimentScenario.HETEROGENEOUS_IMPUTE, ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS]
 
     data_train, data_test = get_train_test_data(scenario)
 
@@ -59,7 +59,7 @@ def run_cox_model(scenario: ExperimentScenario):
 
 def get_model_path(scenario: ExperimentScenario):
     assert scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, 
-                        ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS, ExperimentScenario.HETEROGENEOUS_IMPUTE]
+                        ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS, ExperimentScenario.HETEROGENEOUS_IMPUTE, ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS]
 
     model_path = {
         ExperimentScenario.NON_TIME_VARIANT: egfr_ti_cox_model_path,
@@ -68,6 +68,7 @@ def get_model_path(scenario: ExperimentScenario):
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_cox_model_path,
         ExperimentScenario.FIVELABMS: fivelabms_cox_model_path,
         ExperimentScenario.HETEROGENEOUS_IMPUTE: heterogen_impute_cox_model_path,
+        ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_cox_model_path,
     }
 
     return model_path[scenario]
@@ -135,5 +136,5 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
-    print("\nRunning heterogeneous_impute Cox model evaluation with time-dependent AUC...")
-    run_cox_model(ExperimentScenario.HETEROGENEOUS_IMPUTE)
+    print("\nRunning CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...")
+    run_cox_model(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)

@@ -66,6 +66,61 @@ lab_codes_anion_gap = ['50868']
 lab_codes_hematocrit = ['51221']
 lab_codes_platelet_count = ['51265']
 lab_codes_hemoglobin = ['51222']
+lab_codes_phosphate = ['50970']
+lab_codes_calcium = ['50893']
+lab_codes_glucose = ['50931', '52569']
+lab_codes_serum_albumin = ['50862', '53085']
+# Additional lab codes for CKD_FIFTY_FEATURES_HETEROGENEOUS (50 most common CKD-related labs)
+lab_codes_wbc = ['51300', '51301']
+lab_codes_rbc = ['51279']
+lab_codes_mcv = ['51250']
+lab_codes_mch = ['51248']
+lab_codes_mchc = ['51249']
+lab_codes_rdw = ['51277']
+lab_codes_magnesium = ['50960']
+lab_codes_uric_acid = ['51007']
+lab_codes_bilirubin_total = ['50885']
+lab_codes_alt = ['50861', '53084']
+lab_codes_ast = ['50878', '53088']
+lab_codes_alkaline_phosphatase = ['50863', '53086']
+lab_codes_ldh = ['50954']
+lab_codes_iron = ['50952']
+lab_codes_total_protein = ['50976', '53096']
+lab_codes_cholesterol_total = ['50907']
+lab_codes_triglycerides = ['51000']
+lab_codes_inr = ['51237']
+lab_codes_ptt = ['51275']
+lab_codes_crp = ['50889']
+lab_codes_ferritin = ['50924']
+lab_codes_transferrin = ['50998']
+lab_codes_tibc = ['50953']  # Total Iron Binding Capacity
+lab_codes_lactate = ['50813']
+lab_codes_base_excess = ['50802']
+lab_codes_pco2 = ['50818']
+lab_codes_po2 = ['50821']
+lab_codes_ph = ['50820']
+lab_codes_bilirubin_direct = ['50883']
+lab_codes_bilirubin_indirect = ['50884']
+lab_codes_ggt = ['50927']  # Gamma Glutamyltransferase
+lab_codes_amylase = ['50867']
+lab_codes_lipase = ['50956']
+lab_codes_ck = ['50910']  # Creatine Kinase
+lab_codes_troponin = ['51002', '51003']
+lab_codes_bnp = ['50963']  # NTproBNP
+lab_codes_tsh = ['50993']
+lab_codes_free_t4 = ['50995']
+lab_codes_vitamin_d = ['50853']
+lab_codes_pth = ['50965']  # Parathyroid Hormone
+lab_codes_vitamin_b12 = ['51010']
+lab_codes_folate = ['50925']
+lab_codes_reticulocyte = ['51282', '51283']
+lab_codes_fibrinogen = ['51214', '52116']
+lab_codes_d_dimer = ['50915', '51196']
+lab_codes_cortisol = ['50909']
+lab_codes_hba1c = ['50852']  # % Hemoglobin A1c
+lab_codes_prealbumin = ['50976']  # Using total protein as proxy
+lab_codes_ammonia = ['50866']
+lab_codes_osmolality = ['50964']
 
 ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']
 """
@@ -129,6 +184,15 @@ fivelabms_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/fivelab
 fivelabms_survtimesurvival_model_path = f'{generate_data_path_latest_rep}/fivelabms_survtimesurvival_model.pt'
 fivelabms_deeponet_model_path = f'{generate_data_path_latest_rep}/fivelabms_deeponet_model.pt'
 
+# trained models - ckd_fifty_features_heterogeneous scenario (50 most common CKD->ESRD features)
+ckd_fifty_features_heterogeneous_cox_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_cox_model.dill'
+ckd_fifty_features_heterogeneous_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_ddh_model.pt'
+ckd_fifty_features_heterogeneous_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_hazard_transformer_model.pt'
+ckd_fifty_features_heterogeneous_rnn_surv_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_rnn_surv_model.pt'
+ckd_fifty_features_heterogeneous_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_logistic_hazard_model.pt'
+ckd_fifty_features_heterogeneous_survtimesurvival_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_survtimesurvival_model.pt'
+ckd_fifty_features_heterogeneous_deeponet_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_deeponet_model.pt'
+
 # train and test data
 heterogen_train_data_path = f'{generate_data_path_latest_rep}/heterogen_train_data.csv'
 heterogen_test_data_path = f'{generate_data_path_latest_rep}/heterogen_test_data.csv'
@@ -140,6 +204,8 @@ egfr_components_train_data_path = f'{generate_data_path_latest_rep}/egfr_compone
 egfr_components_test_data_path = f'{generate_data_path_latest_rep}/egfr_components_test_data.csv'
 fivelabms_train_data_path = f'{generate_data_path_latest_rep}/fivelabms_train_data.csv'
 fivelabms_test_data_path = f'{generate_data_path_latest_rep}/fivelabms_test_data.csv'
+ckd_fifty_features_heterogeneous_train_data_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_train_data.csv'
+ckd_fifty_features_heterogeneous_test_data_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_test_data.csv'
 
 five_labms_num_subsets_train = 10
 five_labms_num_subsets_test = 2

@@ -7,3 +7,4 @@ class ExperimentScenario(Enum):
     HETEROGENEOUS_IMPUTE = "heterogeneous_impute" # like FIVELABMS but impute missing values instead of encoding missingness
     EGFR_COMPONENTS = "egfr_components" # Use gender + age + serum creatinine as features
     FIVELABMS = "fivelabms" # time-variant set up. Use egfr + potassium + urea nitrogen + sodium + chloride as features
+    CKD_FIFTY_FEATURES_HETEROGENEOUS = "ckd_fifty_features_heterogeneous" # 50 most common CKD->ESRD lab features

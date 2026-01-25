@@ -6,6 +6,7 @@ from pkgs.commons import (
     egfr_components_test_data_path, egfr_components_train_data_path,
     heterogen_train_data_path, heterogen_test_data_path, 
     fivelabms_train_data_path, fivelabms_test_data_path,
+    ckd_fifty_features_heterogeneous_train_data_path, ckd_fifty_features_heterogeneous_test_data_path,
     prev_egfr_ti_train_data_path,
     prev_egfr_ti_test_data_path, prev_egfr_tv_train_data_path, prev_egfr_tv_test_data_path,
     prev_egfr_components_train_data_path, prev_egfr_components_test_data_path,
@@ -167,12 +168,14 @@ def get_train_test_data(scenario: ExperimentScenario):
             ExperimentScenario.TIME_VARIANT: egfr_tv_train_data_path,
             ExperimentScenario.HETEROGENEOUS: heterogen_train_data_path,
             ExperimentScenario.EGFR_COMPONENTS: egfr_components_train_data_path,
+            ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_train_data_path,
         }
         test_data_stored_path = {
             ExperimentScenario.NON_TIME_VARIANT: egfr_ti_test_data_path,
             ExperimentScenario.TIME_VARIANT: egfr_tv_test_data_path,
             ExperimentScenario.HETEROGENEOUS: heterogen_test_data_path,
             ExperimentScenario.EGFR_COMPONENTS: egfr_components_test_data_path,
+            ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_test_data_path,
         }
         train_path = train_data_stored_path[scenario]
         test_path = test_data_stored_path[scenario]
@@ -434,4 +437,4 @@ def remove_col():
         data.to_csv(five_labms_test_subset_path(i), index=False)
 
 if __name__ == '__main__':
-    get_train_test_data(ExperimentScenario.FIVELABMS)
+    get_train_test_data(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)

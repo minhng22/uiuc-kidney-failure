@@ -7,7 +7,7 @@ from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.experiments.utils import round_metric, ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
 from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path, 
-                          fivelabms_rnn_surv_model_path)
+                          fivelabms_rnn_surv_model_path, ckd_fifty_features_heterogeneous_rnn_surv_model_path)
 from pkgs.data_analysis.types import ExperimentScenario
 from sksurv.metrics import cumulative_dynamic_auc
 import numpy as np
@@ -99,7 +99,8 @@ def objective(trial, scenario_name: ExperimentScenario):
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_rnn_surv_model_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_rnn_surv_model_path,
-        ExperimentScenario.FIVELABMS: fivelabms_rnn_surv_model_path
+        ExperimentScenario.FIVELABMS: fivelabms_rnn_surv_model_path,
+        ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_rnn_surv_model_path,
     }
     model_saved_path = model_path_dict[scenario_name]
 
@@ -198,7 +199,8 @@ def run(scenario_name: ExperimentScenario):
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
         ExperimentScenario.HETEROGENEOUS: hg_rnn_surv_model_path,
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_rnn_surv_model_path,
-        ExperimentScenario.FIVELABMS: fivelabms_rnn_surv_model_path
+        ExperimentScenario.FIVELABMS: fivelabms_rnn_surv_model_path,
+        ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_rnn_surv_model_path,
     }
     model_saved_path = model_path_dict[scenario_name]
 
@@ -234,4 +236,5 @@ if __name__ == '__main__':
     # run(ExperimentScenario.TIME_VARIANT)
     # run(ExperimentScenario.HETEROGENEOUS)
     # run(ExperimentScenario.EGFR_COMPONENTS)
-    run(ExperimentScenario.FIVELABMS)
+    # run(ExperimentScenario.FIVELABMS)
+    run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)

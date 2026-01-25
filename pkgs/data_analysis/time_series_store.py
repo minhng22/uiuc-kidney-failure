@@ -3,7 +3,22 @@ from pkgs.commons import diagnose_icd_file_path, ckd_codes_stage3_to_5, esrd_cod
 from pkgs.data_analysis.time_series_utils_store import calculate_duration_in_days
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.commons import esrd_codes, patients_file_path, esrd_patient_ids_path
-from pkgs.data_analysis.store import get_egfr_df, get_first_time_esrd_df, get_protein_df, get_albumin_df, get_potassium_df, get_urea_nitrogen_df, get_sodium_df, get_chloride_df, get_bicarbonate_df, get_anion_gap_df, get_hematocrit_df, get_platelet_count_df, get_hemoglobin_df
+from pkgs.data_analysis.store import (get_egfr_df, get_first_time_esrd_df, get_protein_df, get_albumin_df, 
+                                       get_potassium_df, get_urea_nitrogen_df, get_sodium_df, get_chloride_df, 
+                                       get_bicarbonate_df, get_anion_gap_df, get_hematocrit_df, get_platelet_count_df, 
+                                       get_hemoglobin_df, get_phosphate_df, get_calcium_df, get_glucose_df, 
+                                       get_serum_albumin_df, get_wbc_df, get_rbc_df, get_mcv_df, get_mch_df,
+                                       get_mchc_df, get_rdw_df, get_magnesium_df, get_uric_acid_df,
+                                       get_bilirubin_total_df, get_alt_df, get_ast_df, get_alkaline_phosphatase_df,
+                                       get_ldh_df, get_iron_df, get_total_protein_df, get_cholesterol_total_df,
+                                       get_triglycerides_df, get_inr_df, get_ptt_df, get_crp_df, get_ferritin_df,
+                                       get_transferrin_df, get_tibc_df, get_lactate_df, get_base_excess_df,
+                                       get_pco2_df, get_po2_df, get_ph_df, get_bilirubin_direct_df,
+                                       get_bilirubin_indirect_df, get_ggt_df, get_amylase_df, get_lipase_df,
+                                       get_ck_df, get_troponin_df, get_bnp_df, get_tsh_df, get_free_t4_df,
+                                       get_vitamin_d_df, get_pth_df, get_vitamin_b12_df, get_folate_df,
+                                       get_reticulocyte_df, get_fibrinogen_df, get_d_dimer_df, get_cortisol_df,
+                                       get_hba1c_df, get_ammonia_df, get_osmolality_df)
 import pandas as pd
 from pkgs.data_analysis.types import ExperimentScenario
 import numpy as np
@@ -225,6 +240,69 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
             lab_dfs.append(lab_df)
         
         lab_df = pd.concat(lab_dfs)
+    elif scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
+        # 50 most common CKD->ESRD features with missingness indicators
+        all_labs = [
+            'egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 'sodium', 
+            'bicarbonate', 'phosphate', 'calcium', 'glucose', 'chloride', 'anion_gap',
+            'hematocrit', 'platelet_count', 'wbc', 'rbc', 'mcv', 'mch', 'mchc', 'rdw',
+            'magnesium', 'uric_acid', 'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase',
+            'ldh', 'iron', 'total_protein', 'cholesterol_total', 'triglycerides', 'inr',
+            'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate', 'base_excess',
+            'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect', 'ggt',
+            'amylase', 'lipase', 'ck', 'troponin', 'bnp'
+        ]
+        
+        # Start with eGFR as base
+        egfr_df = get_egfr_df(patients)
+        egfr_df['egfr_missing'] = 0
+        for lab in all_labs:
+            if lab != 'egfr':
+                egfr_df[f'{lab}_missing'] = 1
+                egfr_df[lab] = 0
+
+        print('number of patients with egfr:', egfr_df['subject_id'].nunique())
+        print('number of records with egfr:', len(egfr_df))
+
+        lab_dfs = [egfr_df]
+        lab_functions = [
+            ('urea_nitrogen', get_urea_nitrogen_df), ('hemoglobin', get_hemoglobin_df),
+            ('serum_albumin', get_serum_albumin_df), ('potassium', get_potassium_df),
+            ('sodium', get_sodium_df), ('bicarbonate', get_bicarbonate_df),
+            ('phosphate', get_phosphate_df), ('calcium', get_calcium_df),
+            ('glucose', get_glucose_df), ('chloride', get_chloride_df),
+            ('anion_gap', get_anion_gap_df), ('hematocrit', get_hematocrit_df),
+            ('platelet_count', get_platelet_count_df), ('wbc', get_wbc_df),
+            ('rbc', get_rbc_df), ('mcv', get_mcv_df), ('mch', get_mch_df),
+            ('mchc', get_mchc_df), ('rdw', get_rdw_df), ('magnesium', get_magnesium_df),
+            ('uric_acid', get_uric_acid_df), ('bilirubin_total', get_bilirubin_total_df),
+            ('alt', get_alt_df), ('ast', get_ast_df), ('alkaline_phosphatase', get_alkaline_phosphatase_df),
+            ('ldh', get_ldh_df), ('iron', get_iron_df), ('total_protein', get_total_protein_df),
+            ('cholesterol_total', get_cholesterol_total_df), ('triglycerides', get_triglycerides_df),
+            ('inr', get_inr_df), ('ptt', get_ptt_df), ('crp', get_crp_df),
+            ('ferritin', get_ferritin_df), ('transferrin', get_transferrin_df),
+            ('tibc', get_tibc_df), ('lactate', get_lactate_df), ('base_excess', get_base_excess_df),
+            ('pco2', get_pco2_df), ('po2', get_po2_df), ('ph', get_ph_df),
+            ('bilirubin_direct', get_bilirubin_direct_df), ('bilirubin_indirect', get_bilirubin_indirect_df),
+            ('ggt', get_ggt_df), ('amylase', get_amylase_df), ('lipase', get_lipase_df),
+            ('ck', get_ck_df), ('troponin', get_troponin_df), ('bnp', get_bnp_df),
+        ]
+        
+        for lab_name, lab_func in lab_functions:
+            lab_df_temp = lab_func(patients)
+            lab_df_temp[f'{lab_name}_missing'] = 0
+            
+            # Set missing indicators for all other labs
+            for other_lab in all_labs:
+                if other_lab != lab_name:
+                    lab_df_temp[f'{other_lab}_missing'] = 1
+                    lab_df_temp[other_lab] = 0
+
+            print(f'number of patients with {lab_name}:', lab_df_temp['subject_id'].nunique())
+            print(f'number of records with {lab_name}:', len(lab_df_temp))
+            lab_dfs.append(lab_df_temp)
+        
+        lab_df = pd.concat(lab_dfs)
     else:
         assert scenario_name == ExperimentScenario.EGFR_COMPONENTS, f"Unknown scenario name: {scenario_name}"
         lab_df = get_egfr_df(patients)
@@ -250,6 +328,17 @@ def get_feature_columns(scenario):
         return ['age', 'gender', 'serum_creatinine']
     elif scenario == ExperimentScenario.FIVELABMS:
         return ['egfr', 'hemoglobin']
+    elif scenario == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
+        return [
+            'egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 'sodium', 
+            'bicarbonate', 'phosphate', 'calcium', 'glucose', 'chloride', 'anion_gap',
+            'hematocrit', 'platelet_count', 'wbc', 'rbc', 'mcv', 'mch', 'mchc', 'rdw',
+            'magnesium', 'uric_acid', 'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase',
+            'ldh', 'iron', 'total_protein', 'cholesterol_total', 'triglycerides', 'inr',
+            'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate', 'base_excess',
+            'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect', 'ggt',
+            'amylase', 'lipase', 'ck', 'troponin', 'bnp'
+        ]
 
 def add_time_variant_support(df):
     df = df.sort_values(by=['subject_id', 'duration_in_days'])
@@ -322,6 +411,60 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing','hemoglobin', 'hemoglobin_missing', 'has_esrd']]
     elif scenario == ExperimentScenario.EGFR_COMPONENTS:
         lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']]
+    elif scenario == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
+        ckd_fifty_cols = ['subject_id', 'duration_in_days', 'start', 'stop', 
+                          'egfr', 'egfr_missing', 
+                          'urea_nitrogen', 'urea_nitrogen_missing',
+                          'hemoglobin', 'hemoglobin_missing',
+                          'serum_albumin', 'serum_albumin_missing',
+                          'potassium', 'potassium_missing',
+                          'sodium', 'sodium_missing',
+                          'bicarbonate', 'bicarbonate_missing',
+                          'phosphate', 'phosphate_missing',
+                          'calcium', 'calcium_missing',
+                          'glucose', 'glucose_missing',
+                          'chloride', 'chloride_missing',
+                          'anion_gap', 'anion_gap_missing',
+                          'hematocrit', 'hematocrit_missing',
+                          'platelet_count', 'platelet_count_missing',
+                          'wbc', 'wbc_missing',
+                          'rbc', 'rbc_missing',
+                          'mcv', 'mcv_missing',
+                          'mch', 'mch_missing',
+                          'mchc', 'mchc_missing',
+                          'rdw', 'rdw_missing',
+                          'magnesium', 'magnesium_missing',
+                          'uric_acid', 'uric_acid_missing',
+                          'bilirubin_total', 'bilirubin_total_missing',
+                          'alt', 'alt_missing',
+                          'ast', 'ast_missing',
+                          'alkaline_phosphatase', 'alkaline_phosphatase_missing',
+                          'ldh', 'ldh_missing',
+                          'iron', 'iron_missing',
+                          'total_protein', 'total_protein_missing',
+                          'cholesterol_total', 'cholesterol_total_missing',
+                          'triglycerides', 'triglycerides_missing',
+                          'inr', 'inr_missing',
+                          'ptt', 'ptt_missing',
+                          'crp', 'crp_missing',
+                          'ferritin', 'ferritin_missing',
+                          'transferrin', 'transferrin_missing',
+                          'tibc', 'tibc_missing',
+                          'lactate', 'lactate_missing',
+                          'base_excess', 'base_excess_missing',
+                          'pco2', 'pco2_missing',
+                          'po2', 'po2_missing',
+                          'ph', 'ph_missing',
+                          'bilirubin_direct', 'bilirubin_direct_missing',
+                          'bilirubin_indirect', 'bilirubin_indirect_missing',
+                          'ggt', 'ggt_missing',
+                          'amylase', 'amylase_missing',
+                          'lipase', 'lipase_missing',
+                          'ck', 'ck_missing',
+                          'troponin', 'troponin_missing',
+                          'bnp', 'bnp_missing',
+                          'has_esrd']
+        lab_df = add_time_variant_support(lab_df)[ckd_fifty_cols]
     
     lab_df.reset_index(drop=True, inplace=True)
 
@@ -341,6 +484,59 @@ def get_final_columns(scenario):
         return ['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'serum_creatinine', 'has_esrd']
     elif scenario == ExperimentScenario.FIVELABMS:
         return ['subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'hemoglobin', 'hemoglobin_missing', 'has_esrd']
+    elif scenario == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 
+                'egfr', 'egfr_missing', 
+                'urea_nitrogen', 'urea_nitrogen_missing',
+                'hemoglobin', 'hemoglobin_missing',
+                'serum_albumin', 'serum_albumin_missing',
+                'potassium', 'potassium_missing',
+                'sodium', 'sodium_missing',
+                'bicarbonate', 'bicarbonate_missing',
+                'phosphate', 'phosphate_missing',
+                'calcium', 'calcium_missing',
+                'glucose', 'glucose_missing',
+                'chloride', 'chloride_missing',
+                'anion_gap', 'anion_gap_missing',
+                'hematocrit', 'hematocrit_missing',
+                'platelet_count', 'platelet_count_missing',
+                'wbc', 'wbc_missing',
+                'rbc', 'rbc_missing',
+                'mcv', 'mcv_missing',
+                'mch', 'mch_missing',
+                'mchc', 'mchc_missing',
+                'rdw', 'rdw_missing',
+                'magnesium', 'magnesium_missing',
+                'uric_acid', 'uric_acid_missing',
+                'bilirubin_total', 'bilirubin_total_missing',
+                'alt', 'alt_missing',
+                'ast', 'ast_missing',
+                'alkaline_phosphatase', 'alkaline_phosphatase_missing',
+                'ldh', 'ldh_missing',
+                'iron', 'iron_missing',
+                'total_protein', 'total_protein_missing',
+                'cholesterol_total', 'cholesterol_total_missing',
+                'triglycerides', 'triglycerides_missing',
+                'inr', 'inr_missing',
+                'ptt', 'ptt_missing',
+                'crp', 'crp_missing',
+                'ferritin', 'ferritin_missing',
+                'transferrin', 'transferrin_missing',
+                'tibc', 'tibc_missing',
+                'lactate', 'lactate_missing',
+                'base_excess', 'base_excess_missing',
+                'pco2', 'pco2_missing',
+                'po2', 'po2_missing',
+                'ph', 'ph_missing',
+                'bilirubin_direct', 'bilirubin_direct_missing',
+                'bilirubin_indirect', 'bilirubin_indirect_missing',
+                'ggt', 'ggt_missing',
+                'amylase', 'amylase_missing',
+                'lipase', 'lipase_missing',
+                'ck', 'ck_missing',
+                'troponin', 'troponin_missing',
+                'bnp', 'bnp_missing',
+                'has_esrd']
 
 def get_data_with_null_analyze():
     # get_time_series_data_ckd_patients('egfr_components')
@@ -361,4 +557,4 @@ def get_esrd_patient_ids():
         pd.DataFrame(esrd_patients, columns=['subject_id']).to_csv(esrd_patient_ids_path, index=False)
 
 if __name__ == '__main__':
-    get_time_series_data_ckd_patients(scenario=ExperimentScenario.TIME_VARIANT)
+    get_time_series_data_ckd_patients(scenario=ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
