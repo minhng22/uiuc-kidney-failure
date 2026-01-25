@@ -253,13 +253,11 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
             'amylase', 'lipase', 'ck', 'troponin', 'bnp'
         ]
         
-        # Start with eGFR as base
+        # Start with eGFR as base - build all columns at once to avoid fragmentation
         egfr_df = get_egfr_df(patients)
-        egfr_df['egfr_missing'] = 0
-        for lab in all_labs:
-            if lab != 'egfr':
-                egfr_df[f'{lab}_missing'] = 1
-                egfr_df[lab] = 0
+        missing_cols = {f'{lab}_missing': (0 if lab == 'egfr' else 1) for lab in all_labs}
+        value_cols = {lab: 0 for lab in all_labs if lab != 'egfr'}
+        egfr_df = pd.concat([egfr_df, pd.DataFrame({**missing_cols, **value_cols}, index=egfr_df.index)], axis=1)
 
         print('number of patients with egfr:', egfr_df['subject_id'].nunique())
         print('number of records with egfr:', len(egfr_df))
@@ -290,13 +288,10 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         
         for lab_name, lab_func in lab_functions:
             lab_df_temp = lab_func(patients)
-            lab_df_temp[f'{lab_name}_missing'] = 0
-            
-            # Set missing indicators for all other labs
-            for other_lab in all_labs:
-                if other_lab != lab_name:
-                    lab_df_temp[f'{other_lab}_missing'] = 1
-                    lab_df_temp[other_lab] = 0
+            # Build all columns at once to avoid fragmentation
+            missing_cols = {f'{lab}_missing': (0 if lab == lab_name else 1) for lab in all_labs}
+            value_cols = {lab: 0 for lab in all_labs if lab != lab_name}
+            lab_df_temp = pd.concat([lab_df_temp, pd.DataFrame({**missing_cols, **value_cols}, index=lab_df_temp.index)], axis=1)
 
             print(f'number of patients with {lab_name}:', lab_df_temp['subject_id'].nunique())
             print(f'number of records with {lab_name}:', len(lab_df_temp))
