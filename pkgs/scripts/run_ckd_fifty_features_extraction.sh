@@ -21,7 +21,8 @@ echo "Log file: ${LOG_FILE}"
 echo "To monitor progress: tail -f ${LOG_FILE}"
 
 # Run in background with nohup, redirect both stdout and stderr to log file
-nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate minhn2 && cd ${PROJECT_DIR} && python -m pkgs.data_analysis.model_data_store" > "${LOG_FILE}" 2>&1 &
+# Use PYTHONUNBUFFERED=1 to disable output buffering so logs appear in real-time
+nohup bash -c "source ~/miniconda3/etc/profile.d/conda.sh && conda activate minhn2 && cd ${PROJECT_DIR} && PYTHONUNBUFFERED=1 python -m pkgs.data_analysis.model_data_store" > "${LOG_FILE}" 2>&1 &
 
 # Save the PID
 PID=$!
