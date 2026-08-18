@@ -20,11 +20,13 @@ class PositionalEncoding(nn.Module):
         return x + self.pe[:, :x.size(1)]
 
 class HazardTransformer(nn.Module):
-    def __init__(self, input_dim, d_model, num_risks, num_layers, nhead, dropout):
+    def __init__(self, input_dim, d_model, num_risks, num_layers, nhead, dropout, num_time_bins=100):
         super(HazardTransformer, self).__init__()
         self.num_risks = num_risks
         self.d_model = d_model
         self.max_time = 365 * 15
+        # discretize the follow-up horizon into bins; a single bin collapses the model to one time point
+        self.num_time_bins = num_time_bins
         
         self.input_embedding = nn.Linear(input_dim, d_model)
         
@@ -57,9 +59,9 @@ class HazardTransformer(nn.Module):
         
         pooled = torch.sum(masked_feat_emb, dim=1) / (mask_expanded.sum(dim=1) + 1e-8)
         
-        # use fixed time point as described in the paper
+        # discrete-time hazard prediction across a fixed-length series of time bins, as described in the paper
         # "All models learnt from input singleton-length sequences and produced cause-specific hazard predictions as a fixed-length time series."
-        eval_times = torch.linspace(0, self.max_time, 1, device=features.device)
+        eval_times = torch.linspace(0, self.max_time, self.num_time_bins, device=features.device)
         eval_times = eval_times.unsqueeze(0).repeat(batch_size, 1)
         
         num_eval_points = eval_times.size(1)

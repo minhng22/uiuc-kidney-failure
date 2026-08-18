@@ -31,7 +31,7 @@ def run_cox_model(scenario: ExperimentScenario):
     trained_model = load_pkl_and_dill_model(model_path)
 
     if not trained_model:
-        model = CoxTimeVaryingFitter(penalizer=0.1)
+        model = CoxTimeVaryingFitter(penalizer=1.0)
 
         print(f'Fitting model:\n')
         model.fit(data_train, event_col='has_esrd', id_col='subject_id')

@@ -1,6 +1,6 @@
 import math
 import pandas as pd
-from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path
+from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path, current_rep
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
@@ -15,9 +15,14 @@ from sksurv.util import Surv
 from lifelines.utils import concordance_index
 
 num_risks = 1
+NUM_TIME_BINS = 100
 
 def get_device():
-    return torch.device("cuda:4" if torch.cuda.is_available() else "cpu")
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+    # Alternate GPU by rep parity so adjacent reps run in parallel without colliding.
+    gpu_id = 4 if current_rep % 2 == 0 else 5
+    return torch.device(f"cuda:{gpu_id}")
 
 class HazardTransformerDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
@@ -119,10 +124,10 @@ def objective(trial, scenario_name: ExperimentScenario):
     df, _ = get_train_test_data(scenario_name)
 
     dataset = HazardTransformerDataset(df, scenario_name)
-    train_loader = DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn)
+    train_loader = DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
-    num_layers = trial.suggest_int("num_layers", 2, 64)
+    num_layers = trial.suggest_int("num_layers", 2, 6)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     num_epochs = 50
@@ -130,7 +135,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     nhead_factor = trial.suggest_int("nhead_factor", 1, 16)
     hidden_dims = nhead * nhead_factor
 
-    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out).to(device)
+    model = HazardTransformer(input_dim, hidden_dims, num_risks, num_layers, nhead, drop_out, num_time_bins=NUM_TIME_BINS).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # Early stopping parameters
@@ -149,16 +154,15 @@ def objective(trial, scenario_name: ExperimentScenario):
             hazard_preds, _, _ = model(features, mask)
 
             batch, _, T = hazard_preds.shape
-            t_i = time_intervals.squeeze(1).long()
+            # map raw day counts onto the discretized [0, T) bin axis produced by the model
+            bin_idx = torch.clamp((time_intervals.squeeze(1).float() / model.max_time * (T - 1)).round().long(), min=0, max=T - 1)
             arange = torch.arange(T, device=device)
-            time_mask = (arange.unsqueeze(0) < t_i.unsqueeze(1)).float()
+            time_mask = (arange.unsqueeze(0) < bin_idx.unsqueeze(1)).float()
 
             delta = torch.zeros_like(hazard_preds)
             for i in range(batch):
                 if event_indicators[i].item() == 1:
-                    m = t_i[i].item()
-                    if m < T:
-                        delta[i, 0, m] = 1.0
+                    delta[i, 0, bin_idx[i].item()] = 1.0
 
             loss = hazard_loss(hazard_preds, delta, time_mask)
             loss.backward()
@@ -197,12 +201,10 @@ def c_idx(model, data_loader, train_df, device):
         for X, mask, times, events, _, _ in data_loader:
             X, mask = X.to(device), mask.to(device)
             hazard_preds, _, _ = model(X, mask)              
-            # Compute cumulative incidence for event 0 by time horizon T
-            surv = torch.cumprod(1 - hazard_preds.sum(dim=2), dim=1)         
-            cumidx = 1 - surv
-            risk = cumidx[:, -1].cpu().numpy()               
+            # Survival probability by end of horizon (cumprod over the time axis); higher = longer survival
+            surv_final = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1)[:, -1].cpu().numpy()
 
-            all_scores.extend([1 - r for r in risk.tolist()])
+            all_scores.extend(surv_final.tolist())
             all_times.extend(times.squeeze(1).cpu().numpy().tolist())
             all_events.extend(events.squeeze(1).cpu().numpy().tolist())
 
@@ -225,9 +227,10 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
         )
 
         hazard_preds, _, _ = model(features, mask)
-        hazard_preds = hazard_preds[:, 0, 0].detach().cpu().numpy()
+        surv = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1)
+        risk_scores = (1 - surv[:, -1]).detach().cpu().numpy()
 
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, hazard_preds, times)
+        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
         aucs.append(mean_auc)
 
     avg_auc = np.mean(aucs, axis=0)
@@ -243,9 +246,10 @@ def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataL
         features, mask = features.to(device), mask.to(device)
         
         hazard_preds, _, _ = model(features, mask)
-        hazard_preds = hazard_preds[:, 0, 0].detach().cpu().numpy()
-        
-        all_risk_scores.extend(hazard_preds)
+        surv = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1)
+        risk_scores = (1 - surv[:, -1]).detach().cpu().numpy()
+
+        all_risk_scores.extend(risk_scores)
         all_times.extend(time_to_events.squeeze().numpy())
         all_events.extend(event_indicators.squeeze().numpy())
     

@@ -148,8 +148,8 @@ def objective(trial, scenario_name: ExperimentScenario):
     train_loader = DataLoader(dataset, shuffle=True, batch_size=256)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
-    num_layers = trial.suggest_int("num_layer", 1, 20)
-    hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 256) for i in range(num_layers)]
+    num_layers = trial.suggest_int("num_layer", 1, 4)
+    hidden_dims = [trial.suggest_int(f"hidden_dim_{i}", 16, 128) for i in range(num_layers)]
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     drop_out_lstm = trial.suggest_float('drop_out_rate', 0.1, 0.5)
     drop_out_cause = trial.suggest_float('drop_out_rate', 0.1, 0.5)

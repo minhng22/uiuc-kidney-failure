@@ -6,8 +6,8 @@ from lifelines.utils import concordance_index
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.experiments.utils import round_metric, ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
-from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path, 
-                          fivelabms_rnn_surv_model_path, ckd_fifty_features_heterogeneous_rnn_surv_model_path)
+from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path,
+                          fivelabms_rnn_surv_model_path, ckd_fifty_features_heterogeneous_rnn_surv_model_path, current_rep)
 from pkgs.data_analysis.types import ExperimentScenario
 from sksurv.metrics import cumulative_dynamic_auc
 import numpy as np
@@ -188,7 +188,11 @@ def score_model_train(model: RNNSurv, df, features, device):
     return c_index
 
 def get_device():
-    return torch.device("cuda:7" if torch.cuda.is_available() else "cpu")
+    if not torch.cuda.is_available():
+        return torch.device("cpu")
+    # Alternate GPU by rep parity so adjacent reps run in parallel without colliding.
+    gpu_id = 7 if current_rep % 2 == 0 else 6
+    return torch.device(f"cuda:{gpu_id}")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):

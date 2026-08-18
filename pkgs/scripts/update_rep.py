@@ -23,8 +23,8 @@ def update_rep_in_commons(rep_num):
         with open(commons_file, 'r') as f:
             content = f.read()
         
-        pattern = r"current_rep = \d+"
-        replacement = f"current_rep = {rep_num}"
+        pattern = r"os\.environ\.get\('CKD_REP', \d+\)"
+        replacement = f"os.environ.get('CKD_REP', {rep_num})"
         
         new_content = re.sub(pattern, replacement, content)
         
