@@ -4,3 +4,24 @@ Start time: Mon Aug 17 18:32:32 CDT 2026
 =========================================
 ==================== Running cox for rep4 ====================
 Start time: Mon Aug 17 18:32:32 CDT 2026
+/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/cox_time_varying_fitter.py:494: ConvergenceWarning: Newton-Raphson failed to converge sufficiently in 50 steps.
+  warnings.warn("Newton-Raphson failed to converge sufficiently in %d steps." % max_steps, ConvergenceWarning)
+
+Running CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/kidney-rep4-run/generated_data/rep4/ckd_fifty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/kidney-rep4-run/generated_data/rep4/ckd_fifty_features_heterogeneous_test_data.csv
+Number of patients: test 6570 and train 26277
+Number of records: test 2093304 and train 8123541
+Fitting model:
+
+Evaluate on test data
+Concordance Index Test: 0.441
+Integrated Brier Score Test: 0.923
+Risk scores test: (2093304,)
+Mean time-dependent AUC: 0.4345
+✓ cox completed successfully
+End time: Wed Aug 19 20:42:40 CDT 2026
+
+==================== Running dynamic_deephit for rep4 ====================
+Start time: Wed Aug 19 20:42:40 CDT 2026
+[I 2026-08-19 20:43:48,591] A new study created in memory with name: no-name-93124f9e-371b-4477-80a8-e8d7503ae2f6

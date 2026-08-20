@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 210" role="img" aria-label="Cohort flow diagram">
+  <rect x="0" y="0" width="100%" height="100%" fill="#ffffff"/>
+  <g font-family="IBM Plex Sans, sans-serif">
+    <rect x="20" y="10" width="720" height="46" rx="4" fill="#eef0ec" stroke="#d8dcd6"/>
+    <text x="380" y="30" text-anchor="middle" font-size="13" font-weight="600" fill="#12181b">CKD_FIFTY_FEATURES_HETEROGENEOUS cohort (MIMIC-IV)</text>
+    <text x="380" y="46" text-anchor="middle" font-size="11" fill="#4b585c" font-family="IBM Plex Mono, monospace">32,847 patients &#183; 10,216,845 lab-draw records</text>
+    <line x1="380" y1="56" x2="380" y2="76" stroke="#d8dcd6" stroke-width="1.5"/>
+    <polygon points="380,80 375,72 385,72" fill="#d8dcd6"/>
+
+    <rect x="60" y="82" width="290" height="46" rx="4" fill="#e3edfa" stroke="#2a78d6"/>
+    <text x="205" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#12181b">Train split</text>
+    <text x="205" y="118" text-anchor="middle" font-size="11" fill="#4b585c" font-family="IBM Plex Mono, monospace">26,277 pts &#183; 8,123,541 records</text>
+
+    <rect x="410" y="82" width="290" height="46" rx="4" fill="#fbe7dd" stroke="#eb6834"/>
+    <text x="555" y="102" text-anchor="middle" font-size="13" font-weight="600" fill="#12181b">Test split</text>
+    <text x="555" y="118" text-anchor="middle" font-size="11" fill="#4b585c" font-family="IBM Plex Mono, monospace">6,570 pts &#183; 2,093,304 records</text>
+
+    <line x1="205" y1="128" x2="205" y2="148" stroke="#2a78d6" stroke-width="1.5"/>
+    <line x1="555" y1="128" x2="555" y2="148" stroke="#eb6834" stroke-width="1.5"/>
+
+    <rect x="60" y="150" width="290" height="46" rx="4" fill="#ffffff" stroke="#d8dcd6"/>
+    <text x="205" y="170" text-anchor="middle" font-size="12.5" font-weight="500" fill="#12181b">24,070 reached ESRD (91.6%)</text>
+    <text x="205" y="186" text-anchor="middle" font-size="11" fill="#7c8a8d" font-family="IBM Plex Mono, monospace">2,207 did not (8.4%)</text>
+
+    <rect x="410" y="150" width="290" height="46" rx="4" fill="#ffffff" stroke="#d8dcd6"/>
+    <text x="555" y="170" text-anchor="middle" font-size="12.5" font-weight="500" fill="#12181b">5,990 reached ESRD (91.2%)</text>
+    <text x="555" y="186" text-anchor="middle" font-size="11" fill="#7c8a8d" font-family="IBM Plex Mono, monospace">580 did not (8.8%)</text>
+  </g>
+</svg>
