@@ -10,6 +10,8 @@ All five replications draw on byte-identical data (verified by checksum), so the
 
 ---
 
+# Check lab most common measurement in generated_data/rep5/esrd_lab_analysis_report.txt
+
 ## 01 / COHORT — Cohort flow
 
 > **30,060 of 32,847 patients (91.5%) have an ESRD event on record** — an unusually high rate for a general CKD cohort, worth confirming with whoever defined the inclusion criteria before it's reported as a base rate.
