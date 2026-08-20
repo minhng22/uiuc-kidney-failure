@@ -11,6 +11,7 @@ from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, e
 from pkgs.data_analysis.types import ExperimentScenario
 from sksurv.metrics import cumulative_dynamic_auc
 import numpy as np
+from pkgs.experiments.utils import get_device
 
 import os
 from sksurv.util import Surv
@@ -186,13 +187,6 @@ def score_model_train(model: RNNSurv, df, features, device):
     print("C-Index on Test Data:", c_index)
 
     return c_index
-
-def get_device():
-    if not torch.cuda.is_available():
-        return torch.device("cpu")
-    # Alternate GPU by rep parity so adjacent reps run in parallel without colliding.
-    gpu_id = 7 if current_rep % 2 == 0 else 6
-    return torch.device(f"cuda:{gpu_id}")
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):

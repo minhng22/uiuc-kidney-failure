@@ -1,5 +1,8 @@
 # Repo Rules
 
+## Plan first before executing request marked by user as "<Big Task>"
+Draft plan as .md file. Plan must be approved by user.
+
 ## Background processes must be tracked in an experiment plan doc
 
 Whenever a background process is started for this repo (training runs,

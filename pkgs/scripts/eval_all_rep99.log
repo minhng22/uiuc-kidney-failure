@@ -1,0 +1,25 @@
+Starting rep99 (CKD_REP=99)...
+Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep99.log
+Start time: Wed Aug 19 22:26:44 CDT 2026
+=========================================
+==================== Running cox for rep99 ====================
+Start time: Wed Aug 19 22:26:44 CDT 2026
+
+Running CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_test_data.csv
+Number of patients: test 500 and train 500
+Number of records: test 200279 and train 186731
+Fitting model:
+
+Evaluate on test data
+Concordance Index Test: 0.461
+Integrated Brier Score Test: 0.644
+Risk scores test: (200279,)
+Mean time-dependent AUC: 0.4641
+✓ cox completed successfully
+End time: Wed Aug 19 22:28:07 CDT 2026
+
+==================== Running dynamic_deephit for rep99 ====================
+Start time: Wed Aug 19 22:28:07 CDT 2026
+[I 2026-08-19 22:28:34,885] A new study created in memory with name: no-name-ddbb5a0a-727f-4973-9824-a799a19b9dbd

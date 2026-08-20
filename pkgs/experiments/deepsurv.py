@@ -8,6 +8,7 @@ from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
 from pkgs.commons import egfr_ti_deepsurv_model_path
+from pkgs.experiments.utils import get_device
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.models.deepsurv import DeepSurv
@@ -43,9 +44,6 @@ def neg_log_partial_likelihood(risk, durations, events):
             loss -= (risk_sorted[i] - log_sum_risk)
 
     return loss
-
-def get_device():
-    return torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
 
 def score_model_train(model: DeepSurv, df, features, device):
     X = torch.tensor(df[features].values, dtype=torch.float32).to(device)

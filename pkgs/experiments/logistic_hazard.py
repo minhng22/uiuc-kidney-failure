@@ -7,6 +7,7 @@ import os
 from pycox.models import LogisticHazard
 from pycox.preprocessing.label_transforms import LabTransDiscreteTime
 import torchtuples as tt
+from pkgs.experiments.utils import get_device
 
 from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path, 
                           egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path, 
@@ -254,17 +255,6 @@ def brier_score_evaluation(model, labtrans, test_dataset: LogisticHazardDataset,
         print(f'Integrated Brier Score Test: {brier_score:.3f}')
     
     return brier_score
-
-def get_device():
-    import random
-    if torch.cuda.is_available():
-        gpu_id = random.randint(1, 7)
-        device = torch.device(f"cuda:{gpu_id}")
-        print(f"Using GPU: {device}")
-        return device
-    else:
-        print("CUDA not available, using CPU")
-        return torch.device("cpu")
 
 def run(scenario_name: ExperimentScenario):
     device = get_device()

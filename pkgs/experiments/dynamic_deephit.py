@@ -14,6 +14,7 @@ from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc
 from lifelines.utils import concordance_index
 from sksurv.metrics import concordance_index_censored
+from pkgs.experiments.utils import get_device
 
 num_risks = 1 # esrd
 model_saved_path_dict = {
@@ -393,9 +394,6 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
         simple_ci = simple_cindex(all_times, all_risks, all_events)
         print(f"Simple C-index implementation: {simple_ci:.3f}")
     return cindex
-
-def get_device():
-    return "cpu"
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):

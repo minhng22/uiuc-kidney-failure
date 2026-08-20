@@ -1,6 +1,6 @@
 import math
 import pandas as pd
-from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path, current_rep
+from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.models.hazard_transformer import HazardTransformer
 import torch
@@ -13,16 +13,10 @@ from torch.nn.utils.rnn import pad_sequence
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 from lifelines.utils import concordance_index
+from pkgs.experiments.utils import get_device
 
 num_risks = 1
 NUM_TIME_BINS = 100
-
-def get_device():
-    if not torch.cuda.is_available():
-        return torch.device("cpu")
-    # Alternate GPU by rep parity so adjacent reps run in parallel without colliding.
-    gpu_id = 4 if current_rep % 2 == 0 else 5
-    return torch.device(f"cuda:{gpu_id}")
 
 class HazardTransformerDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
