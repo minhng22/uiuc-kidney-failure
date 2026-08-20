@@ -1,7 +1,9 @@
 # CKD Fifty Features — Mini Experiment Plan
 
-**Status:** APPROVED and EXECUTING (launched 2026-08-19 22:26:44 CDT).
-**Owner/host:** this session, `sunlab-serv-02.cs.illinois.edu`.
+**Status:** APPROVED and EXECUTING — relaunched 2026-08-20 17:52:23 CDT after
+dynamic_deephit termination (see Progress Tracking below).
+**Owner/host:** original launch by session on `sunlab-serv-02.cs.illinois.edu`;
+relaunch below is owned by this session, on `sunlab-serv-01.cs.illinois.edu`.
 
 ## Goal
 Quick smoke-test of the full 5-model pipeline (cox, dynamic_deephit,
@@ -103,11 +105,9 @@ slot (read from rep1, write to rep99 — rep1's own files are never modified).
 
 | Model | Status | PID/Host | Start | End | C-index | Brier | AUC | Notes |
 |-------|--------|----------|-------|-----|---------|-------|-----|-------|
-| cox | ✅ done | wrapper PID 2181834, cox process PID 2181871 / sunlab-serv-02 | 22:26:44 CDT | 22:28:07 CDT (Aug 19) | 0.461 | 0.644 | 0.4641 | Completed in **83s** (vs. ~2 days at full rep1 scale) — confirms rep99 isolation + small sample works as intended. |
-| dynamic_deephit | ❌ terminated by user | PID 2182603 (wrapper 2181834) / sunlab-serv-02 | 22:28:07 CDT (Aug 19) | terminated 2026-08-20 (user request) | - | - | - | Terminated via `kill -TERM -2181834` (whole process group) after ~19h with 0 Optuna trials completed and no GPU usage (see root-cause note above, `get_device()` hardcoded to `"cpu"`). Confirmed both the wrapper and the `dynamic_deephit` process are gone; no orphaned processes remain. `run_rep99.pid` removed. |
-| hazard_transformer | ⏸️ not run (run stopped) | - | - | - | - | - | - | Rep99 run halted before reaching this stage. |
-| logistic_hazard | ⏸️ not run (run stopped) | - | - | - | - | - | - | Rep99 run halted before reaching this stage. |
-| rnnsurv | ⏸️ not run (run stopped) | - | - | - | - | - | - | Rep99 run halted before reaching this stage. |
+| cox | ✅ done (attempt 1) | wrapper PID 2181834, cox process PID 2181871 / sunlab-serv-02 | 22:26:44 CDT | 22:28:07 CDT (Aug 19) | 0.461 | 0.644 | 0.4641 | Completed in **83s** (vs. ~2 days at full rep1 scale) — confirms rep99 isolation + small sample works as intended. |
+| dynamic_deephit | ❌ terminated by user | PID 2182603 (wrapper 2181834) / sunlab-serv-02 | 22:28:07 CDT (Aug 19) | terminated 2026-08-20 (user request) | - | - | - | Terminated via `kill -TERM -2181834` (whole process group) after ~19h with 0 Optuna trials completed and no GPU usage (`get_device()` was hardcoded to `"cpu"` at that time; since fixed in commit `dc2886e`, verified present in current `pkgs/experiments/utils.py`). Confirmed both the wrapper and the `dynamic_deephit` process are gone; no orphaned processes remain. `run_rep99.pid` removed. |
+| **all 5 stages** | 🔄 relaunched (attempt 2, in progress) | wrapper PID **722008** / **sunlab-serv-01.cs.illinois.edu** | **17:52:23 CDT (Aug 20)** | - | - | - | - | Relaunched via `bash pkgs/scripts/run_rep.sh 99`. **Before relaunching, fixed a critical regression in `pkgs/commons.py`**: `current_rep` had been hardcoded to literal `1` (commit `dc2886e`), which silently ignored `CKD_REP` and would have made this rerun write into `generated_data/rep1/` instead of the isolated `rep99` slot. Reverted to `current_rep = int(os.environ.get('CKD_REP', 5))` (restoring `import os`); verified with `CKD_REP=99 python -c "from pkgs import commons; print(commons.generate_data_path_latest_rep)"` → correctly resolves to `.../generated_data/rep99`. GPUs confirmed idle (8× RTX 2080 Ti) on sunlab-serv-01 before launch. Runs cox → dynamic_deephit → hazard_transformer → logistic_hazard → rnnsurv sequentially (cox will re-run, ~83s, harmless). Logs: `pkgs/scripts/eval_all_rep99.log`, `pkgs/scripts/run_rep99_master.log`, PID file `pkgs/scripts/run_rep99.pid`. |
 
 ---
-**Last Updated:** 2026-08-20 (rep99 terminated by user request; cox result stands, dynamic_deephit/hazard_transformer/logistic_hazard/rnnsurv not completed)
+**Last Updated:** 2026-08-20 17:52 CDT — rep99 relaunched on sunlab-serv-01 (PID 722008) after fixing a `pkgs/commons.py` `current_rep` hardcoding regression that would have broken rep99 isolation; monitoring in progress.

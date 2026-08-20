@@ -1,25 +1,124 @@
 Starting rep99 (CKD_REP=99)...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep99.log
-Start time: Wed Aug 19 22:26:44 CDT 2026
+Start time: Thu Aug 20 17:52:23 CDT 2026
 =========================================
 ==================== Running cox for rep99 ====================
-Start time: Wed Aug 19 22:26:44 CDT 2026
+Start time: Thu Aug 20 17:52:23 CDT 2026
 
 Running CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...
 Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_train_data.csv
 Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_test_data.csv
 Number of patients: test 500 and train 500
 Number of records: test 200279 and train 186731
-Fitting model:
-
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_cox_model.dill
 Evaluate on test data
 Concordance Index Test: 0.461
 Integrated Brier Score Test: 0.644
 Risk scores test: (200279,)
 Mean time-dependent AUC: 0.4641
 ✓ cox completed successfully
-End time: Wed Aug 19 22:28:07 CDT 2026
+End time: Thu Aug 20 17:52:47 CDT 2026
 
 ==================== Running dynamic_deephit for rep99 ====================
-Start time: Wed Aug 19 22:28:07 CDT 2026
-[I 2026-08-19 22:28:34,885] A new study created in memory with name: no-name-ddbb5a0a-727f-4973-9824-a799a19b9dbd
+Start time: Thu Aug 20 17:52:47 CDT 2026
+[I 2026-08-20 17:52:54,401] A new study created in memory with name: no-name-c25ceb4e-7158-498a-b682-35c16713b57c
+[W 2026-08-20 17:53:21,620] Trial 0 failed with parameters: {'num_layer': 3, 'hidden_dim_0': 82, 'hidden_dim_1': 118, 'hidden_dim_2': 126, 'learning_rate': 5.5184191019511155e-05, 'drop_out_rate': 0.2179693108546572, 'llh_loss': 0.3956098881387933} because of the following error: OutOfMemoryError('CUDA out of memory. Tried to allocate 2.00 MiB. GPU 2 has a total capacity of 10.57 GiB of which 2.12 MiB is free. Including non-PyTorch memory, this process has 10.56 GiB memory in use. Of the allocated memory 10.01 GiB is allocated by PyTorch, and 378.81 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)').
+Traceback (most recent call last):
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 410, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 185, in objective
+    hazard_preds, _ = model(features, mask, debug_mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/dynamicdeephit.py", line 64, in forward
+    lstm_output, _ = self.lstm(x)
+                     ^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1123, in forward
+    result = _VF.lstm(
+             ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 MiB. GPU 2 has a total capacity of 10.57 GiB of which 2.12 MiB is free. Including non-PyTorch memory, this process has 10.56 GiB memory in use. Of the allocated memory 10.01 GiB is allocated by PyTorch, and 378.81 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+[W 2026-08-20 17:53:21,709] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 428, in <module>
+    run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 410, in run
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/utils.py", line 132, in ex_optuna
+    study.optimize(objective, n_trials=n_trials)
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 410, in <lambda>
+    model = ex_optuna(lambda trial: objective(trial, scenario_name))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 185, in objective
+    hazard_preds, _ = model(features, mask, debug_mode)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/models/dynamicdeephit.py", line 64, in forward
+    lstm_output, _ = self.lstm(x)
+                     ^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/torch/nn/modules/rnn.py", line 1123, in forward
+    result = _VF.lstm(
+             ^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 MiB. GPU 2 has a total capacity of 10.57 GiB of which 2.12 MiB is free. Including non-PyTorch memory, this process has 10.56 GiB memory in use. Of the allocated memory 10.01 GiB is allocated by PyTorch, and 378.81 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Using GPU: cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_test_data.csv
+Number of patients: test 500 and train 500
+Number of records: test 200279 and train 186731
+Running Optuna hyperparameter optimization
+Using GPU: cuda:2
+Running trial 0 for ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_test_data.csv
+Number of patients: test 500 and train 500
+Number of records: test 200279 and train 186731
+Epoch 1/50
+features shape: torch.Size([256, 5644, 100]), mask shape: torch.Size([256, 5644]), time_to_event shape: torch.Size([256, 1]), event_indicator shape: torch.Size([256, 1]), time_to_events shape: torch.Size([256, 5644]), event_indicators shape: torch.Size([256, 5644]), sequence lengths shape: torch.Size([256, 1])
+x shape: torch.Size([256, 5644, 100])
+mask shape: torch.Size([256, 5644])
+✗ dynamic_deephit failed with exit code 1
+End time: Thu Aug 20 17:53:23 CDT 2026
+
+==================== Running hazard_transformer for rep99 ====================
+Start time: Thu Aug 20 17:53:23 CDT 2026
+[I 2026-08-20 17:53:31,274] A new study created in memory with name: no-name-89a42674-a954-4653-bfe6-df2028ad3617
