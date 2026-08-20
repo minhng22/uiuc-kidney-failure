@@ -146,7 +146,13 @@ def objective(trial, scenario_name: ExperimentScenario):
     df, _ = get_train_test_data(scenario_name)
 
     dataset = DynamicDeepHitDataset(df, scenario_name)
-    train_loader = DataLoader(dataset, shuffle=True, batch_size=256)
+    # batch_size reduced from 256 -> 16: with this scenario's max patient
+    # sequence length (5644 timesteps observed on rep99), batch_size=256
+    # through the LSTM's backward graph exhausted a 10.5GB GPU
+    # (torch.OutOfMemoryError trying to allocate 2MiB with 10.56GiB already
+    # in use). 16 keeps memory well within a single 2080 Ti regardless of
+    # which hidden_dim/num_layer Optuna trial is running.
+    train_loader = DataLoader(dataset, shuffle=True, batch_size=16)
 
     input_dim = len(get_tv_rnn_model_features(scenario_name))
     num_layers = trial.suggest_int("num_layer", 1, 4)
@@ -227,7 +233,10 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     y_train = Surv.from_arrays(
         event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
 
-    dataloader = DataLoader(test_dataset, shuffle=False, batch_size=256)
+    # batch_size reduced 256 -> 16, same OOM reason as train_loader above;
+    # this forward pass isn't wrapped in torch.no_grad() so it still builds
+    # a full backward-capable graph.
+    dataloader = DataLoader(test_dataset, shuffle=False, batch_size=16)
     aucs = []
 
     for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
@@ -281,7 +290,8 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
 
 def brier_score_evaluation(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd.DataFrame, device):
     """Compute Brier Score for Dynamic DeepHit model"""
-    dataloader = DataLoader(test_dataset, shuffle=False, batch_size=256)
+    # batch_size reduced 256 -> 16, same OOM reason as train_loader above.
+    dataloader = DataLoader(test_dataset, shuffle=False, batch_size=16)
     
     all_risk_scores = []
     all_times = []
@@ -344,7 +354,10 @@ def simple_cindex(times, predictions, events):
 def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=False):
     model.eval()
 
-    loader = DataLoader(dataset, shuffle=False, batch_size=256)
+    # batch_size reduced 256 -> 16 for consistency with the other loaders
+    # above (this one is under torch.no_grad() so was lower-risk, but keep
+    # it aligned to be safe against the same seq_len=5644 outlier).
+    loader = DataLoader(dataset, shuffle=False, batch_size=16)
     
     all_times = []
     all_events = []

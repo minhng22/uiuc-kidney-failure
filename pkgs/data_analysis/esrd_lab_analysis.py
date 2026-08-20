@@ -159,10 +159,10 @@ def main():
     try:
         patients_df, _, d_labitems_df, labevents_df = load_data()
         
-        print("\nAnalyzing top 10 lab measurements...")
-        results_df, esrd_lab_events = analyze_top_lab_measurements(patients_df, labevents_df, d_labitems_df)
+        print("\nAnalyzing top 50 lab measurements...")
+        results_df, esrd_lab_events = analyze_top_lab_measurements(patients_df, labevents_df, d_labitems_df, top_n=50)
         
-        print("\nTop 10 Most Common Lab Measurements for ESRD Patients:")
+        print("\nTop 50 Most Common Lab Measurements for ESRD Patients:")
         print("=" * 100)
         pd.set_option('display.max_columns', None)
         pd.set_option('display.width', None)
