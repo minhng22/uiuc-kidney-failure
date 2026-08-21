@@ -65,15 +65,16 @@ class HazardTransformerDataset(Dataset):
                 feature_idx += 1
         elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
             # 50 lab features with missingness indicators (100 features total)
-            lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 
+            lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium',
                          'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
                          'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
                          'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
                          'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
                          'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
-                         'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate',
-                         'base_excess', 'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect',
-                         'ggt', 'amylase', 'lipase', 'ck', 'troponin', 'bnp']
+                         'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc',
+                         'lymphocytes', 'neutrophils', 'monocytes', 'basophils', 'eosinophils',
+                         'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
+                         'urine_specific_gravity', 'urine_ph', 'ph']
             feature_idx = 0
             for lab in lab_names:
                 features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / (self.df[lab].std() + 1e-8)
@@ -210,7 +211,7 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
     y_train = Surv.from_arrays(
         event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
     aucs = []
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
     for features, mask, time_to_events, event_indicators, _, _ in dataloader:
         features, mask = features.to(device), mask.to(device)
         y_test = Surv.from_arrays(

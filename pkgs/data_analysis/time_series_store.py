@@ -18,7 +18,10 @@ from pkgs.data_analysis.store import (get_egfr_df, get_first_time_esrd_df, get_p
                                        get_ck_df, get_troponin_df, get_bnp_df, get_tsh_df, get_free_t4_df,
                                        get_vitamin_d_df, get_pth_df, get_vitamin_b12_df, get_folate_df,
                                        get_reticulocyte_df, get_fibrinogen_df, get_d_dimer_df, get_cortisol_df,
-                                       get_hba1c_df, get_ammonia_df, get_osmolality_df)
+                                       get_hba1c_df, get_ammonia_df, get_osmolality_df, get_lymphocytes_df,
+                                       get_neutrophils_df, get_monocytes_df, get_basophils_df, get_eosinophils_df,
+                                       get_pt_df, get_rdw_sd_df, get_lab_h_df, get_lab_l_df, get_lab_i_df,
+                                       get_urine_specific_gravity_df, get_urine_ph_df)
 import pandas as pd
 from pkgs.data_analysis.types import ExperimentScenario
 import numpy as np
@@ -241,16 +244,30 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         
         lab_df = pd.concat(lab_dfs)
     elif scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
-        # 50 most common CKD->ESRD features with missingness indicators
+        # 50 lab features aligned to generated_data/rep5/esrd_lab_analysis_report.txt's top 50
+        # (by itemid). 12 of the original 50 that weren't in that report (lactate, base_excess,
+        # pco2, po2, bilirubin_direct, bilirubin_indirect, ggt, amylase, lipase, ck, troponin,
+        # bnp) were swapped for the 12 report items that (a) are in the report's top 50 and
+        # (b) actually carry a numeric `valuenum` in labevents.csv. The other 10 report items
+        # (Estimated GFR MDRD - itemid 50920 has zero valuenum entries in the whole dataset;
+        # Specimen Type/Urine Color/Urine Appearance/Leukocytes[urine]/Bilirubin[urine]/
+        # Blood[urine] - text-only dipstick codes like "NEG"/"TR"/"SM", 0% valuenum coverage;
+        # Glucose[urine]/Protein[urine] - <28% valuenum coverage, mostly text; Length of Urine
+        # Collection - <2% valuenum coverage) could not be added as continuous features without
+        # inventing categorical/ordinal encoding not used anywhere else in this codebase, so the
+        # 10 lowest-priority (least renal-specific) of the original 50 were kept in their place
+        # instead of being dropped. uric_acid, ldh, iron, total_protein, cholesterol_total,
+        # triglycerides, crp, ferritin, transferrin, tibc are retained; 28/50 already matched the
+        # report to begin with. See CKD_FIFTY_FEATURES_EXPERIMENT_PLAN.md for the full audit.
         all_labs = [
-            'egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 'sodium', 
+            'egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 'sodium',
             'bicarbonate', 'phosphate', 'calcium', 'glucose', 'chloride', 'anion_gap',
             'hematocrit', 'platelet_count', 'wbc', 'rbc', 'mcv', 'mch', 'mchc', 'rdw',
             'magnesium', 'uric_acid', 'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase',
             'ldh', 'iron', 'total_protein', 'cholesterol_total', 'triglycerides', 'inr',
-            'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate', 'base_excess',
-            'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect', 'ggt',
-            'amylase', 'lipase', 'ck', 'troponin', 'bnp'
+            'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lymphocytes', 'neutrophils',
+            'monocytes', 'basophils', 'eosinophils', 'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
+            'urine_specific_gravity', 'urine_ph', 'ph'
         ]
         
         # Start with eGFR as base - build all columns at once to avoid fragmentation
@@ -279,11 +296,12 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
             ('cholesterol_total', get_cholesterol_total_df), ('triglycerides', get_triglycerides_df),
             ('inr', get_inr_df), ('ptt', get_ptt_df), ('crp', get_crp_df),
             ('ferritin', get_ferritin_df), ('transferrin', get_transferrin_df),
-            ('tibc', get_tibc_df), ('lactate', get_lactate_df), ('base_excess', get_base_excess_df),
-            ('pco2', get_pco2_df), ('po2', get_po2_df), ('ph', get_ph_df),
-            ('bilirubin_direct', get_bilirubin_direct_df), ('bilirubin_indirect', get_bilirubin_indirect_df),
-            ('ggt', get_ggt_df), ('amylase', get_amylase_df), ('lipase', get_lipase_df),
-            ('ck', get_ck_df), ('troponin', get_troponin_df), ('bnp', get_bnp_df),
+            ('tibc', get_tibc_df), ('ph', get_ph_df),
+            ('lymphocytes', get_lymphocytes_df), ('neutrophils', get_neutrophils_df),
+            ('monocytes', get_monocytes_df), ('basophils', get_basophils_df),
+            ('eosinophils', get_eosinophils_df), ('pt', get_pt_df), ('rdw_sd', get_rdw_sd_df),
+            ('lab_h', get_lab_h_df), ('lab_l', get_lab_l_df), ('lab_i', get_lab_i_df),
+            ('urine_specific_gravity', get_urine_specific_gravity_df), ('urine_ph', get_urine_ph_df),
         ]
         
         for lab_name, lab_func in lab_functions:
@@ -325,14 +343,14 @@ def get_feature_columns(scenario):
         return ['egfr', 'hemoglobin']
     elif scenario == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
         return [
-            'egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 'sodium', 
+            'egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 'sodium',
             'bicarbonate', 'phosphate', 'calcium', 'glucose', 'chloride', 'anion_gap',
             'hematocrit', 'platelet_count', 'wbc', 'rbc', 'mcv', 'mch', 'mchc', 'rdw',
             'magnesium', 'uric_acid', 'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase',
             'ldh', 'iron', 'total_protein', 'cholesterol_total', 'triglycerides', 'inr',
-            'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate', 'base_excess',
-            'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect', 'ggt',
-            'amylase', 'lipase', 'ck', 'troponin', 'bnp'
+            'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lymphocytes', 'neutrophils',
+            'monocytes', 'basophils', 'eosinophils', 'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
+            'urine_specific_gravity', 'urine_ph', 'ph'
         ]
 
 def add_time_variant_support(df):
@@ -445,19 +463,19 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
                           'ferritin', 'ferritin_missing',
                           'transferrin', 'transferrin_missing',
                           'tibc', 'tibc_missing',
-                          'lactate', 'lactate_missing',
-                          'base_excess', 'base_excess_missing',
-                          'pco2', 'pco2_missing',
-                          'po2', 'po2_missing',
+                          'lymphocytes', 'lymphocytes_missing',
+                          'neutrophils', 'neutrophils_missing',
+                          'monocytes', 'monocytes_missing',
+                          'basophils', 'basophils_missing',
+                          'eosinophils', 'eosinophils_missing',
+                          'pt', 'pt_missing',
+                          'rdw_sd', 'rdw_sd_missing',
+                          'lab_h', 'lab_h_missing',
+                          'lab_l', 'lab_l_missing',
+                          'lab_i', 'lab_i_missing',
+                          'urine_specific_gravity', 'urine_specific_gravity_missing',
+                          'urine_ph', 'urine_ph_missing',
                           'ph', 'ph_missing',
-                          'bilirubin_direct', 'bilirubin_direct_missing',
-                          'bilirubin_indirect', 'bilirubin_indirect_missing',
-                          'ggt', 'ggt_missing',
-                          'amylase', 'amylase_missing',
-                          'lipase', 'lipase_missing',
-                          'ck', 'ck_missing',
-                          'troponin', 'troponin_missing',
-                          'bnp', 'bnp_missing',
                           'has_esrd']
         lab_df = add_time_variant_support(lab_df)[ckd_fifty_cols]
     
@@ -518,19 +536,19 @@ def get_final_columns(scenario):
                 'ferritin', 'ferritin_missing',
                 'transferrin', 'transferrin_missing',
                 'tibc', 'tibc_missing',
-                'lactate', 'lactate_missing',
-                'base_excess', 'base_excess_missing',
-                'pco2', 'pco2_missing',
-                'po2', 'po2_missing',
+                'lymphocytes', 'lymphocytes_missing',
+                'neutrophils', 'neutrophils_missing',
+                'monocytes', 'monocytes_missing',
+                'basophils', 'basophils_missing',
+                'eosinophils', 'eosinophils_missing',
+                'pt', 'pt_missing',
+                'rdw_sd', 'rdw_sd_missing',
+                'lab_h', 'lab_h_missing',
+                'lab_l', 'lab_l_missing',
+                'lab_i', 'lab_i_missing',
+                'urine_specific_gravity', 'urine_specific_gravity_missing',
+                'urine_ph', 'urine_ph_missing',
                 'ph', 'ph_missing',
-                'bilirubin_direct', 'bilirubin_direct_missing',
-                'bilirubin_indirect', 'bilirubin_indirect_missing',
-                'ggt', 'ggt_missing',
-                'amylase', 'amylase_missing',
-                'lipase', 'lipase_missing',
-                'ck', 'ck_missing',
-                'troponin', 'troponin_missing',
-                'bnp', 'bnp_missing',
                 'has_esrd']
 
 def get_data_with_null_analyze():

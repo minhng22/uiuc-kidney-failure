@@ -1,6 +1,6 @@
 # CKD Fifty Features Heterogeneous Experiment Plan
 
-**Last Updated:** 2026-08-20 18:10 CDT
+**Last Updated:** 2026-08-20 (feature list changed to match rep5 esrd_lab_analysis_report.txt, sunlab-serv-01 — see "Feature List Change" section below; ⚠️ data/models for reps 1-5 and rep99 now predate this change, see that section; also: prediction horizon changed 1yr→2yr, sunlab-serv-02 — see "Prediction Horizon Change" section below, same ⚠️ caveat applies)
 
 ## Overview
 Run experiments on the `CKD_FIFTY_FEATURES_HETEROGENEOUS` scenario using all survival models across 5 replications, using the existing `run_all_reps.sh` orchestration script.
@@ -13,10 +13,12 @@ Run experiments on the `CKD_FIFTY_FEATURES_HETEROGENEOUS` scenario using all sur
 - **All model modules already configured** to run `CKD_FIFTY_FEATURES_HETEROGENEOUS` in their `__main__` blocks ✓
 - **100 features**: 50 lab values + 50 missingness indicators
 
-## Features Used (100 total)
-50 lab values: egfr, urea_nitrogen, hemoglobin, serum_albumin, potassium, sodium, bicarbonate, phosphate, calcium, glucose, chloride, anion_gap, hematocrit, platelet_count, wbc, rbc, mcv, mch, mchc, rdw, magnesium, uric_acid, bilirubin_total, alt, ast, alkaline_phosphatase, ldh, iron, total_protein, cholesterol_total, triglycerides, inr, ptt, crp, ferritin, transferrin, tibc, lactate, base_excess, pco2, po2, ph, bilirubin_direct, bilirubin_indirect, ggt, amylase, lipase, ck, troponin, bnp
+## Features Used (100 total) — updated 2026-08-20, see "Feature List Change" section
+50 lab values: egfr, urea_nitrogen, hemoglobin, serum_albumin, potassium, sodium, bicarbonate, phosphate, calcium, glucose, chloride, anion_gap, hematocrit, platelet_count, wbc, rbc, mcv, mch, mchc, rdw, magnesium, uric_acid, bilirubin_total, alt, ast, alkaline_phosphatase, ldh, iron, total_protein, cholesterol_total, triglycerides, inr, ptt, crp, ferritin, transferrin, tibc, lymphocytes, neutrophils, monocytes, basophils, eosinophils, pt, rdw_sd, lab_h, lab_l, lab_i, urine_specific_gravity, urine_ph, ph
 
 Plus 50 corresponding missingness indicators (_missing suffix)
+
+(Previous list, superseded 2026-08-20: same first 37 through `tibc`, then `lactate, base_excess, pco2, po2, ph, bilirubin_direct, bilirubin_indirect, ggt, amylase, lipase, ck, troponin, bnp`.)
 
 ---
 
@@ -162,6 +164,136 @@ applied to `pkgs/commons.py`/`time_series_store.py`; swapping the 5 low-frequenc
 (or 5, including a genuine prealbumin lab if one is added later) higher-frequency ones would require
 regenerating train/test data for every rep and would invalidate any results already computed for
 reps whose data predates the fix — flagging for the user to decide rather than doing unilaterally.
+
+### Feature List Change: aligned to rep5 report (2026-08-20, sunlab-serv-01.cs.illinois.edu)
+
+User explicitly directed: use `generated_data/rep5/esrd_lab_analysis_report.txt` as the reference
+and make the code's feature list match it. Implemented as a code change (previous entry above was
+audit-only; this one applies it).
+
+**What changed** — swapped the 12 lowest-priority (least renal-specific) of the 22 non-matching
+features for the 12 report-top-50 items that are both absent from the code and carry a real
+numeric `valuenum` in `labevents.csv` (verified directly against the full file, not assumed):
+- **Removed**: `lactate`, `base_excess`, `pco2`, `po2`, `bilirubin_direct`, `bilirubin_indirect`,
+  `ggt`, `amylase`, `lipase`, `ck`, `troponin`, `bnp` (blood-gas/cardiac/pancreatic/hepatobiliary
+  markers, the least CKD-specific of the original 50)
+- **Added**: `lymphocytes` (51244), `neutrophils` (51256), `monocytes` (51254), `basophils`
+  (51146), `eosinophils` (51200) — WBC differential; `pt` (51274); `rdw_sd` (52172);
+  `lab_h`/`lab_l`/`lab_i` (50934/51678/50947 — d_labitems literally labels these "H"/"L"/"I",
+  meaning unresolved, but they're populated numeric Chemistry-panel values); `urine_specific_gravity`
+  (51498); `urine_ph` (51491)
+- **Result**: 40/50 lab features now have an itemid in the report's top 50 (up from 28/50).
+
+**Kept as-is (10), because no report item can replace them without inventing new architecture**:
+`uric_acid`, `ldh`, `iron`, `total_protein`, `cholesterol_total`, `triglycerides`, `crp`,
+`ferritin`, `transferrin`, `tibc`. The 10 report-top-50 items that would be needed to close this
+last gap all fail on data, not just preference — verified directly against `labevents.csv`:
+- `Estimated GFR (MDRD equation)` (itemid 50920): **0 of 1,373,686 rows in the entire file have a
+  numeric `valuenum`** — this item is dead/always-empty in this MIMIC-IV extract, unusable by any
+  encoding.
+- `Specimen Type`, `Urine Color`, `Urine Appearance`, `Leukocytes`[urine], `Bilirubin`[urine],
+  `Blood`[urine]: 0% `valuenum` coverage in every sample checked — free-text/dipstick codes only
+  (e.g. `"NEG"`, `"TR"`, `"SM"`, `"Cloudy"`, `"Amber"`).
+- `Glucose`[urine], `Protein`[urine]: <28% `valuenum` coverage, mostly text.
+- `Length of Urine Collection`: <2% `valuenum` coverage.
+
+Adding these would require inventing a categorical/ordinal string-value encoder that doesn't exist
+anywhere else in this codebase (every other `get_*_df` function in `store.py` reads `valuenum`
+directly) — a real design decision, not done unilaterally. Flagging in case the user wants that
+built later.
+
+**Files changed**: [pkgs/commons.py](pkgs/commons.py) (12 new `lab_codes_*`), 
+[pkgs/data_analysis/store.py](pkgs/data_analysis/store.py) (12 new `get_*_df` functions, same
+pattern as existing ones; old functions for the 12 removed labs left in place, unused, not
+deleted), [pkgs/data_analysis/time_series_store.py](pkgs/data_analysis/time_series_store.py)
+(`all_labs`, `lab_functions`, `ckd_fifty_cols` ×2, `get_final_columns`, `get_feature_columns`),
+and 4 duplicate hardcoded copies of the same 50-lab list that would otherwise have gone out of
+sync: [pkgs/experiments/utils.py](pkgs/experiments/utils.py) (`get_tv_rnn_model_features`, used by
+`rnnsurv.py`), [pkgs/experiments/dynamic_deephit.py](pkgs/experiments/dynamic_deephit.py),
+[pkgs/experiments/hazard_transformer.py](pkgs/experiments/hazard_transformer.py),
+[pkgs/experiments/logistic_hazard.py](pkgs/experiments/logistic_hazard.py). `cox.py` needed no
+change — it consumes the dataframe's columns directly rather than a hardcoded name list.
+
+**Verified**: all edited files parse (`ast.parse`); `get_feature_columns`/`get_final_columns`
+return exactly 50/105 columns with no duplicate names; the 4 hardcoded `lab_names` copies are
+byte-identical (as ordered lists) to the canonical list in `utils.py`; re-ran the itemid-match
+script against the report and got 40/50, matching the 12-for-12 swap exactly. **Not run**: the
+actual data-generation/training pipeline (`get_time_series_data_ckd_patients`,
+`model_data_store.py`) — that reads the full `labevents.csv` and takes real time, and touches
+`current_rep`/shared state, so it wasn't run in this pass.
+
+**⚠️ Impact on existing data — not yet acted on, flagging for the user:**
+`generated_data/rep1/` through `rep5/`'s `ckd_fifty_features_heterogeneous_*.csv` files and every
+model trained on them (see Phase 2 table below), plus the `rep99` mini run (see
+`CKD_FIFTY_FEATURES_mini_experiment_plan.md`), were all built against the **old** 50-feature
+schema. They now predate this code change and are no longer reproducible from current code (the
+old code path for the 12 removed labs still exists in `store.py`/`commons.py`, just unreferenced,
+so nothing is unrecoverable, but the CSVs on disk have 12 columns that no longer match what the
+code would generate today). Regenerating any rep's data/models is a separate, real-time,
+`current_rep`-touching operation this session has not performed — needs the user's go-ahead
+before running, per the "don't clobber shared state" rule.
+
+### Prediction Horizon Change: 1 year → 2 years (2026-08-20, sunlab-serv-02.cs.illinois.edu)
+
+User explicitly directed: change all models to predict a 2-year (730-day) horizon instead of
+1-year (365-day). Applied as a code change only — no data regeneration, no rep touched.
+
+**What changed** — every hardcoded `365`-day evaluation/horizon constant found across the model
+and experiment code was changed to `730`:
+- Evaluation `times` arrays used for time-dependent AUC / Brier score (`np.arange(1, 365, 1)` →
+  `np.arange(1, 730, 1)`, or the `min(365, ...)` guarded variant → `min(730, ...)`) in
+  [pkgs/experiments/cox.py](pkgs/experiments/cox.py) (both `run_tv_cox_model`/`run_ti_cox_model`
+  call sites), [pkgs/experiments/deepsurv.py](pkgs/experiments/deepsurv.py),
+  [pkgs/experiments/gbsa.py](pkgs/experiments/gbsa.py) (both call sites),
+  [pkgs/experiments/srf.py](pkgs/experiments/srf.py),
+  [pkgs/experiments/weibul.py](pkgs/experiments/weibul.py),
+  [pkgs/experiments/rnnsurv.py](pkgs/experiments/rnnsurv.py),
+  [pkgs/experiments/survival_svm.py](pkgs/experiments/survival_svm.py),
+  [pkgs/experiments/dynamic_deephit.py](pkgs/experiments/dynamic_deephit.py),
+  [pkgs/experiments/hazard_transformer.py](pkgs/experiments/hazard_transformer.py) (the `auc()`
+  function's `times`), and the shared `compute_brier_score_from_risk_scores` helper in
+  [pkgs/experiments/utils.py](pkgs/experiments/utils.py).
+- `HazardTransformer`'s internal `self.max_time` (the discretized follow-up horizon its
+  `num_time_bins=100` bins span, and what its "survival probability by end of horizon" c-index
+  metric is computed against) in [pkgs/models/hazard_transformer.py](pkgs/models/hazard_transformer.py):
+  `365` → `730`. Note: this constant was itself just changed by another session/host earlier the
+  same day from `365 * 15` (15yr) down to `365` (1yr, to match the rest); this edit moves it to
+  `730` (2yr) on top of that.
+- `DeepONet`'s `predict_risk_score` fixed reference time-point (used to turn its survival curve
+  into a single scalar risk score) in [pkgs/models/deeponet.py](pkgs/models/deeponet.py):
+  `torch.tensor([[365.0]])` → `torch.tensor([[730.0]])`.
+
+**Deliberately left unchanged** (verified not to be 1-year horizon constants):
+- `DynamicDeepHit.pred_times = 365 * 15` in
+  [pkgs/models/dynamicdeephit.py](pkgs/models/dynamicdeephit.py) — this sizes the model's internal
+  daily-hazard output layer to a 15-year capacity, already far past 2 years; not a 1-year cutoff to
+  fix.
+- `t / 365.0` in `compute_brier_score_from_risk_scores`
+  ([pkgs/experiments/utils.py:88](pkgs/experiments/utils.py)) — a days→years unit-rate conversion
+  inside the exponential-decay formula `S(t) = exp(-lambda * t/365)`, not a horizon cutoff.
+- `LogisticHazard`'s `LabTransDiscreteTime(num_durations=50)` bins and `RNNSurv`'s
+  `time_intervals` grid — both already derive their span from the observed training-data duration
+  range rather than a fixed 365-day cap, so they already extend past 2 years; only their separate
+  post-hoc evaluation `times` arrays (fixed 365-day arrays used for AUC/Brier) needed the change,
+  and `RNNSurv`'s was included above (`LogisticHazard`'s AUC uses data-driven percentiles of
+  observed event times, not a fixed-day array, so nothing there needed changing).
+
+**Verified**: all 12 edited files parse (`ast.parse`); `grep -rn "365"` across
+`pkgs/experiments/*.py`/`pkgs/models/*.py` now only matches the two deliberately-unchanged lines
+above. **Not run**: no training/eval pipeline was executed — this is a source change only. This
+does not affect the `hazard_transformer` process (PID 2386742) or wrapper (PID 1776250) currently
+running on this host for rep5 (already documented in the Phase 2 table above, owned by another
+session) — it already loaded the old `max_time=365` module into memory before this edit landed, so
+its current run is unaffected; only processes started after this edit will pick up the 2-year
+horizon.
+
+**⚠️ Impact on existing/running work — not yet acted on, flagging for the user:** same caveat as
+the "Feature List Change" section above — any rep's data/models generated or trained before this
+edit (including the `hazard_transformer` run currently in progress on this host, PID 2386742) used
+the 1-year horizon and now predate this change. Regenerating/retraining is a separate, real-time,
+`current_rep`-touching operation not performed by this session — needs the user's go-ahead, and
+should be coordinated with whichever session owns the currently-running rep5 cascade before
+restarting anything.
 
 ### Phase 3: Results
 

@@ -123,6 +123,24 @@ lab_codes_prealbumin = ['50976']  # Using total protein as proxy
 lab_codes_ammonia = ['50866']
 lab_codes_osmolality = ['50964']
 
+# Added for CKD_FIFTY_FEATURES_HETEROGENEOUS to match generated_data/rep5/esrd_lab_analysis_report.txt.
+# Swapped in for the 12 lowest-priority (least renal-specific) of the original 50 that weren't in that
+# report's top 50: lactate, base_excess, pco2, po2, bilirubin_direct, bilirubin_indirect, ggt, amylase,
+# lipase, ck, troponin, bnp (their lab_codes_*/get_*_df definitions above are left in place, just no
+# longer referenced by this scenario).
+lab_codes_lymphocytes = ['51244']
+lab_codes_neutrophils = ['51256']
+lab_codes_monocytes = ['51254']
+lab_codes_basophils = ['51146']
+lab_codes_eosinophils = ['51200']
+lab_codes_pt = ['51274']  # Prothrombin Time (seconds); distinct itemid from INR (51237), same coag panel
+lab_codes_rdw_sd = ['52172']
+lab_codes_lab_h = ['50934']  # d_labitems label is literally "H" (Chemistry, unit "U") - meaning unresolved
+lab_codes_lab_l = ['51678']  # d_labitems label is literally "L" (Chemistry, unit "U") - meaning unresolved
+lab_codes_lab_i = ['50947']  # d_labitems label is literally "I" (Chemistry, unit "U") - meaning unresolved
+lab_codes_urine_specific_gravity = ['51498']
+lab_codes_urine_ph = ['51491']
+
 ace_inhibitor_drugs = ['Captopril', 'Enalapril', 'Lisinopril', 'Ramipril', 'Perindopril', 'Quinapril', 'Benazepril', 'Trandolapril', 'Moexipril', 'Fosinopril']
 """
 ----------Generated data paths----------

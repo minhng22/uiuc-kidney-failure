@@ -45,7 +45,7 @@ def run_ti():
         model = trained_model
 
     print('Evaluate on test data')
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
 
     predicted_survival_times = model.predict_median(df_test)
     event_occurred = df_test['has_esrd'].values

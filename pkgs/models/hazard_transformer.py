@@ -24,7 +24,7 @@ class HazardTransformer(nn.Module):
         super(HazardTransformer, self).__init__()
         self.num_risks = num_risks
         self.d_model = d_model
-        self.max_time = 365 * 15
+        self.max_time = 730
         # discretize the follow-up horizon into bins; a single bin collapses the model to one time point
         self.num_time_bins = num_time_bins
         

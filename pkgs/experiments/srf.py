@@ -71,7 +71,7 @@ def evaluate_model(rsf, df, df_test):
     
     X_test = get_x_for_sckit_survival_model(df_test)
     risk_scores = rsf.predict(X_test)
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
     
     print(f'Risk scores shape: {risk_scores.shape}')
     print(f'First 10 risk scores: {risk_scores[:10]}')

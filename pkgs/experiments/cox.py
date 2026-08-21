@@ -52,7 +52,7 @@ def run_cox_model(scenario: ExperimentScenario):
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
 
     _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
@@ -101,7 +101,7 @@ def run_ti_cox_model():
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
     _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
 
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")

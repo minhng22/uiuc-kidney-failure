@@ -105,15 +105,16 @@ class DynamicDeepHitDataset(Dataset):
             features[:seq_length, 3] = subject_data['hemoglobin_missing'].values
         elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
             # 50 lab features with missingness indicators (100 features total)
-            lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 
+            lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium',
                          'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
                          'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
                          'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
                          'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
                          'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
-                         'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate',
-                         'base_excess', 'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect',
-                         'ggt', 'amylase', 'lipase', 'ck', 'troponin', 'bnp']
+                         'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc',
+                         'lymphocytes', 'neutrophils', 'monocytes', 'basophils', 'eosinophils',
+                         'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
+                         'urine_specific_gravity', 'urine_ph', 'ph']
             feat_idx = 0
             for lab_name in lab_names:
                 features[:seq_length, feat_idx] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
@@ -229,7 +230,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     return c_index
 
 def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd.DataFrame, device):
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
     y_train = Surv.from_arrays(
         event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
 

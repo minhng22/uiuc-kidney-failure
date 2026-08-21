@@ -147,7 +147,7 @@ def run_ti_survival_svm_model():
     print(f'Concordance Index Test: {round_metric(c_index_test)}')
 
     # Compute Brier Score
-    times = np.arange(1, min(365, data_test_filtered['duration_in_days'].max()), 1)
+    times = np.arange(1, min(730, data_test_filtered['duration_in_days'].max()), 1)
     brier_score = compute_brier_score(model, data_train, data_test_filtered, 'duration_in_days', 'has_esrd', times)
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')

@@ -223,7 +223,7 @@ def run(scenario_name: ExperimentScenario):
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
     y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
     _, mean_auc = cumulative_dynamic_auc(y_train, y_test, test_risk_scores.cpu().numpy(), times)

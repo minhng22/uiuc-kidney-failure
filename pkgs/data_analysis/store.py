@@ -17,7 +17,10 @@ from pkgs.commons import (ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_pa
                           lab_codes_bnp, lab_codes_tsh, lab_codes_free_t4, lab_codes_vitamin_d,
                           lab_codes_pth, lab_codes_vitamin_b12, lab_codes_folate, lab_codes_reticulocyte,
                           lab_codes_fibrinogen, lab_codes_d_dimer, lab_codes_cortisol, lab_codes_hba1c,
-                          lab_codes_ammonia, lab_codes_osmolality)
+                          lab_codes_ammonia, lab_codes_osmolality, lab_codes_lymphocytes, lab_codes_neutrophils,
+                          lab_codes_monocytes, lab_codes_basophils, lab_codes_eosinophils, lab_codes_pt,
+                          lab_codes_rdw_sd, lab_codes_lab_h, lab_codes_lab_l, lab_codes_lab_i,
+                          lab_codes_urine_specific_gravity, lab_codes_urine_ph)
 from pkgs.data_analysis.utils_store import filter_df_on_icd_code
 from pkgs.data_analysis.utils import calculate_eGFR
 import numpy as np
@@ -516,6 +519,103 @@ def get_bnp_df(patient_df):
     lab_events_df['bnp'] = lab_events_df['valuenum']
     lab_events_df['bnp'] = lab_events_df['bnp'].replace('', np.nan)
     lab_events_df = lab_events_df.dropna(subset=['bnp'])
+    return lab_events_df
+
+# Added for CKD_FIFTY_FEATURES_HETEROGENEOUS to match generated_data/rep5/esrd_lab_analysis_report.txt
+def get_lymphocytes_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_lymphocytes)] # unit is %
+    lab_events_df['lymphocytes'] = lab_events_df['valuenum']
+    lab_events_df['lymphocytes'] = lab_events_df['lymphocytes'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['lymphocytes'])
+    return lab_events_df
+
+def get_neutrophils_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_neutrophils)] # unit is %
+    lab_events_df['neutrophils'] = lab_events_df['valuenum']
+    lab_events_df['neutrophils'] = lab_events_df['neutrophils'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['neutrophils'])
+    return lab_events_df
+
+def get_monocytes_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_monocytes)] # unit is %
+    lab_events_df['monocytes'] = lab_events_df['valuenum']
+    lab_events_df['monocytes'] = lab_events_df['monocytes'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['monocytes'])
+    return lab_events_df
+
+def get_basophils_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_basophils)] # unit is %
+    lab_events_df['basophils'] = lab_events_df['valuenum']
+    lab_events_df['basophils'] = lab_events_df['basophils'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['basophils'])
+    return lab_events_df
+
+def get_eosinophils_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_eosinophils)] # unit is %
+    lab_events_df['eosinophils'] = lab_events_df['valuenum']
+    lab_events_df['eosinophils'] = lab_events_df['eosinophils'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['eosinophils'])
+    return lab_events_df
+
+def get_pt_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_pt)] # unit is seconds
+    lab_events_df['pt'] = lab_events_df['valuenum']
+    lab_events_df['pt'] = lab_events_df['pt'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['pt'])
+    return lab_events_df
+
+def get_rdw_sd_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_rdw_sd)] # unit is fL
+    lab_events_df['rdw_sd'] = lab_events_df['valuenum']
+    lab_events_df['rdw_sd'] = lab_events_df['rdw_sd'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['rdw_sd'])
+    return lab_events_df
+
+def get_lab_h_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_lab_h)] # unit is U; d_labitems label is literally "H"
+    lab_events_df['lab_h'] = lab_events_df['valuenum']
+    lab_events_df['lab_h'] = lab_events_df['lab_h'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['lab_h'])
+    return lab_events_df
+
+def get_lab_l_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_lab_l)] # unit is U; d_labitems label is literally "L"
+    lab_events_df['lab_l'] = lab_events_df['valuenum']
+    lab_events_df['lab_l'] = lab_events_df['lab_l'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['lab_l'])
+    return lab_events_df
+
+def get_lab_i_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_lab_i)] # unit is U; d_labitems label is literally "I"
+    lab_events_df['lab_i'] = lab_events_df['valuenum']
+    lab_events_df['lab_i'] = lab_events_df['lab_i'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['lab_i'])
+    return lab_events_df
+
+def get_urine_specific_gravity_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_urine_specific_gravity)]
+    lab_events_df['urine_specific_gravity'] = lab_events_df['valuenum']
+    lab_events_df['urine_specific_gravity'] = lab_events_df['urine_specific_gravity'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['urine_specific_gravity'])
+    return lab_events_df
+
+def get_urine_ph_df(patient_df):
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_urine_ph)] # unit is units (pH scale)
+    lab_events_df['urine_ph'] = lab_events_df['valuenum']
+    lab_events_df['urine_ph'] = lab_events_df['urine_ph'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['urine_ph'])
     return lab_events_df
 
 def get_tsh_df(patient_df):

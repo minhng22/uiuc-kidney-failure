@@ -1,1 +1,197 @@
 [I 2026-08-20 18:15:15,484] A new study created in memory with name: no-name-33f290fc-4043-4bef-95b5-41d269a0698d
+[W 2026-08-20 18:51:12,631] Trial 0 failed with parameters: {'num_layer': 1, 'hidden_dim_0': 25, 'learning_rate': 7.238986365954399e-05, 'drop_out_rate': 0.4208926515130217, 'llh_loss': 0.14873909936282814} because of the following error: ValueError('NaNs detected in inputs, please correct or drop.').
+Traceback (most recent call last):
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 423, in <lambda>
+    else:
+          
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 211, in objective
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 396, in c_idx
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 91, in concordance_index
+    event_times, predicted_scores, event_observed = _preprocess_scoring_data(event_times, predicted_scores, event_observed)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 301, in _preprocess_scoring_data
+    raise ValueError("NaNs detected in inputs, please correct or drop.")
+ValueError: NaNs detected in inputs, please correct or drop.
+[W 2026-08-20 18:51:12,686] Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 441, in <module>
+    #run(ExperimentScenario.FIVELABMS)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 423, in run
+    else:
+          
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/utils.py", line 132, in ex_optuna
+    study.optimize(objective, n_trials=n_trials)
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/study.py", line 475, in optimize
+    _optimize(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 63, in _optimize
+    _optimize_sequential(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 160, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 248, in _run_trial
+    raise func_err
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/optuna/study/_optimize.py", line 197, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 423, in <lambda>
+    else:
+          
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 211, in objective
+    
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py", line 396, in c_idx
+    
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 91, in concordance_index
+    event_times, predicted_scores, event_observed = _preprocess_scoring_data(event_times, predicted_scores, event_observed)
+                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/concordance.py", line 301, in _preprocess_scoring_data
+    raise ValueError("NaNs detected in inputs, please correct or drop.")
+ValueError: NaNs detected in inputs, please correct or drop.
+Using GPU: cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_test_data.csv
+Number of patients: test 500 and train 500
+Number of records: test 200279 and train 186731
+Running Optuna hyperparameter optimization
+Using GPU: cuda:3
+Running trial 0 for ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS on device cuda:3
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/ckd_fifty_features_heterogeneous_test_data.csv
+Number of patients: test 500 and train 500
+Number of records: test 200279 and train 186731
+Epoch 1/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 49.070553213357925
+Epoch 2/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 46.64691659808159
+Epoch 3/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 45.99894844181836
+Epoch 4/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 45.336495250463486
+Epoch 5/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 43.27350079268217
+Epoch 6/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: nan
+Patience Counter: 1
+Epoch 7/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: nan
+Patience Counter: 2
+Epoch 8/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: nan
+Patience Counter: 3
+Epoch 9/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: nan
+Patience Counter: 4
+Epoch 10/50
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 5644]), event_indicators shape: torch.Size([16, 5644]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 5644, 100])
+mask shape: torch.Size([16, 5644])
+lstm_output shape: torch.Size([16, 5644, 50])
+fc_output shape: torch.Size([16, 5644, 25])
+context shape: torch.Size([16, 25])
+attention_weights shape: torch.Size([16, 5644, 1])
+x shape after cause_specific_fc: torch.Size([16, 25])
+hazard_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: nan
+Patience Counter: 5
+Early stopping triggered
+features shape: torch.Size([16, 5644, 100]), mask shape: torch.Size([16, 5644]), T shape: torch.Size([16, 1]), E shape: torch.Size([16, 1]) hazards shape: (16, 5475)
+Processing subject 0 with time 25 and event False hazards shape: [nan]
+all_E shape: (500,) first 10 values: [False False  True False  True  True False  True  True False]
+all_R shape: (500,) first 10 values: [nan nan nan nan nan nan nan nan nan nan]
+all_T shape: (500,) first 10 values: [  25  326   11 3168    0    0 1440 1457 2718  118]

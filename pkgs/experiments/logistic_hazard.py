@@ -80,15 +80,16 @@ class LogisticHazardDataset(Dataset):
                 ]
             elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
                 # 50 lab features with missingness indicators
-                lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium', 
+                lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium',
                              'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
                              'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
                              'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
                              'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
                              'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
-                             'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lactate',
-                             'base_excess', 'pco2', 'po2', 'ph', 'bilirubin_direct', 'bilirubin_indirect',
-                             'ggt', 'amylase', 'lipase', 'ck', 'troponin', 'bnp']
+                             'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc',
+                             'lymphocytes', 'neutrophils', 'monocytes', 'basophils', 'eosinophils',
+                             'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
+                             'urine_specific_gravity', 'urine_ph', 'ph']
                 features = []
                 for lab_name in lab_names:
                     features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))

@@ -156,7 +156,7 @@ def run():
         print(f'Integrated Brier Score Test: {brier_score}')
 
     # Compute time-dependent AUC
-    times = np.arange(1, 365, 1)
+    times = np.arange(1, 730, 1)
     risk_scores = test_risk_scores
 
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)

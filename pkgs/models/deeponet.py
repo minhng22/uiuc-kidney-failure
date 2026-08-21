@@ -262,7 +262,7 @@ class DeepONet(nn.Module):
     # Predict risk score: keep your original method but map to grid if available
     # -------------------------
     def predict_risk_score(self, u):
-        reference_time = torch.tensor([[365.0]], device=u.device)
+        reference_time = torch.tensor([[730.0]], device=u.device)
         # use forward behavior unchanged (returns (B,1) if reference_time is expanded appropriately)
         if self.time_grid is not None:
             op = self.forward(u, reference_time)  # will be treated as shared query -> (B,1)

@@ -75,7 +75,7 @@ def compute_brier_score_from_risk_scores(df_train, df_test, risk_scores):
     try:
         # Define time points for evaluation
         max_time = max(df_train['duration_in_days'].max(), df_test['duration_in_days'].max())
-        times = np.linspace(1, min(max_time, 365), 50)  # Evaluate up to 1 year
+        times = np.linspace(1, min(max_time, 730), 50)  # Evaluate up to 2 years
         
         # Convert risk scores to survival probabilities using exponential model
         # S(t) = exp(-lambda * t), where lambda is proportional to risk score
@@ -187,19 +187,19 @@ def get_tv_rnn_model_features(scenario_name: ExperimentScenario):
                 'ferritin', 'ferritin_missing',
                 'transferrin', 'transferrin_missing',
                 'tibc', 'tibc_missing',
-                'lactate', 'lactate_missing',
-                'base_excess', 'base_excess_missing',
-                'pco2', 'pco2_missing',
-                'po2', 'po2_missing',
-                'ph', 'ph_missing',
-                'bilirubin_direct', 'bilirubin_direct_missing',
-                'bilirubin_indirect', 'bilirubin_indirect_missing',
-                'ggt', 'ggt_missing',
-                'amylase', 'amylase_missing',
-                'lipase', 'lipase_missing',
-                'ck', 'ck_missing',
-                'troponin', 'troponin_missing',
-                'bnp', 'bnp_missing']
+                'lymphocytes', 'lymphocytes_missing',
+                'neutrophils', 'neutrophils_missing',
+                'monocytes', 'monocytes_missing',
+                'basophils', 'basophils_missing',
+                'eosinophils', 'eosinophils_missing',
+                'pt', 'pt_missing',
+                'rdw_sd', 'rdw_sd_missing',
+                'lab_h', 'lab_h_missing',
+                'lab_l', 'lab_l_missing',
+                'lab_i', 'lab_i_missing',
+                'urine_specific_gravity', 'urine_specific_gravity_missing',
+                'urine_ph', 'urine_ph_missing',
+                'ph', 'ph_missing']
     elif scenario_name == ExperimentScenario.NON_TIME_VARIANT:
         return ['egfr']
 
@@ -243,7 +243,15 @@ def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0
 
         count = pair_mask.sum()
         if count > 0:
-            ranking_loss = (torch.exp(-diff / w2) * pair_mask.float()).sum() / count
+            # Clamp the exponent: with long sequences (rep99's mini sample has an
+            # outlier patient at 5644 timesteps), cumulative hazard F_i/F_j can grow
+            # large enough that -diff/w2 overflows exp() to inf, which turned to NaN
+            # loss/gradients partway through training (observed: finite decreasing
+            # loss through epoch 5, NaN from epoch 6 on, for dynamic_deephit on
+            # rep99). 50 is far past where exp() saturates any meaningful ranking
+            # signal, so this only affects the pathological tail, not normal-range
+            # sequences.
+            ranking_loss = (torch.exp((-diff / w2).clamp(max=50.0)) * pair_mask.float()).sum() / count
         else:
             ranking_loss = torch.zeros((), device=risk_hazard_preds.device)
 
