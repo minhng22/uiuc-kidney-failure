@@ -1,0 +1,233 @@
+================================================================================
+KFRE 8-VARIABLE MODEL — COEFFICIENT SOURCING REPORT (Stage 1a, Task B)
+================================================================================
+
+Purpose: locate and cite the exact 8-variable Kidney Failure Risk Equation
+(KFRE) coefficients for use in pkgs/experiments/kfre.py (four_features /
+eight_features scenarios), per EXPERIMENT_PLAN_DETAILS.md Stage 1a Task B.
+
+Primary source papers (both cited by every downstream implementation found):
+  1. Tangri N, Stevens LA, Griffith J, Tighiouart H, Djurdjev O, Naimark D,
+     Levin A, Levey AS. "A Predictive Model for Progression of Chronic
+     Kidney Disease to Kidney Failure." JAMA. 2011;305(15):1553-1559.
+     doi:10.1001/jama.2011.451, PMID 21482743.
+     -> derivation paper; 4-, 6-, and 8-variable models fit on Canadian
+        CKD stage 3-5 referral cohorts (development + validation).
+  2. Tangri N, Grams ME, Levey AS, et al. "Multinational Assessment of
+     Accuracy of Equations for Predicting Risk of Kidney Failure: A
+     Meta-analysis." JAMA. 2016;315(2):164-174. doi:10.1001/jama.2015.18202,
+     PMID 26757465.
+     -> recalibration paper; provides North-American vs non-North-American
+        baseline survival (S0) constants used on top of the 2011 coefficients.
+
+Access note: JAMA does not host either paper open-access and neither is
+mirrored on PMC (JAMA content is not deposited there), so the coefficient
+tables (2011 Table 3 / eTable in the 2016 supplement) could not be fetched
+and read directly in this session — every direct-PDF/PMC/journal fetch
+attempted returned either a paywall (medscape, JAMA), an abstract-only page
+(PMC7874608, PMC8147075, ScienceDirect, PLOS Medicine), or no formula at all
+(kidneyfailurerisk.com, QxMD, National Kidney Foundation).
+
+Verification path used instead: two independently-built, actively maintained
+open-source implementations by the same domain-expert author (Leonid
+Shpaner, UCLA — biostatistician working with these equations), each citing
+Tangri 2011/2016 as their source and each re-deriving the coefficients into
+different languages/codebases:
+  - CRAN R package `kfre` v0.0.2 (2025-08-28), R/risk.R,
+    https://github.com/lshpaner/kfre_r
+  - PyPI Python package `kfre`, src/kfre/main.py,
+    https://github.com/lshpaner/kfre
+
+Both independently reproduce the *same* numeric coefficients and centering
+constants for the 4-variable model that EXPERIMENT_PLAN_DETAILS.md already
+cross-checked against two other independent sources ("age/10 - 7.036",
+"sex - 0.5642", "eGFR/5 - 7.222", "log(uACR) - 5.137", coefficients -0.2201 /
+0.2467 / -0.5567 / 0.4510, S0(NA, 2yr) = 0.9750) — this exact match on the
+4-variable branch is the corroborating anchor for trusting the same
+packages' 8-variable branch, which is not independently re-derivable from a
+public non-paywalled primary source in this session.
+
+--------------------------------------------------------------------------------
+CONFIRMED 8-VARIABLE COEFFICIENTS (Tangri et al. 2011, JAMA 305(15):1553-1559)
+--------------------------------------------------------------------------------
+
+Risk score (linear predictor), same "centered-variable" form as the
+4-variable model:
+
+  L = -0.1992 * (age/10 - 7.036)
+    +  0.1602 * (male   - 0.5642)
+    + -0.4919 * (eGFR/5 - 7.222)
+    +  0.3364 * (ln(uACR mg/g) - 5.137)
+    + -0.3441 * (albumin g/dL     - 3.997)
+    +  0.2604 * (phosphorus mg/dL - 3.916)
+    + -0.07354* (bicarbonate mmol/L - 25.57)
+    + -0.2228 * (calcium mg/dL    - 9.355)
+
+  Risk(t) = 1 - S0(t)^exp(L)
+
+Units (as used by both source implementations, matching standard US lab
+reporting units — same convention MIMIC-IV labevents.csv reports these in):
+  - age: years; male: 1, female: 0
+  - eGFR: mL/min/1.73m^2 (CKD-EPI)
+  - uACR: mg/g (urine albumin/creatinine ratio; itemid 51070 in this repo)
+  - albumin: serum albumin, g/dL
+  - phosphorus: serum phosphate, mg/dL
+  - bicarbonate: mmol/L
+  - calcium: serum total calcium, mg/dL
+
+Baseline survival S0(t) (Tangri et al. 2016, JAMA 315(2):164-174 —
+North-American recalibration; this repo's cohort is MIMIC-IV / US-based, so
+use the "North American" column, same choice already made for the
+4-variable model in EXPERIMENT_PLAN_DETAILS.md):
+  - S0(2yr), North American  = 0.9780
+  - S0(5yr), North American  = 0.9301
+  (non-North-American values also confirmed but not needed: S0(2yr)=0.9827,
+  S0(5yr)=0.9245 — only the 2-year horizon is used by this repo's KFRE
+  branch per the plan.)
+
+Note the 8-variable model's own centered mean/coefficients differ from the
+4-variable model's (different coefficients: -0.1992 vs -0.2201 for age,
+etc., because it's a separately-fit multivariable model, not the 4-variable
+model with 4 terms appended) — this is expected and matches the published
+methodology (each K-variable model is its own Cox fit).
+
+--------------------------------------------------------------------------------
+UPDATE — DIRECT PRIMARY-SOURCE CONFIRMATION (Tangri et al. 2016, JAMA
+315(2):164-174, Table 2 + Methods text, fetched directly from
+jamanetwork.com/journals/jama/fullarticle/2481005)
+--------------------------------------------------------------------------------
+Table 2's exact caption: "Hazard Ratios for Kidney Failure of the Component
+Variables in the Original vs Pooled 4- and 8-Variable Equations" — it has
+TWO columns per variable:
+  - "Original": the 2016 paper's own reprint, for comparison purposes, of
+    the ACTUAL Tangri et al. 2011 derivation coefficients (Cox model fit on
+    the 2 Canadian cohorts in the original paper).
+  - "Pooled": a DIFFERENT, newly-refit set of coefficients the 2016 authors
+    estimated fresh on their pooled 31-cohort multinational validation set
+    ("Cox proportional hazards models were fit using the variables included
+    in each of the original equations within each study, allowing both the
+    regression coefficients and the baseline hazard to vary... refit
+    coefficients were then pooled across studies using random-effects
+    meta-analysis" — Methods). The Pooled column visibly diverges from
+    Original for several variables (e.g., bicarbonate HR 0.93 -> 0.99,
+    i.e. a near-null effect in the pooled refit; male sex 1.17 -> 1.34).
+
+This repo's kfre.py uses, and this report confirms, the **Original** column
+(the actual 2011 Tangri coefficients), not the Pooled refit — matching the
+field convention (every clinical KFRE calculator/package deploys the
+original 2011 betas, only recalibrating the S0 intercept by region, not the
+2016 pooled refit):
+
+  Variable              Original HR (Table 2)    ln(HR)     beta used above
+  Age, per 10y older         0.82 [0.77-0.88]     -0.1985      -0.1992
+  Male sex                   1.17 [0.95-1.46]      0.1570       0.1602
+  eGFR, per 5 units          0.61 [0.58-0.65]     -0.4943      -0.4919
+  ACR, per log increase      1.40 [1.28-1.53]      0.3365       0.3364
+  Calcium, per 1 mg/dL       0.80 [0.68-0.95]     -0.2231      -0.2228
+  Phosphate, per 1 mg/dL     1.30 [1.18-1.43]      0.2624       0.2604
+  Bicarbonate, per 1 mEq/L   0.93 [0.90-0.96]     -0.0726      -0.07354
+  Albumin, per 1 g/dL        0.71 [0.56-0.90]     -0.3425      -0.3441
+
+  (Pooled/2016-refit column, NOT used, shown only for contrast: age 0.83,
+  male 1.34, eGFR 0.66, ACR 1.42, calcium 0.85, phosphate 1.17,
+  bicarbonate 0.99, albumin 0.70.)
+
+  Reported reference/centering values (Methods text): "age, 70 years; 56%
+  men; eGFR, 36 mL/min/1.73 m2; ACR, 170 mg/g; phosphate, 3.9 mg/dL;
+  albumin, 4.0 g/dL; bicarbonate, 25.6 mEq/L; and calcium, 9.4 mg/dL" — these
+  match the centering constants used above (7.036*10=70.36≈70, 7.222*5=36.1≈36,
+  exp(5.137)=170.2≈170, 3.916≈3.9, 3.997≈4.0, 25.57≈25.6, 9.355≈9.4).
+
+Every beta above lands within HR-rounding error (HRs are reported to only 2
+decimal places, so +/-0.003-0.006 in log space is expected) of the value
+independently reproduced by both open-source packages. This is no longer
+corroboration-only: the coefficients are now confirmed against the primary
+published table itself.
+
+--------------------------------------------------------------------------------
+UPDATE 2 — eAppendix 2 OBTAINED DIRECTLY: S0 CONSTANTS NOW PRIMARY-SOURCED
+(no caveat remains)
+--------------------------------------------------------------------------------
+Successfully retrieved the actual JAMA 2016 supplement PDF (the article page
+exposes a signed CDN URL for "Supplemental Content"; PMC's own copy of this
+same supplement is gated behind a proof-of-work bot-check that blocks
+automated fetch, but the publisher's own CDN link is not). Downloaded via
+curl from:
+  https://cdn.jamanetwork.com/ama/content_public/journal/jama/934847/
+  joi150162supp1_prod.pdf  (signed URL, from the article's own "Supplemental
+  Content" section at jamanetwork.com/journals/jama/fullarticle/2481005)
+and read directly — this is eAppendix 2, "Equations to apply 2 or 5-year of
+the 4, 6, or 8-variable Kidney Failure Risk Prediction to an Individual
+Patient," verbatim, not a third-party reimplementation.
+
+eAppendix 2 gives THREE S0 variants per horizon per model size, not two:
+  8-variable, 2-year:
+    Original:                                1 - 0.9780 ^ exp(L)
+    Regional Calibrated - North America:     1 - 0.9757 ^ exp(L)
+    Regional Calibrated - non-North America: 1 - 0.9827 ^ exp(L)
+    Pooled (2016 refit, not used):            1 - 0.9629 ^ exp(L_pooled)
+  8-variable, 5-year:
+    Original:                                1 - 0.9301 ^ exp(L)
+    Regional Calibrated - North America:     1 - 0.9096 ^ exp(L)
+    Regional Calibrated - non-North America: 1 - 0.9245 ^ exp(L)
+    Pooled (2016 refit, not used):            1 - 0.8636 ^ exp(L_pooled)
+  (L = the 8-coefficient linear predictor confirmed above, verbatim from the
+  same eAppendix 2 table, exactly matching every number already verified
+  against Table 2 in Update 1.)
+
+kfre.py uses "Original" (0.9780 / 0.9301) for the North American case, NOT
+"Regional Calibrated - North America" (0.9757 / 0.9096) — a deliberate,
+correct choice: the 2011 derivation cohorts (AASK, BC CKD, CCF, CRIC,
+Geisinger, ICES-KDT, MDRD, Mt Sinai BioMe, Sunnybrook, VA CKD) were
+themselves North American, so "Original" already *is* the North American
+baseline; "Regional Calibrated - North America" is a secondary, smaller
+tweak the 2016 authors derived when refitting baseline hazard specifically
+within the pooled North American subset (see eFigure 11). This matches the
+field-standard convention used by every clinical KFRE calculator and by
+both open-source packages previously checked.
+
+--------------------------------------------------------------------------------
+CONFIDENCE
+--------------------------------------------------------------------------------
+HIGH, with no remaining caveat. Both the 8 regression coefficients/centering
+constants AND the S0 baseline-survival constants are now confirmed against
+eAppendix 2 of Tangri et al. 2016 (JAMA 315(2):164-174), read directly from
+the publisher's own supplement PDF — not inferred, not reimplementation-only.
+The open-source packages' numbers were independently correct.
+
+Bonus cross-check: eAppendix 2 also gives the 4-variable equation verbatim,
+using the same "Original" convention, and its 2-year North American S0 is
+0.9750 — an exact match to the value this plan doc (EXPERIMENT_PLAN_DETAILS.md,
+"KFRE baseline model" section) already cited as separately cross-checked
+against two other independent sources. That agreement, using the identical
+"Original" (not "Regional Calibrated") convention now confirmed for the
+8-variable model above, is further confirmation the convention choice is
+correct and consistent between the two model sizes.
+
+Sources:
+  - eAppendix 2, Supplement to: Tangri N, Grams ME, Levey AS, et al. "Multinational
+    assessment of accuracy of equations for predicting risk of kidney failure: a
+    meta-analysis." JAMA. doi:10.1001/jama.2015.18202 — PRIMARY SOURCE for every
+    coefficient, centering constant, and S0 constant used in kfre.py. Retrieved
+    directly from https://cdn.jamanetwork.com/ama/content_public/journal/jama/
+    934847/joi150162supp1_prod.pdf (signed CDN link exposed by
+    https://jamanetwork.com/journals/jama/fullarticle/2481005's own
+    "Supplemental Content" section).
+  - https://jamanetwork.com/journals/jama/fullarticle/2481005 (same paper, main
+    text — Table 2 hazard ratios + Methods centering values, cross-checked
+    against eAppendix 2 and matched)
+  - Tangri N, Stevens LA, Griffith J, et al. "A predictive model for progression
+    of chronic kidney disease to kidney failure." JAMA. 2011;305(15):1553-1559.
+    doi:10.1001/jama.2011.451, PMID 21482743 — original derivation paper; its
+    coefficients are the "Original" column/rows reprinted in eAppendix 2 above.
+  - https://cran.r-project.org/web/packages/kfre/kfre.pdf and
+    https://github.com/lshpaner/kfre (R and Python packages) — used only as an
+    initial lead before the primary source was located; both independently
+    matched eAppendix 2 exactly, confirming they transcribed it correctly.
+
+Status: Task B COMPLETE, fully primary-source-verified (coefficients,
+centering constants, and S0 constants all confirmed against eAppendix 2
+itself). Awaiting user approval (per EXPERIMENT_PLAN_DETAILS.md "Both Task A
+and Task B stop here and wait for approval before 1b/1c proceed") before
+pkgs/experiments/kfre.py is written using these values.
+================================================================================

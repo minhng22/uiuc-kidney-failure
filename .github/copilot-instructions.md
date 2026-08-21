@@ -51,6 +51,26 @@ in chat — also write the verified findings into the relevant
 and bump its "Last Updated" timestamp. A status check that never lands in the
 doc is lost the next time a session (this one or another) reads it.
 
+## Keep EXPERIMENT_STATUS.md tidy — link out to detailed reports, don't inline them
+
+`EXPERIMENT_STATUS.md` is the high-level index read at the start of every
+session — it must stay skimmable. Detailed findings, citations, equations,
+coefficient tables, source URLs, etc. belong in a dedicated report file
+(e.g. under `generated_data/rep<N>/`, per the relevant
+`*_EXPERIMENT_PLAN_DETAILS.md`'s reporting convention), not inlined into
+`EXPERIMENT_STATUS.md`'s status table.
+
+- Each row's "Notes" cell should be a short status phrase plus a link to the
+  report file that has the actual detail (e.g. "confirmed against primary
+  source — see [report](generated_data/rep1/foo_report.txt)"), not a
+  paragraph recounting the finding.
+- When updating status after doing work, put the substance in the report
+  file (create/append one if none exists yet for that task) and only the
+  pointer + terse status in `EXPERIMENT_STATUS.md`.
+- If `EXPERIMENT_STATUS.md` has accumulated inlined detail (yours or another
+  session's), trimming your own rows down to a link is fine; leave other
+  sessions' rows for their owners per the multi-session rule above.
+
 ## When the user asks to add a rule, edit both instruction files
 
 If the user asks to add/change a rule for how agents should work in this

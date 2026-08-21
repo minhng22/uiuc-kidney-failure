@@ -9,6 +9,8 @@ This doc follows the existing per-scenario pattern already used for
 [pkgs/data_analysis/model_data_store.py](pkgs/data_analysis/model_data_store.py)).
 
 **Do not edit [EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md) — it is marked "DON'T EDIT".**
+**Create report for each experiment. Update report every time you do something. 
+Update high-level progress of stages in `EXPERIMENT_STATUS.md` -  don't swamp this file with details.**
 
 ## New scenario naming
 
