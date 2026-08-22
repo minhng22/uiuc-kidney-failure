@@ -58,6 +58,10 @@ lab_codes_egfr = ['50920', '52026', '53176']
 lab_codes_proteins_24hr = ['51068']
 lab_codes_proteins = ['51992', '51102', '51492']
 lab_codes_albumin = ['51069', '51070', '52703']
+# UACR (Urine Albumin/Creatinine Ratio) - direct ratio lab item in MIMIC-IV, itemid 51070
+# ("Albumin/Creatinine, Urine"). Used by FOUR_FEATURES/EIGHT_FEATURES only. 51070 intentionally
+# also appears in lab_codes_albumin above (left untouched, used as-is by existing scenarios).
+lab_codes_uacr = ['51070']
 lab_codes_potassium = ['50971']
 lab_codes_urea_nitrogen = ['51006']
 lab_codes_sodium = ['50983']
@@ -212,6 +216,27 @@ ckd_fifty_features_heterogeneous_logistic_hazard_model_path = f'{generate_data_p
 ckd_fifty_features_heterogeneous_survtimesurvival_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_survtimesurvival_model.pt'
 ckd_fifty_features_heterogeneous_deeponet_model_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_deeponet_model.pt'
 
+# trained models - four_features scenario (benchmarked against 4-variable KFRE)
+four_features_cox_model_path = f'{generate_data_path_latest_rep}/four_features_cox_model.dill'
+four_features_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/four_features_ddh_model.pt'
+four_features_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/four_features_hazard_transformer_model.pt'
+four_features_rnn_surv_model_path = f'{generate_data_path_latest_rep}/four_features_rnn_surv_model.pt'
+four_features_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/four_features_logistic_hazard_model.pt'
+
+# trained models - eight_features scenario (benchmarked against 8-variable KFRE)
+eight_features_cox_model_path = f'{generate_data_path_latest_rep}/eight_features_cox_model.dill'
+eight_features_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/eight_features_ddh_model.pt'
+eight_features_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/eight_features_hazard_transformer_model.pt'
+eight_features_rnn_surv_model_path = f'{generate_data_path_latest_rep}/eight_features_rnn_surv_model.pt'
+eight_features_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/eight_features_logistic_hazard_model.pt'
+
+# trained models - twenty_features_heterogeneous scenario (top 20 most common CKD->ESRD lab features)
+twenty_features_heterogeneous_cox_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_cox_model.dill'
+twenty_features_heterogeneous_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_ddh_model.pt'
+twenty_features_heterogeneous_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_hazard_transformer_model.pt'
+twenty_features_heterogeneous_rnn_surv_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_rnn_surv_model.pt'
+twenty_features_heterogeneous_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_logistic_hazard_model.pt'
+
 # train and test data
 heterogen_train_data_path = f'{generate_data_path_latest_rep}/heterogen_train_data.csv'
 heterogen_test_data_path = f'{generate_data_path_latest_rep}/heterogen_test_data.csv'
@@ -225,6 +250,12 @@ fivelabms_train_data_path = f'{generate_data_path_latest_rep}/fivelabms_train_da
 fivelabms_test_data_path = f'{generate_data_path_latest_rep}/fivelabms_test_data.csv'
 ckd_fifty_features_heterogeneous_train_data_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_train_data.csv'
 ckd_fifty_features_heterogeneous_test_data_path = f'{generate_data_path_latest_rep}/ckd_fifty_features_heterogeneous_test_data.csv'
+four_features_train_data_path = f'{generate_data_path_latest_rep}/four_features_train_data.csv'
+four_features_test_data_path = f'{generate_data_path_latest_rep}/four_features_test_data.csv'
+eight_features_train_data_path = f'{generate_data_path_latest_rep}/eight_features_train_data.csv'
+eight_features_test_data_path = f'{generate_data_path_latest_rep}/eight_features_test_data.csv'
+twenty_features_heterogeneous_train_data_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_train_data.csv'
+twenty_features_heterogeneous_test_data_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_test_data.csv'
 
 five_labms_num_subsets_train = 10
 five_labms_num_subsets_test = 2

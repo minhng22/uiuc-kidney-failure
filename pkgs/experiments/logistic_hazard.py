@@ -9,9 +9,11 @@ from pycox.preprocessing.label_transforms import LabTransDiscreteTime
 import torchtuples as tt
 from pkgs.experiments.utils import get_device
 
-from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path, 
-                          egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path, 
-                          heterogen_impute_logistic_hazard_model_path, ckd_fifty_features_heterogeneous_logistic_hazard_model_path)
+from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path,
+                          egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path,
+                          heterogen_impute_logistic_hazard_model_path, ckd_fifty_features_heterogeneous_logistic_hazard_model_path,
+                          four_features_logistic_hazard_model_path, eight_features_logistic_hazard_model_path,
+                          twenty_features_heterogeneous_logistic_hazard_model_path)
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
@@ -28,6 +30,9 @@ model_saved_path_dict = {
     ExperimentScenario.FIVELABMS: fivelabms_logistic_hazard_model_path,
     ExperimentScenario.HETEROGENEOUS_IMPUTE: heterogen_impute_logistic_hazard_model_path,
     ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_logistic_hazard_model_path,
+    ExperimentScenario.FOUR_FEATURES: four_features_logistic_hazard_model_path,
+    ExperimentScenario.EIGHT_FEATURES: eight_features_logistic_hazard_model_path,
+    ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS: twenty_features_heterogeneous_logistic_hazard_model_path,
 }
 
 class LogisticHazardDataset(Dataset):
@@ -90,6 +95,29 @@ class LogisticHazardDataset(Dataset):
                              'lymphocytes', 'neutrophils', 'monocytes', 'basophils', 'eosinophils',
                              'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
                              'urine_specific_gravity', 'urine_ph', 'ph']
+                features = []
+                for lab_name in lab_names:
+                    features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
+                    features.append(last_obs[f'{lab_name}_missing'])
+            elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
+                features = [
+                    (last_obs['age'] - self.df['age'].mean()) / self.df['age'].std(),
+                    last_obs['gender'],
+                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
+                    (last_obs['uacr'] - self.df['uacr'].mean()) / self.df['uacr'].std(),
+                ]
+            elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
+                features = [
+                    (last_obs['age'] - self.df['age'].mean()) / self.df['age'].std(),
+                    last_obs['gender'],
+                ]
+                for lab_name in ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']:
+                    features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
+            elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+                # top 20 lab features with missingness indicators
+                lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
+                             'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc',
+                             'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
                 features = []
                 for lab_name in lab_names:
                     features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
@@ -294,3 +322,6 @@ if __name__ == '__main__':
     # run(ExperimentScenario.EGFR_COMPONENTS)
     # run(ExperimentScenario.HETEROGENEOUS_IMPUTE)
     run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+    run(ExperimentScenario.FOUR_FEATURES)
+    run(ExperimentScenario.EIGHT_FEATURES)
+    run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)

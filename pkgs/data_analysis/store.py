@@ -20,7 +20,7 @@ from pkgs.commons import (ckd_codes, ckd_codes_stage3_to_5, diagnose_icd_file_pa
                           lab_codes_ammonia, lab_codes_osmolality, lab_codes_lymphocytes, lab_codes_neutrophils,
                           lab_codes_monocytes, lab_codes_basophils, lab_codes_eosinophils, lab_codes_pt,
                           lab_codes_rdw_sd, lab_codes_lab_h, lab_codes_lab_l, lab_codes_lab_i,
-                          lab_codes_urine_specific_gravity, lab_codes_urine_ph)
+                          lab_codes_urine_specific_gravity, lab_codes_urine_ph, lab_codes_uacr)
 from pkgs.data_analysis.utils_store import filter_df_on_icd_code
 from pkgs.data_analysis.utils import calculate_eGFR
 import numpy as np
@@ -112,6 +112,17 @@ def get_albumin_df(patient_df):
 
     lab_events_df['albumin'] = lab_events_df['albumin'].replace('', np.nan)
     lab_events_df = lab_events_df.dropna(subset=['albumin'])
+    return lab_events_df
+
+def get_uacr_df(patient_df):
+    # UACR (urine albumin/creatinine ratio), unit mg/g. Direct ratio lab item (itemid 51070), not
+    # computed from separate albumin/creatinine values - see lab_codes_uacr in commons.py.
+    lab_events_df = get_lab_events_df_for_patients(patient_df)
+    lab_events_df = lab_events_df[lab_events_df['itemid'].isin(lab_codes_uacr)]
+    lab_events_df['uacr'] = lab_events_df['valuenum']
+
+    lab_events_df['uacr'] = lab_events_df['uacr'].replace('', np.nan)
+    lab_events_df = lab_events_df.dropna(subset=['uacr'])
     return lab_events_df
 
 def get_potassium_df(patient_df):

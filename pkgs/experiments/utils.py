@@ -202,6 +202,31 @@ def get_tv_rnn_model_features(scenario_name: ExperimentScenario):
                 'ph', 'ph_missing']
     elif scenario_name == ExperimentScenario.NON_TIME_VARIANT:
         return ['egfr']
+    elif scenario_name == ExperimentScenario.FOUR_FEATURES:
+        return ['age', 'gender', 'egfr', 'uacr']
+    elif scenario_name == ExperimentScenario.EIGHT_FEATURES:
+        return ['age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+    elif scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+        return ['egfr', 'egfr_missing',
+                'potassium', 'potassium_missing',
+                'urea_nitrogen', 'urea_nitrogen_missing',
+                'sodium', 'sodium_missing',
+                'chloride', 'chloride_missing',
+                'bicarbonate', 'bicarbonate_missing',
+                'anion_gap', 'anion_gap_missing',
+                'hematocrit', 'hematocrit_missing',
+                'platelet_count', 'platelet_count_missing',
+                'hemoglobin', 'hemoglobin_missing',
+                'wbc', 'wbc_missing',
+                'mchc', 'mchc_missing',
+                'mch', 'mch_missing',
+                'rbc', 'rbc_missing',
+                'mcv', 'mcv_missing',
+                'rdw', 'rdw_missing',
+                'glucose', 'glucose_missing',
+                'calcium', 'calcium_missing',
+                'magnesium', 'magnesium_missing',
+                'phosphate', 'phosphate_missing']
 
 def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0.5, w2=0.1):
     # Vectorized rewrite of the original O(batch^2 x num_timepoints) nested-Python-loop

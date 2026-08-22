@@ -1,0 +1,38 @@
+COHORT FLOW ANALYSIS - eight_features
+================================================================================
+Generated: 2026-08-21 21:48:24  (rep1)
+Reporting basis: STROBE (von Elm et al. 2007, Lancet, 370(9596):1453-1457) item 13(a); TRIPOD (Collins et al. 2015, Ann Intern Med, 162(1):55-63) item 13a. See EXPERIMENT_PLAN_DETAILS.md "1c-0" for the full citations and rationale.
+
+MINIMUM (required)
+--------------------------------------------------------------------------------
+Original source cohort (pre-lab-filtering: CKD stage 3-5 diagnosis code OR ESRD
+diagnosis code - same base population get_time_series_data_ckd_patients builds
+every scenario in this repo, old and new, from):
+  N patients:          34,332
+  N diagnosis records: 74,197
+  Outcome-positive (ESRD dx) rate: 31,542 / 34,332 (91.87%)
+
+Final extracted cohort for eight_features (train+test combined):
+  N patients: 1,213
+  N records:  5,407
+  Attrition:  3.53% of original patients retained (34,332 -> 1,213)
+
+RECOMMENDED (flagged for approval, not separately mandated - see EXPERIMENT_PLAN_DETAILS.md)
+--------------------------------------------------------------------------------
+Outcome (has_esrd) rate, patient-level (TRIPOD 13a: "number of participants with
+and without the outcome" - a patient counts positive if their terminal row is
+flagged has_esrd=1; not the same as the row-level rate below, since only one row
+per ESRD-positive patient is actually flagged):
+  Source cohort:        31,542 / 34,332 (91.87%) positive
+  Final extracted (eight_features): 1,032 / 1,213 (85.08%) positive
+  Shift: -6.80 percentage points - per TRIPOD 13a, this checks whether the merge-window filter (1a-2) disproportionately
+  drops ESRD-positive or -negative patients. A shift near 0 means the filter is close to outcome-neutral.
+
+Outcome (has_esrd) rate, row-level (fraction of individual records flagged positive,
+not directly comparable to the source cohort's patient-level rate above):
+  1,477 / 5,407 (27.32%) positive
+
+Train/test split:
+  Train: 970 patients, 4,307 records, 27.14% positive
+  Test:  243 patients, 1,100 records, 28.00% positive
+

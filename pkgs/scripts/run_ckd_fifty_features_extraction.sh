@@ -13,10 +13,13 @@ mkdir -p "${SCRIPT_DIR}/logs"
 
 # Get timestamp for log file
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-LOG_FILE="${SCRIPT_DIR}/logs/ckd_fifty_features_extraction_${TIMESTAMP}.log"
-PID_FILE="${SCRIPT_DIR}/logs/ckd_fifty_features_extraction.pid"
+# Rep-specific log/PID filenames so concurrent invocations (one per rep, see
+# EXPERIMENT_PLAN_DETAILS.md "1c") don't clobber each other's PID file.
+REP="${CKD_REP:-5}"
+LOG_FILE="${SCRIPT_DIR}/logs/ckd_fifty_features_extraction_rep${REP}_${TIMESTAMP}.log"
+PID_FILE="${SCRIPT_DIR}/logs/ckd_fifty_features_extraction_rep${REP}.pid"
 
-echo "Starting CKD_FIFTY_FEATURES_HETEROGENEOUS data extraction..."
+echo "Starting data extraction (rep ${REP})..."
 echo "Log file: ${LOG_FILE}"
 echo "To monitor progress: tail -f ${LOG_FILE}"
 

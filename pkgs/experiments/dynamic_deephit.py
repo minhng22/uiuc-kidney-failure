@@ -1,5 +1,5 @@
 import pandas as pd
-from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path, fivelabms_dynamic_deep_hit_model_path, ckd_fifty_features_heterogeneous_dynamic_deep_hit_model_path
+from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path, fivelabms_dynamic_deep_hit_model_path, ckd_fifty_features_heterogeneous_dynamic_deep_hit_model_path, four_features_dynamic_deep_hit_model_path, eight_features_dynamic_deep_hit_model_path, twenty_features_heterogeneous_dynamic_deep_hit_model_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
@@ -23,6 +23,9 @@ model_saved_path_dict = {
         ExperimentScenario.EGFR_COMPONENTS: egfr_components_dynamic_deep_hit_model_path,
         ExperimentScenario.FIVELABMS: fivelabms_dynamic_deep_hit_model_path,
         ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS: ckd_fifty_features_heterogeneous_dynamic_deep_hit_model_path,
+        ExperimentScenario.FOUR_FEATURES: four_features_dynamic_deep_hit_model_path,
+        ExperimentScenario.EIGHT_FEATURES: eight_features_dynamic_deep_hit_model_path,
+        ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS: twenty_features_heterogeneous_dynamic_deep_hit_model_path,
     }
 
 class DynamicDeepHitDataset(Dataset):
@@ -120,7 +123,28 @@ class DynamicDeepHitDataset(Dataset):
                 features[:seq_length, feat_idx] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
                 features[:seq_length, feat_idx + 1] = subject_data[f'{lab_name}_missing'].values
                 feat_idx += 2
-        
+        elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
+            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 1] = subject_data['gender'].values
+            features[:seq_length, 2] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 3] = (subject_data['uacr'].values - self.df['uacr'].mean()) / self.df['uacr'].std()
+        elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
+            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 1] = subject_data['gender'].values
+            eight_feat_names = ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+            for i, lab_name in enumerate(eight_feat_names):
+                features[:seq_length, 2 + i] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
+        elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+            # top 20 lab features with missingness indicators (40 features total)
+            lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
+                         'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc',
+                         'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
+            feat_idx = 0
+            for lab_name in lab_names:
+                features[:seq_length, feat_idx] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
+                features[:seq_length, feat_idx + 1] = subject_data[f'{lab_name}_missing'].values
+                feat_idx += 2
+
         mask[:seq_length] = 1
         
         time_to_event = subject_data['duration_in_days'].iloc[-1]
@@ -440,3 +464,6 @@ if __name__ == '__main__':
     #run(ExperimentScenario.EGFR_COMPONENTS)
     #run(ExperimentScenario.FIVELABMS)
     run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+    run(ExperimentScenario.FOUR_FEATURES)
+    run(ExperimentScenario.EIGHT_FEATURES)
+    run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)

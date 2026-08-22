@@ -96,6 +96,99 @@ additional model** alongside `cox`/`dynamic_deephit`/`hazard_transformer`/
 on Task A's confirmed 20-feature list, and `kfre.py`'s 8-variable branch depends on Task B's confirmed
 coefficients.
 
+### 1a-2. Multi-lab-source row merge design for `four_features`/`eight_features` (resolved 2026-08-21)
+
+## Problem
+
+No existing scenario merges multiple distinct lab-event sources into one row with real,
+non-missing, simultaneous values — every other multi-lab scenario (`heterogeneous`, `fivelabms`,
+`ckd_fifty_features_heterogeneous`) avoids this via missingness flags instead (one row = one lab type's
+event, everything else zeroed/flagged missing), which this scenario must not do.
+
+Two sub-problems fall out of this:
+1. **Row format.** KFRE (`risk_pred_core`) is a closed-form, point-in-time equation — one covariate
+   snapshot in, one 2yr/5yr risk out, no start/stop notion. Does that mean the extracted data needs a
+   non-time-variant format?
+2. **Repeat measurements.** A patient can have a lab (e.g. creatinine) drawn multiple times within one
+   admission. A naive "anchor once per admission" merge silently collapses those repeats into a single
+   row, losing signal and leaving "what happens on repeat measurement" answered by fiat rather than by a
+   stated rule.
+
+## Fix (with backing references)
+
+**Row format stays time-variant.** KFRE's formula is agnostic to row packaging and can be applied
+row-by-row, treating each row as its own landmark snapshot — consistent with the plan's existing
+description of `run_kfre_model` reusing `get_train_test_data(scenario)`'s output as-is. So: **keep the
+time-variant start/stop format**, unchanged from what `cox.py`/`dynamic_deephit.py`/
+`hazard_transformer.py`/`logistic_hazard.py`/`rnnsurv.py` already expect; `kfre.py` applies its
+closed-form equation to each row independently.
+
+**Merge strategy: anchor on each creatinine draw, bounded nearest-value window per lab type** — this is
+a well-studied problem (sparse, asynchronously-timed covariates in EHR-derived survival models), and the
+rule below follows established practice rather than an invented one:
+- **Anchor on each creatinine measurement** (restores per-event granularity, matching `EGFR_COMPONENTS`,
+  rather than one row per admission) — compute eGFR from it; this is the row's anchor time.
+- **Calcium, phosphate, bicarbonate, serum_albumin** (`eight_features` only, routinely drawn on the same
+  chemistry panel as creatinine): nearest value to the anchor, **within ±24 hours**. Backed by APACHE II
+  (Knaus WA, Draper EA, Wagner DP, Zimmerman JE. "APACHE II: A Severity of Disease Classification
+  System." *Critical Care Medicine*. 1985;13(10):818-829), which treats all labs drawn in a patient's
+  first 24 hours as one physiologic snapshot — including serum creatinine, sodium, and potassium, the
+  same chemistry panel as here. 48h was considered and rejected: every 48h convention found means
+  something different from "concurrent snapshot" — KDIGO AKI staging uses 48h as a *change-detection*
+  window (creatinine rising ≥0.3 mg/dL *within* 48h, the opposite concept), and the MIMIC-III benchmark
+  (Harutyunyan et al., 2019) uses 48h as a *total lookback observation horizon*, not a matching
+  tolerance. No 48h convention analogous to APACHE II's use was found. (The window length itself has no
+  single universal number — a systematic review of 92 EHR temporal-modeling studies, Yang et al.,
+  "Assessment of Prediction Tasks and Time Window Selection in Temporal Modeling of Electronic Health
+  Record Data," PMC10449760, 2023, found window length is consistently chosen per-application; the
+  literature's requirement is *that* a bounded window is used and stated, not a specific figure — 24h is
+  the one number here that does have direct backing, via APACHE II above.)
+- **uACR** (a separately-ordered urine test): nearest value to the anchor. **Originally bounded to
+  the same hospital admission** — precedent: Tangri et al. 2016 (`JAMA` 315(2):164-174 — the same
+  paper used for the 8-variable coefficients) documents this exact problem for KFRE itself, since
+  several of its 31 validation cohorts are real-world EHR data; eAppendix 1 states the resolution
+  used for one such cohort verbatim: *"Geisinger: ... Covariates obtained most closely to index date
+  within a past year were included in models."* — nearest value to a reference time, bounded by an
+  explicit lookback window, not unbounded reuse. General framework: landmarking methodology (van
+  Houwelingen, "Dynamic Prediction by Landmarking in Event History Analysis," 2007; Putter & van
+  Houwelingen, "Landmarking 2.0," *Statistics in Medicine*, 2022) is the standard way to turn sparse,
+  time-varying covariates into fixed values at chosen landmark times; recent EHR work applying it (Hu
+  et al., arXiv:2204.05870, 2022) shows plain *unbounded* last-observation-carried-forward is biased
+  in sparse EHR settings, supporting a bounded window over reuse across an entire multi-week admission.
+  **Loosened after the 1c-0 pilot** (2026-08-21): the same-admission bound caused 96.5% patient
+  attrition (34,332 → 1,220 for `four_features`), disproportionately dropping ESRD-negative patients
+  (0.8% retained vs. 3.8% for ESRD-positive), skewing the extracted cohort's outcome rate from the
+  source population's 91.9% positive to 98.2% positive — see the 1c-0 report for the full numbers.
+  Per user direction, the uACR match is now bounded to the **patient's whole history**
+  (`by='subject_id'` instead of `by='hadm_id'` in `merge_nearest_within_admission`) rather than one
+  admission, trading the tighter same-encounter simultaneity guarantee for a workable cohort size.
+  This reintroduces some of the unbounded-LOCF bias risk noted above (a uACR reading could now be
+  reused across admissions months or years apart) — a known, accepted tradeoff, not an oversight.
+- **Drop, don't flag.** If any required lab has no qualifying value within its window, that
+  creatinine-draw row is dropped entirely — no partial rows, no missingness flags.
+- **One row per qualifying creatinine draw.** A patient monitored multiple times in one admission
+  correctly yields multiple rows, each independently paired with its nearest in-window value of each
+  other required lab — so a sparser lab like uACR may legitimately be reused (nearest-value) across
+  several same-admission rows. Expected under the landmarking framework above, not a bug.
+
+**Example rows** (`four_features`; column order matches `get_final_columns`:
+`subject_id, duration_in_days, start, stop, age, gender, egfr, uacr, has_esrd`). Subject 10023567 has 2
+creatinine draws in one admission but only 1 uACR draw that admission, so the same uACR value is
+correctly reused across both rows:
+
+| subject_id | duration_in_days | start | stop | age | gender | egfr | uacr | has_esrd |
+|---|---|---|---|---|---|---|---|---|
+| 10023567 | 412.3 | 412.3 | 415.1 | 67 | 1 | 34.2 | 320.5 | 0 |
+| 10023567 | 415.1 | 415.1 | 630.8 | 67 | 1 | 31.8 | 320.5 | 0 |
+
+Two creatinine draws 2.8 days apart in the same admission each anchor their own row; both pair with the
+admission's single uACR draw (320.5 mg/g), the nearest — and only — qualifying value for both anchors;
+eGFR differs between rows (34.2 vs 31.8) reflecting the actual change in kidney function over 2.8 days;
+`has_esrd=0` throughout since the patient wasn't yet diagnosed as of either row.
+
+`eight_features` is the same shape with `calcium, phosphate, bicarbonate, serum_albumin` added before
+`has_esrd` (e.g. `..., calcium=8.9, phosphate=4.2, bicarbonate=23, serum_albumin=3.6, has_esrd=0`).
+
 ### 1b. Code changes (per scenario, following the `egfr_components` / `ckd_fifty_features_heterogeneous` pattern)
 1. [pkgs/commons.py](pkgs/commons.py): add `lab_codes_uacr` (new constant, `lab_codes_albumin` left untouched); add path constants
    (`four_features_train_data_path`, `four_features_test_data_path`, `four_features_*_model_path` for
@@ -123,7 +216,111 @@ coefficients.
    calculator + evaluation (`assert scenario in [FOUR_FEATURES, EIGHT_FEATURES]`), using Task B's
    cited coefficients — see "KFRE baseline model" section above.
 
-### 1c. Data extraction commands (background, per rep, reusing existing scripts): parallel
+### 1c-0. Pilot extraction (rep1 only) + cohort analysis — approval gate before full 1c
+
+Before committing to 5 parallel background extraction runs (1c), run the same extraction **once, for
+rep1 only**: `CKD_REP=1 python -m pkgs.data_analysis.model_data_store` (same 1c extraction command,
+rep1 only) — then produce the cohort analysis report below and stop for user approval before scaling
+out.
+
+**Proposed data analysis** (`generated_data/rep1/<scenario>_cohort_flow_report.txt`, one per new
+scenario) — one table, source cohort vs. final extracted cohort as the two columns:
+
+| Analysis | Why | Reference |
+|---|---|---|
+| n (patients), records | Baseline count needed before any other stat means anything; shows attrition from the merge design | Major et al. 2019, *PLOS Medicine*, Table 1 ("n" row); STROBE (von Elm et al. 2007, *Lancet*) item 13(a) |
+| % male | Standard demographic in every KFRE-adjacent cohort table | Major et al. 2019, Table 1 ("Female" row) |
+| Mean age, years (SD) | Standard demographic; age is a KFRE predictor | Major et al. 2019, Table 1 |
+| Mean / median eGFR (SD / IQR) | Core KFRE predictor; reported both ways in the source literature | Major et al. 2019, Table 1 |
+| Mean / median uACR (SD / IQR) | Core KFRE predictor; heavily right-skewed, mean/SD alone would mislead | Major et al. 2019, Table 1 |
+| `eight_features` only: mean (SD) calcium, phosphate, bicarbonate, serum_albumin | The 4 additional 8-variable KFRE predictors | Tangri et al. 2016, *JAMA* supplement, eTable 1 |
+| Mean / median follow-up, years (SD / IQR) | Standard cohort-study reporting | Major et al. 2019, Table 1; STROBE item 14(c) |
+| Mean / median time-to-ESRD, years (SD / IQR), ESRD-positive subgroup | Same | Major et al. 2019, Table 1 |
+| ESRD events (count) and incidence rate per 1,000 person-years (95% CI) | More informative than a raw percentage; standard epidemiological outcome reporting | Major et al. 2019, Table 1 |
+
+Putting source cohort and final extracted cohort in the same table, side by side, is itself the check
+for whether the merge selects a systematically different population (age, severity, outcome rate) —
+no separate comparison section needed, per the same Table 1's own two-column structure (their cohort
+vs. the UK-based CRIB/GLOMMS-1 cohorts).
+
+Not included, and why: a standalone missing-data table (`four_features`/`eight_features` are already
+filtered to complete cases by construction, same as Major et al.'s eligibility criteria — nothing new
+to report); comorbidities such as cardiovascular disease/heart failure/hypertension/diabetes (this
+repo's scenarios don't extract those fields at all, so they can't be reported).
+
+The source-cohort baseline is `get_time_series_data_ckd_patients`'s actual population (CKD stage 3-5
+diagnosis code **OR** ESRD diagnosis code, 34,332 patients) — not `get_ckd_patients_and_diagnoses
+(late_stage=True)` (Task A's function), which filters CKD-3-5 codes only and undercounts to 10,179; see
+the interim-finding note in EXPERIMENT_STATUS.md for how this was caught.
+
+**Approval gate: do not proceed to full 1c (5-rep parallel extraction), nor implement the analysis
+above, until the user has reviewed this section and approved.**
+
+### 1c-0 result: are the extracted cohort sizes sufficient? (researched 2026-08-21)
+
+The pilot's final `rep1` cohorts (patient-level, from the cohort-flow reports above) are **2,809
+patients / 26,829 records** for `four_features` and **1,213 patients / 5,407 records** for
+`eight_features`. Rather than judge this by feel, checked against the actual KFRE literature and a
+standard statistical adequacy rule — conclusion: **sufficient, not undersized, by the standards of
+this specific field.**
+
+**1. The original derivation study itself** (Tangri et al. 2011, JAMA — the same paper whose
+coefficients this repo uses) trained/validated on: development cohort 3,449 patients (386 events,
+11%), validation cohort 4,942 patients (1,177 events, 24%). Our `four_features` (2,809) is ~80% the
+size of that development cohort; `eight_features` (1,213) is about a third of it — smaller, but the
+same order of magnitude as the study that produced the equation being benchmarked against.
+
+**2. The 2016 multinational validation study's own per-cohort sample sizes for the 8-variable KFRE**
+(eAppendix 1, section 1.5, of the same Tangri et al. 2016 JAMA supplement already used for the
+coefficients — see the KFRE baseline model section above) — the most directly comparable data, since
+it's the identical equation evaluated across 31 real-world cohorts of widely varying size:
+
+| Cohort | N (8-variable analysis) |
+|---|---|
+| KPNW | 317 |
+| CRIB | 263 |
+| Geisinger | 414 |
+| CCF ACR | 565 |
+| MASTERPLAN | 568 |
+| Mt Sinai BioMe | 625 |
+| AASK | 898 |
+| NephroTest | 1,205 |
+| RENAAL | 1,409 |
+| MDRD | 1,414 |
+| Sunnybrook | 1,508 |
+| SRR-CKD | 1,694 |
+| CRIC | 2,896 |
+| BC CKD | 10,917 |
+| ICES-KDT | 12,955 |
+
+9 of these 15 published, peer-reviewed cohorts are smaller than `eight_features`'s 1,213 (several far
+smaller: 263–625), and `four_features`'s 2,809 lands mid-range, close to CRIC's 2,896. A published
+KFRE validation study running on 263–625 patients is direct precedent that cohorts this size are
+usable in this literature.
+
+**3. An external KFRE validation study** (UK kidney transplant recipients, *BMC Nephrology* 2021, doi
+10.1186/s12882-021-02259-4) used just 415 patients total — smaller than either of ours — and was
+published without the N itself being treated as disqualifying.
+
+**4. Events-per-variable (EPV) rule** (Peduzzi P, Concato J, Kemper E, Holford TR, Feinstein AR. "A
+Simulation Study of the Number of Events per Variable in Logistic Regression Analysis." *J Clin
+Epidemiol*. 1996;49(12):1373-1379 — ~7,900 citations, the standard reference for regression
+sample-size adequacy): minimum 10 events per predictor variable for stable coefficient estimates.
+Applying it with the patient-level ESRD-positive counts from the cohort-flow reports:
+- `four_features`: 2,346 positive patients / 4 variables = **EPV ≈ 587** (59x the minimum)
+- `eight_features`: 1,032 positive patients / 8 variables = **EPV ≈ 129** (13x the minimum)
+
+Both comfortably clear EPV≥10.
+
+**Caveat.** EPV≥10 is a classical-regression (logistic/Cox) heuristic; it directly validates the
+closed-form KFRE benchmark (`kfre.py`) and the `cox.py` model, but has no established equivalent for
+the more data-hungry models this repo also trains on the same data (`dynamic_deephit`,
+`hazard_transformer`, `logistic_hazard`, `rnnsurv`) — more data is generically better for those than
+the EPV floor implies. `eight_features` (1,213 patients) is the one to watch most closely once Stage
+2's mini-experiment runs — not because it's unpublishable-small by KFRE-literature standards, but
+because the neural models may be more N-sensitive than the closed-form benchmark.
+
+### 1c. Data extraction (background, per rep, reusing existing scripts): parallel
 
 **No new shell scripts.** Reuse what's already there:
 - [pkgs/scripts/run_ckd_fifty_features_extraction.sh](pkgs/scripts/run_ckd_fifty_features_extraction.sh) already
@@ -161,7 +358,7 @@ coefficients.
 - Run `pkgs/scripts/run_rep.sh 99` to sanity-check the full pipeline (3 new scenarios × 5 ML models, plus
   `kfre` for `four_features`/`eight_features`) end-to-end before committing to full 5-rep runs.
 
-## Stage 2.1: Cohort/feature-importance analysis
+## Stage 2.1: Feature-importance analysis
 - Extend [pkgs/data_analysis/feature_importance_analysis.py](pkgs/data_analysis/feature_importance_analysis.py)
   with `analyze_four_features`/`analyze_eight_features`/`analyze_twenty_features` methods mirroring
   `analyze_egfr_components`/`analyze_fivelabms` (SHAP-based importance per model, using the rep99 or rep1

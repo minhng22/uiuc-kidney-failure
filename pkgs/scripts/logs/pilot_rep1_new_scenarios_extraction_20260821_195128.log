@@ -1,0 +1,115 @@
+=== Starting ExperimentScenario.FOUR_FEATURES at 2026-08-21 19:51:31 ===
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Sample patients with esrd: [10000764 10000980 10001338 10001401 10001877 10001884 10002013 10002131
+ 10002155 10002428]
+Number of patients progressed from ckd stage 3-5 to esrd are 31542 over 34332, accounts for 91.873%
+Number of patients who have not progressed to esrd are 2790 over 34332, accounts for 8.127%
+Processing patients who have not progressed to ESRD:
+Number of patients: 2790
+Stats on patients:
+Total patients: 2790
+Dead patients: 2057
+Alive patients: 733
+COHORT_FLOW|four_features|source_population|patients=2790|records=2790
+COHORT_FLOW|four_features|has_egfr_admission_linked|patients=2711|records=30974
+COHORT_FLOW|four_features|has_qualifying_uacr|patients=22|records=289
+Finished getting raw lab records for scenario: ExperimentScenario.FOUR_FEATURES
+      labevent_id  subject_id     hadm_id  ...       egfr serum_creatinine    uacr
+621   102905126.0    18695188  21674264.0  ...  65.056595              1.2    20.8
+622   102905164.0    18695188  21674264.0  ...  72.216694              1.1    20.8
+623   102905181.0    18695188  21674264.0  ...  65.056595              1.2    20.8
+2392   64920822.0    15488435  26427635.0  ...  55.207853              1.0  4388.5
+2394   64920861.0    15488435  26427635.0  ...  44.359165              1.2  4388.5
+
+[5 rows x 24 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'uacr']
+Number of patients after filtering out NaN duration_in_days: 22
+Records sample:
+      subject_id                time  has_esrd
+621     18695188 2113-05-08 05:45:00         0
+622     18695188 2113-05-09 06:40:00         0
+623     18695188 2113-05-10 06:40:00         0
+2392    15488435 2118-12-12 06:00:00         0
+2394    15488435 2118-12-12 15:20:00         0
+Stats on eGFR:
+Number of records: 289. Number of patients: 22
+mean 33.822 sd 19.972
+Processing patients who have progressed to ESRD:
+Number of patients: 31542
+Number of patients with ESRD: 31542
+first time having ESRD df:
+    subject_id first_diagnose_esrd_time
+0    10000764      2132-10-14 23:31:00
+1    10000980      2191-04-03 18:48:00
+2    10001338      2138-05-09 19:47:00
+3    10001401      2131-06-19 21:32:00
+4    10001877      2150-11-21 23:02:00
+Number of patients: 31542
+Number of patients after drop n/a: 31542
+Stats on patients:
+Total patients: 31542
+Dead patients: 18351
+Alive patients: 13191
+COHORT_FLOW|four_features|source_population|patients=31542|records=31542
+COHORT_FLOW|four_features|has_egfr_admission_linked|patients=31386|records=1039262
+COHORT_FLOW|four_features|has_qualifying_uacr|patients=1198|records=25303
+Finished getting raw lab records for scenario: ExperimentScenario.FOUR_FEATURES
+     labevent_id  subject_id     hadm_id  ...       egfr serum_creatinine  uacr
+402   18832178.0    11607586  21292841.0  ...  71.323983              1.1  25.0
+413   18832195.0    11607586  21292841.0  ...  71.323983              1.1  25.0
+420   18832228.0    11607586  21292841.0  ...  64.252394              1.2  25.0
+439   18832251.0    11607586  21292841.0  ...  53.401464              1.4  25.0
+446   18832280.0    11607586  21292841.0  ...  45.494912              1.6  25.0
+
+[5 rows x 24 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'uacr']
+Number of patients after merging: 1198
+
+Number of ESRD who have lab records at or prior to their esrd diagnose: 306
+Number of patients after filtering out records after the first 'has_esrd' == 1: 306
+Number of records: 521. Records sample:
+       subject_id                time  has_esrd first_diagnose_esrd_time
+7482     10039708 2140-01-23 19:14:00         1      2140-01-23 16:19:00
+7483     10039708 2140-01-23 23:51:00         1      2140-01-23 16:19:00
+8301     10046241 2142-05-19 21:20:00         1      2142-05-19 17:36:00
+10173    10065015 2149-03-03 15:05:00         0      2149-03-04 00:41:00
+10177    10065015 2149-03-04 06:30:00         1      2149-03-04 00:41:00
+Stats on eGFR:
+Number of records: 521. Number of patients: 306
+mean 40.990 sd 30.324
+After merge:
+Total number of patients: 328
+Total number of records: 810
+add_time_variant_support cols:  ['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'uacr', 'has_esrd', 'duration_in_days', 'first_diagnose_esrd_time', 'start', 'stop']
+No subjects found with 'stop' < 'start'.
+Data: 
+   subject_id  duration_in_days     start  ...       egfr   uacr  has_esrd
+0    10039708          0.000000  0.000000  ...  27.316996  357.4         1
+1    10039708          0.192361  0.192361  ...  30.626979  357.4         1
+2    10046241          0.000000  0.000000  ...  21.478761  127.0         1
+3    10065015          0.000000  0.000000  ...  15.429875   67.3         0
+4    10065015          0.642361  0.642361  ...  25.099896   67.3         1
+
+[5 rows x 9 columns]
+Total number of patients: 328
+Total number of records: 810
+Number of patients: test 66 and train 262
+Number of records: test 147 and train 663
+=== Finished ExperimentScenario.FOUR_FEATURES in 727.7s ===
+=== Starting ExperimentScenario.EIGHT_FEATURES at 2026-08-21 20:03:39 ===
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Sample patients with esrd: [10000764 10000980 10001338 10001401 10001877 10001884 10002013 10002131
+ 10002155 10002428]
+Number of patients progressed from ckd stage 3-5 to esrd are 31542 over 34332, accounts for 91.873%
+Number of patients who have not progressed to esrd are 2790 over 34332, accounts for 8.127%
+Processing patients who have not progressed to ESRD:
+Number of patients: 2790
+Stats on patients:
+Total patients: 2790
+Dead patients: 2057
+Alive patients: 733
+COHORT_FLOW|eight_features|source_population|patients=2790|records=2790
+COHORT_FLOW|eight_features|has_egfr_admission_linked|patients=2711|records=30974
+COHORT_FLOW|eight_features|has_qualifying_uacr|patients=22|records=289

@@ -21,7 +21,7 @@ from pkgs.data_analysis.store import (get_egfr_df, get_first_time_esrd_df, get_p
                                        get_hba1c_df, get_ammonia_df, get_osmolality_df, get_lymphocytes_df,
                                        get_neutrophils_df, get_monocytes_df, get_basophils_df, get_eosinophils_df,
                                        get_pt_df, get_rdw_sd_df, get_lab_h_df, get_lab_l_df, get_lab_i_df,
-                                       get_urine_specific_gravity_df, get_urine_ph_df)
+                                       get_urine_specific_gravity_df, get_urine_ph_df, get_uacr_df)
 import pandas as pd
 from pkgs.data_analysis.types import ExperimentScenario
 import numpy as np
@@ -173,7 +173,36 @@ def process_negative_patients(patient_ids: any, scenario_name: ExperimentScenari
     
     return lab_df
 
+def merge_nearest_within_admission(anchor_df, other_df, value_col, tolerance=None, by='hadm_id'):
+    """Attach `value_col` from other_df onto anchor_df, matching each anchor row to the other_df
+    row with the nearest charttime, grouped by `by` (default: 'hadm_id', i.e. bounded to the same
+    hospital admission). Pass by='subject_id' to match across a patient's whole history instead -
+    used for uACR after the 1c-0 pilot showed the same-admission bound caused severe,
+    outcome-correlated attrition (96.5% of patients dropped, disproportionately ESRD-negative ones
+    - see EXPERIMENT_PLAN_DETAILS.md "1c-0" pilot findings). `tolerance` additionally bounds how
+    far apart (in time) a match may be - None means bounded only by the `by` grouping itself (no
+    separate time-window on top of that).
+
+    Design + literature backing (Tangri et al. 2016 JAMA eAppendix 1's Geisinger cohort precedent;
+    APACHE II's 24h-window convention for chemistry-panel labs; landmarking methodology for sparse
+    time-varying covariates) is recorded in EXPERIMENT_PLAN_DETAILS.md, section "1a-2"."""
+    left = anchor_df.copy()
+    left['charttime'] = pd.to_datetime(left['charttime'])
+    left = left.sort_values('charttime')
+
+    right = other_df[[by, 'charttime', value_col]].dropna(subset=[by, 'charttime', value_col]).copy()
+    right['charttime'] = pd.to_datetime(right['charttime'])
+    right = right.sort_values('charttime')
+
+    merged = pd.merge_asof(left, right, on='charttime', by=by, direction='nearest', tolerance=tolerance)
+    return merged
+
 def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenario):
+    if scenario_name in [ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES, ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS]:
+        # Source-population marker for pkgs/data_analysis/cohort_flow_analysis.py (see
+        # EXPERIMENT_PLAN_DETAILS.md "1c-0") - this is the pre-lab-filtering CKD stage 3-5
+        # cohort (one of the ESRD-positive/negative halves; the two calls per rep sum to the total).
+        print(f'COHORT_FLOW|{scenario_name.value}|source_population|patients={patients["subject_id"].nunique()}|records={len(patients)}')
     if scenario_name == ExperimentScenario.TIME_VARIANT or scenario_name == ExperimentScenario.NON_TIME_VARIANT:
         lab_df = get_egfr_df(patients)
     elif scenario_name == ExperimentScenario.HETEROGENEOUS:
@@ -316,6 +345,81 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
             lab_dfs.append(lab_df_temp)
         
         lab_df = pd.concat(lab_dfs)
+    elif scenario_name == ExperimentScenario.FOUR_FEATURES or scenario_name == ExperimentScenario.EIGHT_FEATURES:
+        # age, gender, egfr, uacr (+ calcium, phosphate, bicarbonate, serum_albumin for
+        # EIGHT_FEATURES). No missingness flags - like EGFR_COMPONENTS - real simultaneous values
+        # only. Merge design + literature backing (anchor on each creatinine draw; uACR matched
+        # nearest-value across the patient's whole history - loosened from same-admission after the
+        # 1c-0 pilot showed that bound caused severe, outcome-correlated attrition; chemistry-panel
+        # labs matched nearest-value within +/-24h, per APACHE II's same-panel-snapshot convention)
+        # recorded in EXPERIMENT_PLAN_DETAILS.md, section "1a-2".
+        def log_cohort_flow_stage(stage_name, df):
+            # Parseable by pkgs/data_analysis/cohort_flow_analysis.py - see EXPERIMENT_PLAN_DETAILS.md "1c-0".
+            print(f'COHORT_FLOW|{scenario_name.value}|{stage_name}|patients={df["subject_id"].nunique()}|records={len(df)}')
+
+        egfr_df = get_egfr_df(patients)
+        egfr_df = egfr_df.dropna(subset=['hadm_id'])
+        egfr_df['gender'] = egfr_df['gender'].map({'M': 1, 'F': 0})
+        log_cohort_flow_stage('has_egfr_admission_linked', egfr_df)
+
+        uacr_df = get_uacr_df(patients)
+        lab_df = merge_nearest_within_admission(egfr_df, uacr_df, 'uacr', tolerance=None, by='subject_id')
+        lab_df = lab_df.dropna(subset=['uacr'])
+        log_cohort_flow_stage('has_qualifying_uacr', lab_df)
+
+        if scenario_name == ExperimentScenario.EIGHT_FEATURES:
+            chem_panel_window = pd.Timedelta(hours=24)
+            for lab_name, lab_func in [
+                ('calcium', get_calcium_df), ('phosphate', get_phosphate_df),
+                ('bicarbonate', get_bicarbonate_df), ('serum_albumin', get_serum_albumin_df),
+            ]:
+                lab_df = merge_nearest_within_admission(lab_df, lab_func(patients), lab_name, tolerance=chem_panel_window)
+                lab_df = lab_df.dropna(subset=[lab_name])
+                log_cohort_flow_stage(f'has_qualifying_{lab_name}', lab_df)
+    elif scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+        # Top 20 most common CKD->ESRD lab features, by frequency, per Task A's confirmed ranking
+        # (generated_data/rep1/twenty_features_lab_analysis_report.txt). Same heterogeneous
+        # missingness-flag pattern as CKD_FIFTY_FEATURES_HETEROGENEOUS, just a 20-item subset; item
+        # #1 (Creatinine) is represented as 'egfr' (computed via get_egfr_df), matching that
+        # scenario's convention, rather than raw serum_creatinine.
+        all_labs = [
+            'egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap',
+            'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc', 'mch', 'rbc', 'mcv', 'rdw',
+            'glucose', 'calcium', 'magnesium', 'phosphate'
+        ]
+
+        egfr_df = get_egfr_df(patients)
+        missing_cols = {f'{lab}_missing': (0 if lab == 'egfr' else 1) for lab in all_labs}
+        value_cols = {lab: 0 for lab in all_labs if lab != 'egfr'}
+        egfr_df = pd.concat([egfr_df, pd.DataFrame({**missing_cols, **value_cols}, index=egfr_df.index)], axis=1)
+
+        print('number of patients with egfr:', egfr_df['subject_id'].nunique())
+        print('number of records with egfr:', len(egfr_df))
+
+        lab_dfs = [egfr_df]
+        lab_functions = [
+            ('potassium', get_potassium_df), ('urea_nitrogen', get_urea_nitrogen_df),
+            ('sodium', get_sodium_df), ('chloride', get_chloride_df),
+            ('bicarbonate', get_bicarbonate_df), ('anion_gap', get_anion_gap_df),
+            ('hematocrit', get_hematocrit_df), ('platelet_count', get_platelet_count_df),
+            ('hemoglobin', get_hemoglobin_df), ('wbc', get_wbc_df), ('mchc', get_mchc_df),
+            ('mch', get_mch_df), ('rbc', get_rbc_df), ('mcv', get_mcv_df), ('rdw', get_rdw_df),
+            ('glucose', get_glucose_df), ('calcium', get_calcium_df), ('magnesium', get_magnesium_df),
+            ('phosphate', get_phosphate_df),
+        ]
+
+        for lab_name, lab_func in lab_functions:
+            lab_df_temp = lab_func(patients)
+            missing_cols = {f'{lab}_missing': (0 if lab == lab_name else 1) for lab in all_labs}
+            value_cols = {lab: 0 for lab in all_labs if lab != lab_name}
+            lab_df_temp = pd.concat([lab_df_temp, pd.DataFrame({**missing_cols, **value_cols}, index=lab_df_temp.index)], axis=1)
+
+            print(f'number of patients with {lab_name}:', lab_df_temp['subject_id'].nunique())
+            print(f'number of records with {lab_name}:', len(lab_df_temp))
+            lab_dfs.append(lab_df_temp)
+
+        lab_df = pd.concat(lab_dfs)
+        print(f'COHORT_FLOW|{scenario_name.value}|has_any_of_20_labs|patients={lab_df["subject_id"].nunique()}|records={len(lab_df)}')
     else:
         assert scenario_name == ExperimentScenario.EGFR_COMPONENTS, f"Unknown scenario name: {scenario_name}"
         lab_df = get_egfr_df(patients)
@@ -351,6 +455,16 @@ def get_feature_columns(scenario):
             'ptt', 'crp', 'ferritin', 'transferrin', 'tibc', 'lymphocytes', 'neutrophils',
             'monocytes', 'basophils', 'eosinophils', 'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
             'urine_specific_gravity', 'urine_ph', 'ph'
+        ]
+    elif scenario == ExperimentScenario.FOUR_FEATURES:
+        return ['age', 'gender', 'egfr', 'uacr']
+    elif scenario == ExperimentScenario.EIGHT_FEATURES:
+        return ['age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+    elif scenario == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+        return [
+            'egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap',
+            'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc', 'mch', 'rbc', 'mcv', 'rdw',
+            'glucose', 'calcium', 'magnesium', 'phosphate'
         ]
 
 def add_time_variant_support(df):
@@ -478,7 +592,35 @@ def get_time_series_data_ckd_patients(scenario: ExperimentScenario):
                           'ph', 'ph_missing',
                           'has_esrd']
         lab_df = add_time_variant_support(lab_df)[ckd_fifty_cols]
-    
+    elif scenario == ExperimentScenario.FOUR_FEATURES:
+        lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']]
+    elif scenario == ExperimentScenario.EIGHT_FEATURES:
+        lab_df = add_time_variant_support(lab_df)[['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin', 'has_esrd']]
+    elif scenario == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+        twenty_cols = ['subject_id', 'duration_in_days', 'start', 'stop',
+                       'egfr', 'egfr_missing',
+                       'potassium', 'potassium_missing',
+                       'urea_nitrogen', 'urea_nitrogen_missing',
+                       'sodium', 'sodium_missing',
+                       'chloride', 'chloride_missing',
+                       'bicarbonate', 'bicarbonate_missing',
+                       'anion_gap', 'anion_gap_missing',
+                       'hematocrit', 'hematocrit_missing',
+                       'platelet_count', 'platelet_count_missing',
+                       'hemoglobin', 'hemoglobin_missing',
+                       'wbc', 'wbc_missing',
+                       'mchc', 'mchc_missing',
+                       'mch', 'mch_missing',
+                       'rbc', 'rbc_missing',
+                       'mcv', 'mcv_missing',
+                       'rdw', 'rdw_missing',
+                       'glucose', 'glucose_missing',
+                       'calcium', 'calcium_missing',
+                       'magnesium', 'magnesium_missing',
+                       'phosphate', 'phosphate_missing',
+                       'has_esrd']
+        lab_df = add_time_variant_support(lab_df)[twenty_cols]
+
     lab_df.reset_index(drop=True, inplace=True)
 
     print(f"Data: \n{lab_df.head()}\n"
@@ -549,6 +691,33 @@ def get_final_columns(scenario):
                 'urine_specific_gravity', 'urine_specific_gravity_missing',
                 'urine_ph', 'urine_ph_missing',
                 'ph', 'ph_missing',
+                'has_esrd']
+    elif scenario == ExperimentScenario.FOUR_FEATURES:
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']
+    elif scenario == ExperimentScenario.EIGHT_FEATURES:
+        return ['subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin', 'has_esrd']
+    elif scenario == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
+        return ['subject_id', 'duration_in_days', 'start', 'stop',
+                'egfr', 'egfr_missing',
+                'potassium', 'potassium_missing',
+                'urea_nitrogen', 'urea_nitrogen_missing',
+                'sodium', 'sodium_missing',
+                'chloride', 'chloride_missing',
+                'bicarbonate', 'bicarbonate_missing',
+                'anion_gap', 'anion_gap_missing',
+                'hematocrit', 'hematocrit_missing',
+                'platelet_count', 'platelet_count_missing',
+                'hemoglobin', 'hemoglobin_missing',
+                'wbc', 'wbc_missing',
+                'mchc', 'mchc_missing',
+                'mch', 'mch_missing',
+                'rbc', 'rbc_missing',
+                'mcv', 'mcv_missing',
+                'rdw', 'rdw_missing',
+                'glucose', 'glucose_missing',
+                'calcium', 'calcium_missing',
+                'magnesium', 'magnesium_missing',
+                'phosphate', 'phosphate_missing',
                 'has_esrd']
 
 def get_data_with_null_analyze():
