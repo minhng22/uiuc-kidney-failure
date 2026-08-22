@@ -13,7 +13,8 @@ from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard
                           egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path,
                           heterogen_impute_logistic_hazard_model_path, ckd_fifty_features_heterogeneous_logistic_hazard_model_path,
                           four_features_logistic_hazard_model_path, eight_features_logistic_hazard_model_path,
-                          twenty_features_heterogeneous_logistic_hazard_model_path)
+                          twenty_features_heterogeneous_logistic_hazard_model_path,
+                          ckd_fifty_features_heterogeneous_train_data_path)
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
@@ -321,7 +322,16 @@ if __name__ == '__main__':
     # run(ExperimentScenario.HETEROGENEOUS)
     # run(ExperimentScenario.EGFR_COMPONENTS)
     # run(ExperimentScenario.HETEROGENEOUS_IMPUTE)
-    run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+    # Guard: skip if this rep's CKD_FIFTY_FEATURES_HETEROGENEOUS train data
+    # doesn't exist yet (e.g. mid schema-migration, or a mini-experiment rep
+    # that deliberately didn't build it) — otherwise get_train_test_data()
+    # silently falls through to a full raw MIMIC extraction from
+    # labevents.csv instead of erroring. See CLAUDE.md "Check a script's
+    # actual entry point before running it as an experiment".
+    if os.path.exists(ckd_fifty_features_heterogeneous_train_data_path):
+        run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+    else:
+        print(f"Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
     run(ExperimentScenario.FOUR_FEATURES)
     run(ExperimentScenario.EIGHT_FEATURES)
     run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)

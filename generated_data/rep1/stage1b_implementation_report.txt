@@ -1,0 +1,36 @@
+Stage 1b: code changes — implementation report
+=================================================
+Status: done
+
+Per EXPERIMENT_PLAN_DETAILS.md Stage 1b, the following were changed to add
+FOUR_FEATURES / EIGHT_FEATURES / TWENTY_FEATURES_HETEROGENEOUS as scenarios
+throughout the pipeline:
+
+- pkgs/data_analysis/types.py: added the 3 new ExperimentScenario enum
+  values.
+- pkgs/commons.py: added `lab_codes_uacr`, and path constants for the 3 new
+  scenarios' train/test data + per-model artifact paths (cox / dynamic
+  deephit / hazard_transformer / logistic_hazard / rnnsurv).
+- pkgs/data_analysis/time_series_store.py: added `get_uacr_df`; added
+  scenario branches for raw-lab-fetch, `get_feature_columns`, and the final
+  column-selection block in `get_time_series_data_ckd_patients`.
+- pkgs/data_analysis/model_data_store.py: added `get_train_test_data`
+  branches for the 3 new scenarios (train/test split + CSV write).
+- pkgs/experiments/cox.py, dynamic_deephit.py, hazard_transformer.py,
+  logistic_hazard.py, rnnsurv.py: extended each `assert scenario in [...]`
+  allow-list and `get_model_path` switch; extended each file's
+  `if __name__ == '__main__':` block to also call the 3 new scenarios
+  (alongside the pre-existing CKD_FIFTY_FEATURES_HETEROGENEOUS call — see
+  the Stage 2 report for a footgun this caused and its fix).
+- New file pkgs/experiments/kfre.py: closed-form 4-/8-variable KFRE risk
+  calculator + evaluation (`assert scenario in [FOUR_FEATURES,
+  EIGHT_FEATURES]`), coefficients cited per
+  generated_data/rep1/kfre_8variable_coefficients_report.txt. Added to
+  `run_rep.sh`'s EXPERIMENTS array.
+
+Smoke test (against rep1 full data, before the 1c-0 pilot extraction
+existed in its final form):
+  four_features:  C-index 0.688, AUC 0.690
+  eight_features: C-index 0.637, Brier 0.396, AUC 0.663
+Risk-score cache files (`<scenario>_kfre_2yr_risk_scores.csv`) written
+under generated_data/rep1/.

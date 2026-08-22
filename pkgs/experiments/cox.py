@@ -6,7 +6,7 @@ from lifelines.utils import concordance_index
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 
-from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path, ckd_fifty_features_heterogeneous_cox_model_path, four_features_cox_model_path, eight_features_cox_model_path, twenty_features_heterogeneous_cox_model_path
+from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path, ckd_fifty_features_heterogeneous_cox_model_path, four_features_cox_model_path, eight_features_cox_model_path, twenty_features_heterogeneous_cox_model_path, ckd_fifty_features_heterogeneous_train_data_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
@@ -139,8 +139,18 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
-    print("\nRunning CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...")
-    run_cox_model(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+    # Guard: CKD_FIFTY_FEATURES_HETEROGENEOUS's train data may not exist yet for
+    # the current CKD_REP (e.g. mid schema-migration, or a rep99-style
+    # mini-experiment that deliberately didn't build it). Without this check,
+    # get_train_test_data() would silently fall through to a full raw MIMIC
+    # extraction from labevents.csv instead of erroring — an expensive,
+    # unrelated side effect. See CLAUDE.md "Check a script's actual entry
+    # point before running it as an experiment".
+    if os.path.exists(ckd_fifty_features_heterogeneous_train_data_path):
+        print("\nRunning CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...")
+        run_cox_model(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
+    else:
+        print(f"\nSkipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
     print("\nRunning FOUR_FEATURES Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.FOUR_FEATURES)
     print("\nRunning EIGHT_FEATURES Cox model evaluation with time-dependent AUC...")

@@ -1,0 +1,50 @@
+Stage 1c-0: pilot extraction (rep1) + cohort-flow analysis — report
+======================================================================
+Status: done, approved by user 2026-08-21
+
+Background processes (historical)
+----------------------------------
+| PID | Host | Launch command | Log | Start | Status |
+|---|---|---|---|---|---|
+| 1027916/1027933 (superseded) | sunlab-serv-01.cs.illinois.edu | same-admission uACR window design | pkgs/scripts/logs/pilot_rep1_new_scenarios_extraction_20260821_195128.log | 2026-08-21 19:51 CDT | killed — four_features finished under the old design and showed severe, outcome-correlated attrition; killed before eight_features/twenty_features_heterogeneous completed so the fix below could apply to all three. Stale four_features_{train,test}_data.csv renamed to *.old_same_admission_uacr_bak_20260821_2012.csv, not deleted. |
+| 1032596 | sunlab-serv-01.cs.illinois.edu | `CKD_REP=1 python -c "..."` — get_train_test_data for FOUR_FEATURES/EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS in sequence, uACR matching loosened to whole-patient-history (by='subject_id' not 'hadm_id', per user direction, see EXPERIMENT_PLAN_DETAILS.md "1a-2") | pkgs/scripts/logs/pilot_rep1_new_scenarios_extraction_v2_20260821_201233.log | 2026-08-21 20:12 CDT | finished cleanly (all 3 scenarios, ~2h1m total: four_features 12.3min, eight_features 34.6min, twenty_features_heterogeneous 120.4min) |
+
+Deliberately did NOT run model_data_store.py's full `__main__` (which also
+includes CKD_FIFTY_FEATURES_HETEROGENEOUS) because
+generated_data/rep1/ckd_fifty_features_heterogeneous_{train,test}_data.csv
+were (and still are, as of this writing) missing/renamed to
+*.old_schema_bak_20260820_192307.csv — another session's in-progress schema
+migration. Invoking the full `__main__` would have auto-regenerated that
+scenario's data too, an expensive, unrelated, and possibly-conflicting side
+effect (the same class of footgun later hit directly in Stage 2 — see that
+stage's report). Scoped this pilot to just the 3 new scenarios via a direct
+`get_train_test_data` call per scenario instead.
+
+Why same-admission uACR was loosened
+--------------------------------------
+Same-admission uACR bound (first pilot pass, PID 1027916/1027933) caused
+96.5% patient attrition (34,332 → 1,220 for four_features), disproportion-
+ately dropping ESRD-negative patients (0.8% retained vs. 3.8% for
+ESRD-positive), skewing the cohort's outcome rate from the source
+population's 91.9% positive to 98.2% positive. Per user direction, loosened
+to whole-patient-history matching (see EXPERIMENT_PLAN_DETAILS.md "1a-2"
+addendum for the full citation-backed rationale) and reran clean (PID
+1032596).
+
+Final rep1 cohorts (patient-level)
+-------------------------------------
+| Scenario | N patients (% of source) | N records | Outcome-positive rate (source: 91.87%) |
+|---|---|---|---|
+| four_features | 2,809 (8.18%) | 26,829 | 83.52% (−8.36 pts) |
+| eight_features | 1,213 (3.53%) | 5,407 | 85.08% (−6.80 pts) |
+| twenty_features_heterogeneous | 32,601 (94.96%) | 8,126,090 | 91.45% (−0.42 pts) |
+
+Table-1-style cohort-flow reports (per EXPERIMENT_PLAN_DETAILS.md "1c-0"'s
+approved analysis table):
+  generated_data/rep1/four_features_cohort_flow_report.txt
+  generated_data/rep1/eight_features_cohort_flow_report.txt
+  generated_data/rep1/twenty_features_heterogeneous_cohort_flow_report.txt
+
+Cohort-size adequacy assessment: see EXPERIMENT_PLAN_DETAILS.md "1c-0
+result" section (checked against Tangri et al. 2011/2016 cohort sizes and
+the EPV≥10 rule — both new-scenario cohorts judged sufficient).

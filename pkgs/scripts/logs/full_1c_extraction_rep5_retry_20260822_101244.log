@@ -13,3 +13,273 @@ Dead patients: 2057
 Alive patients: 733
 COHORT_FLOW|eight_features|source_population|patients=2790|records=2790
 COHORT_FLOW|eight_features|has_egfr_admission_linked|patients=2711|records=30974
+COHORT_FLOW|eight_features|has_qualifying_uacr|patients=463|records=6034
+COHORT_FLOW|eight_features|has_qualifying_calcium|patients=441|records=5364
+COHORT_FLOW|eight_features|has_qualifying_phosphate|patients=437|records=5299
+COHORT_FLOW|eight_features|has_qualifying_bicarbonate|patients=437|records=5298
+COHORT_FLOW|eight_features|has_qualifying_serum_albumin|patients=181|records=914
+Finished getting raw lab records for scenario: ExperimentScenario.EIGHT_FEATURES
+    labevent_id  subject_id     hadm_id  ...  phosphate bicarbonate serum_albumin
+25   64919932.0    15488435  26067245.0  ...        4.0        27.0           3.8
+26   64919959.0    15488435  26067245.0  ...        4.0        30.0           3.8
+29   64920067.0    15488435  29449385.0  ...        2.4        31.0           2.8
+31   64920093.0    15488435  29449385.0  ...        1.8        26.0           2.8
+32   64920119.0    15488435  29449385.0  ...        2.0        29.0           2.8
+
+[5 rows x 28 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+Number of patients after filtering out NaN duration_in_days: 181
+Records sample:
+    subject_id                time  has_esrd
+25    15488435 2113-08-29 13:00:00         0
+26    15488435 2113-08-30 08:45:00         0
+29    15488435 2113-09-05 05:00:00         0
+31    15488435 2113-09-05 19:37:00         0
+32    15488435 2113-09-06 05:58:00         0
+Stats on eGFR:
+Number of records: 914. Number of patients: 181
+mean 36.929 sd 26.243
+Processing patients who have progressed to ESRD:
+Number of patients: 31542
+Number of patients with ESRD: 31542
+first time having ESRD df:
+    subject_id first_diagnose_esrd_time
+0    10000764      2132-10-14 23:31:00
+1    10000980      2191-04-03 18:48:00
+2    10001338      2138-05-09 19:47:00
+3    10001401      2131-06-19 21:32:00
+4    10001877      2150-11-21 23:02:00
+Number of patients: 31542
+Number of patients after drop n/a: 31542
+Stats on patients:
+Total patients: 31542
+Dead patients: 18351
+Alive patients: 13191
+COHORT_FLOW|eight_features|source_population|patients=31542|records=31542
+COHORT_FLOW|eight_features|has_egfr_admission_linked|patients=31386|records=1039262
+COHORT_FLOW|eight_features|has_qualifying_uacr|patients=6035|records=293406
+COHORT_FLOW|eight_features|has_qualifying_calcium|patients=5986|records=275025
+COHORT_FLOW|eight_features|has_qualifying_phosphate|patients=5976|records=273584
+COHORT_FLOW|eight_features|has_qualifying_bicarbonate|patients=5976|records=273484
+COHORT_FLOW|eight_features|has_qualifying_serum_albumin|patients=4585|records=79229
+Finished getting raw lab records for scenario: ExperimentScenario.EIGHT_FEATURES
+    labevent_id  subject_id     hadm_id  ...  phosphate bicarbonate serum_albumin
+0    81601562.0    16904137  21081215.0  ...        3.0        23.0           2.1
+1    81601583.0    16904137  21081215.0  ...        2.8        21.0           2.1
+2    81601645.0    16904137  21081215.0  ...        3.5        24.0           2.1
+3    81601700.0    16904137  21081215.0  ...        4.0        25.0           2.1
+17   92030161.0    17784757  29383490.0  ...        3.4        26.0           3.6
+
+[5 rows x 28 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+Number of patients after merging: 4585
+
+Number of ESRD who have lab records at or prior to their esrd diagnose: 1032
+Number of patients after filtering out records after the first 'has_esrd' == 1: 1032
+Number of records: 4493. Records sample:
+       subject_id                time  has_esrd first_diagnose_esrd_time
+23204    10005749 2140-09-23 19:15:00         1      2140-09-23 17:59:00
+15236    10007920 2132-06-15 21:20:00         0      2138-12-04 16:52:00
+15240    10007920 2132-06-16 15:10:00         0      2138-12-04 16:52:00
+20996    10007920 2138-12-04 18:36:00         1      2138-12-04 16:52:00
+74824    10036086 2196-05-19 22:30:00         0      2196-05-20 02:47:00
+Stats on eGFR:
+Number of records: 4493. Number of patients: 1032
+mean 68.473 sd 36.403
+After merge:
+Total number of patients: 1213
+Total number of records: 5407
+add_time_variant_support cols:  ['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin', 'has_esrd', 'duration_in_days', 'first_diagnose_esrd_time', 'start', 'stop']
+No subjects found with 'stop' < 'start'.
+Data: 
+   subject_id  duration_in_days  ...  serum_albumin  has_esrd
+0    10005749          0.000000  ...            3.5         1
+1    10007920          0.000000  ...            3.8         0
+2    10007920          0.743056  ...            3.8         0
+3    10007920       2362.886111  ...            3.2         1
+4    10035780          0.000000  ...            3.4         0
+
+[5 rows x 13 columns]
+Total number of patients: 1213
+Total number of records: 5407
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+=== Finished ExperimentScenario.EIGHT_FEATURES in 2143.8 s ===
+=== Starting ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS ===
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/twenty_features_heterogeneous_test_data.csv
+Sample patients with esrd: [10000764 10000980 10001338 10001401 10001877 10001884 10002013 10002131
+ 10002155 10002428]
+Number of patients progressed from ckd stage 3-5 to esrd are 31542 over 34332, accounts for 91.873%
+Number of patients who have not progressed to esrd are 2790 over 34332, accounts for 8.127%
+Processing patients who have not progressed to ESRD:
+Number of patients: 2790
+Stats on patients:
+Total patients: 2790
+Dead patients: 2057
+Alive patients: 733
+COHORT_FLOW|twenty_features_heterogeneous|source_population|patients=2790|records=2790
+number of patients with egfr: 2782
+number of records with egfr: 55744
+number of patients with potassium: 2780
+number of records with potassium: 54015
+number of patients with urea_nitrogen: 2782
+number of records with urea_nitrogen: 54226
+number of patients with sodium: 2777
+number of records with sodium: 53144
+number of patients with chloride: 2778
+number of records with chloride: 52608
+number of patients with bicarbonate: 2773
+number of records with bicarbonate: 50467
+number of patients with anion_gap: 2773
+number of records with anion_gap: 50362
+number of patients with hematocrit: 2785
+number of records with hematocrit: 53591
+number of patients with platelet_count: 2785
+number of records with platelet_count: 51284
+number of patients with hemoglobin: 2778
+number of records with hemoglobin: 51032
+number of patients with wbc: 2778
+number of records with wbc: 50759
+number of patients with mchc: 2778
+number of records with mchc: 50457
+number of patients with mch: 2778
+number of records with mch: 50451
+number of patients with rbc: 2778
+number of records with rbc: 50451
+number of patients with mcv: 2778
+number of records with mcv: 50449
+number of patients with rdw: 2778
+number of records with rdw: 50440
+number of patients with glucose: 2769
+number of records with glucose: 43992
+number of patients with calcium: 2674
+number of records with calcium: 36847
+number of patients with magnesium: 2687
+number of records with magnesium: 35026
+number of patients with phosphate: 2663
+number of records with phosphate: 34836
+COHORT_FLOW|twenty_features_heterogeneous|has_any_of_20_labs|patients=2786|records=980181
+Finished getting raw lab records for scenario: ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS
+   labevent_id  subject_id     hadm_id  ...  calcium magnesium phosphate
+0      70444.0    10005012  28371912.0  ...      0.0       0.0       0.0
+1      70477.0    10005012  28371912.0  ...      0.0       0.0       0.0
+2      70489.0    10005012  28371912.0  ...      0.0       0.0       0.0
+3      70517.0    10005012  28371912.0  ...      0.0       0.0       0.0
+4      70525.0    10005012  28371912.0  ...      0.0       0.0       0.0
+
+[5 rows x 62 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'urea_nitrogen_missing', 'sodium_missing', 'chloride_missing', 'bicarbonate_missing', 'anion_gap_missing', 'hematocrit_missing', 'platelet_count_missing', 'hemoglobin_missing', 'wbc_missing', 'mchc_missing', 'mch_missing', 'rbc_missing', 'mcv_missing', 'rdw_missing', 'glucose_missing', 'calcium_missing', 'magnesium_missing', 'phosphate_missing', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc', 'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
+Number of patients after filtering out NaN duration_in_days: 2786
+Records sample:
+   subject_id                time  has_esrd
+0    10005012 2169-10-23 20:00:00         0
+1    10005012 2169-10-24 06:30:00         0
+2    10005012 2169-10-25 12:45:00         0
+3    10005012 2169-10-26 06:25:00         0
+4    10005012 2169-10-27 06:05:00         0
+Stats on eGFR:
+Number of records: 980181. Number of patients: 2786
+mean 2.639 sd 12.215
+Processing patients who have progressed to ESRD:
+Number of patients: 31542
+Number of patients with ESRD: 31542
+first time having ESRD df:
+    subject_id first_diagnose_esrd_time
+0    10000764      2132-10-14 23:31:00
+1    10000980      2191-04-03 18:48:00
+2    10001338      2138-05-09 19:47:00
+3    10001401      2131-06-19 21:32:00
+4    10001877      2150-11-21 23:02:00
+Number of patients: 31542
+Number of patients after drop n/a: 31542
+Stats on patients:
+Total patients: 31542
+Dead patients: 18351
+Alive patients: 13191
+COHORT_FLOW|twenty_features_heterogeneous|source_population|patients=31542|records=31542
+number of patients with egfr: 31533
+number of records with egfr: 1553436
+number of patients with potassium: 31531
+number of records with potassium: 1531588
+number of patients with urea_nitrogen: 31532
+number of records with urea_nitrogen: 1524437
+number of patients with sodium: 31531
+number of records with sodium: 1517002
+number of patients with chloride: 31531
+number of records with chloride: 1503108
+number of patients with bicarbonate: 31530
+number of records with bicarbonate: 1458561
+number of patients with anion_gap: 31530
+number of records with anion_gap: 1455291
+number of patients with hematocrit: 31527
+number of records with hematocrit: 1469518
+number of patients with platelet_count: 31527
+number of records with platelet_count: 1426225
+number of patients with hemoglobin: 31527
+number of records with hemoglobin: 1411678
+number of patients with wbc: 31527
+number of records with wbc: 1409918
+number of patients with mchc: 31527
+number of records with mchc: 1400029
+number of patients with mch: 31527
+number of records with mch: 1399799
+number of patients with rbc: 31527
+number of records with rbc: 1399929
+number of patients with mcv: 31527
+number of records with mcv: 1399912
+number of patients with rdw: 31527
+number of records with rdw: 1398728
+number of patients with glucose: 31530
+number of records with glucose: 1325330
+number of patients with calcium: 31288
+number of records with calcium: 1165091
+number of patients with magnesium: 31298
+number of records with magnesium: 1162603
+number of patients with phosphate: 31235
+number of records with phosphate: 1127436
+COHORT_FLOW|twenty_features_heterogeneous|has_any_of_20_labs|patients=31533|records=28039619
+Finished getting raw lab records for scenario: ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS
+   labevent_id  subject_id     hadm_id  ...  calcium magnesium phosphate
+0       2491.0    10000764         NaN  ...      0.0       0.0       0.0
+1       2521.0    10000764  27897940.0  ...      0.0       0.0       0.0
+2       2571.0    10000764  27897940.0  ...      0.0       0.0       0.0
+3       2599.0    10000764  27897940.0  ...      0.0       0.0       0.0
+4       2622.0    10000764  27897940.0  ...      0.0       0.0       0.0
+
+[5 rows x 62 columns]
+['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'urea_nitrogen_missing', 'sodium_missing', 'chloride_missing', 'bicarbonate_missing', 'anion_gap_missing', 'hematocrit_missing', 'platelet_count_missing', 'hemoglobin_missing', 'wbc_missing', 'mchc_missing', 'mch_missing', 'rbc_missing', 'mcv_missing', 'rdw_missing', 'glucose_missing', 'calcium_missing', 'magnesium_missing', 'phosphate_missing', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc', 'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
+Number of patients after merging: 31533
+
+Number of ESRD who have lab records at or prior to their esrd diagnose: 29815
+Number of patients after filtering out records after the first 'has_esrd' == 1: 29815
+Number of records: 7145909. Records sample:
+         subject_id                time  has_esrd first_diagnose_esrd_time
+0          10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+1553436    10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+3085024    10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+4609461    10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+6126463    10000764 2132-10-14 20:15:00         1      2132-10-14 23:31:00
+Stats on eGFR:
+Number of records: 7145909. Number of patients: 29815
+mean 4.012 sd 17.943
+After merge:
+Total number of patients: 32601
+Total number of records: 8126090
+add_time_variant_support cols:  ['labevent_id', 'subject_id', 'hadm_id', 'specimen_id', 'itemid', 'order_provider_id', 'time', 'storetime', 'value', 'valuenum', 'valueuom', 'ref_range_lower', 'ref_range_upper', 'flag', 'priority', 'comments', 'gender', 'age', 'anchor_year', 'anchor_year_group', 'dod', 'egfr', 'serum_creatinine', 'egfr_missing', 'potassium_missing', 'urea_nitrogen_missing', 'sodium_missing', 'chloride_missing', 'bicarbonate_missing', 'anion_gap_missing', 'hematocrit_missing', 'platelet_count_missing', 'hemoglobin_missing', 'wbc_missing', 'mchc_missing', 'mch_missing', 'rbc_missing', 'mcv_missing', 'rdw_missing', 'glucose_missing', 'calcium_missing', 'magnesium_missing', 'phosphate_missing', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate', 'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc', 'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate', 'has_esrd', 'duration_in_days', 'first_diagnose_esrd_time', 'start', 'stop']
+No subjects found with 'stop' < 'start'.
+Data: 
+   subject_id  duration_in_days  start  ...  phosphate  phosphate_missing  has_esrd
+0    10000764               0.0    0.0  ...        0.0                  1         1
+1    10000764               0.0    0.0  ...        0.0                  1         1
+2    10000764               0.0    0.0  ...        0.0                  1         1
+3    10000764               0.0    0.0  ...        0.0                  1         1
+4    10000764               0.0    0.0  ...        0.0                  1         1
+
+[5 rows x 45 columns]
+Total number of patients: 32601
+Total number of records: 8126090
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+=== Finished ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS in 7371.6 s ===
+=== ALL DONE rep5 (retry) ===

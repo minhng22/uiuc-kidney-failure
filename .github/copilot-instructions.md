@@ -51,25 +51,38 @@ in chat — also write the verified findings into the relevant
 and bump its "Last Updated" timestamp. A status check that never lands in the
 doc is lost the next time a session (this one or another) reads it.
 
-## Keep EXPERIMENT_STATUS.md tidy — link out to detailed reports, don't inline them
+## Keep EXPERIMENT_STATUS.md tidy — one report file per stage, don't swamp it with detail
 
 `EXPERIMENT_STATUS.md` is the high-level index read at the start of every
-session — it must stay skimmable. Detailed findings, citations, equations,
-coefficient tables, source URLs, etc. belong in a dedicated report file
-(e.g. under `generated_data/rep<N>/`, per the relevant
-`*_EXPERIMENT_PLAN_DETAILS.md`'s reporting convention), not inlined into
-`EXPERIMENT_STATUS.md`'s status table.
+session — it must stay skimmable end to end. **Every stage gets its own
+report file** (e.g. `generated_data/rep<N>/stage<X>_<name>_report.txt`, or
+an existing per-scenario report like `<scenario>_cohort_flow_report.txt`)
+— that is where findings, citations, equations, coefficient tables, source
+URLs, incident narratives, investigation logs, and postmortems live.
+`EXPERIMENT_STATUS.md` itself never gets any of that inlined, no matter how
+relevant it feels in the moment.
 
-- Each row's "Notes" cell should be a short status phrase plus a link to the
-  report file that has the actual detail (e.g. "confirmed against primary
-  source — see [report](generated_data/rep1/foo_report.txt)"), not a
-  paragraph recounting the finding.
+- A status row's "Notes" cell, and a background-process table's "Status"
+  cell, hold a short status phrase plus a link to the report — e.g.
+  "confirmed against primary source — see
+  [report](generated_data/rep1/foo_report.txt)" or "OOM-killed, retrying —
+  see [report](...)" — never a paragraph recounting the finding or telling
+  the story of what happened. If you're writing more than one clause
+  in `EXPERIMENT_STATUS.md`, it belongs in the report file instead.
+- The "Background processes" section lists **only currently-active**
+  processes (PID, host, log, one-clause status). Once a process finishes,
+  move its row's detail into that stage's report and drop the row from the
+  live table — don't let finished/superseded/killed runs accumulate there;
+  the report file is the permanent record, not the status table.
 - When updating status after doing work, put the substance in the report
-  file (create/append one if none exists yet for that task) and only the
-  pointer + terse status in `EXPERIMENT_STATUS.md`.
-- If `EXPERIMENT_STATUS.md` has accumulated inlined detail (yours or another
-  session's), trimming your own rows down to a link is fine; leave other
-  sessions' rows for their owners per the multi-session rule above.
+  file (create one if none exists yet for that stage) and only the pointer
+  + terse status in `EXPERIMENT_STATUS.md`.
+- If `EXPERIMENT_STATUS.md` has accumulated inlined detail (yours or
+  another session's), trimming it down to a link (moving the removed
+  detail into that stage's report file, not deleting it) is fine even for
+  rows you don't own — this is tidying the shared index, not editing
+  another session's findings; leave the actual content intact in the
+  report.
 
 ## When the user asks to add a rule, edit both instruction files
 
@@ -107,3 +120,32 @@ every 10 minutes for as long as that operation is expected to run:
   retry, not to give up.
 - Stop the recurring check once all reps you own finish, or you're told to
   stop.
+
+## Check a script's actual entry point before running it as an experiment
+
+Before running any `pkgs/experiments/*.py` module (directly, via
+`python -m`, or via a wrapper like `run_rep.sh`/`run_stage2_*.py`), read its
+`if __name__ == '__main__':` block (or whatever function the invocation
+actually calls) first — don't assume it only runs the scenario(s) you
+intend.
+
+- **Why:** these `__main__` blocks hardcode a specific list of scenarios,
+  and that list is edited independently of whatever task you're currently
+  running (e.g. Stage 1b added 3 new scenarios to `cox.py`/
+  `dynamic_deephit.py`/`hazard_transformer.py`/`logistic_hazard.py`/
+  `rnnsurv.py`'s existing `__main__` blocks, all of which already
+  unconditionally ran `CKD_FIFTY_FEATURES_HETEROGENEOUS` first). Launching
+  `pkgs/scripts/run_rep.sh 99` for the Stage 2 rep99 mini-experiment ran
+  headlong into this: `CKD_FIFTY_FEATURES_HETEROGENEOUS`'s rep99 data
+  didn't exist (deliberately not built — its rep1 source was mid another
+  session's schema migration), so `get_train_test_data()` silently fell
+  through to a full raw MIMIC extraction from `labevents.csv` instead of
+  erroring — a ~2-hour, unrelated, off-scope job that looked like healthy
+  CPU activity for over an hour before the real cause was found by
+  inspecting the process's open file descriptors.
+- If the entry point would run a scenario/experiment you don't intend,
+  don't run it as-is — write a small scoped driver that imports and calls
+  the underlying function(s) directly for just the scenario(s) you need
+  (see [pkgs/scripts/run_stage2_new_scenarios.py](pkgs/scripts/run_stage2_new_scenarios.py)
+  for the pattern), rather than editing the shared `__main__` block, unless
+  the user has approved that edit (per the previous-stage-work rule above).

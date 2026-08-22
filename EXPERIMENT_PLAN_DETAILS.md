@@ -358,6 +358,46 @@ because the neural models may be more N-sensitive than the closed-form benchmark
 - Run `pkgs/scripts/run_rep.sh 99` to sanity-check the full pipeline (3 new scenarios × 5 ML models, plus
   `kfre` for `four_features`/`eight_features`) end-to-end before committing to full 5-rep runs.
 
+### Stage 2 addendum: `twenty_features_heterogeneous` uses a smaller subsample than the other two rep99 scenarios (resolved 2026-08-22)
+
+**Also note**: the actual Stage 2 driver ended up being
+[pkgs/scripts/run_stage2_new_scenarios.py](pkgs/scripts/run_stage2_new_scenarios.py), not
+`run_rep.sh 99` directly — see that stage's report
+([generated_data/rep99/mini_experiment_status_report.txt](generated_data/rep99/mini_experiment_status_report.txt))
+for why (the 5 experiment modules' `__main__` blocks unconditionally ran
+`CKD_FIFTY_FEATURES_HETEROGENEOUS` first, which had no rep99 data and silently triggered a full raw
+extraction instead of erroring — fixed at the source with a guard, but the scoped driver is what
+Stage 2 actually runs).
+
+**Problem**: the original 250 ESRD + 250 non-ESRD (500 total) stratified subsample, applied uniformly
+to all 3 new scenarios by `build_mini_experiment_data.py`, produced very different row counts per
+scenario because `twenty_features_heterogeneous` is one row per lab event (no cross-lab merge), unlike
+`four_features`/`eight_features` (one row per creatinine draw, with other labs merged in) — see the
+"1a-2" merge-strategy addendum above. At 500 patients this gave `four_features` 5,806 train rows and
+`eight_features` 1,856 train rows, but `twenty_features_heterogeneous` **159,926** train rows (~320
+rows/patient vs. ~4.6-11.6 rows/patient for the other two). Consequence: `dynamic_deephit`'s LSTM
+processes each patient as a full time-step sequence, so this scenario's much longer average sequence
+length made a single Optuna trial take **~45 minutes** (confirmed via `/proc/<pid>/stat` CPU-time
+deltas and `nvidia-smi` GPU usage — genuinely computing, not hung), vs. a few minutes total for
+`four_features`/`eight_features`. With 10 Optuna trials plus 3 more neural models
+(`hazard_transformer`/`logistic_hazard`/`rnnsurv`) still to run, this scenario alone risked dominating
+Stage 2's total runtime by an order of magnitude, working against Stage 2's purpose (a fast pipeline
+sanity check, not a full-scale run — that's Stage 3).
+
+**Decision**: `twenty_features_heterogeneous`'s rep99 subsample uses **10 patients per class (10 ESRD +
+10 non-ESRD = 20 total)** per split, instead of the 250+250=500 used for `four_features`/
+`eight_features` — a scenario-specific override in `build_mini_experiment_data.py`, not a change to the
+other two scenarios' sampling. Expected size: **~6,397 train rows / ~5,515 test rows** (scaled from the
+500-patient version's row density), a ~25x reduction from the original 159,926/137,883, while still
+using 20 real distinct patients (vs. considering as few as 2-4 total patients to size-match
+`eight_features` exactly, which was rejected as too thin even for a sanity check). Chosen by the user
+after being shown the row-count/patient-count tradeoff table (2/class ≈ eight_features' scale but only
+4 total patients; 10/class ≈ 25x reduction with a sturdier 20-patient sample; 15/class ≈ 17x reduction).
+`four_features` and `eight_features`'s rep99 data (already built, already used successfully) are
+unaffected — only `twenty_features_heterogeneous`'s rep99 train/test CSVs, and its stale
+`twenty_features_heterogeneous_cox_model.dill` / `twenty_features_heterogeneous_ddh_model.pt` (trained/
+mid-trained on the old 500-patient sample), were rebuilt/cleared.
+
 ## Stage 2.1: Feature-importance analysis
 - Extend [pkgs/data_analysis/feature_importance_analysis.py](pkgs/data_analysis/feature_importance_analysis.py)
   with `analyze_four_features`/`analyze_eight_features`/`analyze_twenty_features` methods mirroring

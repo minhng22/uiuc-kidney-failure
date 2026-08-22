@@ -1,0 +1,85 @@
+Stage 1c: full data extraction (rep2-5) — report
+===================================================
+Owner: session on sunlab-serv-01.cs.illinois.edu (this report covers only
+that session's rows — see EXPERIMENT_STATUS.md's multi-session rule; do
+not mark another session's process dead from a different host's `ps`).
+
+Status as of last update: DONE. All 5 reps (rep1 via 1c-0, rep2-5 via this
+stage) have complete, verified four_features/eight_features/
+twenty_features_heterogeneous train+test data.
+
+Method
+-------
+Each rep runs `CKD_REP=<rep> python -c "..."` calling `get_train_test_data`
+for FOUR_FEATURES/EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS in sequence
+(same scoped-call pattern as the 1c-0 pilot, not the shell script — still
+avoids touching ckd_fifty_features_heterogeneous's mid-migration rep
+files). Writes only to each rep's own
+generated_data/rep<N>/{four,eight,twenty}_features*_data.csv — no shared
+state between reps.
+
+Timeline
+---------
+- 2026-08-21 23:25 CDT: reps 2/3/4/5 launched simultaneously.
+- 23:32 CDT — Incident (RAM near-exhaustion): launching all 4 at once
+  nearly exhausted RAM+swap (MemAvailable dropped to 1.6GB, SwapFree to
+  830MB — each pd.read_csv process was at ~46-47GB resident and still
+  climbing, since all 4 hit their first, heaviest labevents.csv read at
+  the same moment). Killed rep4/rep5 (minimal progress lost, still at the
+  cheap source_population stage) to protect rep2/rep3. Relaunched rep4
+  once memory recovered to 147GB available, waited ~90s and confirmed
+  stable, then relaunched rep5 — staggering the starts avoided a repeat
+  synchronized spike. Verified stable twice more (116GB available with all
+  4 running, each ~16-18GB, swap untouched) before leaving them running.
+  Lesson for future rep launches on this host: stagger starts by a couple
+  minutes rather than firing all N at once, to avoid all processes' first
+  heavy read landing simultaneously.
+- Separately, an unrelated environment issue was found and fixed while
+  running kfre.py: an earlier `conda install -c conda-forge poppler` (for
+  PDF page rendering during the KFRE literature research) had downgraded
+  sqlite, breaking optuna's import (used by pkgs/experiments/utils.py,
+  needed by every experiments module including kfre.py) — fixed via
+  `conda install --revision 0` in the `minhn2` env, reverting cleanly to
+  the pre-poppler state; verified sqlite3/optuna import correctly again.
+- 2026-08-22, ~00:14-01:02 CDT: rep2/rep3/rep4 finished cleanly (`ALL DONE`
+  in each log, CSVs present for all 3 scenarios). rep5 was silently
+  OOM-killed (confirmed via `dmesg`'s memcg OOM record for PID 1098598,
+  ~59GB resident, mid eight_features ESRD-positive branch — four_features
+  had already completed/cached for rep5).
+- 2026-08-22 10:12 CDT: rep5 relaunched, scoped to just the 2 missing
+  scenarios (eight_features, twenty_features_heterogeneous; four_features
+  reused from cache), running alone (no concurrent contention this time).
+- 2026-08-22, ~12:18 CDT (7371.6s after relaunch): rep5 finished cleanly
+  (`ALL DONE rep5 (retry)`). Verified directly: all 5 reps now have
+  four_features/eight_features/twenty_features_heterogeneous train+test
+  CSVs present, with identical byte sizes across all 5 reps for each
+  scenario (2,017,429+516,785 bytes for four_features;
+  462,106+118,083 for eight_features; 1,241,976,786+306,879,684 for
+  twenty_features_heterogeneous) — expected, since extraction draws from
+  the same fixed source database with the same deterministic
+  train_test_split(random_state=42), so only downstream model training
+  (Stage 2 onward) is expected to vary by rep, not the extracted data
+  itself. Stage 1c is complete.
+
+Correction (2026-08-22): an earlier reply in this session claimed
+EXPERIMENT_PLAN_DETAILS.md's Stage 1b item 5 explicitly instructed adding
+a CKD_FIFTY_FEATURES_HETEROGENEOUS call to each experiments/*.py
+__main__ block. On the user's correction, re-read the actual text: it
+only instructs adding calls for the 3 new scenarios (FOUR_FEATURES/
+EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS); the parenthetical noting
+the __main__ "currently hardcoded to call only
+CKD_FIFTY_FEATURES_HETEROGENEOUS" was background context, not an
+instruction to keep or restore that call. Keeping it was this session's
+own unforced addition, made despite already knowing (from this same
+stage's incident above) that CKD_FIFTY_FEATURES_HETEROGENEOUS's data was
+missing for some reps — that inconsistency, not a plan-doc error, is what
+led to the Stage 2 session's unrelated ~2h extraction incident (see its
+own report and the new CLAUDE.md rule "Check a script's actual entry
+point before running it as an experiment").
+
+Note for whoever picks this up next
+--------------------------------------
+Per the user, Stage 2 (rep99 mini-experiment) is being run concurrently
+from a different VM (sunlab-serv-02) against this same repo — the
+sunlab-serv-01 session covering Stage 1c stops once this stage finishes;
+it does not extend into Stage 2/2.1/3.

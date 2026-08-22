@@ -68,7 +68,162 @@ full extraction. cox finished all 3 new scenarios in under a minute:
   - cox/eight_features: C-index 0.509, Brier 0.356, AUC 0.4668 — done.
   - cox/twenty_features_heterogeneous: C-index 0.433, Brier 0.092,
     AUC 0.4186 — done.
-Now running dynamic_deephit (Optuna trials in progress as of last check).
+UPDATE 2026-08-22 10:20 CDT: terminated (`kill -TERM 2789348`) per user
+request, while dynamic_deephit was mid-Optuna-search on four_features
+(trial 5/10, best value so far 0.833). generated_data/rep99/ now has:
+cox models for all 3 new scenarios (done), and an intermediate
+four_features_ddh_model.pt checkpoint from the in-progress trial search
+(not a finished model — harmless leftover, will be overwritten on rerun).
+
+Root-cause fix applied (see CLAUDE.md "Check a script's actual entry point
+before running it as an experiment", added same session): all 5
+experiments/*.py files' `__main__` blocks (cox.py, dynamic_deephit.py,
+hazard_transformer.py, logistic_hazard.py, rnnsurv.py) now guard the
+CKD_FIFTY_FEATURES_HETEROGENEOUS call with `os.path.exists(train_path)`,
+skipping with a printed message instead of silently falling through to a
+full raw extraction when that scenario's data is missing for the current
+rep. This fixes the footgun generally (affects any rep, not just rep99) —
+verified all 5 files still import cleanly after the edit. This required
+touching previous-stage (Stage 1b) files; done per explicit user direction
+in response to being shown the root cause.
+
+Awaiting user go-ahead to relaunch (killed on request, not yet resumed).
+
+UPDATE 2026-08-22 10:27 CDT: relaunched, confirmed scoped to only
+four_features/eight_features/twenty_features_heterogeneous (+kfre). Removed
+the stale four_features_ddh_model.pt (mid-search checkpoint from the killed
+run, only 6/10 Optuna trials completed) first, so dynamic_deephit does a
+full clean search for four_features instead of silently reusing a
+partial-search checkpoint.
+Command: `CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage2_new_scenarios`
+PID: 2794685 (host sunlab-serv-02.cs.illinois.edu)
+Log: pkgs/scripts/logs/rep99_stage2_scoped_20260822_102749.log
+cox re-ran quickly (eight_features loaded from cached .dill), no
+CKD_FIFTY_FEATURES_HETEROGENEOUS triggered — fix confirmed working on the
+relaunch too.
+
+UPDATE 2026-08-22 10:39 CDT (11:17 elapsed, PID 2794685, state R, 101% CPU
+— healthy):
+  - cox: all 3 scenarios done (four_features AUC step failed on the known
+    sksurv edge case, as before; eight_features/twenty_features_heterogeneous
+    fine).
+  - dynamic_deephit/four_features: 10/10 Optuna trials completed, best
+    C-index ~0.83 (test), but AUC step FAILED on the same sksurv
+    "censoring survival function is zero at one or more time points"
+    ValueError as cox/four_features — same root cause (this rep99
+    subsample's four_features test split has too few censored patients at
+    some time points), not a bug introduced here.
+  - dynamic_deephit/eight_features: ✓ done — C-index 0.868 (scikit-survival)
+    / 0.907 (simple impl), AUC 0.85, Brier 0.268.
+  - dynamic_deephit/twenty_features_heterogeneous: in progress (started
+    10:45 CDT).
+  - Remaining: hazard_transformer, logistic_hazard, rnnsurv (×3 scenarios
+    each), kfre (×2 scenarios).
+  - 10:50 CDT check: PID 2794685, 22:17 elapsed, state R, 154% CPU — healthy.
+  - 11:02 CDT check: dynamic_deephit/twenty_features_heterogeneous still
+    running (no log output since study-created line at 10:45, 17min prior)
+    — confirmed NOT a hang via /proc/<pid>/stat CPU-time delta (+910 ticks
+    over 3s, i.e. actively burning ~2-3 cores) and io counters (rchar
+    366MB, consistent with having read the full ~160K-row train/test CSVs).
+    No new log lines yet is plausibly stdout buffering during a single
+    long epoch on this scenario's much larger data (10 Optuna trials × up
+    to 50 epochs each) rather than anything stuck.
+  - 11:15 CDT check: still no new log lines (47min elapsed on the driver,
+    30min on this scenario). State now S (was R) but CPU-time still
+    advancing (+1579 ticks / 5s) and nvidia-smi shows this PID actively
+    using GPU memory (up to 2.5GB, one query showing 30% GPU util) — S is
+    just brief GPU-sync waits between compute bursts, not a hang. Memory
+    fine (141GB available, swap ~40MB used). Confirmed still healthy.
+  - 11:28 CDT check (3rd consecutive confirmation, 43min silent on this
+    scenario): CPU-time still advancing (+1584 ticks/5s), GPU still in use
+    by this PID (up to 2476MB), memory/swap fine. No
+    twenty_features_heterogeneous_ddh_model.pt checkpoint yet (expected —
+    first Optuna trial hasn't completed). Still under the ~60-90min
+    watch threshold before treating this as worth deeper investigation.
+  - 11:41 CDT check: Trial 0 finished at 11:30:38 (~45min), confirming
+    genuine (if slow) progress, not a hang. Reported to user with a time-
+    budget question.
+
+3. REDO: twenty_features_heterogeneous resampled smaller (2026-08-22 13:18 CDT)
+-----------------------------------------------------------------------------
+Per user decision (see EXPERIMENT_PLAN_DETAILS.md "Stage 2 addendum:
+twenty_features_heterogeneous uses a smaller subsample than the other two
+rep99 scenarios" for full rationale): cut this scenario's rep99 subsample
+from 250/class (500 total, 159,926 train rows) to **10 patients per class
+(20 total)** — a scenario-specific override in build_mini_experiment_data.py
+(PATIENTS_PER_CLASS_OVERRIDES), leaving four_features/eight_features
+unaffected.
+
+Killed the in-progress run (PID 2794685, mid dynamic_deephit/
+twenty_features_heterogeneous Trial 1) at 12:xx CDT. Cleared stale
+twenty_features_heterogeneous rep99 train/test CSVs and its
+cox/dynamic_deephit model artifacts (trained on the old 500-patient data).
+Rebuilt via `PYTHONPATH=. python -m pkgs.scripts.build_mini_experiment_data
+twenty_features_heterogeneous` (new argv-based scenario filter, so
+four_features/eight_features weren't touched):
+
+  Actual result: 20 train patients (10 ESRD/10 non-ESRD), 4,575 rows;
+  20 test patients (10/10), 9,115 rows. (Differs from the ~6,397/~5,515
+  estimate given pre-decision — real per-patient row-density variance.)
+
+Relaunched: `CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage2_new_scenarios`
+PID: 2823675 (host sunlab-serv-02.cs.illinois.edu)
+Log: pkgs/scripts/logs/rep99_stage2_scoped_20260822_131828.log
+
+Verified: cox/four_features, cox/eight_features, dynamic_deephit/eight_features
+reused cached results (fast, unaffected by the redo). cox/twenty_features_heterogeneous
+retrained fresh on the new 20-patient data (fast — a few seconds, vs. no
+comparable baseline before since this scenario previously only ran once):
+  C-index 0.337, AUC 0.296, Brier: not computable (largest test event time
+  exceeds the largest train time — a real small-sample limitation of a
+  20-patient split, not a bug).
+Now on dynamic_deephit/twenty_features_heterogeneous with the small data —
+watching for whether per-trial time drops as expected.
+
+UPDATE 2026-08-22 13:30 CDT: **speedup confirmed, dramatic.** cox (3
+scenarios) + dynamic_deephit (3 scenarios) + hazard_transformer (2 of 3
+scenarios) all finished within 11 minutes total elapsed — vs. the old run
+where a single dynamic_deephit/twenty_features_heterogeneous trial alone
+took ~45min.
+
+Results so far (this launch, PID 2823675):
+  - cox: four_features AUC-failed (known sksurv edge case); eight_features
+    fine; twenty_features_heterogeneous fine — C-index 0.337, AUC 0.296,
+    Brier not computable (test event time exceeds max train time — small-
+    sample artifact of the 20-patient split, not a bug).
+  - dynamic_deephit: four_features AUC-failed (known sksurv edge case);
+    eight_features fine (C-index 0.868/AUC 0.85/Brier 0.268, reused
+    cache); **twenty_features_heterogeneous FAILED with a NEW, different
+    error**: `Average Loss: nan` during training → NaN predictions →
+    `ValueError: NaNs detected in inputs` from lifelines'
+    concordance_index. Not the known sksurv AUC edge case — a genuine
+    training-instability issue, plausibly because 20 patients is too thin
+    for this scenario's shape (sequences up to 862 timesteps × 40
+    features/timestep) for the LSTM to train stably at some sampled
+    hyperparameter combinations. Flagged to user; not yet investigated
+    further (driver tolerates the failure and continues).
+  - hazard_transformer: four_features AUC-failed (known sksurv edge case);
+    eight_features fine (C-index 0.5729, AUC 0.59, Brier 1.016); now
+    running twenty_features_heterogeneous.
+  - hazard_transformer/twenty_features_heterogeneous: ✓ done — C-index
+    0.2743, AUC 0.50, Brier not computable (same small-sample time-range
+    issue as cox's twenty_features_heterogeneous run). No NaN issue here —
+    seems isolated to dynamic_deephit's architecture, not universal.
+  - logistic_hazard: all 3 scenarios ✓ done. four_features: C-index 0.517,
+    AUC 0.471, Brier 0.441. eight_features: C-index 0.502, AUC 0.490,
+    Brier 0.755. twenty_features_heterogeneous: C-index 0.597, AUC 0.309,
+    Brier not computable (same time-range issue).
+  - rnnsurv/four_features: in progress, 3/10 Optuna trials done as of
+    13:52 CDT check (~5.5min/trial — rnnsurv is just a naturally slower
+    model than hazard_transformer/logistic_hazard, not stuck; values
+    varying normally: 0.504, 0.576, 0.541). At this pace, ~55min for this
+    scenario alone, likely similar for eight_features/
+    twenty_features_heterogeneous — rnnsurv may end up the longest-running
+    remaining model, still nowhere near the old ~45min/trial issue.
+  - Remaining: rnnsurv (eight_features, twenty_features_heterogeneous —
+    watching for whether the dynamic_deephit-style NaN issue recurs here
+    too, since rnnsurv is also RNN-based), kfre (×2: four_features,
+    eight_features).
 
 3. Experiment run step (ORIGINAL ATTEMPT) — STOPPED, root cause found
 -----------------------------------------------------------------------------
@@ -154,3 +309,27 @@ updated at each check with material progress (stage completions, failures,
 fixes+relaunches), and EXPERIMENT_STATUS.md's Stage 2 row will be kept to a
 short status phrase + link to this file, per the repo's
 "keep EXPERIMENT_STATUS.md tidy" rule.
+
+UPDATE 2026-08-22 14:03 CDT: rnnsurv/four_features at 5/10 Optuna trials,
+steady ~6.5min/trial pace (best value so far 0.582). Healthy, no new
+issues. Estimated ~65min for four_features alone at this pace; likely
+similar for eight_features/twenty_features_heterogeneous, so rnnsurv could
+take roughly 2+ hours total across all 3 scenarios before kfre (fast,
+closed-form, no training) finishes Stage 2. Still watching whether
+rnnsurv/twenty_features_heterogeneous hits the same NaN-loss issue seen in
+dynamic_deephit/twenty_features_heterogeneous (both RNN-based) once it
+gets there.
+
+UPDATE 2026-08-22 14:14 CDT: rnnsurv/four_features at 6/10 trials, steady
+pace (~6min/trial), best value 0.582. Healthy, no new issues. PID 2823675,
+55:38 elapsed, 393% CPU.
+
+UPDATE 2026-08-22 14:25 CDT: rnnsurv/four_features at 9/10 trials, best
+value 0.582, healthy steady pace. PID 2823675, 1:06:37 elapsed, 345% CPU.
+Almost done with four_features.
+
+UPDATE 2026-08-22 14:36 CDT: rnnsurv/four_features ✓ finished all 10
+trials — C-index 0.551, Brier 0.71, AUC step failed on the known sksurv
+edge case (same pattern as cox/dynamic_deephit/hazard_transformer/
+logistic_hazard on four_features — not new). Now running
+rnnsurv/eight_features. PID 2823675, 1:17:38 elapsed, healthy.
