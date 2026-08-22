@@ -1,0 +1,61 @@
+FEATURE IMPORTANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2026-08-22 16:27:19
+Repetition: 99
+Scenario: four_features
+Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv
+================================================================================
+
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - FOUR_FEATURES SCENARIO
+================================================================================
+
+Training samples: 5806
+Test samples: 3667
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=65.705, std=14.519
+  gender: mean=0.549, std=0.498
+  egfr: mean=55.284, std=33.892
+  uacr: mean=629.029, std=1398.494
+
+ANALYZING ALL MODELS FOR FOUR_FEATURES
+------------------------------------------------------------
+
+Analyzing COX model...
+  COX Feature Importance:
+    age: 0.0013 (coeff=-0.0013, HR=0.999)
+    gender: 0.0044 (coeff=-0.0044, HR=0.996)
+    egfr: 0.0006 (coeff=-0.0006, HR=0.999)
+    uacr: 0.0000 (coeff=0.0000, HR=1.000)
+
+Analyzing DDH model...
+  DDH Feature Importance:
+    age: 0.2392
+    gender: 0.3094
+    egfr: 0.2505
+    uacr: 0.2009
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    age: 0.1360
+    gender: 0.3881
+    egfr: 0.2530
+    uacr: 0.2229
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    age: 0.2115
+    gender: 0.2599
+    egfr: 0.1465
+    uacr: 0.3821
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    age: 0.2214
+    gender: 0.2016
+    egfr: 0.3570
+    uacr: 0.2200
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_all_models_feature_importance.png

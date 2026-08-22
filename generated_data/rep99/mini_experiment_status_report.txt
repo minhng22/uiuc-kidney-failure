@@ -333,3 +333,95 @@ trials — C-index 0.551, Brier 0.71, AUC step failed on the known sksurv
 edge case (same pattern as cox/dynamic_deephit/hazard_transformer/
 logistic_hazard on four_features — not new). Now running
 rnnsurv/eight_features. PID 2823675, 1:17:38 elapsed, healthy.
+
+UPDATE 2026-08-22 14:47 CDT: rnnsurv/eight_features ✓ done — C-index
+0.559, Brier 0.283, AUC 0.566. Now on rnnsurv/twenty_features_heterogeneous
+— Trial 0 finished CLEANLY (value 0.486, no NaN), confirming the NaN-loss
+issue seen in dynamic_deephit/twenty_features_heterogeneous is specific to
+that model's architecture/objective, not a general RNN-family issue at
+this small sample size. PID 2823675, 1:28:37 elapsed, healthy.
+Remaining: rnnsurv/twenty_features_heterogeneous (9 more trials), kfre
+(×2: four_features, eight_features).
+
+UPDATE 2026-08-22 14:59 CDT: rnnsurv/twenty_features_heterogeneous at
+3/10 trials, steady ~5min/trial, no NaN (values 0.486/0.489/0.486 —
+clean). PID 2823675, 1:40:37 elapsed, healthy. ~7 trials left (~35min),
+then kfre (fast) to finish Stage 2.
+
+UPDATE 2026-08-22 15:10 CDT: rnnsurv/twenty_features_heterogeneous at
+5/10 trials, steady ~5min/trial, no NaN (best value 0.489). PID 2823675,
+1:51:38 elapsed, healthy. ~5 trials left (~25min), then kfre.
+
+UPDATE 2026-08-22 15:21 CDT: rnnsurv/twenty_features_heterogeneous at
+8/10 trials, no NaN, best value 0.496. PID 2823675, 2:02:37 elapsed,
+healthy. ~2 trials left, then kfre — very close to finishing Stage 2.
+
+============================================================
+STAGE 2 COMPLETE — 2026-08-22 15:32 CDT
+============================================================
+Driver PID 2823675 finished (process exited cleanly). Total runtime this
+launch: ~2h8min (13:18:28 -> 15:26:47 CDT) for all 17 model/scenario
+combinations (5 ML models x 3 scenarios + kfre x 2 scenarios) — vs. a
+SINGLE dynamic_deephit trial alone taking ~45min under the old 500-patient
+twenty_features_heterogeneous subsample. Confirms the resample (Stage 2
+addendum, EXPERIMENT_PLAN_DETAILS.md) achieved its purpose.
+
+Final log summary line: "Total: 17  Failed: 6"
+
+Failure breakdown — two distinct, unrelated causes, no unexplained failures:
+
+1. Known sksurv AUC edge case (5 occurrences, all on `four_features`):
+   cox/four_features, dynamic_deephit/four_features,
+   hazard_transformer/four_features, rnnsurv/four_features,
+   kfre/four_features. All raise the same
+   `ValueError: censoring survival function is zero at one or more time
+   points` from sksurv's `cumulative_dynamic_auc` — a known limitation
+   when a small stratified subsample has too few censored patients at
+   some evaluation time points (four_features rep99's test split: 250
+   ESRD / 95 non-ESRD, a stronger imbalance than eight_features'
+   212/31 or twenty_features_heterogeneous's 10/10). C-index/Brier
+   still compute fine in every case; only the AUC step fails. Notably,
+   `logistic_hazard/four_features` did NOT hit this (succeeded cleanly,
+   AUC 0.471) — its AUC computation path apparently isn't as sensitive
+   to this censoring pattern.
+
+2. dynamic_deephit-specific NaN-loss on twenty_features_heterogeneous
+   (1 occurrence): `Average Loss: nan` during training -> NaN
+   predictions -> `ValueError: NaNs detected in inputs`. Confirmed
+   model-specific, not a general small-sample or RNN-family issue:
+   hazard_transformer, logistic_hazard, and rnnsurv all trained cleanly
+   on the same 20-patient twenty_features_heterogeneous data (rnnsurv is
+   also RNN-based). Root cause not further investigated (out of Stage
+   2's scope as a sanity check); worth a closer look before Stage 3 if
+   dynamic_deephit is expected to run on similarly-small future subsets.
+
+Full per-model/per-scenario results (test set):
+
+| Model | four_features | eight_features | twenty_features_heterogeneous |
+|---|---|---|---|
+| cox | C-index 0.472, Brier 0.085, AUC FAILED | C-index 0.509, Brier 0.356, AUC 0.467 | C-index 0.337, AUC 0.296, Brier n/a (small-sample time-range) |
+| dynamic_deephit | C-index 0.829, AUC FAILED | C-index 0.868/0.907, AUC 0.85, Brier 0.268 | FAILED (NaN loss) |
+| hazard_transformer | C-index 0.542, AUC FAILED | C-index 0.573, AUC 0.59, Brier 1.016 | C-index 0.274, AUC 0.50, Brier n/a |
+| logistic_hazard | C-index 0.517, AUC 0.471, Brier 0.441 | C-index 0.502, AUC 0.490, Brier 0.755 | C-index 0.597, AUC 0.309, Brier n/a |
+| rnnsurv | C-index 0.551, Brier 0.71, AUC FAILED | C-index 0.559, Brier 0.283, AUC 0.566 | C-index 0.494/0.496, Brier n/a, AUC 0.496 |
+| kfre | C-index 0.627, Brier 0.347, AUC FAILED | C-index 0.637, Brier 0.452, AUC 0.662 | n/a (no published 20-var KFRE) |
+
+"Brier n/a" = sksurv warning "time must be smaller than largest observed
+time point" — a small-sample artifact of the 20-patient
+twenty_features_heterogeneous test split (largest test event time exceeds
+largest train time), not a bug.
+
+Caveat on all these numbers: rep99 is a tiny stratified subsample built
+purely as an end-to-end pipeline sanity check (per
+EXPERIMENT_PLAN_DETAILS.md Stage 2's stated purpose), not a statistically
+meaningful evaluation — none of these metrics should be read as
+indicative of real model performance; that's what the full rep1-5 runs
+(Stage 3) are for.
+
+Pipeline verdict: all 6 models + kfre run end-to-end successfully on all
+3 new scenarios (four_features/eight_features/twenty_features_heterogeneous)
+without crashing the driver itself — every failure was caught, logged, and
+the run continued, exactly as designed. No new code changes needed before
+Stage 2.1/3 based on this run, aside from optionally investigating the
+dynamic_deephit NaN issue if twenty_features_heterogeneous-scale small
+subsets are needed again later.

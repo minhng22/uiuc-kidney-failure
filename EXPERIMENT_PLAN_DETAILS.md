@@ -407,7 +407,9 @@ mid-trained on the old 500-patient sample), were rebuilt/cleared.
   naming (`egfr_components_shap_analysis_report.txt`).
 
 ## Stage 3: Full experiment runs (rep1 → rep5)
-- Once Stage 2's mini-experiment passes, launch full runs via the **same**
+After stage 2 and stage 2.1 passes, get approval before run this stage.
+
+- Launch full runs via the **same**
   [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new script) for `N` in 1..5 — each in the
   background, each PID/log recorded in `FEATURE_SET_EXPERIMENT_PLAN.md`.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,

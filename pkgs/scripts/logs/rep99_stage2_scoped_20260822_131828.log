@@ -8198,3 +8198,1184 @@ Mean time-dependent AUC: 0.5658
 ✓ rnnsurv/eight_features completed successfully
 ==================== Running rnnsurv/twenty_features_heterogeneous ====================
 [I 2026-08-22 14:42:15,239] A new study created in memory with name: no-name-8bf80365-8a9b-4dfa-83a1-636c4d95f21e
+[I 2026-08-22 14:46:19,704] Trial 0 finished with value: 0.486 and parameters: {'num_time_intervals': 23, 'embedding_size': 38, 'num_embedding_layers': 3, 'hidden_dims': 149, 'num_recurrent_layers': 3, 'learning_rate': 0.0003334504234094413, 'cross_entropy_loss_weight': 0.6699987878726786}. Best is trial 0 with value: 0.486.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 14:51:23,176] Trial 1 finished with value: 0.489 and parameters: {'num_time_intervals': 45, 'embedding_size': 41, 'num_embedding_layers': 1, 'hidden_dims': 256, 'num_recurrent_layers': 3, 'learning_rate': 9.601245166127534e-05, 'cross_entropy_loss_weight': 0.5035075240693709}. Best is trial 1 with value: 0.489.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 14:55:31,881] Trial 2 finished with value: 0.486 and parameters: {'num_time_intervals': 25, 'embedding_size': 109, 'num_embedding_layers': 2, 'hidden_dims': 166, 'num_recurrent_layers': 1, 'learning_rate': 7.874714653471628e-05, 'cross_entropy_loss_weight': 0.11545842355975192}. Best is trial 1 with value: 0.489.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:00:52,736] Trial 3 finished with value: 0.486 and parameters: {'num_time_intervals': 48, 'embedding_size': 51, 'num_embedding_layers': 1, 'hidden_dims': 219, 'num_recurrent_layers': 2, 'learning_rate': 0.00039301337522591506, 'cross_entropy_loss_weight': 0.7942166193774506}. Best is trial 1 with value: 0.489.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:05:53,298] Trial 4 finished with value: 0.479 and parameters: {'num_time_intervals': 45, 'embedding_size': 112, 'num_embedding_layers': 2, 'hidden_dims': 177, 'num_recurrent_layers': 1, 'learning_rate': 0.0009564853136396685, 'cross_entropy_loss_weight': 0.8302273918375082}. Best is trial 1 with value: 0.489.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:10:20,390] Trial 5 finished with value: 0.487 and parameters: {'num_time_intervals': 30, 'embedding_size': 44, 'num_embedding_layers': 2, 'hidden_dims': 181, 'num_recurrent_layers': 2, 'learning_rate': 3.6389977712953343e-05, 'cross_entropy_loss_weight': 0.6397183392819092}. Best is trial 1 with value: 0.489.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:15:00,323] Trial 6 finished with value: 0.493 and parameters: {'num_time_intervals': 38, 'embedding_size': 85, 'num_embedding_layers': 1, 'hidden_dims': 159, 'num_recurrent_layers': 1, 'learning_rate': 0.00017680824044111386, 'cross_entropy_loss_weight': 0.22042550506400424}. Best is trial 6 with value: 0.493.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:19:13,044] Trial 7 finished with value: 0.496 and parameters: {'num_time_intervals': 26, 'embedding_size': 116, 'num_embedding_layers': 1, 'hidden_dims': 165, 'num_recurrent_layers': 2, 'learning_rate': 2.6038615449200037e-05, 'cross_entropy_loss_weight': 0.7981337357153774}. Best is trial 7 with value: 0.496.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:23:06,979] Trial 8 finished with value: 0.488 and parameters: {'num_time_intervals': 22, 'embedding_size': 77, 'num_embedding_layers': 3, 'hidden_dims': 153, 'num_recurrent_layers': 3, 'learning_rate': 0.00019376508677925084, 'cross_entropy_loss_weight': 0.5720844538852733}. Best is trial 7 with value: 0.496.
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/rnnsurv.py:169: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_model = torch.load(model_saved_path, map_location=device)
+[I 2026-08-22 15:26:46,496] Trial 9 finished with value: 0.488 and parameters: {'num_time_intervals': 14, 'embedding_size': 91, 'num_embedding_layers': 2, 'hidden_dims': 148, 'num_recurrent_layers': 3, 'learning_rate': 1.4556136809543518e-05, 'cross_entropy_loss_weight': 0.2729373702556793}. Best is trial 7 with value: 0.496.
+Using GPU: cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Running Optuna hyperparameter optimization
+Using GPU: cuda:4
+Running trial number 0 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 38.48315789964464
+Epoch 2/50
+Average Loss: 34.728324784172905
+Epoch 3/50
+Average Loss: 17.343527211083305
+Epoch 4/50
+Average Loss: 2.2123924791812897
+Epoch 5/50
+Average Loss: 0.49371657106611466
+Epoch 6/50
+Average Loss: 0.33156973289118874
+Epoch 7/50
+Average Loss: 0.2801658693287108
+Epoch 8/50
+Average Loss: 0.25219180186589557
+Epoch 9/50
+Average Loss: 0.23274459027581745
+Epoch 10/50
+Average Loss: 0.2184034428662724
+Epoch 11/50
+Average Loss: 0.20712701976299286
+Epoch 12/50
+Average Loss: 0.19776870393090779
+Epoch 13/50
+Average Loss: 0.19044149170319238
+Epoch 14/50
+Average Loss: 0.18386688538723522
+Epoch 15/50
+Average Loss: 0.1788298644953304
+Epoch 16/50
+Average Loss: 0.1744544423288769
+Epoch 17/50
+Average Loss: 0.17096538262234795
+Epoch 18/50
+Average Loss: 0.1675868166817559
+Epoch 19/50
+Average Loss: 0.16502578722106087
+Epoch 20/50
+Average Loss: 0.16185218219955763
+Epoch 21/50
+Average Loss: 0.15926787505547205
+Epoch 22/50
+Average Loss: 0.15777060141166052
+Epoch 23/50
+Average Loss: 0.1556111785272757
+Epoch 24/50
+Average Loss: 0.15452297694153255
+Epoch 25/50
+Average Loss: 0.15271539075507057
+Epoch 26/50
+Average Loss: 0.1510665263566706
+Epoch 27/50
+Average Loss: 0.14985745234621894
+Epoch 28/50
+Average Loss: 0.14863108595212302
+Epoch 29/50
+Average Loss: 0.14736969272295633
+Epoch 30/50
+Average Loss: 0.14676582399341795
+Epoch 31/50
+Average Loss: 0.14547518392403921
+Epoch 32/50
+Average Loss: 0.14449983835220337
+Epoch 33/50
+Average Loss: 0.14389030180043644
+Epoch 34/50
+Average Loss: 0.143113033225139
+Epoch 35/50
+Average Loss: 0.14251121506094933
+Epoch 36/50
+Average Loss: 0.14169025752279493
+Epoch 37/50
+Average Loss: 0.1414197033478154
+Epoch 38/50
+Average Loss: 0.1404382942451371
+Epoch 39/50
+Average Loss: 0.13968326151371002
+Epoch 40/50
+Average Loss: 0.13941415978802574
+Epoch 41/50
+Average Loss: 0.13866788976722294
+Epoch 42/50
+Average Loss: 0.13805361837148666
+Epoch 43/50
+Average Loss: 0.13772890758183268
+Epoch 44/50
+Average Loss: 0.13702259792221916
+Epoch 45/50
+Average Loss: 0.13668194371793005
+Epoch 46/50
+Average Loss: 0.13668694429927403
+Patience Counter: 1
+Epoch 47/50
+Average Loss: 0.13597632033957374
+Epoch 48/50
+Average Loss: 0.1354760304093361
+Epoch 49/50
+Average Loss: 0.13525284992323983
+Epoch 50/50
+Average Loss: 0.13523518376880223
+No existing model found, saving current model
+C-Index on Test Data: 0.486
+Using GPU: cuda:2
+Running trial number 1 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 234.13605753580728
+Epoch 2/50
+Average Loss: 230.92519039577908
+Epoch 3/50
+Average Loss: 223.95330725775824
+Epoch 4/50
+Average Loss: 202.95355309380426
+Epoch 5/50
+Average Loss: 149.20974519517688
+Epoch 6/50
+Average Loss: 71.23844083150227
+Epoch 7/50
+Average Loss: 20.977973885006374
+Epoch 8/50
+Average Loss: 6.69229351149665
+Epoch 9/50
+Average Loss: 3.3697604603237576
+Epoch 10/50
+Average Loss: 2.2844370868470936
+Epoch 11/50
+Average Loss: 1.7468188140127394
+Epoch 12/50
+Average Loss: 1.4182948271433513
+Epoch 13/50
+Average Loss: 1.1938526233037312
+Epoch 14/50
+Average Loss: 1.0298848781320784
+Epoch 15/50
+Average Loss: 0.9062682025962405
+Epoch 16/50
+Average Loss: 0.8091249763965607
+Epoch 17/50
+Average Loss: 0.730807340807385
+Epoch 18/50
+Average Loss: 0.6670724120404985
+Epoch 19/50
+Average Loss: 0.6137632197803922
+Epoch 20/50
+Average Loss: 0.5691198474831052
+Epoch 21/50
+Average Loss: 0.5308485229810079
+Epoch 22/50
+Average Loss: 0.4973631434970432
+Epoch 23/50
+Average Loss: 0.4689011375109355
+Epoch 24/50
+Average Loss: 0.44324736959404415
+Epoch 25/50
+Average Loss: 0.42118460436662036
+Epoch 26/50
+Average Loss: 0.4011879497104221
+Epoch 27/50
+Average Loss: 0.3836156576871872
+Epoch 28/50
+Average Loss: 0.36769412954648334
+Epoch 29/50
+Average Loss: 0.35326184497939217
+Epoch 30/50
+Average Loss: 0.34061647123760647
+Epoch 31/50
+Average Loss: 0.32874220609664917
+Epoch 32/50
+Average Loss: 0.31745629840426975
+Epoch 33/50
+Average Loss: 0.30753090812100303
+Epoch 34/50
+Average Loss: 0.29847236308786607
+Epoch 35/50
+Average Loss: 0.2899419234858619
+Epoch 36/50
+Average Loss: 0.2824559402134683
+Epoch 37/50
+Average Loss: 0.27489889330334133
+Epoch 38/50
+Average Loss: 0.2682724975877338
+Epoch 39/50
+Average Loss: 0.26147888352473575
+Epoch 40/50
+Average Loss: 0.2559310214387046
+Epoch 41/50
+Average Loss: 0.2505095874269803
+Epoch 42/50
+Average Loss: 0.24561439702908197
+Epoch 43/50
+Average Loss: 0.2410055481725269
+Epoch 44/50
+Average Loss: 0.23638331807321972
+Epoch 45/50
+Average Loss: 0.23160532282458413
+Epoch 46/50
+Average Loss: 0.22751035375727546
+Epoch 47/50
+Average Loss: 0.22409373687373269
+Epoch 48/50
+Average Loss: 0.2197077042526669
+Epoch 49/50
+Average Loss: 0.2165488161974483
+Epoch 50/50
+Average Loss: 0.21375034749507904
+C-Index on Test Data: 0.489
+C-Index on Test Data: 0.486
+Current trial C-index: 0.4890, Previously saved model C-index: 0.4860
+Current model performs better, saving it...
+C-Index on Test Data: 0.489
+Using GPU: cuda:6
+Running trial number 2 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:6
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 119.82944446139865
+Epoch 2/50
+Average Loss: 112.22685919867621
+Epoch 3/50
+Average Loss: 102.3506571451823
+Epoch 4/50
+Average Loss: 88.04669443766277
+Epoch 5/50
+Average Loss: 69.44204160902235
+Epoch 6/50
+Average Loss: 49.66535419887967
+Epoch 7/50
+Average Loss: 33.09790653652615
+Epoch 8/50
+Average Loss: 21.468053181966145
+Epoch 9/50
+Average Loss: 14.120425913068983
+Epoch 10/50
+Average Loss: 9.711865266164144
+Epoch 11/50
+Average Loss: 7.03857077492608
+Epoch 12/50
+Average Loss: 5.366906298531426
+Epoch 13/50
+Average Loss: 4.265471710099114
+Epoch 14/50
+Average Loss: 3.4894340170754328
+Epoch 15/50
+Average Loss: 2.928090122010973
+Epoch 16/50
+Average Loss: 2.5015159712897406
+Epoch 17/50
+Average Loss: 2.1731887658437095
+Epoch 18/50
+Average Loss: 1.9126531415515475
+Epoch 19/50
+Average Loss: 1.7020315527915955
+Epoch 20/50
+Average Loss: 1.5289150012864008
+Epoch 21/50
+Average Loss: 1.3841133779949613
+Epoch 22/50
+Average Loss: 1.2618601984447904
+Epoch 23/50
+Average Loss: 1.1574480732282002
+Epoch 24/50
+Average Loss: 1.06662827067905
+Epoch 25/50
+Average Loss: 0.9879460003640916
+Epoch 26/50
+Average Loss: 0.9186989267667135
+Epoch 27/50
+Average Loss: 0.8577647043599023
+Epoch 28/50
+Average Loss: 0.8031093378861746
+Epoch 29/50
+Average Loss: 0.7538059088918898
+Epoch 30/50
+Average Loss: 0.7093100978268517
+Epoch 31/50
+Average Loss: 0.6679442392455207
+Epoch 32/50
+Average Loss: 0.6306515336036682
+Epoch 33/50
+Average Loss: 0.596159064107471
+Epoch 34/50
+Average Loss: 0.5646672778659396
+Epoch 35/50
+Average Loss: 0.5359409319029914
+Epoch 36/50
+Average Loss: 0.5096127159065671
+Epoch 37/50
+Average Loss: 0.48534609874089557
+Epoch 38/50
+Average Loss: 0.4632156574063831
+Epoch 39/50
+Average Loss: 0.44273992379506427
+Epoch 40/50
+Average Loss: 0.42377156350347733
+Epoch 41/50
+Average Loss: 0.4060666610797246
+Epoch 42/50
+Average Loss: 0.3898821489678489
+Epoch 43/50
+Average Loss: 0.37480603489610886
+Epoch 44/50
+Average Loss: 0.3606234871678882
+Epoch 45/50
+Average Loss: 0.3473412940899531
+Epoch 46/50
+Average Loss: 0.3349902745750215
+Epoch 47/50
+Average Loss: 0.3233671536048253
+Epoch 48/50
+Average Loss: 0.31230901016129387
+Epoch 49/50
+Average Loss: 0.30200331740909153
+Epoch 50/50
+Average Loss: 0.2923264122671551
+C-Index on Test Data: 0.486
+C-Index on Test Data: 0.489
+Current trial C-index: 0.4860, Previously saved model C-index: 0.4890
+C-Index on Test Data: 0.486
+Using GPU: cuda:4
+Running trial number 3 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 109.11705568101671
+Epoch 2/50
+Average Loss: 79.49136225382487
+Epoch 3/50
+Average Loss: 17.649235871103073
+Epoch 4/50
+Average Loss: 0.9732462300194634
+Epoch 5/50
+Average Loss: 0.3823140561580658
+Epoch 6/50
+Average Loss: 0.31799355149269104
+Epoch 7/50
+Average Loss: 0.29203221450249356
+Epoch 8/50
+Average Loss: 0.27380825993087554
+Epoch 9/50
+Average Loss: 0.26025376386112636
+Epoch 10/50
+Average Loss: 0.2477884077363544
+Epoch 11/50
+Average Loss: 0.23787547565168804
+Epoch 12/50
+Average Loss: 0.22920501066578758
+Epoch 13/50
+Average Loss: 0.22139307939343983
+Epoch 14/50
+Average Loss: 0.2150690828760465
+Epoch 15/50
+Average Loss: 0.20930242124531004
+Epoch 16/50
+Average Loss: 0.20523369974560207
+Epoch 17/50
+Average Loss: 0.20015457769234976
+Epoch 18/50
+Average Loss: 0.19665384789307913
+Epoch 19/50
+Average Loss: 0.19311807801326117
+Epoch 20/50
+Average Loss: 0.18934061461024815
+Epoch 21/50
+Average Loss: 0.1870655065609349
+Epoch 22/50
+Average Loss: 0.1845107600092888
+Epoch 23/50
+Average Loss: 0.1816752784781986
+Epoch 24/50
+Average Loss: 0.17955323225922054
+Epoch 25/50
+Average Loss: 0.17803864346610176
+Epoch 26/50
+Average Loss: 0.17597362233532798
+Epoch 27/50
+Average Loss: 0.17435757774445745
+Epoch 28/50
+Average Loss: 0.1720787932475408
+Epoch 29/50
+Average Loss: 0.1705819848510954
+Epoch 30/50
+Average Loss: 0.16921204245752758
+Epoch 31/50
+Average Loss: 0.16802280561791527
+Epoch 32/50
+Average Loss: 0.1668944689962599
+Epoch 33/50
+Average Loss: 0.16580704558226797
+Epoch 34/50
+Average Loss: 0.16440765145752165
+Epoch 35/50
+Average Loss: 0.16364261880517006
+Epoch 36/50
+Average Loss: 0.1624543848964903
+Epoch 37/50
+Average Loss: 0.16156189723147285
+Epoch 38/50
+Average Loss: 0.160778203772174
+Epoch 39/50
+Average Loss: 0.15951522688070932
+Epoch 40/50
+Average Loss: 0.1588337922261821
+Epoch 41/50
+Average Loss: 0.15799791945351493
+Epoch 42/50
+Average Loss: 0.157295321010881
+Epoch 43/50
+Average Loss: 0.15666748541924688
+Epoch 44/50
+Average Loss: 0.15620623694525826
+Epoch 45/50
+Average Loss: 0.15649347917901146
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 0.15485346193114916
+Epoch 47/50
+Average Loss: 0.15438149124383926
+Epoch 48/50
+Average Loss: 0.15393156972196367
+Epoch 49/50
+Average Loss: 0.1533890805310673
+Epoch 50/50
+Average Loss: 0.15325482934713364
+C-Index on Test Data: 0.486
+C-Index on Test Data: 0.489
+Current trial C-index: 0.4860, Previously saved model C-index: 0.4890
+C-Index on Test Data: 0.486
+Using GPU: cuda:2
+Running trial number 4 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 43.66955407460531
+Epoch 2/50
+Average Loss: 1.4112335791190465
+Epoch 3/50
+Average Loss: 0.3082180039750205
+Epoch 4/50
+Average Loss: 0.2566680171423488
+Epoch 5/50
+Average Loss: 0.23675608386596045
+Epoch 6/50
+Average Loss: 0.2233579092555576
+Epoch 7/50
+Average Loss: 0.21380257937643263
+Epoch 8/50
+Average Loss: 0.20602857983774608
+Epoch 9/50
+Average Loss: 0.19907540910773808
+Epoch 10/50
+Average Loss: 0.1936352178454399
+Epoch 11/50
+Average Loss: 0.18844725853867
+Epoch 12/50
+Average Loss: 0.18480214642153847
+Epoch 13/50
+Average Loss: 0.18085826188325882
+Epoch 14/50
+Average Loss: 0.1772418287065294
+Epoch 15/50
+Average Loss: 0.1746074085434278
+Epoch 16/50
+Average Loss: 0.17210628009504741
+Epoch 17/50
+Average Loss: 0.16967760192023384
+Epoch 18/50
+Average Loss: 0.16835899402697882
+Epoch 19/50
+Average Loss: 0.16629787410298982
+Epoch 20/50
+Average Loss: 0.1648833155632019
+Epoch 21/50
+Average Loss: 0.1633906438946724
+Epoch 22/50
+Average Loss: 0.16187668012248146
+Epoch 23/50
+Average Loss: 0.16105370803011787
+Epoch 24/50
+Average Loss: 0.15947635016507572
+Epoch 25/50
+Average Loss: 0.1585419298046165
+Epoch 26/50
+Average Loss: 0.15771072978774706
+Epoch 27/50
+Average Loss: 0.15631006533900896
+Epoch 28/50
+Average Loss: 0.15594931153787506
+Epoch 29/50
+Average Loss: 0.15502562663621372
+Epoch 30/50
+Average Loss: 0.1541004582411713
+Epoch 31/50
+Average Loss: 0.1533819337685903
+Epoch 32/50
+Average Loss: 0.1528867723213302
+Epoch 33/50
+Average Loss: 0.15267276556955445
+Epoch 34/50
+Average Loss: 0.15182957011792395
+Epoch 35/50
+Average Loss: 0.15125933330920008
+Epoch 36/50
+Average Loss: 0.1509750915898217
+Epoch 37/50
+Average Loss: 0.15034619925750625
+Epoch 38/50
+Average Loss: 0.1496269611848725
+Epoch 39/50
+Average Loss: 0.14913974536789787
+Epoch 40/50
+Average Loss: 0.14895113681753477
+Epoch 41/50
+Average Loss: 0.14790479963024458
+Epoch 42/50
+Average Loss: 0.14788739672965473
+Epoch 43/50
+Average Loss: 0.14724441659119394
+Epoch 44/50
+Average Loss: 0.14738713991310862
+Patience Counter: 1
+Epoch 45/50
+Average Loss: 0.14705058063069978
+Epoch 46/50
+Average Loss: 0.14697887582911384
+Epoch 47/50
+Average Loss: 0.14672142184442943
+Epoch 48/50
+Average Loss: 0.14591164348853958
+Epoch 49/50
+Average Loss: 0.14579107322626644
+Epoch 50/50
+Average Loss: 0.14574521945582497
+C-Index on Test Data: 0.479
+C-Index on Test Data: 0.489
+Current trial C-index: 0.4790, Previously saved model C-index: 0.4890
+C-Index on Test Data: 0.479
+Using GPU: cuda:5
+Running trial number 5 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 74.91860326131184
+Epoch 2/50
+Average Loss: 74.47016313340929
+Epoch 3/50
+Average Loss: 73.96081966824002
+Epoch 4/50
+Average Loss: 73.32056638929579
+Epoch 5/50
+Average Loss: 72.45131513807509
+Epoch 6/50
+Average Loss: 71.21223746405707
+Epoch 7/50
+Average Loss: 69.40783903333876
+Epoch 8/50
+Average Loss: 66.7821871439616
+Epoch 9/50
+Average Loss: 63.03571637471517
+Epoch 10/50
+Average Loss: 58.105745527479385
+Epoch 11/50
+Average Loss: 52.08608712090386
+Epoch 12/50
+Average Loss: 45.509779400295685
+Epoch 13/50
+Average Loss: 38.81812985738119
+Epoch 14/50
+Average Loss: 32.41890313890245
+Epoch 15/50
+Average Loss: 26.55343574947781
+Epoch 16/50
+Average Loss: 21.426785786946613
+Epoch 17/50
+Average Loss: 17.058167934417725
+Epoch 18/50
+Average Loss: 13.48429208331638
+Epoch 19/50
+Average Loss: 10.667074150509304
+Epoch 20/50
+Average Loss: 8.464946640862358
+Epoch 21/50
+Average Loss: 6.785947508282131
+Epoch 22/50
+Average Loss: 5.518734296162923
+Epoch 23/50
+Average Loss: 4.560260110431248
+Epoch 24/50
+Average Loss: 3.817259510358175
+Epoch 25/50
+Average Loss: 3.2541156344943576
+Epoch 26/50
+Average Loss: 2.811504522959391
+Epoch 27/50
+Average Loss: 2.4592200915018716
+Epoch 28/50
+Average Loss: 2.1763298975096808
+Epoch 29/50
+Average Loss: 1.9428574244181316
+Epoch 30/50
+Average Loss: 1.7496474252806768
+Epoch 31/50
+Average Loss: 1.5893994371096294
+Epoch 32/50
+Average Loss: 1.451662196053399
+Epoch 33/50
+Average Loss: 1.3364432719018724
+Epoch 34/50
+Average Loss: 1.235674136214786
+Epoch 35/50
+Average Loss: 1.1484866937001545
+Epoch 36/50
+Average Loss: 1.0736720926231809
+Epoch 37/50
+Average Loss: 1.005451629559199
+Epoch 38/50
+Average Loss: 0.9460834463437399
+Epoch 39/50
+Average Loss: 0.892479290564855
+Epoch 40/50
+Average Loss: 0.8447934422228072
+Epoch 41/50
+Average Loss: 0.802800887160831
+Epoch 42/50
+Average Loss: 0.7638745804627737
+Epoch 43/50
+Average Loss: 0.7287189364433289
+Epoch 44/50
+Average Loss: 0.6969621810648177
+Epoch 45/50
+Average Loss: 0.6677593986193339
+Epoch 46/50
+Average Loss: 0.6409492691357931
+Epoch 47/50
+Average Loss: 0.6168473429150052
+Epoch 48/50
+Average Loss: 0.5942383375432756
+Epoch 49/50
+Average Loss: 0.5731830729378594
+Epoch 50/50
+Average Loss: 0.5541325045956506
+C-Index on Test Data: 0.487
+C-Index on Test Data: 0.489
+Current trial C-index: 0.4870, Previously saved model C-index: 0.4890
+C-Index on Test Data: 0.487
+Using GPU: cuda:2
+Running trial number 6 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 247.51992967393664
+Epoch 2/50
+Average Loss: 223.66180843777127
+Epoch 3/50
+Average Loss: 189.60080803765192
+Epoch 4/50
+Average Loss: 143.10981708102756
+Epoch 5/50
+Average Loss: 90.97035174899631
+Epoch 6/50
+Average Loss: 49.52139409383138
+Epoch 7/50
+Average Loss: 26.441184679667156
+Epoch 8/50
+Average Loss: 15.421758863661024
+Epoch 9/50
+Average Loss: 9.882132238811916
+Epoch 10/50
+Average Loss: 6.921469820870294
+Epoch 11/50
+Average Loss: 4.984297845098707
+Epoch 12/50
+Average Loss: 3.821981191635132
+Epoch 13/50
+Average Loss: 3.01758513185713
+Epoch 14/50
+Average Loss: 2.397523628340827
+Epoch 15/50
+Average Loss: 1.9628927045398288
+Epoch 16/50
+Average Loss: 1.6402379671732585
+Epoch 17/50
+Average Loss: 1.4144695070054796
+Epoch 18/50
+Average Loss: 1.247199707561069
+Epoch 19/50
+Average Loss: 1.1031170884768169
+Epoch 20/50
+Average Loss: 0.9892737666765848
+Epoch 21/50
+Average Loss: 0.8972054620583853
+Epoch 22/50
+Average Loss: 0.820529494020674
+Epoch 23/50
+Average Loss: 0.7515201171239217
+Epoch 24/50
+Average Loss: 0.6925105353196462
+Epoch 25/50
+Average Loss: 0.6408538983927833
+Epoch 26/50
+Average Loss: 0.5963569415940179
+Epoch 27/50
+Average Loss: 0.5561057792769538
+Epoch 28/50
+Average Loss: 0.5203574713733461
+Epoch 29/50
+Average Loss: 0.49035464227199554
+Epoch 30/50
+Average Loss: 0.46437102887365556
+Epoch 31/50
+Average Loss: 0.4409424215555191
+Epoch 32/50
+Average Loss: 0.42007605565918815
+Epoch 33/50
+Average Loss: 0.4008309178882175
+Epoch 34/50
+Average Loss: 0.3827740218904283
+Epoch 35/50
+Average Loss: 0.36606522070036995
+Epoch 36/50
+Average Loss: 0.35049430694844985
+Epoch 37/50
+Average Loss: 0.3365384836991628
+Epoch 38/50
+Average Loss: 0.3239971316523022
+Epoch 39/50
+Average Loss: 0.3123187886344062
+Epoch 40/50
+Average Loss: 0.3015061252646976
+Epoch 41/50
+Average Loss: 0.29143432941701675
+Epoch 42/50
+Average Loss: 0.28206262323591447
+Epoch 43/50
+Average Loss: 0.2730596512556076
+Epoch 44/50
+Average Loss: 0.26455699404080707
+Epoch 45/50
+Average Loss: 0.25667520860830945
+Epoch 46/50
+Average Loss: 0.24929602609740364
+Epoch 47/50
+Average Loss: 0.24197422216335931
+Epoch 48/50
+Average Loss: 0.2351885603533851
+Epoch 49/50
+Average Loss: 0.22865479936202368
+Epoch 50/50
+Average Loss: 0.22256342983908123
+C-Index on Test Data: 0.493
+C-Index on Test Data: 0.489
+Current trial C-index: 0.4930, Previously saved model C-index: 0.4890
+Current model performs better, saving it...
+C-Index on Test Data: 0.493
+Using GPU: cuda:4
+Running trial number 7 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 31.50385496351454
+Epoch 2/50
+Average Loss: 31.33863141801622
+Epoch 3/50
+Average Loss: 31.165119171142578
+Epoch 4/50
+Average Loss: 30.966991636488174
+Epoch 5/50
+Average Loss: 30.739394399854874
+Epoch 6/50
+Average Loss: 30.469565921359592
+Epoch 7/50
+Average Loss: 30.138860596550835
+Epoch 8/50
+Average Loss: 29.718143886990017
+Epoch 9/50
+Average Loss: 29.182034704420303
+Epoch 10/50
+Average Loss: 28.519032796223957
+Epoch 11/50
+Average Loss: 27.69942718082004
+Epoch 12/50
+Average Loss: 26.690066655476887
+Epoch 13/50
+Average Loss: 25.468389723036026
+Epoch 14/50
+Average Loss: 24.008444680107964
+Epoch 15/50
+Average Loss: 22.283708360460068
+Epoch 16/50
+Average Loss: 20.31875493791368
+Epoch 17/50
+Average Loss: 18.175181918674046
+Epoch 18/50
+Average Loss: 15.954978995853
+Epoch 19/50
+Average Loss: 13.781686305999756
+Epoch 20/50
+Average Loss: 11.744506624009874
+Epoch 21/50
+Average Loss: 9.935892740885416
+Epoch 22/50
+Average Loss: 8.379153781467014
+Epoch 23/50
+Average Loss: 7.099900060229832
+Epoch 24/50
+Average Loss: 6.05737058321635
+Epoch 25/50
+Average Loss: 5.191919936074151
+Epoch 26/50
+Average Loss: 4.517651783095466
+Epoch 27/50
+Average Loss: 3.954825507269965
+Epoch 28/50
+Average Loss: 3.5087468226750693
+Epoch 29/50
+Average Loss: 3.1337400674819946
+Epoch 30/50
+Average Loss: 2.800521148575677
+Epoch 31/50
+Average Loss: 2.522536701626248
+Epoch 32/50
+Average Loss: 2.2878842883639865
+Epoch 33/50
+Average Loss: 2.0914607180489435
+Epoch 34/50
+Average Loss: 1.9269937475522358
+Epoch 35/50
+Average Loss: 1.7876658770773146
+Epoch 36/50
+Average Loss: 1.6622848113377888
+Epoch 37/50
+Average Loss: 1.5493298040495977
+Epoch 38/50
+Average Loss: 1.449055512746175
+Epoch 39/50
+Average Loss: 1.3560371465153165
+Epoch 40/50
+Average Loss: 1.2760964433352153
+Epoch 41/50
+Average Loss: 1.2084133691257901
+Epoch 42/50
+Average Loss: 1.1426850921577878
+Epoch 43/50
+Average Loss: 1.0825212001800537
+Epoch 44/50
+Average Loss: 1.0258582731088002
+Epoch 45/50
+Average Loss: 0.9743076662222544
+Epoch 46/50
+Average Loss: 0.930446121427748
+Epoch 47/50
+Average Loss: 0.8883265852928162
+Epoch 48/50
+Average Loss: 0.8477272093296051
+Epoch 49/50
+Average Loss: 0.8070642120308347
+Epoch 50/50
+Average Loss: 0.7700183424684737
+C-Index on Test Data: 0.496
+C-Index on Test Data: 0.493
+Current trial C-index: 0.4960, Previously saved model C-index: 0.4930
+Current model performs better, saving it...
+C-Index on Test Data: 0.496
+Using GPU: cuda:2
+Running trial number 8 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 45.07340537177192
+Epoch 2/50
+Average Loss: 43.60435231526693
+Epoch 3/50
+Average Loss: 36.85124693976508
+Epoch 4/50
+Average Loss: 17.10853322347005
+Epoch 5/50
+Average Loss: 4.04011164771186
+Epoch 6/50
+Average Loss: 1.4529486695925395
+Epoch 7/50
+Average Loss: 0.8596480952368842
+Epoch 8/50
+Average Loss: 0.633119629489051
+Epoch 9/50
+Average Loss: 0.5121230913533105
+Epoch 10/50
+Average Loss: 0.43564533525043064
+Epoch 11/50
+Average Loss: 0.3820668276813295
+Epoch 12/50
+Average Loss: 0.342285187708007
+Epoch 13/50
+Average Loss: 0.31245728664928013
+Epoch 14/50
+Average Loss: 0.28885036293003297
+Epoch 15/50
+Average Loss: 0.2697532781296306
+Epoch 16/50
+Average Loss: 0.2538405532638232
+Epoch 17/50
+Average Loss: 0.2412763386964798
+Epoch 18/50
+Average Loss: 0.22959081745809978
+Epoch 19/50
+Average Loss: 0.22022301289770338
+Epoch 20/50
+Average Loss: 0.2121379847327868
+Epoch 21/50
+Average Loss: 0.20484777291615805
+Epoch 22/50
+Average Loss: 0.19871161215835148
+Epoch 23/50
+Average Loss: 0.19334766020377478
+Epoch 24/50
+Average Loss: 0.1881017428305414
+Epoch 25/50
+Average Loss: 0.1835418939590454
+Epoch 26/50
+Average Loss: 0.17981627997424868
+Epoch 27/50
+Average Loss: 0.1757668455441793
+Epoch 28/50
+Average Loss: 0.17255905891458193
+Epoch 29/50
+Average Loss: 0.16919280919763777
+Epoch 30/50
+Average Loss: 0.1665346465177006
+Epoch 31/50
+Average Loss: 0.16400007241302067
+Epoch 32/50
+Average Loss: 0.1614662218425009
+Epoch 33/50
+Average Loss: 0.15907465169827142
+Epoch 34/50
+Average Loss: 0.15710636683636242
+Epoch 35/50
+Average Loss: 0.15514005637831157
+Epoch 36/50
+Average Loss: 0.15330995039807427
+Epoch 37/50
+Average Loss: 0.15143119254046017
+Epoch 38/50
+Average Loss: 0.15041914292507702
+Epoch 39/50
+Average Loss: 0.14834286934799618
+Epoch 40/50
+Average Loss: 0.14696914909614456
+Epoch 41/50
+Average Loss: 0.14588828674621052
+Epoch 42/50
+Average Loss: 0.1444631533490287
+Epoch 43/50
+Average Loss: 0.1434658852716287
+Epoch 44/50
+Average Loss: 0.1424507080680794
+Epoch 45/50
+Average Loss: 0.14085979842477375
+Epoch 46/50
+Average Loss: 0.13988581423958144
+Epoch 47/50
+Average Loss: 0.1393184554245737
+Epoch 48/50
+Average Loss: 0.1379178228477637
+Epoch 49/50
+Average Loss: 0.13713674826754463
+Epoch 50/50
+Average Loss: 0.13577219512727526
+C-Index on Test Data: 0.488
+C-Index on Test Data: 0.496
+Current trial C-index: 0.4880, Previously saved model C-index: 0.4960
+C-Index on Test Data: 0.488
+Using GPU: cuda:5
+Running trial number 9 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+Epoch 1/50
+Average Loss: 28.2255613538954
+Epoch 2/50
+Average Loss: 28.181251525878906
+Epoch 3/50
+Average Loss: 28.13616265190972
+Epoch 4/50
+Average Loss: 28.089744673834907
+Epoch 5/50
+Average Loss: 28.041066275702583
+Epoch 6/50
+Average Loss: 27.9887179268731
+Epoch 7/50
+Average Loss: 27.931102646721733
+Epoch 8/50
+Average Loss: 27.86678144666884
+Epoch 9/50
+Average Loss: 27.79247283935547
+Epoch 10/50
+Average Loss: 27.705570009019638
+Epoch 11/50
+Average Loss: 27.601245562235516
+Epoch 12/50
+Average Loss: 27.473657184176975
+Epoch 13/50
+Average Loss: 27.315320438808865
+Epoch 14/50
+Average Loss: 27.11316680908203
+Epoch 15/50
+Average Loss: 26.854947725931805
+Epoch 16/50
+Average Loss: 26.526437017652725
+Epoch 17/50
+Average Loss: 26.10267448425293
+Epoch 18/50
+Average Loss: 25.555430200364853
+Epoch 19/50
+Average Loss: 24.861889521280926
+Epoch 20/50
+Average Loss: 23.994056595696343
+Epoch 21/50
+Average Loss: 22.94823381635878
+Epoch 22/50
+Average Loss: 21.71960703531901
+Epoch 23/50
+Average Loss: 20.347913212246365
+Epoch 24/50
+Average Loss: 18.865588823954266
+Epoch 25/50
+Average Loss: 17.308818923102486
+Epoch 26/50
+Average Loss: 15.742895497216118
+Epoch 27/50
+Average Loss: 14.194137202368843
+Epoch 28/50
+Average Loss: 12.7151730855306
+Epoch 29/50
+Average Loss: 11.335020966000027
+Epoch 30/50
+Average Loss: 10.07323439915975
+Epoch 31/50
+Average Loss: 8.945965660942925
+Epoch 32/50
+Average Loss: 7.949913077884251
+Epoch 33/50
+Average Loss: 7.081133577558729
+Epoch 34/50
+Average Loss: 6.32814359664917
+Epoch 35/50
+Average Loss: 5.682653533087836
+Epoch 36/50
+Average Loss: 5.12401901351081
+Epoch 37/50
+Average Loss: 4.642477724287245
+Epoch 38/50
+Average Loss: 4.226561334398058
+Epoch 39/50
+Average Loss: 3.865214321348402
+Epoch 40/50
+Average Loss: 3.5499905347824097
+Epoch 41/50
+Average Loss: 3.2740834951400757
+Epoch 42/50
+Average Loss: 3.030503829320272
+Epoch 43/50
+Average Loss: 2.8148959080378213
+Epoch 44/50
+Average Loss: 2.6232573721143932
+Epoch 45/50
+Average Loss: 2.451622406641642
+Epoch 46/50
+Average Loss: 2.2978698545032077
+Epoch 47/50
+Average Loss: 2.159669346279568
+Epoch 48/50
+Average Loss: 2.0342725250456066
+Epoch 49/50
+Average Loss: 1.9207271801100836
+Epoch 50/50
+Average Loss: 1.8169227242469788
+C-Index on Test Data: 0.488
+C-Index on Test Data: 0.496
+Current trial C-index: 0.4880, Previously saved model C-index: 0.4960
+C-Index on Test Data: 0.488
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_time_intervals': 26, 'embedding_size': 116, 'num_embedding_layers': 1, 'hidden_dims': 165, 'num_recurrent_layers': 2, 'learning_rate': 2.6038615449200037e-05, 'cross_entropy_loss_weight': 0.7981337357153774}
+C-Index on Test Data: 0.494
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4449.404861111111
+Mean time-dependent AUC: 0.4961
+✓ rnnsurv/twenty_features_heterogeneous completed successfully
+==================== Running kfre/four_features ====================
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Cached KFRE risk scores: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_kfre_2yr_risk_scores.csv
+Evaluate on test data
+Concordance Index Test: 0.627
+Integrated Brier Score Test: 0.347
+✗ kfre/four_features failed:
+Traceback (most recent call last):
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/scripts/run_stage2_new_scenarios.py", line 56, in main
+    fn(scenario)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/kfre.py", line 119, in run_kfre_model
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/sksurv/metrics.py", line 459, in cumulative_dynamic_auc
+    ipcw = cens.predict_ipcw(survival_test)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/sksurv/nonparametric.py", line 583, in predict_ipcw
+    raise ValueError("censoring survival function is zero at one or more time points")
+ValueError: censoring survival function is zero at one or more time points
+==================== Running kfre/eight_features ====================
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Cached KFRE risk scores: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_kfre_2yr_risk_scores.csv
+Evaluate on test data
+Concordance Index Test: 0.637
+Integrated Brier Score Test: 0.452
+Mean time-dependent AUC: 0.6624
+✓ kfre/eight_features completed successfully
+=========================================
+Total: 17  Failed: 6
+Failed: ['cox/four_features', 'dynamic_deephit/four_features', 'dynamic_deephit/twenty_features_heterogeneous', 'hazard_transformer/four_features', 'rnnsurv/four_features', 'kfre/four_features']

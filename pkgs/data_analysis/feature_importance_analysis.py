@@ -15,7 +15,10 @@ from pkgs.commons import (
     current_rep, generate_data_path_latest_rep,
     egfr_components_train_data_path, egfr_components_test_data_path,
     five_labms_train_subset_path, five_labms_test_subset_path,
-    five_labms_num_subsets_train, five_labms_num_subsets_test
+    five_labms_num_subsets_train, five_labms_num_subsets_test,
+    four_features_train_data_path, four_features_test_data_path,
+    eight_features_train_data_path, eight_features_test_data_path,
+    twenty_features_heterogeneous_train_data_path, twenty_features_heterogeneous_test_data_path,
 )
 from pkgs.experiments.utils import load_pkl_and_dill_model
 
@@ -26,6 +29,8 @@ class FeatureImportanceAnalyzer:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.report_lines = []
+        self.current_scenario = None
+        self.scenario_report_lines = {}
         self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv']
         self.all_importances = {}
         self.model_pretty_names = {
@@ -39,6 +44,8 @@ class FeatureImportanceAnalyzer:
     def log(self, message):
         print(message)
         self.report_lines.append(message)
+        if self.current_scenario is not None:
+            self.scenario_report_lines.setdefault(self.current_scenario, []).append(message)
         
     def analyze_egfr_components(self):
         self.log("="*80)
@@ -138,26 +145,166 @@ class FeatureImportanceAnalyzer:
         
         self.analyze_all_models('fivelabms', test_data, feature_cols)
     
+    def analyze_four_features(self):
+        self.current_scenario = 'four_features'
+        self.log("="*80)
+        self.log("FEATURE IMPORTANCE ANALYSIS - FOUR_FEATURES SCENARIO")
+        self.log("="*80)
+        self.log("")
+
+        try:
+            train_data = pd.read_csv(four_features_train_data_path)
+            test_data = pd.read_csv(four_features_test_data_path)
+
+            test_data = test_data.sample(frac=1, random_state=42).reset_index(drop=True)
+
+            self.log(f"Training samples: {len(train_data)}")
+            self.log(f"Test samples: {len(test_data)}")
+            self.log(f"Features: {list(train_data.columns)}")
+            self.log("")
+
+            feature_cols = ['age', 'gender', 'egfr', 'uacr']
+
+            self.log("FEATURE OVERVIEW:")
+            self.log("-" * 40)
+            for col in feature_cols:
+                if col in train_data.columns:
+                    mean_val = train_data[col].mean()
+                    std_val = train_data[col].std()
+                    self.log(f"  {col}: mean={mean_val:.3f}, std={std_val:.3f}")
+            self.log("")
+
+        except Exception as e:
+            self.log(f"Error loading four_features data: {e}")
+            return
+
+        self.all_importances['four_features'] = {}
+
+        self.analyze_all_models('four_features', test_data, feature_cols)
+        self.save_scenario_report('four_features')
+
+    def analyze_eight_features(self):
+        self.current_scenario = 'eight_features'
+        self.log("="*80)
+        self.log("FEATURE IMPORTANCE ANALYSIS - EIGHT_FEATURES SCENARIO")
+        self.log("="*80)
+        self.log("")
+
+        try:
+            train_data = pd.read_csv(eight_features_train_data_path)
+            test_data = pd.read_csv(eight_features_test_data_path)
+
+            test_data = test_data.sample(frac=1, random_state=42).reset_index(drop=True)
+
+            self.log(f"Training samples: {len(train_data)}")
+            self.log(f"Test samples: {len(test_data)}")
+            self.log(f"Features: {list(train_data.columns)}")
+            self.log("")
+
+            feature_cols = ['age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+
+            self.log("FEATURE OVERVIEW:")
+            self.log("-" * 40)
+            for col in feature_cols:
+                if col in train_data.columns:
+                    mean_val = train_data[col].mean()
+                    std_val = train_data[col].std()
+                    self.log(f"  {col}: mean={mean_val:.3f}, std={std_val:.3f}")
+            self.log("")
+
+        except Exception as e:
+            self.log(f"Error loading eight_features data: {e}")
+            return
+
+        self.all_importances['eight_features'] = {}
+
+        self.analyze_all_models('eight_features', test_data, feature_cols)
+        self.save_scenario_report('eight_features')
+
+    def analyze_twenty_features(self):
+        self.current_scenario = 'twenty_features_heterogeneous'
+        self.log("="*80)
+        self.log("FEATURE IMPORTANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS SCENARIO")
+        self.log("="*80)
+        self.log("")
+
+        try:
+            train_data = pd.read_csv(twenty_features_heterogeneous_train_data_path)
+            test_data = pd.read_csv(twenty_features_heterogeneous_test_data_path)
+
+            test_data = test_data.sample(frac=1, random_state=42).reset_index(drop=True)
+
+            self.log(f"Training samples: {len(train_data)}")
+            self.log(f"Test samples: {len(test_data)}")
+            self.log(f"Features: {list(train_data.columns)}")
+            self.log("")
+
+            non_feature_cols = {'subject_id', 'duration_in_days', 'start', 'stop', 'has_esrd'}
+            feature_cols = [c for c in train_data.columns if c not in non_feature_cols and not c.startswith('Unnamed')]
+
+            self.log("FEATURE OVERVIEW:")
+            self.log("-" * 40)
+            for col in feature_cols:
+                if col in train_data.columns:
+                    mean_val = train_data[col].mean()
+                    std_val = train_data[col].std()
+                    missing_pct = train_data[col].mean() * 100 if col.endswith('_missing') else None
+                    if missing_pct is not None:
+                        self.log(f"  {col}: mean={mean_val:.3f}, std={std_val:.3f} (missing_flag rate={missing_pct:.1f}%)")
+                    else:
+                        self.log(f"  {col}: mean={mean_val:.3f}, std={std_val:.3f}")
+            self.log("")
+
+        except Exception as e:
+            self.log(f"Error loading twenty_features_heterogeneous data: {e}")
+            return
+
+        self.all_importances['twenty_features_heterogeneous'] = {}
+
+        self.analyze_all_models('twenty_features_heterogeneous', test_data, feature_cols)
+        self.save_scenario_report('twenty_features_heterogeneous')
+
+    def save_scenario_report(self, scenario_name):
+        """Write a standalone <scenario>_shap_analysis_report.txt for one scenario,
+        per EXPERIMENT_PLAN_DETAILS.md Stage 2.1's naming convention
+        (mirrors egfr_components_shap_analysis_report.txt)."""
+        lines = self.scenario_report_lines.get(scenario_name, [])
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        header = [
+            "FEATURE IMPORTANCE ANALYSIS REPORT",
+            "=" * 80,
+            f"Generated on: {timestamp}",
+            f"Repetition: {current_rep}",
+            f"Scenario: {scenario_name}",
+            f"Models analyzed: {', '.join(self.models)}",
+            "=" * 80,
+            "",
+        ]
+
+        report_path = self.output_dir / f'{scenario_name}_shap_analysis_report.txt'
+        with open(report_path, 'w') as f:
+            f.write('\n'.join(header + lines))
+
+        print(f"Scenario report saved to: {report_path}")
+        self.current_scenario = None
+
     def analyze_all_models(self, scenario_name, test_data, feature_cols):
         self.log(f"ANALYZING ALL MODELS FOR {scenario_name.upper()}")
         self.log("-" * 60)
         
-        if scenario_name == 'egfr_components':
-            model_paths = {
-                'cox': generate_data_path_latest_rep + '/egfr_components_cox_model.dill',
-                'ddh': generate_data_path_latest_rep + '/egfr_components_ddh_model.pt',
-                'hazard_transformer': generate_data_path_latest_rep + '/egfr_components_hazard_transformer_model.pt',
-                'logistic_hazard': generate_data_path_latest_rep + '/egfr_components_logistic_hazard_model.pt',
-                'rnn_surv': generate_data_path_latest_rep + '/egfr_components_rnn_surv_model.pt'
-            }
-        else:
-            model_paths = {
-                'cox': generate_data_path_latest_rep + '/fivelabms_cox_model.dill',
-                'ddh': generate_data_path_latest_rep + '/fivelabms_ddh_model.pt',
-                'hazard_transformer': generate_data_path_latest_rep + '/fivelabms_hazard_transformer_model.pt',
-                'logistic_hazard': generate_data_path_latest_rep + '/fivelabms_logistic_hazard_model.pt',
-                'rnn_surv': generate_data_path_latest_rep + '/fivelabms_rnn_surv_model.pt'
-            }
+        # All scenarios (egfr_components, fivelabms, and the four_features/
+        # eight_features/twenty_features_heterogeneous scenarios added for
+        # EXPERIMENT_PLAN_DETAILS.md Stage 2.1) save model artifacts under
+        # the same "{scenario_name}_{cox_model.dill,ddh_model.pt,...}" naming
+        # convention, so a single generic mapping covers all of them.
+        model_paths = {
+            'cox': generate_data_path_latest_rep + f'/{scenario_name}_cox_model.dill',
+            'ddh': generate_data_path_latest_rep + f'/{scenario_name}_ddh_model.pt',
+            'hazard_transformer': generate_data_path_latest_rep + f'/{scenario_name}_hazard_transformer_model.pt',
+            'logistic_hazard': generate_data_path_latest_rep + f'/{scenario_name}_logistic_hazard_model.pt',
+            'rnn_surv': generate_data_path_latest_rep + f'/{scenario_name}_rnn_surv_model.pt'
+        }
         
         for model_name, model_path in model_paths.items():
             if os.path.exists(model_path):
