@@ -23,7 +23,7 @@ LOG_FILE="${SCRIPT_DIR}/eval_all_rep${REP_NUM}.log"
 MASTER_LOG="${SCRIPT_DIR}/run_rep${REP_NUM}_master.log"
 PID_FILE="${SCRIPT_DIR}/run_rep${REP_NUM}.pid"
 
-EXPERIMENTS=("cox" "dynamic_deephit" "hazard_transformer" "logistic_hazard" "rnnsurv")
+EXPERIMENTS=("cox" "dynamic_deephit" "hazard_transformer" "logistic_hazard" "rnnsurv" "kfre")
 
 # On the first invocation, re-exec ourselves under setsid so the whole run
 # survives the launching shell exiting, then return immediately. The

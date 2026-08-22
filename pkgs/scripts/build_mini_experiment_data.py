@@ -1,12 +1,19 @@
 """
-One-off script for the CKD Fifty Features mini experiment.
+One-off script for building mini-experiment (rep99) train/test data.
 
-Builds a small, stratified (by ESRD status) random subsample of the
-CKD_FIFTY_FEATURES_HETEROGENEOUS train/test data from rep1, and writes it to an
-isolated rep99 slot so it can be used with `CKD_REP=99` without touching rep1-5's
-live data or model files.
+Builds a small, stratified (by ESRD status) random subsample of each
+scenario's rep1 train/test data, and writes it to an isolated rep99 slot so
+it can be used with `CKD_REP=99` without touching rep1-5's live data or
+model files.
 
-See CKD_FIFTY_FEATURES_mini_experiment_plan.md for the full plan.
+Generalized (2026-08-21, EXPERIMENT_PLAN_DETAILS.md Stage 2) to loop over
+all scenarios instead of hardcoding a single one. A scenario is skipped
+(with a warning, not an error) if its rep1 source files aren't present —
+e.g. `ckd_fifty_features_heterogeneous`'s rep1 data is currently mid
+schema-migration by another session; this script must not touch it.
+
+See CKD_FIFTY_FEATURES_mini_experiment_plan.md / EXPERIMENT_PLAN_DETAILS.md
+for the full plan.
 """
 import os
 import numpy as np
@@ -23,12 +30,15 @@ DST_REP = 99
 SRC_DIR = f"{project_dir()}/generated_data/rep{SRC_REP}"
 DST_DIR = f"{project_dir()}/generated_data/rep{DST_REP}"
 
-TRAIN_SRC = f"{SRC_DIR}/ckd_fifty_features_heterogeneous_train_data.csv"
-TEST_SRC = f"{SRC_DIR}/ckd_fifty_features_heterogeneous_test_data.csv"
 ESRD_IDS_SRC = f"{SRC_DIR}/esrd_patient_ids.csv"
 
-TRAIN_DST = f"{DST_DIR}/ckd_fifty_features_heterogeneous_train_data.csv"
-TEST_DST = f"{DST_DIR}/ckd_fifty_features_heterogeneous_test_data.csv"
+# Scenario name -> train/test data file basename prefix.
+SCENARIOS = [
+    "ckd_fifty_features_heterogeneous",
+    "four_features",
+    "eight_features",
+    "twenty_features_heterogeneous",
+]
 
 
 def stratified_sample(df: pd.DataFrame, esrd_patient_ids: np.ndarray, rng: np.random.Generator, label: str) -> pd.DataFrame:
@@ -53,24 +63,43 @@ def stratified_sample(df: pd.DataFrame, esrd_patient_ids: np.ndarray, rng: np.ra
     return sampled
 
 
+def build_scenario(scenario: str, esrd_ids: np.ndarray, rng: np.random.Generator) -> None:
+    train_src = f"{SRC_DIR}/{scenario}_train_data.csv"
+    test_src = f"{SRC_DIR}/{scenario}_test_data.csv"
+    train_dst = f"{DST_DIR}/{scenario}_train_data.csv"
+    test_dst = f"{DST_DIR}/{scenario}_test_data.csv"
+
+    if not (os.path.exists(train_src) and os.path.exists(test_src)):
+        print(f"[{scenario}] skipping: source data not found at {train_src} / {test_src}")
+        return
+
+    print(f"=== {scenario} ===")
+    print(f"Reading train data from {train_src}")
+    train_df = pd.read_csv(train_src, index_col=0)
+    train_sample = stratified_sample(train_df, esrd_ids, rng, f"{scenario}/train")
+    train_sample.to_csv(train_dst)
+    print(f"Wrote {train_dst}")
+    del train_df, train_sample
+
+    print(f"Reading test data from {test_src}")
+    test_df = pd.read_csv(test_src, index_col=0)
+    test_sample = stratified_sample(test_df, esrd_ids, rng, f"{scenario}/test")
+    test_sample.to_csv(test_dst)
+    print(f"Wrote {test_dst}")
+    del test_df, test_sample
+
+
 def main():
     os.makedirs(DST_DIR, exist_ok=True)
 
     esrd_ids = pd.read_csv(ESRD_IDS_SRC)["subject_id"].unique()
-    rng = np.random.default_rng(RANDOM_SEED)
 
-    print(f"Reading train data from {TRAIN_SRC}")
-    train_df = pd.read_csv(TRAIN_SRC, index_col=0)
-    train_sample = stratified_sample(train_df, esrd_ids, rng, "train")
-    train_sample.to_csv(TRAIN_DST)
-    print(f"Wrote {TRAIN_DST}")
-    del train_df, train_sample
-
-    print(f"Reading test data from {TEST_SRC}")
-    test_df = pd.read_csv(TEST_SRC, index_col=0)
-    test_sample = stratified_sample(test_df, esrd_ids, rng, "test")
-    test_sample.to_csv(TEST_DST)
-    print(f"Wrote {TEST_DST}")
+    for scenario in SCENARIOS:
+        # Fresh RNG per scenario (seeded) so each scenario's sample is
+        # reproducible independent of loop order / which scenarios are
+        # skipped.
+        rng = np.random.default_rng(RANDOM_SEED)
+        build_scenario(scenario, esrd_ids, rng)
 
 
 if __name__ == "__main__":

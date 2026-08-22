@@ -1,38 +1,29 @@
 COHORT FLOW ANALYSIS - twenty_features_heterogeneous
 ================================================================================
-Generated: 2026-08-21 23:00:29  (rep1)
-Reporting basis: STROBE (von Elm et al. 2007, Lancet, 370(9596):1453-1457) item 13(a); TRIPOD (Collins et al. 2015, Ann Intern Med, 162(1):55-63) item 13a. See EXPERIMENT_PLAN_DETAILS.md "1c-0" for the full citations and rationale.
+Generated: 2026-08-21 23:24:43  (rep1)
+Table modeled on Major et al. 2019, PLOS Medicine 16(11):e1002955, Table 1. See EXPERIMENT_PLAN_DETAILS.md "1c-0" for the per-row rationale and full citations.
 
-MINIMUM (required)
---------------------------------------------------------------------------------
-Original source cohort (pre-lab-filtering: CKD stage 3-5 diagnosis code OR ESRD
-diagnosis code - same base population get_time_series_data_ckd_patients builds
-every scenario in this repo, old and new, from):
-  N patients:          34,332
-  N diagnosis records: 74,197
-  Outcome-positive (ESRD dx) rate: 31,542 / 34,332 (91.87%)
+Variable                                        Source cohort                Final extracted (twenty_features_heterogeneous)
+--------------------------------------------------------------------------------------------------------------
+  n (patients)                                  34,332                       32,601
+  Records                                       74,197                       8,126,090
+  % male                                        57.2%                        57.1%
+  Mean age, years (SD)                          67.8 (SD 16.1)               67.8 (SD 16.1)
+  Mean eGFR (SD)                                N/A*                         68.4 (SD 30.7)
+  Median eGFR (IQR)                             N/A*                         67.5 (IQR 45.4–93.6)
+  Mean follow-up, years (SD)                    N/A*                         1.6 (SD 2.6)
+  Median follow-up, years (IQR)                 N/A*                         0.4 (IQR 0.0–2.2)
+  Mean time-to-ESRD, years (SD)                 N/A*                         1.6 (SD 2.5)
+  Median time-to-ESRD, years (IQR)              N/A*                         0.3 (IQR 0.0–2.0)
+  ESRD events (n)                               31,542                       29,815
+  ESRD rate, per 1,000 person-years (95% CI)    N/A*                         556.16 (95% CI 549.89–562.51)
 
-Final extracted cohort for twenty_features_heterogeneous (train+test combined):
-  N patients: 32,601
-  N records:  8,126,090
-  Attrition:  94.96% of original patients retained (34,332 -> 32,601)
+* Not computed for the source cohort: eGFR/uACR/chem-panel/follow-up/incidence-rate for the
+  full source population would each require a fresh labevents.csv scan (the same order of
+  cost as the original extraction, ~2h) and were not run for reporting purposes alone.
+  Age/gender/n/events are free (patients.csv + diagnoses_icd.csv only, no lab reads).
 
-RECOMMENDED (flagged for approval, not separately mandated - see EXPERIMENT_PLAN_DETAILS.md)
---------------------------------------------------------------------------------
-Outcome (has_esrd) rate, patient-level (TRIPOD 13a: "number of participants with
-and without the outcome" - a patient counts positive if their terminal row is
-flagged has_esrd=1; not the same as the row-level rate below, since only one row
-per ESRD-positive patient is actually flagged):
-  Source cohort:        31,542 / 34,332 (91.87%) positive
-  Final extracted (twenty_features_heterogeneous): 29,815 / 32,601 (91.45%) positive
-  Shift: -0.42 percentage points - per TRIPOD 13a, this checks whether the merge-window filter (1a-2) disproportionately
-  drops ESRD-positive or -negative patients. A shift near 0 means the filter is close to outcome-neutral.
-
-Outcome (has_esrd) rate, row-level (fraction of individual records flagged positive,
-not directly comparable to the source cohort's patient-level rate above):
-  772,707 / 8,126,090 (9.51%) positive
-
-Train/test split:
-  Train: 26,080 patients, 6,512,638 records, 9.48% positive
-  Test:  6,521 patients, 1,613,452 records, 9.62% positive
+Train/test split (final extracted cohort):
+  Train: 26,080 patients, 6,512,638 records, 9.48% of records positive
+  Test:  6,521 patients, 1,613,452 records, 9.62% of records positive
 

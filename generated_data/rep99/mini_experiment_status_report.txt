@@ -1,0 +1,156 @@
+Stage 2: rep99 mini-experiment — detailed status report
+=========================================================
+Report owner: this session (sunlab-serv-02.cs.illinois.edu)
+Last verified: 2026-08-22 00:05 CDT (direct check: `ps -p`, log tail)
+
+Scope
+-----
+Per EXPERIMENT_PLAN_DETAILS.md Stage 2: subsample rep1 train/test data
+(250 ESRD + 250 non-ESRD patients per split, seed=42) into an isolated
+rep99 slot, then run all experiments against it as a pipeline sanity check
+before committing to full rep1-5 runs. User instructed: run Stage 2 only,
+don't touch previous-stage (Stage 1) work.
+
+1. Data build step — COMPLETE
+------------------------------
+Script: pkgs/scripts/build_mini_experiment_data.py
+Change made: generalized in place to loop over scenarios instead of one
+hardcoded scenario (was hardcoded to ckd_fifty_features_heterogeneous only).
+Command: `PYTHONPATH=. python -m pkgs.scripts.build_mini_experiment_data`
+Ran: 2026-08-21 ~23:59 CDT on sunlab-serv-02.cs.illinois.edu
+
+Per-scenario result (source = generated_data/rep1):
+
+| Scenario                        | Train: src patients (esrd/non) -> sampled | Test: src patients (esrd/non) -> sampled | Status |
+|----------------------------------|---------------------------------------------|--------------------------------------------|--------|
+| ckd_fifty_features_heterogeneous | n/a                                          | n/a                                          | SKIPPED — rep1 source data currently renamed/missing (generated_data/rep1/ckd_fifty_features_heterogeneous_{train,test}_data.old_schema_bak_20260820_192307.csv), another session's in-progress schema migration. Left untouched, no error raised. |
+| four_features                    | 2247 (1879/368) -> 500 (250/250), 5806 rows | 562 (467/95) -> 345 (250/95), 3667 rows    | done |
+| eight_features                   | 970 (820/150) -> 400 (250/150), 1856 rows   | 243 (212/31) -> 243 (212/31), 1100 rows    | done |
+| twenty_features_heterogeneous    | 26080 (23839/2241) -> 500 (250/250), 159926 rows | 6521 (5976/545) -> 500 (250/250), 137883 rows | done |
+
+Note: eight_features/test and four_features/test had fewer non-ESRD patients
+available than the 250 target (95 and — for eight_features train — 150), so
+those splits are smaller than the full 500-patient target; this is expected
+given the pilot cohort sizes documented in EXPERIMENT_PLAN_DETAILS.md's 1c-0
+section (eight_features is the smallest cohort, 1,213 patients total).
+
+Output files written (verified present, generated_data/rep99/):
+  four_features_train_data.csv, four_features_test_data.csv
+  eight_features_train_data.csv, eight_features_test_data.csv
+  twenty_features_heterogeneous_train_data.csv, twenty_features_heterogeneous_test_data.csv
+(ckd_fifty_features_heterogeneous_* not written — scenario skipped, see above)
+
+2b. Experiment run step (RETRY, scoped driver) — IN PROGRESS
+--------------------------------------------------------------
+Fix applied per user direction ("don't run CKD_FIFTY_FEATURES_HETEROGENEOUS,
+why does it run this exp") — see root-cause section below for the full
+explanation of why it was running.
+
+New file: pkgs/scripts/run_stage2_new_scenarios.py — calls each experiment
+module's run_*_model()/run() function directly, scoped to only
+four_features/eight_features/twenty_features_heterogeneous (+kfre limited
+to four_features/eight_features). No previous-stage file edited.
+
+Launched: 2026-08-22 10:12 CDT
+Command: `CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage2_new_scenarios`
+PID: 2789348 (host sunlab-serv-02.cs.illinois.edu)
+Log: pkgs/scripts/logs/rep99_stage2_scoped_20260822_101214.log
+
+Verified: no CKD_FIFTY_FEATURES_HETEROGENEOUS run at all, no labevents.csv
+full extraction. cox finished all 3 new scenarios in under a minute:
+  - cox/four_features: C-index 0.472, Brier 0.085, AUC step FAILED
+    (sksurv ValueError: "censoring survival function is zero at one or
+    more time points" — a known edge case in cumulative_dynamic_auc when
+    a small stratified subsample has too few censored patients at some
+    time points; C-index/Brier still computed fine. Pre-existing cox.py
+    code, not something introduced by Stage 2 — left as-is, worth noting
+    for Stage 3's full-size reps where this is unlikely to recur).
+  - cox/eight_features: C-index 0.509, Brier 0.356, AUC 0.4668 — done.
+  - cox/twenty_features_heterogeneous: C-index 0.433, Brier 0.092,
+    AUC 0.4186 — done.
+Now running dynamic_deephit (Optuna trials in progress as of last check).
+
+3. Experiment run step (ORIGINAL ATTEMPT) — STOPPED, root cause found
+-----------------------------------------------------------------------------
+UPDATE 2026-08-22 01:45 CDT: killed PID 2686002 (`kill -TERM -2686002`, its
+process group) after ~1h44m of unexplained 98%+ CPU with no progress lines.
+Root cause found via /proc/<pid>/fd inspection: cox.py's `if __name__ ==
+"__main__":` block (pre-existing Stage 1b code) runs
+CKD_FIFTY_FEATURES_HETEROGENEOUS FIRST, before FOUR_FEATURES/EIGHT_FEATURES/
+TWENTY_FEATURES_HETEROGENEOUS. Since this build deliberately skipped
+building rep99 data for that scenario (its rep1 source is mid a schema
+migration by another session — see Data build step above),
+`get_train_test_data(CKD_FIFTY_FEATURES_HETEROGENEOUS)` found no rep99 file
+and fell through to `get_time_series_data_ckd_patients(scenario)` — a full
+raw extraction from scratch, confirmed by fd 3 pointing at
+`data/mimic-iv-2.2/hosp/labevents.csv` (13.7GB) at kill time. This is:
+  (a) not part of Stage 2's scope (only FOUR_FEATURES/EIGHT_FEATURES/
+      TWENTY_FEATURES_HETEROGENEOUS + kfre are Stage 2 targets),
+  (b) touching machinery for a scenario explicitly flagged as another
+      session's in-progress work, and
+  (c) expensive/unbounded — the equivalent full-population extraction took
+      ~2 hours for the rep1 pilot (see Background processes in
+      EXPERIMENT_STATUS.md history).
+
+No partial/corrupt files were left behind — killed before any CSV write
+(extraction was still mid-read on labevents.csv, verified by listing
+generated_data/rep99/ post-kill: no ckd_fifty_features_heterogeneous_*
+files present).
+
+Same root cause almost certainly affects dynamic_deephit.py,
+hazard_transformer.py, logistic_hazard.py, rnnsurv.py's `__main__` blocks
+too (Stage 1b added the 3 new scenarios to each following "the existing
+pattern" of an already-hardcoded CKD_FIFTY_FEATURES_HETEROGENEOUS call) —
+running `run_rep.sh 99` as originally planned would hit the same issue on
+every remaining experiment.
+
+**Fix under consideration** (not yet applied — asking user first since it
+deviates from the approved plan's "reuse run_rep.sh as-is, no new script"):
+instead of `python -m pkgs.experiments.<name>` (which executes each file's
+full `__main__`), invoke each module's `run_*_model(scenario)` /
+`run_kfre_model(scenario)` function directly per scenario, scoped to just
+FOUR_FEATURES/EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS (+ kfre limited
+to FOUR_FEATURES/EIGHT_FEATURES) — mirroring the exact scoping pattern
+already used for the 1c-0/1c pilot and rep2-5 extractions (`python -c
+"..."` calling functions directly instead of running a script's `__main__`
+that also touches CKD_FIFTY_FEATURES_HETEROGENEOUS). Requires no edits to
+any previous-stage file — only a differently-scoped invocation.
+
+2. Experiment run step — IN PROGRESS (historical, superseded by the above)
+-------------------------------------
+Command: `bash pkgs/scripts/run_rep.sh 99`
+Launched: 2026-08-22 00:00:25 CDT
+PID: 2686002
+Host: sunlab-serv-02.cs.illinois.edu
+Log: pkgs/scripts/eval_all_rep99.log
+Master log: pkgs/scripts/run_rep99_master.log
+EXPERIMENTS array (run_rep.sh): cox, dynamic_deephit, hazard_transformer,
+logistic_hazard, rnnsurv, kfre — run in that order, sequentially, for
+CKD_REP=99. kfre only applies to four_features/eight_features per the
+allow-list in kfre.py (twenty_features_heterogeneous has no KFRE formula).
+
+Progress as of last check (2026-08-22 00:05 CDT, ~5 min elapsed):
+  - cox: started 00:00:25 CDT, still running (no completion line yet)
+  - dynamic_deephit: not started
+  - hazard_transformer: not started
+  - logistic_hazard: not started
+  - rnnsurv: not started
+  - kfre: not started
+
+Process verified alive via `ps -p 2686002` on sunlab-serv-02 (its own host).
+No RAM contention expected: this host is separate from sunlab-serv-01, where
+the Stage 1c rep2/rep3 extraction processes are running.
+
+Not done yet
+------------
+Stage 2 is NOT complete — cox (1 of 6 experiments) has not even finished
+its first pass. Will not be marked complete until all 6 experiments
+(cox/dynamic_deephit/hazard_transformer/logistic_hazard/rnnsurv/kfre) show
+"completed successfully" or "failed" lines in eval_all_rep99.log and the
+final "Rep99 Summary" block appears.
+
+A 10-minute auto-check is scheduled per repo rule; this report will be
+updated at each check with material progress (stage completions, failures,
+fixes+relaunches), and EXPERIMENT_STATUS.md's Stage 2 row will be kept to a
+short status phrase + link to this file, per the repo's
+"keep EXPERIMENT_STATUS.md tidy" rule.
