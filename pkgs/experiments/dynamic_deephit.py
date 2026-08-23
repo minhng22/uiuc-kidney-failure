@@ -37,7 +37,23 @@ class DynamicDeepHitDataset(Dataset):
         self.features = get_tv_rnn_model_features(scenario_name)
 
         self.max_seq_length = max(df.groupby('subject_id').size())
-    
+
+        # Cache per-column mean/std instead of recomputing them on every
+        # __getitem__ call — see hazard_transformer.py's HazardTransformerDataset
+        # for the full rationale (multi-hour stall at full Stage 3 scale).
+        self._mean_cache = {}
+        self._std_cache = {}
+
+    def _mean(self, col):
+        if col not in self._mean_cache:
+            self._mean_cache[col] = self.df[col].mean()
+        return self._mean_cache[col]
+
+    def _std(self, col):
+        if col not in self._std_cache:
+            self._std_cache[col] = self.df[col].std()
+        return self._std_cache[col]
+
     def number_of_subjects(self):
         return len(self.subject_groups)
 
@@ -89,22 +105,22 @@ class DynamicDeepHitDataset(Dataset):
         mask = np.zeros(self.max_seq_length)
         
         if self.scenario_name == ExperimentScenario.TIME_VARIANT:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
         elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
             features[:seq_length, 1] = subject_data['egfr_missing'].values
-            features[:seq_length, 2] = (subject_data['protein'].values - self.df['protein'].mean()) / self.df['protein'].std()
+            features[:seq_length, 2] = (subject_data['protein'].values - self._mean('protein')) / self._std('protein')
             features[:seq_length, 3] = subject_data['protein_missing'].values
-            features[:seq_length, 4] = (subject_data['albumin'].values - self.df['albumin'].mean()) / self.df['albumin'].std()
+            features[:seq_length, 4] = (subject_data['albumin'].values - self._mean('albumin')) / self._std('albumin')
             features[:seq_length, 5] = subject_data['albumin_missing'].values
         elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
-            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
             features[:seq_length, 1] = subject_data['gender'].values
-            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
+            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self._mean('serum_creatinine')) / self._std('serum_creatinine')
         elif self.scenario_name == ExperimentScenario.FIVELABMS:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
             features[:seq_length, 1] = subject_data['egfr_missing'].values
-            features[:seq_length, 2] = (subject_data['hemoglobin'].values - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std()
+            features[:seq_length, 2] = (subject_data['hemoglobin'].values - self._mean('hemoglobin')) / self._std('hemoglobin')
             features[:seq_length, 3] = subject_data['hemoglobin_missing'].values
         elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
             # 50 lab features with missingness indicators (100 features total)
@@ -120,20 +136,20 @@ class DynamicDeepHitDataset(Dataset):
                          'urine_specific_gravity', 'urine_ph', 'ph']
             feat_idx = 0
             for lab_name in lab_names:
-                features[:seq_length, feat_idx] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
+                features[:seq_length, feat_idx] = (subject_data[lab_name].values - self._mean(lab_name)) / (self._std(lab_name) + 1e-8)
                 features[:seq_length, feat_idx + 1] = subject_data[f'{lab_name}_missing'].values
                 feat_idx += 2
         elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
-            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
             features[:seq_length, 1] = subject_data['gender'].values
-            features[:seq_length, 2] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
-            features[:seq_length, 3] = (subject_data['uacr'].values - self.df['uacr'].mean()) / self.df['uacr'].std()
+            features[:seq_length, 2] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
+            features[:seq_length, 3] = (subject_data['uacr'].values - self._mean('uacr')) / self._std('uacr')
         elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
-            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
             features[:seq_length, 1] = subject_data['gender'].values
             eight_feat_names = ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
             for i, lab_name in enumerate(eight_feat_names):
-                features[:seq_length, 2 + i] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
+                features[:seq_length, 2 + i] = (subject_data[lab_name].values - self._mean(lab_name)) / (self._std(lab_name) + 1e-8)
         elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
             # top 20 lab features with missingness indicators (40 features total)
             lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
@@ -141,7 +157,7 @@ class DynamicDeepHitDataset(Dataset):
                          'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
             feat_idx = 0
             for lab_name in lab_names:
-                features[:seq_length, feat_idx] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
+                features[:seq_length, feat_idx] = (subject_data[lab_name].values - self._mean(lab_name)) / (self._std(lab_name) + 1e-8)
                 features[:seq_length, feat_idx + 1] = subject_data[f'{lab_name}_missing'].values
                 feat_idx += 2
 
@@ -254,7 +270,6 @@ def objective(trial, scenario_name: ExperimentScenario):
     return c_index
 
 def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd.DataFrame, device):
-    times = np.arange(1, 730, 1)
     y_train = Surv.from_arrays(
         event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
 
@@ -262,14 +277,28 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
     # this forward pass isn't wrapped in torch.no_grad() so it still builds
     # a full backward-capable graph.
     dataloader = DataLoader(test_dataset, shuffle=False, batch_size=16)
-    aucs = []
+
+    # Accumulate across ALL batches before calling cumulative_dynamic_auc,
+    # instead of calling it once per 16-patient mini-batch (as this used to
+    # do). A small 16-patient batch has a much higher chance of having a
+    # shorter max follow-up time than the full test set, so any batch whose
+    # patients all happen to have short follow-up would hit sksurv's hard
+    # "all times must be within follow-up time of test data" error against a
+    # fixed 730-day grid — observed on full-scale rep2 (max batch follow-up
+    # 346 days) even though cox.py's single whole-test-set AUC call, same
+    # scenario/rep, didn't fail. Computing once over the full test set:
+    # (a) matches cox.py's approach, (b) is what cumulative_dynamic_auc is
+    # meant to be called with (per-batch calls were never statistically
+    # correct AUCs to average in the first place), (c) removes the
+    # mini-batch follow-up-range fragility entirely.
+    all_time_to_events, all_risk_scores, all_event_indicators = [], [], []
 
     for i, (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens) in enumerate(dataloader):
         debug_mode = False
         # if i == 0:
         #     debug_mode = True
         features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
-        
+
         if debug_mode:
             print(f"features shape: {features.shape}")
             print(f"mask shape: {mask.shape}")
@@ -284,33 +313,30 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
 
         if debug_mode:
             print(f"calc hazard_preds shape: {hazard_preds.shape}")
-        
-        f_time_to_events, f_risk_scores, f_event_indicators = None, None, None
 
         for j in range(hazard_preds.shape[0]):
             p_seq_len = int(seq_lens[j])
-            if f_time_to_events is None:
-                f_time_to_events = time_to_events[j][:p_seq_len].cpu().detach().numpy()
-                f_risk_scores = hazard_preds[j][:p_seq_len]
-                f_event_indicators = event_indicators[j][:p_seq_len].cpu().detach().numpy()
-            else:
-                f_time_to_events = np.concatenate((f_time_to_events, time_to_events[j][:p_seq_len].cpu().detach().numpy()), axis=0)
-                f_risk_scores = np.concatenate((f_risk_scores, hazard_preds[j][:p_seq_len]), axis=0)
-                f_event_indicators = np.concatenate((f_event_indicators, event_indicators[j][:p_seq_len].cpu().detach().numpy()), axis=0)
-        
-        if i == 0:
-            print(f"f_time_to_events shape: {len(f_time_to_events)}")
-            print(f"f_risk_scores shape: {len(f_risk_scores)}")
-            print(f"f_event_indicators shape: {len(f_event_indicators)}")
+            all_time_to_events.append(time_to_events[j][:p_seq_len].cpu().detach().numpy())
+            all_risk_scores.append(hazard_preds[j][:p_seq_len])
+            all_event_indicators.append(event_indicators[j][:p_seq_len].cpu().detach().numpy())
 
-        y_test = Surv.from_arrays(event=f_event_indicators, time=f_time_to_events, name_event='has_esrd', name_time='duration_in_days')
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, f_risk_scores, times)
-        aucs.append(mean_auc)
+    f_time_to_events = np.concatenate(all_time_to_events, axis=0)
+    f_risk_scores = np.concatenate(all_risk_scores, axis=0)
+    f_event_indicators = np.concatenate(all_event_indicators, axis=0)
 
-        if debug_mode:
-            print(f"Mean AUC: {mean_auc}")
+    print(f"f_time_to_events shape: {len(f_time_to_events)}")
+    print(f"f_risk_scores shape: {len(f_risk_scores)}")
+    print(f"f_event_indicators shape: {len(f_event_indicators)}")
 
-    avg_auc = np.mean(aucs, axis=0)
+    y_test = Surv.from_arrays(event=f_event_indicators, time=f_time_to_events, name_event='has_esrd', name_time='duration_in_days')
+
+    # Bound times to the full test set's actual observed follow-up range
+    # instead of a hardcoded 730-day (2yr) grid, so this can't fail even if
+    # a particular rep/scenario's test set has shorter overall follow-up.
+    max_time = min(y_test['duration_in_days'].max(), 729)
+    times = np.arange(1, max(max_time, 2), 1)
+
+    _, avg_auc = cumulative_dynamic_auc(y_train, y_test, f_risk_scores, times)
     print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
 def brier_score_evaluation(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd.DataFrame, device):
@@ -473,6 +499,16 @@ if __name__ == '__main__':
         run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
     else:
         print(f"Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
-    run(ExperimentScenario.FOUR_FEATURES)
-    run(ExperimentScenario.EIGHT_FEATURES)
-    run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+    # Per-scenario isolation: an uncaught exception in one scenario used to
+    # abort the whole script, silently skipping every scenario after it
+    # (observed at full Stage 3 scale: a four_features failure meant
+    # eight_features/twenty_features_heterogeneous never even started, for
+    # every rep that hit it). Catch and continue instead, mirroring
+    # run_rep.sh's own per-experiment failure tolerance.
+    for scenario in (ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES, ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS):
+        try:
+            run(scenario)
+        except Exception:
+            import traceback
+            print(f"✗ dynamic_deephit/{scenario.value} failed:")
+            traceback.print_exc()

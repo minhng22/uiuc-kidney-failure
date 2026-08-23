@@ -43,6 +43,23 @@ class LogisticHazardDataset(Dataset):
         self.scenario_name = scenario_name
         self.features = get_tv_rnn_model_features(scenario_name)
 
+        # Cache per-column mean/std instead of recomputing them for every
+        # subject in the loop below — see hazard_transformer.py's
+        # HazardTransformerDataset for the full rationale (multi-hour stall
+        # at full Stage 3 scale).
+        self._mean_cache = {}
+        self._std_cache = {}
+
+    def _mean(self, col):
+        if col not in self._mean_cache:
+            self._mean_cache[col] = self.df[col].mean()
+        return self._mean_cache[col]
+
+    def _std(self, col):
+        if col not in self._std_cache:
+            self._std_cache[col] = self.df[col].std()
+        return self._std_cache[col]
+
     def __len__(self):
         return len(self.subject_groups)
 
@@ -55,34 +72,34 @@ class LogisticHazardDataset(Dataset):
             last_obs = subject_data.iloc[-1]
             
             if self.scenario_name == ExperimentScenario.TIME_VARIANT:
-                features = [(last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std()]
+                features = [(last_obs['egfr'] - self._mean('egfr')) / self._std('egfr')]
             elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
                 features = [
-                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
+                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
                     last_obs['egfr_missing'],
-                    (last_obs['protein'] - self.df['protein'].mean()) / self.df['protein'].std(),
+                    (last_obs['protein'] - self._mean('protein')) / self._std('protein'),
                     last_obs['protein_missing'],
-                    (last_obs['albumin'] - self.df['albumin'].mean()) / self.df['albumin'].std(),
+                    (last_obs['albumin'] - self._mean('albumin')) / self._std('albumin'),
                     last_obs['albumin_missing']
                 ]
             elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
                 features = [
-                    (last_obs['age'] - self.df['age'].mean()) / self.df['age'].std(),
+                    (last_obs['age'] - self._mean('age')) / self._std('age'),
                     last_obs['gender'],
-                    (last_obs['serum_creatinine'] - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
+                    (last_obs['serum_creatinine'] - self._mean('serum_creatinine')) / self._std('serum_creatinine')
                 ]
             elif self.scenario_name == ExperimentScenario.FIVELABMS:
                 features = [
-                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
+                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
                     last_obs['egfr_missing'],
-                    (last_obs['hemoglobin'] - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std(),
+                    (last_obs['hemoglobin'] - self._mean('hemoglobin')) / self._std('hemoglobin'),
                     last_obs['hemoglobin_missing'],
                 ]
             elif self.scenario_name == ExperimentScenario.HETEROGENEOUS_IMPUTE:
                 # Imputed heterogeneous: same features as FIVELABMS but without missingness indicators
                 features = [
-                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
-                    (last_obs['hemoglobin'] - self.df['hemoglobin'].mean()) / self.df['hemoglobin'].std(),
+                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
+                    (last_obs['hemoglobin'] - self._mean('hemoglobin')) / self._std('hemoglobin'),
                 ]
             elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
                 # 50 lab features with missingness indicators
@@ -98,22 +115,22 @@ class LogisticHazardDataset(Dataset):
                              'urine_specific_gravity', 'urine_ph', 'ph']
                 features = []
                 for lab_name in lab_names:
-                    features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
+                    features.append((last_obs[lab_name] - self._mean(lab_name)) / (self._std(lab_name) + 1e-8))
                     features.append(last_obs[f'{lab_name}_missing'])
             elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
                 features = [
-                    (last_obs['age'] - self.df['age'].mean()) / self.df['age'].std(),
+                    (last_obs['age'] - self._mean('age')) / self._std('age'),
                     last_obs['gender'],
-                    (last_obs['egfr'] - self.df['egfr'].mean()) / self.df['egfr'].std(),
-                    (last_obs['uacr'] - self.df['uacr'].mean()) / self.df['uacr'].std(),
+                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
+                    (last_obs['uacr'] - self._mean('uacr')) / self._std('uacr'),
                 ]
             elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
                 features = [
-                    (last_obs['age'] - self.df['age'].mean()) / self.df['age'].std(),
+                    (last_obs['age'] - self._mean('age')) / self._std('age'),
                     last_obs['gender'],
                 ]
                 for lab_name in ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']:
-                    features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
+                    features.append((last_obs[lab_name] - self._mean(lab_name)) / (self._std(lab_name) + 1e-8))
             elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
                 # top 20 lab features with missingness indicators
                 lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
@@ -121,7 +138,7 @@ class LogisticHazardDataset(Dataset):
                              'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
                 features = []
                 for lab_name in lab_names:
-                    features.append((last_obs[lab_name] - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8))
+                    features.append((last_obs[lab_name] - self._mean(lab_name)) / (self._std(lab_name) + 1e-8))
                     features.append(last_obs[f'{lab_name}_missing'])
             else:
                 raise ValueError(f"Unsupported scenario: {self.scenario_name}")

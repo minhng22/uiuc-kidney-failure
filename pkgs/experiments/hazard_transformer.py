@@ -28,6 +28,25 @@ class HazardTransformerDataset(Dataset):
 
         self.max_seq_length = max(df.groupby('subject_id').size())
 
+        # Cache per-column mean/std instead of recomputing them on every
+        # __getitem__ call. Recomputing over the full df (previously
+        # self.df[col].mean()/.std() inline below) is O(subjects x features x
+        # N) per epoch — invisible at rep99's tiny mini-experiment scale but a
+        # multi-hour stall at full Stage 3 scale (e.g. ~6.5M rows x 20 columns
+        # x 26k subject accesses for TWENTY_FEATURES_HETEROGENEOUS).
+        self._mean_cache = {}
+        self._std_cache = {}
+
+    def _mean(self, col):
+        if col not in self._mean_cache:
+            self._mean_cache[col] = self.df[col].mean()
+        return self._mean_cache[col]
+
+    def _std(self, col):
+        if col not in self._std_cache:
+            self._std_cache[col] = self.df[col].std()
+        return self._std_cache[col]
+
     def __len__(self):
         return len(self.subject_groups)
 
@@ -42,24 +61,24 @@ class HazardTransformerDataset(Dataset):
         mask = np.zeros(self.max_seq_length)
         
         if self.scenario_name == ExperimentScenario.TIME_VARIANT:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
         elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
+            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
             features[:seq_length, 1] = subject_data['egfr_missing'].values
-            features[:seq_length, 2] = (subject_data['protein'].values - self.df['protein'].mean()) / self.df['protein'].std()
+            features[:seq_length, 2] = (subject_data['protein'].values - self._mean('protein')) / self._std('protein')
             features[:seq_length, 3] = subject_data['protein_missing'].values
-            features[:seq_length, 4] = (subject_data['albumin'].values - self.df['albumin'].mean()) / self.df['albumin'].std()
+            features[:seq_length, 4] = (subject_data['albumin'].values - self._mean('albumin')) / self._std('albumin')
             features[:seq_length, 5] = subject_data['albumin_missing'].values
         elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
-            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
             features[:seq_length, 1] = subject_data['gender'].values
-            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self.df['serum_creatinine'].mean()) / self.df['serum_creatinine'].std()
+            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self._mean('serum_creatinine')) / self._std('serum_creatinine')
         elif self.scenario_name == ExperimentScenario.FIVELABMS:
             lab_names = ['egfr', 'hemoglobin']
-            
+
             feature_idx = 0
             for lab in lab_names:
-                features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / self.df[lab].std()
+                features[:seq_length, feature_idx] = (subject_data[lab].values - self._mean(lab)) / self._std(lab)
                 feature_idx += 1
                 features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
                 feature_idx += 1
@@ -77,21 +96,21 @@ class HazardTransformerDataset(Dataset):
                          'urine_specific_gravity', 'urine_ph', 'ph']
             feature_idx = 0
             for lab in lab_names:
-                features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / (self.df[lab].std() + 1e-8)
+                features[:seq_length, feature_idx] = (subject_data[lab].values - self._mean(lab)) / (self._std(lab) + 1e-8)
                 feature_idx += 1
                 features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
                 feature_idx += 1
         elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
-            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
             features[:seq_length, 1] = subject_data['gender'].values
-            features[:seq_length, 2] = (subject_data['egfr'].values - self.df['egfr'].mean()) / self.df['egfr'].std()
-            features[:seq_length, 3] = (subject_data['uacr'].values - self.df['uacr'].mean()) / self.df['uacr'].std()
+            features[:seq_length, 2] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
+            features[:seq_length, 3] = (subject_data['uacr'].values - self._mean('uacr')) / self._std('uacr')
         elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
-            features[:seq_length, 0] = (subject_data['age'].values - self.df['age'].mean()) / self.df['age'].std()
+            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
             features[:seq_length, 1] = subject_data['gender'].values
             eight_feat_names = ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
             for i, lab_name in enumerate(eight_feat_names):
-                features[:seq_length, 2 + i] = (subject_data[lab_name].values - self.df[lab_name].mean()) / (self.df[lab_name].std() + 1e-8)
+                features[:seq_length, 2 + i] = (subject_data[lab_name].values - self._mean(lab_name)) / (self._std(lab_name) + 1e-8)
         elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
             # top 20 lab features with missingness indicators (40 features total)
             lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
@@ -99,7 +118,7 @@ class HazardTransformerDataset(Dataset):
                          'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
             feature_idx = 0
             for lab in lab_names:
-                features[:seq_length, feature_idx] = (subject_data[lab].values - self.df[lab].mean()) / (self.df[lab].std() + 1e-8)
+                features[:seq_length, feature_idx] = (subject_data[lab].values - self._mean(lab)) / (self._std(lab) + 1e-8)
                 feature_idx += 1
                 features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
                 feature_idx += 1

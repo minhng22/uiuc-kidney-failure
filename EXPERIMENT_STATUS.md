@@ -14,6 +14,7 @@ approved). Do not restart another session's row without confirming its host is a
 | 1c | Full extraction (rep2-5, parallel) | done | [report](generated_data/rep1/stage1c_full_extraction_report.txt) |
 | 2 | Mini-experiment (rep99) | done — 17 runs, 11 passed, 6 failed (all explained) | [report](generated_data/rep99/mini_experiment_status_report.txt) |
 | 2.1 | Feature-importance analysis | done — 3 scenario reports, all clean | [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt) |
+| 2.1 | Additional analyses: calibration + decision-curve analysis, text + charts (rep99 sanity check) | done — all 5 models × 3 scenarios, clean; competing-risk analysis considered and declined (not planned, see plan doc) | reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario in `generated_data/rep99/` |
 | 3 | Full experiment runs (rep1-5) | **rep1, rep2, rep3, rep4 running** (max 2/session per plan, two sessions); rep5 not yet started | see Background processes below |
 
 ## Background processes
@@ -25,16 +26,56 @@ rep3, rep4, rep5 not yet started by this session — see the sunlab-serv-03 row 
 
 | PID | Rep | Log | Status |
 |---|---|---|---|
-| 2870156 | 1 | [eval_all_rep1.log](pkgs/scripts/eval_all_rep1.log) | in progress (cox, on twenty_features_heterogeneous) |
-| 2870177 | 2 | [eval_all_rep2.log](pkgs/scripts/eval_all_rep2.log) | in progress (cox, on twenty_features_heterogeneous) |
+| 2870156 | 1 | [eval_all_rep1.log](pkgs/scripts/eval_all_rep1.log) | in progress (hazard_transformer); dynamic_deephit lost eight_features/twenty_features_heterogeneous to a bug — see below, fix applied, verifying on rep99 |
+| 2870177 | 2 | [eval_all_rep2.log](pkgs/scripts/eval_all_rep2.log) | in progress (hazard_transformer); same dynamic_deephit issue as rep1 |
 
 Launched via `bash pkgs/scripts/run_rep.sh <rep>` (EXPERIMENTS: cox, dynamic_deephit,
 hazard_transformer, logistic_hazard, rnnsurv, kfre). Verified the `CKD_FIFTY_FEATURES_HETEROGENEOUS`
-guard (added during Stage 2) correctly skips that scenario for both reps — confirmed via
-`/proc/<pid>/fd` showing each cox process reading its own rep's `twenty_features_heterogeneous_train_data.csv`,
-not `labevents.csv`.
+guard (added during Stage 2) correctly skips that scenario for both reps.
 
-Last Updated: 2026-08-22 17:16 CDT (sunlab-serv-02.cs.illinois.edu)
+**Bug found + fixed (2026-08-22/23), verifying on rep99 per the new rule "When a bug is found in
+experiment code, verify the fix on rep99 first" (CLAUDE.md):** `dynamic_deephit` failed on
+`four_features` for every currently-running rep (rep1/2 here, rep3/4 per sunlab-serv-03 below),
+which — since its `__main__` had no per-scenario exception handling — silently skipped
+`eight_features`/`twenty_features_heterogeneous` entirely for that model, for every rep. Two
+distinct root causes found:
+  1. **NaN loss**: `combine_loss()` in `pkgs/experiments/utils.py` called `torch.log()` directly
+     on `sigmoid()`-activated hazard predictions with no epsilon clamp — float32 sigmoid
+     saturation to exactly 0.0/1.0 (plausible given Optuna's learning_rate up to 1e-2, no
+     gradient clipping, and `uacr`'s heavy right skew) produces `log(0) = -inf`, poisoning the
+     loss permanently. Fixed: clamp hazard predictions to `[1e-7, 1-1e-7]` before `log()`.
+  2. **AUC time-range error**: `dynamic_deephit.py`'s `auc()` computed `cumulative_dynamic_auc`
+     per 16-patient mini-batch against a fixed 730-day grid, instead of once over the whole test
+     set like `cox.py` — a small batch has a much higher chance of a shorter max follow-up than
+     the full test set, triggering sksurv's hard validation error. Fixed: accumulate across all
+     batches and compute once, with `times` bounded to the test set's actual observed follow-up.
+  3. Also added per-scenario try/except in `dynamic_deephit.py`'s `__main__` so one scenario's
+     failure no longer skips the rest.
+Rep99 verification in progress: PID 3071682, `CKD_REP=99 PYTHONPATH=. python -m pkgs.experiments.dynamic_deephit`,
+log [rep99_verify_ddh_fix_20260823_132640.log](pkgs/scripts/logs/rep99_verify_ddh_fix_20260823_132640.log).
+Stale rep99 `*_ddh_model.pt` cleared first so this is a clean re-train under the fixed loss.
+
+Rep99 verification progress (13:49 CDT): four_features done — 10/10 trials
+clean (no NaN, best C-index 0.864), hit the known (unrelated) censoring-edge-
+case on AUC, isolation caught it and continued. eight_features done — 10/10
+trials clean, no NaN, no errors. Now on twenty_features_heterogeneous (the
+scenario that ORIGINALLY failed with NaN at rep99) — trials producing real
+values so far (0.57-0.77), no NaN yet. Still in progress.
+
+**Rep99 verification: PASSED.** four_features (10/10 trials clean, hit only
+the known unrelated censoring-edge-case, caught by isolation); eight_features
+(fully clean, AUC 0.82/Brier 0.247); twenty_features_heterogeneous (the
+scenario that ORIGINALLY failed with NaN at rep99 — now trains/evaluates
+cleanly, C-index 0.442/AUC 0.54, Brier not computable due to a benign
+small-sample time-range warning, not a crash). No NaN anywhere. Both fixes
++ the per-scenario isolation confirmed working.
+
+Now re-running Stage 2.1 feature-importance analysis on rep99 (stale
+reports/plots cleared first, since dynamic_deephit models changed): PID
+3080173, log [stage21_feature_importance_verify_20260823_140224.log](pkgs/scripts/logs/stage21_feature_importance_verify_20260823_140224.log).
+2 of 3 done (four_features, eight_features), now on twenty_features_heterogeneous.
+
+Last Updated: 2026-08-23 14:15 CDT (sunlab-serv-02.cs.illinois.edu)
 
 ### Stage 3 (full experiment runs) — owner: session on sunlab-serv-03.cs.illinois.edu
 
@@ -44,8 +85,8 @@ later "run stage 3" / "run the rest".
 
 | PID | Rep | Log | Status |
 |---|---|---|---|
-| 2204482 | 3 | [eval_all_rep3.log](pkgs/scripts/eval_all_rep3.log) | cox done; dynamic_deephit done (four_features FAILED — NEW NaN-loss issue, see note); in progress (hazard_transformer) |
-| 2204775 | 4 | [eval_all_rep4.log](pkgs/scripts/eval_all_rep4.log) | cox done; dynamic_deephit done (four_features AUC step failed — known sksurv edge case, see note); in progress (hazard_transformer) |
+| — | 3 | [eval_all_rep3.log](pkgs/scripts/eval_all_rep3.log) | **stopped by user request** — was mid-fix-relaunch after the hazard_transformer stall (see note); not currently running |
+| — | 4 | [eval_all_rep4.log](pkgs/scripts/eval_all_rep4.log) | **stopped by user request** — killed for the same hazard_transformer stall; relaunch was rejected/never started; not currently running |
 
 Launched via `bash pkgs/scripts/run_rep.sh <rep>`. Before launching, found `eval_all_rep3.log`,
 `eval_all_rep4.log`, `eval_all_rep5.log` (+ `run_rep3/5_master.log`, `run_rep{3,5}.pid`) already
@@ -86,4 +127,26 @@ for a status check, and `run_rep.sh` already tolerated it and moved on to
 this needs a closer look before trusting rep3/rep4's `dynamic_deephit`/`four_features`
 results, and whether rep1/rep2/rep5 should be watched for the same.
 
-Last Updated: 2026-08-22 21:11 CDT (sunlab-serv-03.cs.illinois.edu)
+UPDATE 2026-08-23 13:1x CDT: both rep3 and rep4's `hazard_transformer` were found stuck for
+16+ hours on `twenty_features_heterogeneous` (0% GPU utilization, zero I/O, no log progress —
+see prior note below this one once written... see full diagnosis inline above this line).
+Root cause: `HazardTransformerDataset.__getitem__` (and the equivalent classes in
+`dynamic_deephit.py` and `logistic_hazard.py`) recomputed `self.df[col].mean()`/`.std()` over
+the FULL dataframe on every single subject access — O(subjects x features x N), invisible at
+rep99's tiny mini-experiment scale but catastrophic at full Stage 3 scale (6.5M rows x 20
+columns x 26k subjects). Fixed by caching each column's mean/std once per Dataset instance in
+all three files ([hazard_transformer.py](pkgs/experiments/hazard_transformer.py),
+[dynamic_deephit.py](pkgs/experiments/dynamic_deephit.py),
+[logistic_hazard.py](pkgs/experiments/logistic_hazard.py)) — verified numerically identical
+output vs. the old inline computation, and benchmarked the real fix: full-epoch `__getitem__`
+cost on rep3's actual `twenty_features_heterogeneous` train data (6,512,638 rows / 26,080
+subjects) dropped from "never completes" to ~368s estimated.
+Killed both stuck processes (`kill -TERM` on their process groups) and relaunched rep3
+(new PID 2460715). Before relaunching rep4, **the user asked to terminate the running rep(s)**
+— rep3 (PID 2460715) was killed immediately after starting; rep4's relaunch had already been
+blocked/rejected and never started. **Both rep3 and rep4 are currently NOT RUNNING** — stopped
+per user request, pending the user's direction on whether/how to resume. The
+`dynamic_deephit`/`four_features` failures noted below (both reps) are unrelated to this stall
+and still apply to whatever partial run state exists on disk.
+
+Last Updated: 2026-08-23 13:20 CDT (sunlab-serv-03.cs.illinois.edu)

@@ -244,10 +244,24 @@ def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0
 
         time_indices = raw_time.clamp(max=num_timepoints - 1).long()
 
-        event_log_prob = torch.log(risk_hazard_preds[torch.arange(batch_size), time_indices]) * risk_event_indicators
+        # Clamp before log(): risk_hazard_preds comes from torch.sigmoid(), which
+        # is bounded in (0,1) mathematically but saturates to exactly 0.0/1.0 in
+        # float32 once the pre-sigmoid logit's magnitude gets large (~88+) —
+        # plausible here since Optuna searches learning_rate up to 1e-2 with no
+        # gradient clipping, and heavily right-skewed inputs (e.g. uacr) can
+        # produce large-magnitude logits for outlier patients. Once that
+        # happens, log(0) = -inf poisons the loss and every gradient after it
+        # (observed: finite decreasing loss for a few epochs, then permanent
+        # `nan`, on full-scale rep1/rep2/rep3 four_features — not just the
+        # rep99 mini-sample). eps chosen to be well inside float32 precision
+        # without perturbing well-behaved (non-saturated) predictions.
+        eps = 1e-7
+        safe_hazard_preds = risk_hazard_preds.clamp(min=eps, max=1.0 - eps)
+
+        event_log_prob = torch.log(safe_hazard_preds[torch.arange(batch_size), time_indices]) * risk_event_indicators
 
         # censor_log_prob[i] = sum_{k < t_i} log(1 - hazard[i, k]), via cumsum instead of a Python loop
-        log1m_cumsum = torch.cumsum(torch.log(1 - risk_hazard_preds), dim=1)
+        log1m_cumsum = torch.cumsum(torch.log(1 - safe_hazard_preds), dim=1)
         censor_idx = (time_indices - 1).clamp(min=0)
         censor_log_prob = log1m_cumsum[torch.arange(batch_size), censor_idx]
         censor_log_prob = torch.where(time_indices > 0, censor_log_prob, torch.zeros_like(censor_log_prob))

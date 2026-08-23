@@ -398,13 +398,97 @@ unaffected — only `twenty_features_heterogeneous`'s rep99 train/test CSVs, and
 `twenty_features_heterogeneous_cox_model.dill` / `twenty_features_heterogeneous_ddh_model.pt` (trained/
 mid-trained on the old 500-patient sample), were rebuilt/cleared.
 
-## Stage 2.1: Feature-importance analysis
+## Stage 2.1: Feature-importance & clinical-validity analysis
 - Extend [pkgs/data_analysis/feature_importance_analysis.py](pkgs/data_analysis/feature_importance_analysis.py)
   with `analyze_four_features`/`analyze_eight_features`/`analyze_twenty_features` methods mirroring
   `analyze_egfr_components`/`analyze_fivelabms` (SHAP-based importance per model, using the rep99 or rep1
   trained models).
 - Output report saved under `generated_data/rep<N>/<scenario>_shap_analysis_report.txt`, matching existing
   naming (`egfr_components_shap_analysis_report.txt`).
+
+### Stage 2.1 additional analyses (beyond feature importance)
+
+Feature importance alone only says which inputs a model leans on, not whether its
+risk estimates are calibrated or clinically useful. Reviewed the CKD/kidney-failure
+survival-model literature (KFRE external-validation studies, and recent CKD
+deep-learning/interpretable-ML papers) for what such models are normally validated
+on beyond feature importance; two of the recurring set were added here alongside
+the SHAP analysis above, implemented in
+[pkgs/data_analysis/clinical_validity_analysis.py](pkgs/data_analysis/clinical_validity_analysis.py)
+and run via
+[pkgs/scripts/run_stage21_clinical_validity.py](pkgs/scripts/run_stage21_clinical_validity.py):
+
+1. **Calibration analysis** (predicted vs. observed risk by decile, at the 2-year/
+   5-year horizons KFRE studies report, plus Brier score) — the standard companion
+   to discrimination (C-index) in every KFRE validation reviewed (Tangri et al.'s
+   original multinational validation, and the Australian/Peruvian/South Asian
+   external validations below).
+2. **Decision curve analysis (net benefit)** — the clinical-utility check used in
+   KFRE's own validation papers (net benefit of model-guided referral vs.
+   treat-all / treat-none / eGFR-threshold strategies, across a range of risk
+   thresholds relevant to nephrology referral/dialysis-planning decisions).
+
+A third candidate, **competing-risk analysis (death before ESRD)**, was reviewed
+and explicitly decided against (user decision, 2026-08-23): it would need each
+subject's absolute "day 0" anchor timestamp (their first-lab-record date) to
+convert `patients.csv`'s `dod` into a `duration_in_days`-comparable value — the
+exported `<scenario>_train/test_data.csv` files only carry the already-relative
+`duration_in_days`, not that anchor date, so getting it back means re-deriving it
+from the raw extraction pipeline. Not worth the extraction-pipeline change for
+this. Not planned.
+
+Reused each model's own already-validated prediction code path (same Dataset
+classes / forward pass each architecture's own C-index/Brier/AUC evaluation in
+`pkgs/experiments/*.py` already uses) rather than re-deriving per-architecture
+preprocessing; all 5 models' risk scores are converted to predicted survival
+probabilities via one shared transform (the same exponential approximation
+`pkgs/experiments/utils.py`'s `compute_brier_score_from_risk_scores` already uses)
+so the numbers are comparable model-to-model within a scenario.
+
+Output convention: one `<scenario>_clinical_validity_report.txt` per scenario per
+rep under `generated_data/rep<N>/`, alongside `<scenario>_shap_analysis_report.txt`
+— same "report file, pointer-only in `EXPERIMENT_STATUS.md`" convention as the
+rest of this repo. Rep99 sanity-checked (per Stage 2.1's original SHAP-analysis
+role) — see [EXPERIMENT_STATUS.md](EXPERIMENT_STATUS.md)'s Stage 2.1 row.
+
+#### Charts (added 2026-08-23 — the report above was text-only)
+
+Two PNGs per scenario, saved alongside the text report under `generated_data/rep<N>/`,
+same `plt.savefig(..., dpi=300, bbox_inches='tight')` convention as
+`feature_importance_analysis.py`'s `create_consolidated_importance_plot`:
+
+1. **`<scenario>_calibration_plot.png`** — grid of subplots, one row per horizon
+   (2yr/5yr) × one column per model (5), mirroring the existing feature-importance
+   plot's "one column per model" layout. Each panel: mean predicted risk per
+   decile (x) vs. KM-observed risk per decile (y), scatter + connecting line,
+   with a dashed y=x reference diagonal — a point on the diagonal means that
+   decile's predicted risk matched what was actually observed.
+2. **`<scenario>_decision_curve_plot.png`** — one subplot per horizon (2 side by
+   side). Each panel: net benefit (y) vs. risk threshold `pt` (x, 0.05-0.50),
+   one line per model (5), a dashed "treat-all" line, a dotted "treat-none" line
+   at y=0, and scatter markers for the eGFR<30 / eGFR<45 referral-rule net
+   benefit (fixed points, not threshold-varying, per how KFRE's own
+   clinical-utility papers report them).
+
+Both computed from data the text report already computes per model/horizon
+(`calibration_table`/`decision_curve`/`egfr_threshold_net_benefit`) — no new
+analysis, just a second, visual rendering of the same numbers, so the report
+stays the source of truth and the charts are a derived view.
+
+**Correctness fix alongside this**: `treat_all`/eGFR-threshold net benefit were
+previously computed once per model (redundantly, and inconsistently for
+hazard_transformer/ddh, whose predictions cover a different row set than
+`df_test`) instead of once per scenario/horizon from `df_test` directly. Moved
+out of the per-model loop so there's one canonical treat-all/eGFR curve per
+horizon that all 5 models' calibration/DCA panels are compared against.
+
+Sources reviewed (2026-08-23):
+- [Interpretable machine learning for predicting chronic kidney disease progression risk (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC10793198/)
+- [Development and Validation of a Dynamic Kidney Failure Prediction Model based on Deep Learning, with external validation (arXiv:2501.16388)](https://arxiv.org/abs/2501.16388)
+- [A validation study of the kidney failure risk equation in advanced CKD — discrimination, calibration, and clinical utility (PMC)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8147075/)
+- [The kidney failure risk equation predicts kidney failure: validation in an Australian cohort (PMC)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10946457/)
+- [External validation, recalibration, and clinical utility of KFRE in advanced CKD — Peru (BMC Nephrology)](https://link.springer.com/article/10.1186/s12882-025-04357-z)
+- [An independent validation of the kidney failure risk equation in a South Asian population (PMC)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10552237/)
 
 ## Stage 3: Full experiment runs (rep1 → rep5)
 After stage 2 and stage 2.1 passes, get approval before run this stage.
@@ -426,5 +510,11 @@ After stage 2 and stage 2.1 passes, get approval before run this stage.
   rules above.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until the launched reps finish or fail-and-are-relaunched.
+- **After all 5 reps finish**: repeat Stage 2.1's analysis (SHAP + the three additional analyses)
+  per rep, pointed at the rep1-5 models instead of rep99 — no new stage, same code/output
+  convention as Stage 2.1, just rerun with `CKD_REP=<N>` for `N` in 1..5. The SHAP part can start
+  per-rep as soon as that rep finishes; the three additional analyses can also start per-rep
+  (rep99's small subsample is the only reason those were sanity-checked there first — full reps
+  don't have that limitation), no need to wait for all 5 before starting.
 
 ## Open questions before implementation starts

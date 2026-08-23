@@ -149,3 +149,26 @@ intend.
   (see [pkgs/scripts/run_stage2_new_scenarios.py](pkgs/scripts/run_stage2_new_scenarios.py)
   for the pattern), rather than editing the shared `__main__` block, unless
   the user has approved that edit (per the previous-stage-work rule above).
+
+## When a bug is found in experiment code, verify the fix on rep99 first
+
+If you discover a bug in `pkgs/experiments/*.py` (or code it depends on,
+e.g. `pkgs/experiments/utils.py`, `pkgs/models/*.py`) — whether found while
+investigating a failure, during a status check, or any other way — fix it,
+then verify the fix on **rep99** before trusting it on rep1-5 or any other
+full-scale rep:
+
+- Re-run the affected model(s)/scenario(s) against rep99 data (reuse/relaunch
+  the Stage 2 scoped driver pattern — `pkgs/scripts/run_stage2_new_scenarios.py`
+  or equivalent — not a full rep1-5 run) and confirm the bug no longer
+  reproduces there.
+- Then re-run feature-importance analysis on rep99 for the affected
+  scenario(s) (`pkgs/scripts/run_stage21_feature_importance.py` or
+  equivalent), since a model-training fix can change which model artifacts
+  exist/are valid for that analysis to consume.
+- Only after both of those pass, consider the fix verified — report the bug,
+  the fix, and the rep99 verification result to the user before (or as part
+  of) relaunching/continuing any full-scale reps that hit the bug.
+- This is in addition to, not instead of, the existing rule about full-scale
+  reps you own that fail (diagnose, fix, relaunch) — rep99 verification
+  comes first, full-scale relaunch comes after.
