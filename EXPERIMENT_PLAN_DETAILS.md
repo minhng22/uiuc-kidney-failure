@@ -412,7 +412,19 @@ After stage 2 and stage 2.1 passes, get approval before run this stage.
 - Launch full runs via the **same**
   [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new script) for `N` in 1..5 — each in the
   background, each PID/log recorded in `FEATURE_SET_EXPERIMENT_PLAN.md`.
+- **Max 2 reps launched per session.** When told to run this stage, launch at most 2 reps that
+  are not already running and have not already completed/ran — not all 5 at once. (E.g. "run
+  stage 3" → launch rep1 and rep2 only, leave rep3-5 for later sessions/turns.) This applies per
+  session/turn, not as a one-time-ever cap — once rep1/rep2 finish (or in a later session), the
+  next "run stage 3" (or "run the rest") picks up the next ≤2 reps not yet running/done (e.g.
+  rep3 and rep4), and so on until all 5 are covered.
+- **While reps are running, document exactly which ones in `EXPERIMENT_STATUS.md`** — not just a
+  generic "in progress": the Stage 3 status row and/or its Background processes section must name
+  the specific rep numbers currently launched this session (e.g. "rep1, rep2 running"), updated as
+  each finishes/fails so the doc always reflects which reps are actually in flight vs. done vs.
+  not yet started, per the repo's existing background-process-tracking and 10-minute auto-check
+  rules above.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
-  log tail) and the plan doc updated until all 5 reps finish or fail-and-are-relaunched.
+  log tail) and the plan doc updated until the launched reps finish or fail-and-are-relaunched.
 
 ## Open questions before implementation starts

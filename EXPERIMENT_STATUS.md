@@ -14,47 +14,76 @@ approved). Do not restart another session's row without confirming its host is a
 | 1c | Full extraction (rep2-5, parallel) | done | [report](generated_data/rep1/stage1c_full_extraction_report.txt) |
 | 2 | Mini-experiment (rep99) | done — 17 runs, 11 passed, 6 failed (all explained) | [report](generated_data/rep99/mini_experiment_status_report.txt) |
 | 2.1 | Feature-importance analysis | done — 3 scenario reports, all clean | [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt) |
-| 3 | Full experiment runs (rep1-5) | not started | blocked on 2 |
+| 3 | Full experiment runs (rep1-5) | **rep1, rep2, rep3, rep4 running** (max 2/session per plan, two sessions); rep5 not yet started | see Background processes below |
 
 ## Background processes
 
-Only currently-active processes are listed here. Full history (superseded
-runs, incidents, fixes) lives in each stage's report, linked above and
-below.
+### Stage 3 (full experiment runs) — owner: session on sunlab-serv-02.cs.illinois.edu
 
-### Stage 1c (rep2-5 extraction) — owner: session on sunlab-serv-01.cs.illinois.edu
+**Running: rep1, rep2** (max 2 per session, per EXPERIMENT_PLAN_DETAILS.md Stage 3's cap).
+rep3, rep4, rep5 not yet started by this session — see the sunlab-serv-03 row below for rep3/rep4.
 
-**Done.** rep5's retry (PID 1218942) finished cleanly (`ALL DONE rep5 (retry)`, 7371.6s for
-`twenty_features_heterogeneous`). All 5 reps now have complete, verified `four_features`/
-`eight_features`/`twenty_features_heterogeneous` train+test data (byte-identical file sizes across
-reps, as expected — same source database and deterministic split). No processes running. This
-session stops here per user instruction; does not extend into Stage 2/2.1/3.
+| PID | Rep | Log | Status |
+|---|---|---|---|
+| 2870156 | 1 | [eval_all_rep1.log](pkgs/scripts/eval_all_rep1.log) | in progress (cox, on twenty_features_heterogeneous) |
+| 2870177 | 2 | [eval_all_rep2.log](pkgs/scripts/eval_all_rep2.log) | in progress (cox, on twenty_features_heterogeneous) |
 
-Full history: [generated_data/rep1/stage1c_full_extraction_report.txt](generated_data/rep1/stage1c_full_extraction_report.txt).
+Launched via `bash pkgs/scripts/run_rep.sh <rep>` (EXPERIMENTS: cox, dynamic_deephit,
+hazard_transformer, logistic_hazard, rnnsurv, kfre). Verified the `CKD_FIFTY_FEATURES_HETEROGENEOUS`
+guard (added during Stage 2) correctly skips that scenario for both reps — confirmed via
+`/proc/<pid>/fd` showing each cox process reading its own rep's `twenty_features_heterogeneous_train_data.csv`,
+not `labevents.csv`.
 
-Last Updated: 2026-08-22 (sunlab-serv-01.cs.illinois.edu)
+Last Updated: 2026-08-22 17:16 CDT (sunlab-serv-02.cs.illinois.edu)
 
-### Stage 2 (rep99 mini-experiment) — owner: session on sunlab-serv-02.cs.illinois.edu
+### Stage 3 (full experiment runs) — owner: session on sunlab-serv-03.cs.illinois.edu
 
-**Done.** PID 2823675 finished cleanly, ~2h8min total runtime (17 runs: 5
-models × 3 scenarios + kfre × 2). `twenty_features_heterogeneous`'s rep99
-subsample was cut to 10 patients/class (20 total, was 250/class) per user
-decision — see [EXPERIMENT_PLAN_DETAILS.md addendum](EXPERIMENT_PLAN_DETAILS.md).
-Full per-model results and failure breakdown:
-[generated_data/rep99/mini_experiment_status_report.txt](generated_data/rep99/mini_experiment_status_report.txt).
+**Running: rep3, rep4** (next ≤2 not-yet-running/done reps, per EXPERIMENT_PLAN_DETAILS.md Stage 3's
+per-session cap; rep1/rep2 already running under the sunlab-serv-02 session above). rep5 left for a
+later "run stage 3" / "run the rest".
 
-Last Updated: 2026-08-22 15:32 CDT (sunlab-serv-02.cs.illinois.edu)
+| PID | Rep | Log | Status |
+|---|---|---|---|
+| 2204482 | 3 | [eval_all_rep3.log](pkgs/scripts/eval_all_rep3.log) | cox done; dynamic_deephit done (four_features FAILED — NEW NaN-loss issue, see note); in progress (hazard_transformer) |
+| 2204775 | 4 | [eval_all_rep4.log](pkgs/scripts/eval_all_rep4.log) | cox done; dynamic_deephit done (four_features AUC step failed — known sksurv edge case, see note); in progress (hazard_transformer) |
 
-### Stage 2.1 (feature-importance analysis) — owner: session on sunlab-serv-02.cs.illinois.edu
+Launched via `bash pkgs/scripts/run_rep.sh <rep>`. Before launching, found `eval_all_rep3.log`,
+`eval_all_rep4.log`, `eval_all_rep5.log` (+ `run_rep3/5_master.log`, `run_rep{3,5}.pid`) already
+present on disk, dated 2026-08-17 to 2026-08-22 — verified these are stale debris from an unrelated,
+earlier `CKD_FIFTY_FEATURES_HETEROGENEOUS` experiment run (rep4's even used a separate isolated run
+dir, `~/kidney-rep4-run`, not this repo's `run_rep.sh`), not this Stage 3 (four/eight/twenty-features)
+run — no live process on this host held them, and rep3/rep4 already had the correct
+`four_features`/`eight_features`/`twenty_features_heterogeneous` train/test CSVs from Stage 1c with no
+`ckd_fifty_features_heterogeneous_train_data.csv` at the exact guarded path, so `cox.py`'s guard
+correctly skips that scenario for both. Overwritten by this run as expected.
 
-PID 2859419, `CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage21_feature_importance`
-(new scoped driver — mirrors Stage 2's, avoids running `feature_importance_analysis.py`'s
-`main()` which would also analyze unrelated egfr_components/fivelabms). In progress.
-Log: pkgs/scripts/logs/stage21_feature_importance_20260822_162520.log.
-(Previous attempt, PID 2858648, killed itself at 5min by an artificial `timeout 300`
-wrapper — my own mistake, not a real failure; no traceback, just cut off early.
-Relaunched without a timeout.)
+dynamic_deephit/rep4/four_features errored (`ValueError: all times must be within
+follow-up time of test data`) after completing its 10-trial Optuna search — same known
+sksurv `cumulative_dynamic_auc` edge case already documented in
+[generated_data/rep99/mini_experiment_status_report.txt](generated_data/rep99/mini_experiment_status_report.txt)
+(five occurrences there across cox/dynamic_deephit/hazard_transformer/logistic_hazard/rnnsurv,
+all on `four_features` — too few censored patients at the later fixed AUC evaluation time
+points relative to this scenario's smaller test-set follow-up range). Deterministic given the
+data, not a bug to fix — `run_rep.sh` recorded it as a failed experiment and moved on to
+`hazard_transformer` automatically, as designed; not relaunching.
 
-**Done.** All 3 scenario reports finished cleanly, process exited normally.
+dynamic_deephit/rep3/four_features also errored, but with a DIFFERENT root cause than
+rep4's known sksurv AUC edge case: `ValueError: NaNs detected in inputs, please correct or
+drop.` — Optuna trial 7 failed with `NaNs detected` mid-search (caught, search continued),
+then the post-search final-model evaluation also produced all-NaN risk scores
+(`Average Loss: nan` during training, early stopping, `hazards shape: [nan]`), crashing
+`lifelines`' concordance_index and exiting the whole `dynamic_deephit` process (code 1).
+**This is new information, not just a recurrence of a known issue**: Stage 2's
+[mini_experiment_status_report.txt](generated_data/rep99/mini_experiment_status_report.txt)
+saw this same NaN-loss pattern only on the tiny 20-patient `twenty_features_heterogeneous`
+rep99 subsample and hypothesized it was small-sample-specific ("worth a closer look ... if
+dynamic_deephit is expected to run on similarly-small future subsets"). Here it recurred on
+the FULL-SCALE `four_features` data (2,247 train patients, rep3) — contradicting that
+hypothesis; looks more like a hyperparameter-region training-instability issue in
+`dynamic_deephit.py`, not a data-size artifact. Not fixing/relaunching now (out of scope
+for a status check, and `run_rep.sh` already tolerated it and moved on to
+`hazard_transformer` as designed, same as rep4) — flagging for the user to decide whether
+this needs a closer look before trusting rep3/rep4's `dynamic_deephit`/`four_features`
+results, and whether rep1/rep2/rep5 should be watched for the same.
 
-Last Updated: 2026-08-22 16:47 CDT (sunlab-serv-02.cs.illinois.edu)
+Last Updated: 2026-08-22 21:11 CDT (sunlab-serv-03.cs.illinois.edu)
