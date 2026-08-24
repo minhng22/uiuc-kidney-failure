@@ -40,6 +40,26 @@ running on the machine you're checking from.
   the doc looks wrong or stale, say so in your reply to the user rather than
   rewriting it — let the owning session (or the user) correct it.
 
+## Remove your own background session's note once it's stopped/dead
+
+If a background process **you** started is found stopped or dead — killed by
+user request, crashed, or otherwise no longer running — don't leave its
+row/note sitting in the experiment plan doc's Background processes section
+marked "killed"/"stopped". Confirm it first (`ps -p <pid>` on the host that
+actually owns it — yours, per the rule above), then remove that entry
+entirely.
+
+- Only ever remove/rewrite rows for sessions/processes **you** launched —
+  never remove another session's row based on a `ps` check from a different
+  host; a miss there doesn't mean dead, and it's still their entry to correct
+  (per "Multiple sessions/hosts" above).
+- If there's substance worth keeping (why it died, what state it left behind,
+  partial results salvaged), record that in the relevant stage's report file
+  first (per "Keep EXPERIMENT_STATUS.md tidy" below), then drop the row — the
+  report is the permanent record, the live table isn't.
+- Do this as soon as you confirm your own session is actually stopped/dead —
+  don't wait for a later tidy-up pass to get around to it.
+
 ## When the user asks for a status update, update the experiment plan doc
 
 Whenever the user asks you to check/report status on a run, don't just answer
