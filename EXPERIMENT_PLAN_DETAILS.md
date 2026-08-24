@@ -482,6 +482,142 @@ hazard_transformer/ddh, whose predictions cover a different row set than
 out of the per-model loop so there's one canonical treat-all/eGFR curve per
 horizon that all 5 models' calibration/DCA panels are compared against.
 
+#### Metrics double-check (2026-08-23) — what "predicted risk" actually meant per model
+
+Asked to double-check the metrics being reported. Traced what each model's raw
+output actually represents (not just how it was being used) and found the
+uniform "treat every model's output as a generic risk score, then run it
+through one exponential transform" approach — reasonable for some models —
+was silently discarding real, exact information for others:
+
+- **Hazard Transformer**: `pkgs/models/hazard_transformer.py`'s `__init__` hardcodes
+  `self.max_time = 730` and evaluates over 100 bins spanning exactly `[0, 730]`
+  days — so its raw output at day 730 **is already the model's genuine predicted
+  probability at exactly the 2-year horizon**, not an arbitrary score needing
+  rescaling. Was being thrown away and replaced with a synthetic rescaled value.
+  **Fixed**: read it directly at any horizon ≤ 730 days; beyond 730 (the 5-year
+  horizon) the model has no native prediction at all (never trained/evaluated
+  past day 730), so the generic transform is used there instead, and the report
+  now says which one applies to each number ("native" vs. "approximate").
+- **Logistic Hazard**: pycox's `predict_surv_df` gives a real survival curve —
+  but its index is a **discrete bin position (0-49), not a real day value**
+  (verified directly: index range is 0-49 regardless of durations spanning
+  thousands of days). The previous code compared `horizon_days` (730/1825)
+  against that raw index directly, which can never match, so it silently always
+  fell back to the generic transform every time, for every scenario. This is
+  also latent in `logistic_hazard.py`'s own `run()` — its loaded `labtrans` is a
+  fresh, never-refit `LabTransDiscreteTime(50)`, and the `labtrans` parameter
+  passed into `c_idx`/`auc`/`brier_score_evaluation` is never actually used
+  inside them, so those functions have the same index-vs-real-day mismatch.
+  Not fixed in `logistic_hazard.py` itself (out of scope — would need
+  discussion, since it's used at Stage 3 training time); **fixed in the new
+  module** by refitting `LabTransDiscreteTime(50)` on `df_train` to recover each
+  bin's real day value via its `.cuts` array (deterministic given the same
+  training data), then reading the horizon off the real curve directly.
+- **Dynamic DeepHit**: the more serious one. `pkgs/models/dynamicdeephit.py`
+  sets `self.pred_times = 365*15` — the model predicts **one hazard value per
+  literal calendar day** (0 to 5474), one curve per **subject** (pooled via
+  attention over their whole sequence, not per lab-event row). The previous
+  code — copied from `dynamic_deephit.py`'s own `brier_score_evaluation()`/
+  `auc()` — paired `hazard_preds[j][:p_seq_len]` (hazard on days 0..p_seq_len-1)
+  with `time_to_events[j][:p_seq_len]` (that subject's actual, irregularly-spaced
+  lab-visit days), silently mixing "hazard on day 13" with "this patient's 13th
+  lab visit" (e.g. day 1200) for every patient without daily visits — i.e.
+  nearly all of them. This is a pre-existing mismatch in `dynamic_deephit.py`'s
+  own evaluation code, not introduced here, but was inherited by copying that
+  pattern. **Fixed**: since `hazard_preds[j]` is a genuine per-day curve,
+  cumulative survival at day *t* is `prod(1 - hazard_preds[j, :t])`, read off
+  directly at any horizon (subject-level, like cox/rnn_surv's predictions, but
+  one prediction per unique subject rather than per `df_test` row — ddh only
+  ever produces one curve per subject).
+- **RNN-Surv**: risk score is explicitly documented in the model's own
+  `forward()` as *not* a probability ("a linear combination of the survival
+  function estimates", summed across discrete intervals, for ranking only) —
+  the generic transform is the correct and only option here. Left as-is.
+- **Cox**: `predict_partial_hazard` is a genuine unbounded hazard ratio; an
+  exact survival probability exists in principle via the baseline cumulative
+  hazard (`S_i(t) = S_0(t)^{partial\_hazard}`), but extracting it correctly for
+  `CoxTimeVaryingFitter`'s start/stop interval data is nontrivial. Left as a
+  documented approximation (the same one already used for Brier score
+  elsewhere in this codebase) rather than fixed now — flagged as a possible
+  future improvement, not attempted given scope.
+- **Degenerate-prediction display bug** (separate from the above): a model
+  whose predicted risk is exactly constant across every patient (observed for
+  `ddh` on `eight_features` at rep99 — predicted risk = 1.0 for all 243 test
+  rows, an undertrained-mini-model artifact) made `calibration_table`'s
+  `pd.qcut` silently return an all-NaN bin column with **no exception raised**,
+  which then grouped into zero rows — the report showed an empty calibration
+  section with no error, looking broken rather than showing the actual
+  finding. Fixed: detect the all-NaN case explicitly (not just `ValueError`)
+  and fall back to rank-based binning, which still works on constant data; the
+  report now also states explicitly when a model's predicted risk has no
+  spread at a given horizon, instead of showing a silently-empty section.
+
+Every model's report line now says its predicted-probability source
+(`native` vs. `approximate`) so a reader can tell which numbers are exact model
+output and which are the documented approximation.
+
+#### One more bug, found on re-running Stage 2/2.1 (2026-08-23, later same day)
+
+Re-running Stage 2 + 2.1 end-to-end (user request) surfaced a follow-on
+consequence of the Dynamic DeepHit / Hazard Transformer fixes above: their
+Brier score was **silently always `None`**. Root cause: `brier_score_up_to`
+built its comparison set via `pkgs/experiments/utils.py`'s
+`compute_brier_score_from_survival_probs(df_train, df_test, ...)`, which always
+derives `y_test` from the full `df_test` (one row per lab event). Once ddh/
+hazard_transformer's predictions were fixed to be one-per-**subject**
+(correctly, per the fixes above), their `survival_probs` array no longer had
+`len(df_test)` rows, so sksurv's shape check failed every time — caught by
+that function's own try/except (prints a warning, returns `None`), so nothing
+crashed, but the Brier numbers for these two models were silently wrong (not
+computed at all) rather than reflecting the fixed, correct predictions. Fixed:
+`brier_score_up_to` now takes `durations`/`events` directly (the same ones
+already paired with `risk_scores` by each model's own prediction function)
+instead of re-deriving them from `df_test`. Verified: Dynamic DeepHit/Hazard
+Transformer now report real Brier scores (e.g. 0.507, 1.016) instead of
+`None`, for `four_features`/`eight_features`. `twenty_features_heterogeneous`
+still shows `None` for all 5 models — a different, pre-existing, already-
+documented sksurv limitation (test follow-up range exceeds what its censoring
+distribution supports), not new.
+
+#### Another bug-check pass (2026-08-23, later still) — all-NaN predictions
+
+Not currently triggered on rep99 (verified NaN-free after the ddh fix), but a
+real latent gap: tested `calibration_table`/`model_net_benefit_curve` directly
+against an all-NaN `predicted` array (the failure mode a severely undertrained
+model would produce — this repo has documented NaN-loss training issues
+before) and confirmed it reproduces the exact same "silently empty section, no
+error" failure class as the degenerate-constant-prediction bug fixed earlier —
+just via NaN instead of a finite constant: `pd.qcut` and its rank-based
+fallback both return all-NaN bins for all-NaN input (verified directly), so
+`calibration_table` silently returned `[]` with nothing logged, and
+`model_net_benefit_curve` silently counted every NaN row as "definitely
+low-risk" (NaN never satisfies `>= pt`) rather than excluding it, biasing net
+benefit down instead of raising. Fixed:
+- `analyze_scenario` now checks for all-NaN `predicted` right after resolving
+  it and logs an explicit `SKIPPED` line instead of silently calling into
+  calibration/DCA with unusable input; logs a count when only some rows are
+  NaN.
+- `model_net_benefit_curve` now drops NaN rows before computing (matching
+  `calibration_table`'s existing pandas-native NaN exclusion via `qcut`),
+  verified directly (10/50 NaN rows correctly excluded from both functions'
+  denominators).
+
+Per request, added cross-model comparison charts for the three standard
+discrimination/calibration-summary metrics already used throughout
+`pkgs/experiments/*.py` (C-index, integrated Brier score, mean time-dependent
+AUC — all at the 2-year/730-day horizon, matching that convention). Computed
+once per model per scenario (`discrimination_metrics()`), not per calibration
+horizon. Three PNGs, one per metric, each a grouped bar chart (x=model, one bar
+group per scenario), saved once after all 3 scenarios finish (not per-scenario)
+since they compare across scenarios: `c_index_comparison.png`,
+`brier_comparison.png`, `auc_comparison.png`, under `generated_data/rep<N>/`.
+Sign convention note: `concordance_index` needs a score that's higher for
+*longer* survival, so this negates the uniformly "higher = riskier"
+`risk_scores` used everywhere else in this module — confirmed against this
+codebase's own `cox.py`, which does the same negation before its own
+`concordance_index` call.
+
 Sources reviewed (2026-08-23):
 - [Interpretable machine learning for predicting chronic kidney disease progression risk (PMC)](https://pmc.ncbi.nlm.nih.gov/articles/PMC10793198/)
 - [Development and Validation of a Dynamic Kidney Failure Prediction Model based on Deep Learning, with external validation (arXiv:2501.16388)](https://arxiv.org/abs/2501.16388)
@@ -490,31 +626,47 @@ Sources reviewed (2026-08-23):
 - [External validation, recalibration, and clinical utility of KFRE in advanced CKD — Peru (BMC Nephrology)](https://link.springer.com/article/10.1186/s12882-025-04357-z)
 - [An independent validation of the kidney failure risk equation in a South Asian population (PMC)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10552237/)
 
-## Stage 3: Full experiment runs (rep1 → rep5)
+## Stage 3.0: rep1 full experiment run + analysis report — approval gate before 3.1
 After stage 2 and stage 2.1 passes, get approval before run this stage.
 
-- Launch full runs via the **same**
-  [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new script) for `N` in 1..5 — each in the
-  background, each PID/log recorded in `FEATURE_SET_EXPERIMENT_PLAN.md`.
+- Launch the full run via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh)
+  (no new script) for `N=1` only — in the background, PID/log recorded in `EXPERIMENT_STATUS.md`
+  (own rows/section, per the repo's background-process-tracking rules above).
+- Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
+  log tail) and the plan doc updated until rep1 finishes or fails-and-is-relaunched.
+- **Once rep1 finishes, produce its analysis report**: repeat Stage 2.1's analysis (SHAP-style
+  feature importance + the three additional analyses — calibration, decision-curve, etc.) pointed
+  at rep1's models instead of rep99 — no new stage, same code/output convention as Stage 2.1, just
+  rerun with `CKD_REP=1`.
+- **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's full
+  run + analysis report and explicitly approved moving on.**
+
+## Stage 3.1: Full experiment runs (rep2 → rep4)
+Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone — requires Stage
+3.0's approval gate to have passed first.
+
+- Launch full runs via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new
+  script) for `N` in 2, 3, 4 — each in the background, each PID/log recorded in
+  `EXPERIMENT_STATUS.md`.
 - **Max 2 reps launched per session.** When told to run this stage, launch at most 2 reps that
-  are not already running and have not already completed/ran — not all 5 at once. (E.g. "run
-  stage 3" → launch rep1 and rep2 only, leave rep3-5 for later sessions/turns.) This applies per
-  session/turn, not as a one-time-ever cap — once rep1/rep2 finish (or in a later session), the
-  next "run stage 3" (or "run the rest") picks up the next ≤2 reps not yet running/done (e.g.
-  rep3 and rep4), and so on until all 5 are covered.
+  are not already running and have not already completed/ran — not all 3 at once. (E.g. "run
+  stage 3.1" → launch rep2 and rep3 only, leave rep4 for a later session/turn.) This applies per
+  session/turn, not as a one-time-ever cap — once rep2/rep3 finish (or in a later session), the
+  next "run stage 3.1" (or "run the rest") picks up the next ≤2 reps not yet running/done (e.g.
+  rep4 alone), and so on until rep2-4 are all covered.
 - **While reps are running, document exactly which ones in `EXPERIMENT_STATUS.md`** — not just a
-  generic "in progress": the Stage 3 status row and/or its Background processes section must name
-  the specific rep numbers currently launched this session (e.g. "rep1, rep2 running"), updated as
-  each finishes/fails so the doc always reflects which reps are actually in flight vs. done vs.
-  not yet started, per the repo's existing background-process-tracking and 10-minute auto-check
-  rules above.
+  generic "in progress": the Stage 3.1 status row and/or its Background processes section must
+  name the specific rep numbers currently launched this session (e.g. "rep2, rep3 running"),
+  updated as each finishes/fails so the doc always reflects which reps are actually in flight vs.
+  done vs. not yet started, per the repo's existing background-process-tracking and 10-minute
+  auto-check rules above.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until the launched reps finish or fail-and-are-relaunched.
-- **After all 5 reps finish**: repeat Stage 2.1's analysis (SHAP + the three additional analyses)
-  per rep, pointed at the rep1-5 models instead of rep99 — no new stage, same code/output
-  convention as Stage 2.1, just rerun with `CKD_REP=<N>` for `N` in 1..5. The SHAP part can start
+- **After rep2-4 finish**: repeat Stage 2.1's analysis (SHAP + the three additional analyses) per
+  rep, pointed at each rep's models instead of rep99 — no new stage, same code/output convention
+  as Stage 2.1/3.0, just rerun with `CKD_REP=<N>` for `N` in 2, 3, 4. The SHAP part can start
   per-rep as soon as that rep finishes; the three additional analyses can also start per-rep
   (rep99's small subsample is the only reason those were sanity-checked there first — full reps
-  don't have that limitation), no need to wait for all 5 before starting.
+  don't have that limitation), no need to wait for all 3 before starting.
 
 ## Open questions before implementation starts

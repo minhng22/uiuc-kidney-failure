@@ -12,22 +12,27 @@ approved). Do not restart another session's row without confirming its host is a
 | 1b | Code changes (types/commons/time_series_store/model_data_store/experiments/kfre) | done | [report](generated_data/rep1/stage1b_implementation_report.txt) |
 | 1c-0 | Pilot extraction (rep1) + cohort-flow analysis — approval gate | done, approved | [report](generated_data/rep1/stage1c0_pilot_extraction_report.txt) |
 | 1c | Full extraction (rep2-5, parallel) | done | [report](generated_data/rep1/stage1c_full_extraction_report.txt) |
-| 2 | Mini-experiment (rep99) | done — 17 runs, 11 passed, 6 failed (all explained) | [report](generated_data/rep99/mini_experiment_status_report.txt) |
-| 2.1 | Feature-importance analysis | done — 3 scenario reports, all clean | [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt) |
-| 2.1 | Additional analyses: calibration + decision-curve analysis, text + charts (rep99 sanity check) | done — all 5 models × 3 scenarios, clean; competing-risk analysis considered and declined (not planned, see plan doc) | reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario in `generated_data/rep99/` |
-| 3 | Full experiment runs (rep1-5) | **rep1, rep2, rep3, rep4 running** (max 2/session per plan, two sessions); rep5 not yet started | see Background processes below |
+| 2 | Mini-experiment (rep99) | re-run 2026-08-23 16:1x CDT (sunlab-serv-01) — 12/17 passed, 5/17 failed, all `four_features` on the same known sksurv "censoring survival function is zero" AUC edge case (cox/ddh/hazard_transformer/rnnsurv/kfre); no new failures | [report](generated_data/rep99/mini_experiment_status_report.txt) (original run; re-run not re-written, same known failure mode) |
+| 2.1 | Feature-importance analysis | re-run 2026-08-23 16:18 CDT (sunlab-serv-01) — 3 scenario reports, all clean | [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt) |
+| 2.1 | Additional analyses: calibration + decision-curve analysis, text + charts (rep99 sanity check) | re-checked again 2026-08-23 ~16:3x CDT (sunlab-serv-01) — found + fixed one more latent bug: all-NaN predictions (an undertrained-model failure mode, not currently occurring on rep99 but previously unguarded) silently produced an empty calibration table and a silently-biased net-benefit curve, same "no error, just wrong" class as earlier bugs — now explicitly detected and logged, verified with a synthetic NaN test; re-ran clean, no behavior change on current rep99 data. Earlier: re-run surfaced Brier score silently `None` for ddh/hazard_transformer (fixed); metrics double-check found 3 more bugs (hazard_transformer/logistic_hazard/ddh were using approximated instead of native model output; a degenerate-prediction display bug) — see plan doc "Metrics double-check" / "Another bug-check pass"; competing-risk analysis considered and declined (not planned) | reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
+| 3.0 | rep1 full run + analysis report — approval gate before 3.1 | **not done** — rep1 was started, killed by user request before finishing (partial: cox/dynamic_deephit/hazard_transformer partially run — see report); needs relaunch | see Background processes below |
+| 3.1 | rep2-4 full runs (blocked on 3.0's approval gate) | **not done** — rep2/rep3/rep4 were started (2 sessions) before Stage 3 was split into 3.0/3.1; all stopped/killed by user request before finishing; needs relaunch once 3.0 is approved | see Background processes below |
 
 ## Background processes
 
-### Stage 3 (full experiment runs) — owner: session on sunlab-serv-02.cs.illinois.edu
+### Stage 3.0/3.1 (full experiment runs, rep1 launched under 3.0 + rep2 under what is now 3.1) — owner: session on sunlab-serv-02.cs.illinois.edu
 
-**Running: rep1, rep2** (max 2 per session, per EXPERIMENT_PLAN_DETAILS.md Stage 3's cap).
-rep3, rep4, rep5 not yet started by this session — see the sunlab-serv-03 row below for rep3/rep4.
+**Stopped by user request** (2026-08-23 ~14:3x CDT) — `kill -TERM` on both process
+groups, confirmed clean (no remaining processes). Both were healthy/actively computing
+at kill time (verified via `/proc/<pid>/stat` CPU-time deltas moments before), not
+stalled — killed on request, not due to a hang. rep3, rep4, rep5 also not running
+(rep3/rep4 stopped earlier by user request per the sunlab-serv-03 session below; rep5
+never started).
 
 | PID | Rep | Log | Status |
 |---|---|---|---|
-| 2870156 | 1 | [eval_all_rep1.log](pkgs/scripts/eval_all_rep1.log) | in progress (hazard_transformer); dynamic_deephit lost eight_features/twenty_features_heterogeneous to a bug — see below, fix applied, verifying on rep99 |
-| 2870177 | 2 | [eval_all_rep2.log](pkgs/scripts/eval_all_rep2.log) | in progress (hazard_transformer); same dynamic_deephit issue as rep1 |
+| ~~2870156~~ | 1 | [eval_all_rep1.log](pkgs/scripts/eval_all_rep1.log) | **killed by user request** — was in progress (hazard_transformer, 20h11m elapsed); dynamic_deephit lost eight_features/twenty_features_heterogeneous to a bug (fixed + verified on rep99, not yet backfilled here) |
+| ~~2870177~~ | 2 | [eval_all_rep2.log](pkgs/scripts/eval_all_rep2.log) | **killed by user request** — was in progress (hazard_transformer, 18h31m elapsed); same dynamic_deephit issue as rep1 |
 
 Launched via `bash pkgs/scripts/run_rep.sh <rep>` (EXPERIMENTS: cox, dynamic_deephit,
 hazard_transformer, logistic_hazard, rnnsurv, kfre). Verified the `CKD_FIFTY_FEATURES_HETEROGENEOUS`
@@ -77,7 +82,7 @@ reports/plots cleared first, since dynamic_deephit models changed): PID
 
 Last Updated: 2026-08-23 14:15 CDT (sunlab-serv-02.cs.illinois.edu)
 
-### Stage 3 (full experiment runs) — owner: session on sunlab-serv-03.cs.illinois.edu
+### Stage 3.1 (full experiment runs, rep3/rep4) — owner: session on sunlab-serv-03.cs.illinois.edu
 
 **Running: rep3, rep4** (next ≤2 not-yet-running/done reps, per EXPERIMENT_PLAN_DETAILS.md Stage 3's
 per-session cap; rep1/rep2 already running under the sunlab-serv-02 session above). rep5 left for a

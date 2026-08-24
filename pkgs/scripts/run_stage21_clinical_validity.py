@@ -34,6 +34,8 @@ def main():
     analyzer.analyze_eight_features()
     analyzer.analyze_twenty_features()
 
+    analyzer.create_metrics_comparison_charts()
+
     print("=" * 80)
     print("ANALYSIS COMPLETE")
     print("=" * 80)
