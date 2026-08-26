@@ -61,6 +61,7 @@ from pkgs.experiments.utils import load_pkl_and_dill_model, get_tv_rnn_model_fea
 from pkgs.experiments.hazard_transformer import HazardTransformerDataset, custom_collate_fn
 from pkgs.experiments.logistic_hazard import LogisticHazardDataset
 from pkgs.experiments.dynamic_deephit import DynamicDeepHitDataset
+from pkgs.experiments.kfre import compute_risk_scores as kfre_compute_risk_scores, get_kfre_risk_scores_path
 from torch.utils.data import DataLoader
 from pycox.models import LogisticHazard
 from pycox.preprocessing.label_transforms import LabTransDiscreteTime
@@ -478,16 +479,68 @@ def rnn_surv_predictions(model, df_test, scenario):
     return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, None
 
 
+def kfre_predictions(risk_scores_2yr_path, scenario, df_test):
+    """KFRE (pkgs/experiments/kfre.py) was missing entirely from this module —
+    it's one of the 6 model types Stage 3.0 actually runs/evaluates (see
+    run_rep.sh's EXPERIMENTS list) and is THE clinical benchmark the rest of
+    Stage 2.1's literature review is framed around, so its absence from the
+    calibration/DCA/comparison-chart output was a real gap, not a deliberate
+    omission (found 2026-08-26).
+
+    Unlike every other model here, KFRE's "risk score" IS already a genuine
+    predicted probability of the event by a given number of years (Tangri et
+    al.'s closed-form 1 - S0(t)^exp(L)), not a generic score needing the
+    module's usual exponential-transform approximation — so both the 2yr and
+    5yr horizons (DEFAULT_HORIZONS_DAYS = [730, 1825], the exact years KFRE's
+    S0 constants are defined for) are native, exact model output.
+
+    risk_scores_2yr_path is the cached CSV pkgs/experiments/kfre.py's own
+    run_kfre_model() already writes (<scenario>_kfre_2yr_risk_scores.csv,
+    one row per df_test row, same order — get_train_test_data() for
+    four_features/eight_features is a plain pd.read_csv with no shuffling,
+    confirmed in pkgs/data_analysis/model_data_store.py, so positional
+    alignment with today's df_test is valid). No 5yr cache exists yet
+    (kfre.py's own __main__ only ever computes years=2) — computed here via
+    the same closed-form equation (cheap, no training) and cached the same
+    way kfre.py itself would, so repeat runs don't recompute it.
+
+    KFRE has no published equation for twenty_features_heterogeneous (see
+    kfre.py's own assert) — not called for that scenario; the existing
+    "model file not found, skip" path in _model_paths/analyze_scenario
+    handles that correctly as long as no 'kfre' entry is added for it there.
+    """
+    risk_scores_2yr = pd.read_csv(risk_scores_2yr_path)['risk_score'].values
+
+    scores_5yr_path = get_kfre_risk_scores_path(scenario, years=5)
+    if os.path.exists(scores_5yr_path):
+        risk_scores_5yr = pd.read_csv(scores_5yr_path)['risk_score'].values
+    else:
+        risk_scores_5yr = kfre_compute_risk_scores(scenario, df_test, years=5)
+        pd.DataFrame({
+            'subject_id': df_test['subject_id'].values,
+            'risk_score': risk_scores_5yr,
+        }).to_csv(scores_5yr_path, index=False)
+
+    def native_prob_fn(horizon_days):
+        if round(horizon_days) == 730:
+            return risk_scores_2yr
+        if round(horizon_days) == 1825:
+            return risk_scores_5yr
+        return None
+
+    return risk_scores_2yr, df_test['duration_in_days'].values, df_test['has_esrd'].values, native_prob_fn
+
+
 class ClinicalValidityAnalyzer:
     def __init__(self, output_dir):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.current_scenario = None
         self.scenario_report_lines = {}
-        self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv']
+        self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv', 'kfre']
         self.model_pretty_names = {
             'cox': 'Cox', 'ddh': 'Dynamic DeepHit', 'hazard_transformer': 'Hazard Transformer',
-            'logistic_hazard': 'Logistic Hazard', 'rnn_surv': 'RNN-Surv',
+            'logistic_hazard': 'Logistic Hazard', 'rnn_surv': 'RNN-Surv', 'kfre': 'KFRE',
         }
         # scenario_name -> horizon_days -> {'treat_all':.., 'egfr_nb':.., 'models': {model_name: {'calibration':.., 'model_nb':..}}}
         # populated by analyze_scenario, read back by create_calibration_plot/create_decision_curve_plot.
@@ -499,13 +552,23 @@ class ClinicalValidityAnalyzer:
             self.scenario_report_lines.setdefault(self.current_scenario, []).append(message)
 
     def _model_paths(self, scenario_name):
-        return {
+        paths = {
             'cox': generate_data_path_latest_rep + f'/{scenario_name}_cox_model.dill',
             'ddh': generate_data_path_latest_rep + f'/{scenario_name}_ddh_model.pt',
             'hazard_transformer': generate_data_path_latest_rep + f'/{scenario_name}_hazard_transformer_model.pt',
             'logistic_hazard': generate_data_path_latest_rep + f'/{scenario_name}_logistic_hazard_model.pt',
             'rnn_surv': generate_data_path_latest_rep + f'/{scenario_name}_rnn_surv_model.pt',
         }
+        # KFRE has no published equation for twenty_features_heterogeneous (only
+        # 4-/8-variable, per kfre.py) — omit the key entirely rather than
+        # pointing at a path that can never exist, so the existing "model file
+        # not found, skip" path above handles it the same way as any other
+        # not-yet-trained model, no special-casing needed.
+        if scenario_name in ('four_features', 'eight_features'):
+            paths['kfre'] = get_kfre_risk_scores_path(
+                ExperimentScenario.FOUR_FEATURES if scenario_name == 'four_features'
+                else ExperimentScenario.EIGHT_FEATURES, years=2)
+        return paths
 
     def _get_predictions(self, model_name, model_path, df_train, df_test, scenario):
         if model_name == 'cox':
@@ -513,6 +576,9 @@ class ClinicalValidityAnalyzer:
             if model is None:
                 return None
             return cox_predictions(model, df_test)
+
+        if model_name == 'kfre':
+            return kfre_predictions(model_path, scenario, df_test)
 
         model = torch.load(model_path, map_location='cpu', weights_only=False)
         if model_name == 'hazard_transformer':

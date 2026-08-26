@@ -34,4 +34,8 @@ run: [report](generated_data/rep1/stage3_0_parallel_resume_report.txt).
 Ad-hoc `ddh`/`four_features`+`eight_features` eval (user request, PID 2042631, separate from
 the main rep1 run above) — done, see [report](generated_data/rep1/four_eight_features_ddh_eval_report.txt).
 
-Last Updated: 2026-08-26 17:02 CDT (sunlab-serv-01.cs.illinois.edu)
+TEMPORARY/interim Stage 2.1-style analysis for rep1 (user request, everything trained so
+far — not the final report) — done, see [check log](generated_data/rep1/stage3_0_background_process_log.txt)
+for full checklist; reports/charts alongside the rep99 ones in `generated_data/rep1/`.
+
+Last Updated: 2026-08-26 18:33 CDT (sunlab-serv-01.cs.illinois.edu)

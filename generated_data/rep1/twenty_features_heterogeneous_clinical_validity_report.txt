@@ -1,0 +1,128 @@
+CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
+================================================================================
+Generated on: 2026-08-26 18:45:34
+Repetition: 1
+Scenario: twenty_features_heterogeneous
+Competing-risk analysis (death before ESRD) not included — raised and declined
+(2026-08-23); see EXPERIMENT_PLAN_DETAILS.md Stage 2.1 for why.
+================================================================================
+
+================================================================================
+CLINICAL VALIDITY ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Test samples (rows): 1613452
+Max test follow-up: 4687.1 days. Horizons used: [730, 1825]
+
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_ddh_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_hazard_transformer_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_rnn_surv_model.pt
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Cox: c_index=0.4404 brier=0.38236 auc=0.4239
+  Logistic Hazard: c_index=0.5216 brier=0.45436 auc=0.5478
+
+=== Horizon: 730 days ===
+Treat-all net benefit: {0.05: 0.04934, 0.1: -0.00348, 0.15: -0.06251, 0.2: -0.12891, 0.25: -0.20417, 0.3: -0.29019, 0.4: -0.50522, 0.5: -0.80626}
+eGFR-threshold referral rule net benefit: {30: -16.37464, 45: -19.67202}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=161346 events=16921 predicted=0.6697 observed(KM)=0.1135
+  n=161345 events=15365 predicted=0.8012 observed(KM)=0.0926
+  n=161345 events=16091 predicted=0.8671 observed(KM)=0.1157
+  n=161345 events=15110 predicted=0.8797 observed(KM)=0.1209
+  n=161345 events=13407 predicted=0.8849 observed(KM)=0.0927
+  n=161345 events=16654 predicted=0.8908 observed(KM)=0.1004
+  n=161345 events=18391 predicted=0.8949 observed(KM)=0.1699
+  n=161345 events=15650 predicted=0.8969 observed(KM)=0.1376
+  n=161345 events=12924 predicted=0.8992 observed(KM)=0.0694
+  n=161346 events=14756 predicted=0.9048 observed(KM)=0.0247
+Integrated Brier score (0-730d): 0.38236
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.04934  treat_all=0.04934  treat_none=0.0
+  pt=0.10  model=-0.00348  treat_all=-0.00348  treat_none=0.0
+  pt=0.15  model=-0.06251  treat_all=-0.06251  treat_none=0.0
+  pt=0.20  model=-0.12891  treat_all=-0.12891  treat_none=0.0
+  pt=0.25  model=-0.20418  treat_all=-0.20417  treat_none=0.0
+  pt=0.30  model=-0.2902  treat_all=-0.29019  treat_none=0.0
+  pt=0.40  model=-0.50526  treat_all=-0.50522  treat_none=0.0
+  pt=0.50  model=-0.80614  treat_all=-0.80626  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 655 events=607 predicted=0.6630 observed(KM)=0.6735
+  n= 655 events=633 predicted=0.6739 observed(KM)=0.6887
+  n= 657 events=618 predicted=0.6754 observed(KM)=0.7035
+  n= 645 events=557 predicted=0.6916 observed(KM)=0.6862
+  n= 662 events=587 predicted=0.7081 observed(KM)=0.6916
+  n= 651 events=577 predicted=0.7158 observed(KM)=0.6805
+  n= 759 events=680 predicted=0.7210 observed(KM)=0.6863
+  n= 610 events=551 predicted=0.7261 observed(KM)=0.6988
+  n= 579 events=542 predicted=0.7331 observed(KM)=0.7242
+  n= 648 events=624 predicted=0.7568 observed(KM)=0.8196
+Integrated Brier score (0-730d): 0.45436
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.68952  treat_all=0.04934  treat_none=0.0
+  pt=0.10  model=0.67227  treat_all=-0.00348  treat_none=0.0
+  pt=0.15  model=0.65299  treat_all=-0.06251  treat_none=0.0
+  pt=0.20  model=0.6313  treat_all=-0.12891  treat_none=0.0
+  pt=0.25  model=0.60672  treat_all=-0.20417  treat_none=0.0
+  pt=0.30  model=0.57863  treat_all=-0.29019  treat_none=0.0
+  pt=0.40  model=0.5084  treat_all=-0.50522  treat_none=0.0
+  pt=0.50  model=0.41009  treat_all=-0.80626  treat_none=0.0
+
+=== Horizon: 1825 days ===
+Treat-all net benefit: {0.05: 0.10503, 0.1: 0.05531, 0.15: -0.00026, 0.2: -0.06278, 0.25: -0.13363, 0.3: -0.2146, 0.4: -0.41704, 0.5: -0.70044}
+eGFR-threshold referral rule net benefit: {30: -15.35135, 45: -18.44465}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=161346 events=16921 predicted=0.9332 observed(KM)=0.1745
+  n=161345 events=15365 predicted=0.9810 observed(KM)=0.1433
+  n=161345 events=16091 predicted=0.9936 observed(KM)=0.2125
+  n=161345 events=15110 predicted=0.9950 observed(KM)=0.1454
+  n=161345 events=13407 predicted=0.9955 observed(KM)=0.1818
+  n=161345 events=16654 predicted=0.9961 observed(KM)=0.1439
+  n=161345 events=18391 predicted=0.9964 observed(KM)=0.2131
+  n=161345 events=15650 predicted=0.9966 observed(KM)=0.2156
+  n=161345 events=12924 predicted=0.9968 observed(KM)=0.181
+  n=161346 events=14756 predicted=0.9972 observed(KM)=0.0565
+Integrated Brier score (0-1825d): 0.64953
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.10503  treat_all=0.10503  treat_none=0.0
+  pt=0.10  model=0.05531  treat_all=0.05531  treat_none=0.0
+  pt=0.15  model=-0.00026  treat_all=-0.00026  treat_none=0.0
+  pt=0.20  model=-0.06278  treat_all=-0.06278  treat_none=0.0
+  pt=0.25  model=-0.13363  treat_all=-0.13363  treat_none=0.0
+  pt=0.30  model=-0.21461  treat_all=-0.2146  treat_none=0.0
+  pt=0.40  model=-0.41704  treat_all=-0.41704  treat_none=0.0
+  pt=0.50  model=-0.70045  treat_all=-0.70044  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 654 events=539 predicted=0.8018 observed(KM)=0.8043
+  n= 652 events=623 predicted=0.8211 observed(KM)=0.8432
+  n= 658 events=636 predicted=0.8230 observed(KM)=0.8759
+  n= 651 events=604 predicted=0.8236 observed(KM)=0.8737
+  n= 690 events=624 predicted=0.8348 observed(KM)=0.8533
+  n= 710 events=633 predicted=0.8445 observed(KM)=0.8493
+  n= 616 events=552 predicted=0.8484 observed(KM)=0.8174
+  n= 654 events=592 predicted=0.8520 observed(KM)=0.8214
+  n= 609 events=565 predicted=0.8570 observed(KM)=0.8542
+  n= 627 events=608 predicted=0.8724 observed(KM)=0.9027
+Integrated Brier score (0-1825d): 0.47978
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.8425  treat_all=0.10503  treat_none=0.0
+  pt=0.10  model=0.83375  treat_all=0.05531  treat_none=0.0
+  pt=0.15  model=0.82397  treat_all=-0.00026  treat_none=0.0
+  pt=0.20  model=0.81297  treat_all=-0.06278  treat_none=0.0
+  pt=0.25  model=0.8005  treat_all=-0.13363  treat_none=0.0
+  pt=0.30  model=0.78625  treat_all=-0.2146  treat_none=0.0
+  pt=0.40  model=0.75062  treat_all=-0.41704  treat_none=0.0
+  pt=0.50  model=0.70074  treat_all=-0.70044  treat_none=0.0
+Calibration plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_calibration_plot.png
+Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_decision_curve_plot.png

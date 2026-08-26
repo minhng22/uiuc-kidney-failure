@@ -690,3 +690,86 @@ scenarios). No failures.
 still trial 0. Resume run: hazard_transformer still on first trial (~263min in)
 confirmed alive/computing; rnnsurv still trial 0 of 3rd study (no output yet,
 ~50min in) confirmed alive/computing. No failures.
+
+17:12 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~273min in)
+confirmed alive/computing; rnnsurv still trial 0 of 3rd study (~60min in)
+confirmed alive/computing. No failures.
+
+17:22 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~283min in)
+confirmed alive/computing; rnnsurv still trial 0 of 3rd study (~70min in)
+confirmed alive/computing. No failures.
+
+17:32 CDT (2026-08-26) — no change to the main Stage 3.0 run (no experiment
+finished/failed). Original ddh: still trial 0. Resume run: hazard_transformer
+still on first trial (~323min in) confirmed alive/computing; rnnsurv still
+trial 0 of 3rd study confirmed alive/computing. No failures.
+
+Separately (user request): TEMPORARY/interim rep1 analysis in progress.
+Feature-importance temp run (PID 2351674) finished cleanly — produced SHAP
+reports/plots for all completed model x scenario combos (skipped
+ddh/hazard_transformer/rnn_surv x twenty_features_heterogeneous, still
+training, via existing graceful-skip). Clinical-validity temp run (PID
+2351675) still running (~16min in) — this is the one that produces
+c_index_comparison.png/brier_comparison.png/auc_comparison.png via
+create_metrics_comparison_charts(); confirmed that method already exists and
+works (rep99 has all 3 PNGs from Stage 2.1) — the feature-importance script
+was never meant to have it, so nothing needs fixing there. Waiting for the
+clinical-validity temp run to finish to confirm rep1's versions land.
+
+17:38 CDT (2026-08-26) — TEMPORARY/interim rep1 analysis (user request) now
+fully complete: both temp drivers (feature-importance PID 2351674, clinical-
+validity PID 2351675) finished cleanly. Full Stage 2.1 checklist confirmed
+present for rep1 (interim, covers every model/scenario combo trained so far;
+gracefully skipped ddh/hazard_transformer/rnn_surv x twenty_features_heterogeneous,
+still training):
+- SHAP feature importance: <scenario>_shap_analysis_report.txt +
+  <scenario>_all_models_feature_importance.png, all 3 scenarios.
+- Calibration + DCA: <scenario>_clinical_validity_report.txt +
+  <scenario>_calibration_plot.png + <scenario>_decision_curve_plot.png, all 3
+  scenarios (twenty_features_heterogeneous's calibration/DCA only reflects
+  cox + logistic_hazard, the only 2 models done for that scenario so far).
+- Cross-model comparison charts: c_index_comparison.png, brier_comparison.png,
+  auc_comparison.png.
+Took ~30min for the clinical-validity run due to severe host CPU contention
+(load avg 65-70 on a 40-core host, hazard_transformer alone using ~32 cores'
+worth) -- confirmed alive throughout via utime deltas, never actually stalled.
+This is NOT the final Stage 2.1-style rep1 report -- will be re-run once
+dynamic_deephit/hazard_transformer/rnn_surv finish twenty_features_heterogeneous
+(main Stage 3.0 run, still in progress, no change this tick).
+
+17:48 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~338min in)
+confirmed alive/computing; rnnsurv still trial 0 of 3rd study confirmed
+alive/computing. No failures.
+
+17:58 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~348min in)
+confirmed alive/computing; rnnsurv still trial 0 of 3rd study (~90min in)
+confirmed alive/computing. No failures.
+
+18:23 CDT (2026-08-26) — Bug found + fixed (user request): KFRE was completely
+missing from clinical_validity_analysis.py (calibration/DCA/comparison charts)
+despite being one of the 6 model types Stage 3.0 trains/evaluates and the
+clinical benchmark Stage 2.1's literature review is framed around. Fixed by
+adding kfre_predictions() (KFRE's cached risk score is already a genuine
+predicted probability, both 2yr/5yr horizons native/exact; no equation exists
+for twenty_features_heterogeneous, correctly omitted there via existing
+graceful-skip). Verified on rep99 first per CLAUDE.md's rule (PID 2367062,
+clean run, no errors, KFRE correctly present for four/eight_features only,
+confirmed visually in eight_features_decision_curve_plot.png). Then re-ran
+rep1's interim clinical-validity analysis (PID 2371477, clean, no errors,
+KFRE confirmed visually in rep1's own chart too). EXPERIMENT_PLAN_DETAILS.md's
+Stage 2.1 section also cleaned up per user request -- all bug-hunt/investigation
+narrative (previously inlined in the plan doc) moved to a new
+generated_data/rep99/stage2_1_implementation_report.txt, plan doc trimmed to
+just the plan (227 -> ~90 lines for that section).
+Main Stage 3.0 run: no change -- still 3 models mid-training
+twenty_features_heterogeneous (ddh original run + hazard_transformer/rnnsurv
+resume run).
+
+18:33 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0 (~2d23h17min in). Resume run: hazard_transformer still on first
+trial (~6h28min in) confirmed alive/computing; rnnsurv still trial 0 of 3rd
+study confirmed alive/computing. No failures.

@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-08-23 16:37:52
+Generated on: 2026-08-26 18:05:20
 Repetition: 99
 Scenario: four_features
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -24,6 +24,8 @@ Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-
   Logistic Hazard: c_index=0.5016 brier=0.38323 auc=None
     (auc unavailable: censoring survival function is zero at one or more time points)
   RNN-Surv: c_index=0.4486 brier=0.71006 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  KFRE: c_index=0.627 brier=0.09861 auc=None
     (auc unavailable: censoring survival function is zero at one or more time points)
 
 === Horizon: 730 days ===
@@ -152,6 +154,30 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.40  model=-0.53184  treat_all=-0.53265  treat_none=0.0
   pt=0.50  model=-0.83793  treat_all=-0.83918  treat_none=0.0
 
+--- KFRE ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 370 events= 19 predicted=0.0000 observed(KM)=0.0578
+  n= 364 events= 10 predicted=0.0000 observed(KM)=0.0248
+  n= 368 events= 15 predicted=0.0001 observed(KM)=0.0449
+  n= 375 events= 20 predicted=0.0002 observed(KM)=0.042
+  n= 357 events= 31 predicted=0.0006 observed(KM)=0.0874
+  n= 366 events= 43 predicted=0.0019 observed(KM)=0.102
+  n= 369 events= 67 predicted=0.0080 observed(KM)=0.1355
+  n= 367 events= 54 predicted=0.0340 observed(KM)=0.1055
+  n= 364 events= 47 predicted=0.1246 observed(KM)=0.1177
+  n= 367 events= 38 predicted=0.6777 observed(KM)=0.0942
+Integrated Brier score (0-730d): 0.09861
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.01178  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=-0.00114  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=-0.00817  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=-0.01378  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=-0.02082  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=-0.0271  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=-0.04134  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=-0.0572  treat_all=-0.83918  treat_none=0.0
+
 === Horizon: 1825 days ===
 Treat-all net benefit: {0.05: 0.10205, 0.1: 0.05216, 0.15: -0.0036, 0.2: -0.06632, 0.25: -0.13741, 0.3: -0.21865, 0.4: -0.42176, 0.5: -0.70611}
 eGFR-threshold referral rule net benefit: {30: -0.01895, 45: -0.09094}
@@ -277,5 +303,29 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.30  model=-0.2185  treat_all=-0.21865  treat_none=0.0
   pt=0.40  model=-0.42124  treat_all=-0.42176  treat_none=0.0
   pt=0.50  model=-0.70527  treat_all=-0.70611  treat_none=0.0
+
+--- KFRE ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 370 events= 19 predicted=0.0000 observed(KM)=0.0658
+  n= 364 events= 10 predicted=0.0001 observed(KM)=0.0248
+  n= 368 events= 15 predicted=0.0002 observed(KM)=0.0743
+  n= 375 events= 20 predicted=0.0006 observed(KM)=0.0666
+  n= 357 events= 31 predicted=0.0019 observed(KM)=0.1375
+  n= 366 events= 43 predicted=0.0059 observed(KM)=0.2704
+  n= 369 events= 67 predicted=0.0247 observed(KM)=0.2583
+  n= 367 events= 54 predicted=0.1016 observed(KM)=0.3201
+  n= 364 events= 47 predicted=0.3340 observed(KM)=0.1717
+  n= 367 events= 38 predicted=0.8930 observed(KM)=0.1226
+Integrated Brier score (0-1825d): 0.17506
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.04032  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.01691  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=-0.00142  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=-0.01392  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=-0.02557  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=-0.03849  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=-0.05744  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=-0.08052  treat_all=-0.70611  treat_none=0.0
 Calibration plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_calibration_plot.png
 Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_decision_curve_plot.png
