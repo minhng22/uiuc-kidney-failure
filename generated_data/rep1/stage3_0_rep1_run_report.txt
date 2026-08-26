@@ -1,0 +1,49 @@
+STAGE 3.0 — rep1 FULL EXPERIMENT RUN
+================================================================================
+Scope: rep1 full run + Stage 2.1-style analysis report — approval gate before
+Stage 3.1 (rep2-4). See EXPERIMENT_PLAN_DETAILS.md Stage 3.0.
+
+Launch
+------
+- Command: `bash pkgs/scripts/run_rep.sh 1`
+- PID: 1613542, host: sunlab-serv-01.cs.illinois.edu
+- Log: pkgs/scripts/eval_all_rep1.log
+- Start time: 2026-08-23 19:28:36 CDT
+
+Pre-launch verification
+------------------------
+- Confirmed the prior sunlab-serv-02 attempt (PID 2870156) was cleanly killed:
+  their own EXPERIMENT_STATUS.md note said "no remaining processes"; also
+  verified locally on this host — `ps -p 2870156` found nothing.
+- Verified `run_rep.sh`'s entry point per CLAUDE.md's entry-point rule: it
+  calls each experiment module's own `__main__`, which guards
+  `CKD_FIFTY_FEATURES_HETEROGENEOUS` behind an `os.path.exists` check.
+  Confirmed rep1 has no `ckd_fifty_features_heterogeneous_train_data.csv`,
+  so that scenario is correctly skipped, not silently triggering a full raw
+  extraction.
+
+Model reuse plan
+-----------------
+Reuses the prior killed attempt's already-written model files rather than
+retraining from scratch (each experiment's own `run()` loads if the model
+file already exists):
+- Reused (already trained): `cox` (all 3 new scenarios), `ddh`/`four_features`,
+  `hazard_transformer`/`four_features`+`eight_features`.
+- Trained fresh: `ddh`/`eight_features`+`twenty_features_heterogeneous`
+  (previously lost to the now-fixed NaN-loss bug in `combine_loss`),
+  `hazard_transformer`/`twenty_features_heterogeneous` (previously the
+  scenario stuck 16+ hours on the now-fixed mean/std-caching bug), and
+  `logistic_hazard`/`rnnsurv`/`kfre` for all 3 scenarios (never started
+  before being killed).
+
+Ongoing status
+--------------
+See stage3_0_background_process_log.txt for the periodic (~10min) health-check
+log. EXPERIMENT_STATUS.md carries only the current terse status line + links
+to both files, per CLAUDE.md's "keep EXPERIMENT_STATUS.md tidy" rule.
+
+Once rep1 finishes fully: produce its Stage 2.1-style analysis report (SHAP +
+clinical-validity via run_stage21_feature_importance.py and
+run_stage21_clinical_validity.py, both pointed at CKD_REP=1), then stop at the
+Stage 3.0→3.1 approval gate (do not launch Stage 3.1 without explicit
+approval).

@@ -1,0 +1,25 @@
+Start time: Wed Aug 26 12:09:04 CDT 2026
+
+Running FOUR_FEATURES KFRE (4-variable) evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Using cached KFRE risk scores: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_kfre_2yr_risk_scores.csv
+Evaluate on test data
+Concordance Index Test: 0.688
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Mean time-dependent AUC: 0.6899
+
+Running EIGHT_FEATURES KFRE (8-variable) evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Using cached KFRE risk scores: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_kfre_2yr_risk_scores.csv
+Evaluate on test data
+Concordance Index Test: 0.637
+Integrated Brier Score Test: 0.396
+Mean time-dependent AUC: 0.6632
+✓ kfre completed successfully
+End time: Wed Aug 26 12:09:09 CDT 2026

@@ -1,0 +1,39 @@
+DYNAMIC_DEEPHIT (ddh) EVALUATION — four_features & eight_features (rep1)
+================================================================================
+Ad-hoc, on-demand re-evaluation of the already-trained rep1 ddh models for these
+two scenarios, run as a separate process from the main Stage 3.0 rep1 run (which
+was mid-training `twenty_features_heterogeneous` at the time — not touched by
+this run). Driver: pkgs/scripts/eval_ddh_four_eight_rep1.py. Loads existing
+`four_features_ddh_model.pt` / `eight_features_ddh_model.pt` and re-runs their
+built-in c-index/AUC/Brier evaluation only — no training, no file writes.
+
+four_features
+-------------
+- Test set: 562 patients, 5,511 records (event rate 83.10%)
+- C-index (scikit-survival): 0.560
+- C-index (simple pairwise implementation): 0.561
+- Mean time-dependent AUC: 0.46
+- Integrated Brier score: not computable — sksurv rejected the requested time
+  range ("time must be smaller than largest observed time point:
+  4216.4 days"), the same known censoring-range limitation seen elsewhere in
+  this repo's evaluation code, not a new issue.
+
+eight_features
+--------------
+- Test set: 243 patients, 1,100 records (event rate 87.24%)
+- C-index (scikit-survival): 0.880
+- C-index (simple pairwise implementation): 0.915
+- Mean time-dependent AUC: 0.69
+- Integrated Brier score: 0.285
+
+Notes
+-----
+- Both runs completed cleanly, no errors, no NaN.
+- four_features' discrimination (C-index ~0.56, AUC ~0.46) is weak — close to
+  chance — while eight_features' is notably better (C-index ~0.88-0.92,
+  AUC ~0.69). Not investigated further here (out of scope for this ad-hoc
+  check); flagging as a real difference worth a closer look if/when Stage 3.0's
+  full analysis report is produced.
+- Run at user request 2026-08-25, separate PID (2042631), while the main rep1
+  run (PID 1613542) continued its own `twenty_features_heterogeneous` training
+  undisturbed.

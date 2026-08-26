@@ -314,13 +314,47 @@ def load_pkl_and_dill_model(model_path):
         return dill.load(f)
 
 def get_device():
+    """
+    Picks the GPU with the most available compute headroom: lowest current
+    utilization.gpu%, tie-broken by most free memory. Queried fresh via
+    `nvidia-smi` on every call (no caching), so concurrent processes each get
+    a reasonably load-balanced pick rather than colliding on a single fixed
+    or randomly-chosen GPU. GPU 0 is excluded, matching this function's prior
+    behavior (random.randint(1, 7)). Falls back to a random GPU in 1-7 if
+    nvidia-smi is unavailable or its output can't be parsed, and to CPU if
+    CUDA itself isn't available.
+    """
     import random
-    if torch.cuda.is_available():
+    import subprocess
+
+    if not torch.cuda.is_available():
+        print("CUDA not available, using CPU")
+        return torch.device("cpu")
+
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=index,utilization.gpu,memory.used,memory.total",
+             "--format=csv,noheader,nounits"],
+            capture_output=True, text=True, timeout=10, check=True,
+        )
+        candidates = []
+        for line in result.stdout.strip().splitlines():
+            idx, util, mem_used, mem_total = (int(x.strip()) for x in line.split(","))
+            if idx == 0:
+                continue  # GPU 0 excluded, matching prior random.randint(1, 7) behavior
+            free_mem = mem_total - mem_used
+            candidates.append((util, -free_mem, idx))
+        if not candidates:
+            raise RuntimeError("no candidate GPUs found in nvidia-smi output (all filtered out)")
+        candidates.sort()
+        best_util, neg_free_mem, best_idx = candidates[0]
+        device = torch.device(f"cuda:{best_idx}")
+        print(f"Using GPU: {device} (utilization={best_util}%, free_mem={-neg_free_mem}MiB)")
+        return device
+    except Exception as e:
+        print(f"Warning: nvidia-smi-based GPU selection failed ({e}); falling back to random GPU 1-7")
         gpu_id = random.randint(1, 7)
         device = torch.device(f"cuda:{gpu_id}")
         print(f"Using GPU: {device}")
         return device
-    else:
-        print("CUDA not available, using CPU")
-        return torch.device("cpu")
     

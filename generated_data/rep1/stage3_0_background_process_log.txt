@@ -1,0 +1,692 @@
+STAGE 3.0 — rep1 BACKGROUND PROCESS CHECK LOG
+================================================================================
+PID 1613542 (sunlab-serv-01.cs.illinois.edu), launched via `bash pkgs/scripts/run_rep.sh 1`.
+Log: pkgs/scripts/eval_all_rep1.log. See stage3_0_rep1_run_report.txt for launch details.
+Per CLAUDE.md's 10-minute auto-check rule, re-verified every ~10min (`ps -p <pid>`, log
+tail, nvidia-smi). Appended to here; EXPERIMENT_STATUS.md carries only the current
+one-line status.
+
+19:47 CDT — `cox` completed (all 3 scenarios, reused cached models, no failures — C-index
+0.44-0.53, AUC 0.42-0.50 for reference). `dynamic_deephit` now running (real Optuna trial 0
+finished, value 0.829, no NaN) — `four_features` reused its cached model (fast, its own log
+lines just hadn't flushed yet when first checked), now training
+`eight_features`/`twenty_features_heterogeneous` fresh as expected.
+
+19:57 CDT — no change. Still mid-`dynamic_deephit` Optuna search (trial 2/10 done, values
+0.83/0.87/0.26, no NaN), process healthy.
+
+20:07 CDT — no change. Trial 4/10 done (0.83/0.87/0.26/0.86/0.42, no NaN), process healthy.
+
+20:17 CDT — no change. Trial 7/10 done (best still trial 1 @ 0.872), no NaN, process
+healthy (48min elapsed). Should wrap up this Optuna search soon (~3 trials left).
+
+20:27 CDT — `dynamic_deephit/eight_features` finished (10/10 trials clean, no NaN, best
+value 0.872 @ trial 1) — confirmed `eight_features_ddh_model.pt` saved (20:17:21). Now
+training `twenty_features_heterogeneous` (new Optuna study started 20:17:42) — this is the
+scenario previously stuck 16+ hours on the now-fixed mean/std-caching bug, watching closely.
+
+20:37 CDT — no new log line yet (trial 0 of `twenty_features_heterogeneous` still in
+progress, ~20min in) — confirmed NOT a repeat of the old stall: `ps` shows the
+`python -m pkgs.experiments.dynamic_deephit` child at 106% CPU (vs. the original stall's
+0% CPU/zero I/O signature). Genuinely computing on the largest scenario (6.5M rows), just
+slower per-trial than eight_features.
+
+20:47 CDT — no change. Still trial 0 (~30min in), CPU still active (109%), not stalled.
+Longer per-trial time expected given this scenario's 6.5M rows vs. eight_features' ~4,300.
+
+20:57 CDT — no change. Still trial 0 (~40min in), confirmed 112% CPU via direct
+`ps -p 1614105` (not stalled). Trial duration growing vs. eight_features' 7-8min/trial is
+expected given ~1500x more rows (6.5M vs ~4.3k).
+
+21:07 CDT — no change. Still trial 0 (~50min in), 113% CPU, not stalled.
+
+21:17 CDT — no change. Still trial 0 (~1h in), 115% CPU, not stalled (still not the old
+0%-CPU signature). Per-trial time here is much higher than eight_features' 7-8min, plausibly
+because this scenario's LSTM processes much longer per-subject sequences (one row per lab
+event, not per admission — a prior note documented an outlier patient at 5,644 timesteps),
+not just more rows; flagged to watch for a closer look if a single trial passes ~2h with no
+completion.
+
+21:27 CDT — no change. Still trial 0 (~1h10min in), 115% CPU + confirmed active GPU memory
+(nvidia-smi shows PID 1614105 allocated, not idle), RSS stable at ~11GB (no obvious leak).
+Approaching the ~2h flag threshold but still healthy by every signal checked.
+
+21:37 CDT — no change. Still trial 0 (~1h40min in), 116% CPU, RSS essentially flat
+(11.17GB→11.24GB over 15min — not a leak).
+
+21:47 CDT — no change. Still trial 0 (~1h24min in per log timestamp vs. now), 117% CPU, RSS
+still flat (11.24GB→11.31GB).
+
+21:57 CDT — no change. Still trial 0 (~1h35min in), 118% CPU + confirmed 24% GPU utilization
+on GPU 2 (matches this PID's 2340MiB allocation) — genuinely computing, not idle. RSS
+11.55GB, still no leak signature.
+
+22:07 CDT — no change. Still trial 0 (~1h44min in), 118% CPU. RSS growth accelerated this
+interval (11.55GB→12.14GB, vs. ~70MB/10min in prior checks) — noted, but host has 168GB
+available (RSS is ~7% of that), so not a near-term OOM risk; watching the growth rate
+rather than the absolute value.
+
+22:17 CDT — no change. Still trial 0 (~2h in now), 119% CPU. RSS growth moderated vs. last
+interval (12.14GB→12.54GB, +405MB vs. +589MB) rather than accelerating further — leaning
+toward gradual buildup (e.g. caching across a very long epoch) rather than a runaway leak.
+
+22:27 CDT — no change. Still trial 0 (~2h10min in), 119% CPU, RSS growth flattened again
+(12.54GB→12.59GB, +50MB) — consistent with a plateau, not a leak.
+
+22:37 CDT — no change. Still trial 0 (~2h25min in), 119% CPU, RSS +100MB (stable trend).
+
+22:47 CDT — no change. Still trial 0 (~2h35min in), 120% CPU, RSS +70MB (baseline rate).
+
+22:57 CDT — no change. Still trial 0 (~2h45min in), 120% CPU, RSS +82MB (baseline rate).
+Sanity check on expected duration: this scenario has ~27x eight_features' subject count
+(26,080 vs. 970) — since DynamicDeepHit trains per-subject (LSTM over each subject's
+sequence, not per raw row), subject-count is the more relevant scaling factor than the
+~1500x row-count difference; 27x eight_features' 7-8min/trial ≈ 3-3.5h, roughly consistent
+with elapsed time so far.
+
+23:07 CDT — no change. Still trial 0 (~2h55min in), 120% CPU, RSS +76MB (baseline rate).
+
+23:17 CDT — no change. Still trial 0 (~3h05min in — now at the upper end of the ~3-3.5h
+projection from the 22:57 check), 120% CPU, RSS +71MB (baseline rate).
+
+23:27 CDT — no change. Still trial 0 (~3h15min in, past the ~3-3.5h projection's midpoint
+but not unreasonably so — that was a rough estimate, not a hard ceiling), 121% CPU, GPU 2
+still at 22% utilization (unchanged from earlier checks — genuinely still computing), RSS
++71MB (baseline rate).
+
+23:37 CDT — no change. Still trial 0 (~3h25min in), 121% CPU, RSS +67MB (baseline rate).
+
+23:47 CDT — no change. Still trial 0 (~3h35min in), 121% CPU, RSS +73MB (baseline rate).
+
+23:59 CDT — no change. Still trial 0 (~3h47min in), 121% CPU, RSS +361MB this interval
+(above the recent ~70MB baseline, but a similar one-off jump happened earlier at 22:07
+without consequence — not treated as a new signal on its own).
+
+00:07 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~3h55min in), 121% CPU, RSS +6KB (flat). Now past the ~3-3.5h projection by ~30-50min but
+every health signal remains positive (no repeat of the old 0%-CPU stall signature). Nothing
+finished/failed since last check.
+
+00:17 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~4h05min in), 121% CPU, RSS flat (13.57GB, essentially unchanged). Nothing finished/failed
+since last check.
+
+00:27 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~4h15min in), 121% CPU, RSS flat (13.56GB). Nothing finished/failed since last check.
+
+00:37 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~4h25min in), 121% CPU, RSS flat (13.57GB). Full-log grep for error/traceback/OOM/NaN
+patterns still comes back empty. Nothing finished/failed since last check.
+
+00:47 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~4h35min in), 122% CPU, RSS flat (13.57GB). Nothing finished/failed since last check.
+
+01:08 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~5h10min in — well past every earlier duration projection), 121% CPU, GPU 2 still at
+27% utilization (2344MiB, consistent with prior checks), RSS flat (13.57GB). Full-log
+grep for error/traceback/OOM/NaN still empty. Every available diagnostic still says
+"genuinely computing, not stalled" despite the unexpectedly long duration. Nothing
+finished/failed since last check.
+
+01:18 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~5h20min in), 122% CPU, RSS flat (13.57GB). Nothing finished/failed since last check.
+
+01:28 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~5h30min in), 121% CPU, RSS flat (13.57GB). Nothing finished/failed since last check.
+
+01:38 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~5h40min in), 122% CPU, RSS flat (13.58GB). Nothing finished/failed since last check.
+
+01:48 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~5h50min in), 121% CPU, RSS flat (13.59GB), 157 threads (consistent with DataLoader
+workers + CUDA, not unusual). Nothing finished/failed since last check.
+
+01:58 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~6h00min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+02:08 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~6h10min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+02:18 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~6h20min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+02:28 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~6h30min in), 122% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+02:38 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~6h40min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+02:48 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~6h50min in), 122% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+02:58 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~7h00min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+03:08 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~7h10min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+03:18 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~7h20min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+03:28 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~7h30min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+03:38 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~7h40min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+03:48 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~7h50min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+03:58 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~8h00min in), 121% CPU, RSS flat (13.60GB). Nothing finished/failed since last check.
+
+11:41 CDT (2026-08-24) — large gap since last check (~7.5h passed, not the usual ~10min —
+cron job 434be8a7 confirmed still registered/active via CronList, cause of the gap unclear).
+Still trial 0 of `twenty_features_heterogeneous` (~15h23min in now — several times past
+every earlier projection), 121% CPU, RSS essentially unchanged since the 03:58 check
+(13.601GB→13.607GB over ~7.5h). Did a deeper diagnostic given the extreme duration: `ps -T`
+shows a `pt_autograd_2` thread in "R" (running) state at 68% CPU — PyTorch's autograd engine
+caught actively executing a backward pass at this exact instant, not idle/blocked. GPU 2 at
+30% utilization (consistent allocation). Load average low (1.85), no system contention.
+Full-log sweep for error/traceback/OOM/NaN/exception still empty.
+`twenty_features_heterogeneous_ddh_model.pt` still doesn't exist (trial 0 hasn't saved
+anything yet, as expected pre-completion). Conclusion: genuinely still computing, not
+stalled/deadlocked — but this is an extraordinary duration for one Optuna trial and worth
+the user's awareness rather than continued silent monitoring.
+
+11:51 CDT (2026-08-24) — no change (normal ~10min gap this time). Still trial 0 of
+`twenty_features_heterogeneous` (~15h33min in), 121% CPU, RSS flat (13.607GB). Nothing
+finished/failed since last check.
+
+12:01 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~15h43min in), 121% CPU, RSS flat (13.607GB). Nothing finished/failed since last check.
+
+12:11 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~15h53min in), 121% CPU, RSS flat (13.607GB). Nothing finished/failed since last check.
+
+12:21 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~16h03min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+Noted: this trial has now run ~16h, coincidentally matching the ORIGINAL mean/std-caching
+bug's reported "stuck 16+ hours" duration on this exact scenario — but the diagnostic
+signature here is different (that bug showed 0% CPU/zero I/O; this process has stayed at
+~121% CPU throughout, with an active autograd thread caught mid-backward-pass on the last
+deep check), so this does not look like a recurrence of that bug. Surfacing the coincidence
+rather than staying silent about it.
+
+12:31 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~16h13min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+12:41 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~16h23min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+12:51 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~16h33min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+13:01 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~16h43min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+13:11 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~16h53min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+13:21 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~17h03min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+13:31 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~17h13min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+13:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~17h40min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+14:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~17h50min in), 121% CPU, RSS flat (13.608GB). Nothing finished/failed since last check.
+
+14:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~18h00min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+14:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~18h10min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+14:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~18h20min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+14:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~18h30min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+14:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~18h40min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+15:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~18h50min in), 121% CPU, RSS unchanged (13.609GB, identical to last check). Nothing
+finished/failed since last check.
+
+15:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~19h00min in), 121% CPU, RSS still identical (13.609GB, 3rd consecutive unchanged
+reading — a plateau, not concerning). Re-verified via `ps -T`: `pt_autograd_2` thread
+caught in "R" (running) state at 68.8% CPU again, same as the earlier deep-dive check —
+genuinely still computing. Nothing finished/failed since last check.
+
+15:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~19h10min in), 121% CPU, RSS still identical (13.609GB, 4th consecutive unchanged
+reading — steady-state plateau). Nothing finished/failed since last check.
+
+15:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~19h20min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+15:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~19h30min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+15:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~19h40min in), 121% CPU, RSS flat (13.609GB). Nothing finished/failed since last check.
+
+16:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~19h50min in), 121% CPU, RSS flat (13.610GB). Nothing finished/failed since last check.
+
+16:23 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~20h00min in), 121% CPU, RSS flat (13.610GB). Nothing finished/failed since last check.
+
+17:13 CDT (2026-08-24) — no change (5 duplicate check prompts arrived together, consolidated
+into this one check). Still trial 0 of `twenty_features_heterogeneous` (~20h50min in), 121%
+CPU, RSS flat (13.610GB). Nothing finished/failed since last check.
+
+17:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~21h00min in), 121% CPU, RSS flat (13.610GB). Nothing finished/failed since last check.
+
+17:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~21h10min in), 121% CPU, RSS flat (13.610GB). Nothing finished/failed since last check.
+
+17:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~21h20min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+17:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~21h30min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+18:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~21h40min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+18:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~21h50min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+18:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~22h00min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+18:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~22h10min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+18:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~22h20min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+18:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~22h30min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+19:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~22h40min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+19:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~22h50min in), 121% CPU, RSS flat (13.611GB). Nothing finished/failed since last check.
+
+19:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~23h00min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+19:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~23h10min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+19:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~23h20min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+19:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~23h30min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+20:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~23h40min in; the whole run_rep.sh process has now crossed 24h total elapsed since
+launch), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+20:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~23h50min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+20:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~24h00min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+20:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~24h10min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+20:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~24h20min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+20:53 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~24h30min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+21:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~24h40min in), 121% CPU, RSS flat (13.612GB). Nothing finished/failed since last check.
+
+21:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~24h50min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+21:18 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~25h00min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+21:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~25h10min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+21:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~25h20min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+21:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~25h30min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+21:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~25h40min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+22:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~25h50min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+22:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~26h00min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+22:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~26h10min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+22:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~26h20min in), 121% CPU, RSS flat (13.613GB). Nothing finished/failed since last check.
+
+22:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~26h30min in), 121% CPU, RSS flat (13.614GB). Re-verified via direct /proc/<pid>/stat
+utime delta (two snapshots): utime advanced 11619679→11620221 CPU ticks — definitive proof
+of genuine ongoing computation, not a frozen/hung process. Nothing finished/failed since
+last check.
+
+22:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~26h40min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+23:02 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~26h50min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+23:12 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~27h00min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+23:22 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~27h10min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+23:32 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~27h20min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+23:42 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~27h30min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+23:52 CDT (2026-08-24) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~27h40min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+00:02 CDT (2026-08-25) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~27h50min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+00:12 CDT (2026-08-25) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~28h00min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+00:22 CDT (2026-08-25) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~28h10min in), 121% CPU, RSS flat (13.614GB). Nothing finished/failed since last check.
+
+11:20 CDT (2026-08-25) — large gap since last check (~11h to now, from ~00:22 CDT 08-24;
+cron cadence occasionally batches/delays, not something in our control, similar to the
+earlier 08-24 gap). Still trial 0 of `twenty_features_heterogeneous` (~39h in total now),
+121% CPU, RSS essentially flat (13.614GB→13.6226GB over the whole gap — steady-state,
+no leak). Re-verified thoroughly given the big gap: GPU 2 still at 20% utilization (same
+2344MiB footprint as every prior check), full-log error/traceback/OOM/NaN sweep still
+empty, and a direct /proc/<pid>/stat utime delta (two consecutive snapshots) confirmed
++1002 CPU ticks — definitive proof of active computation right now. Nothing finished/failed
+since last check.
+
+11:22 CDT (2026-08-25) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~39h05min in), 121% CPU, RSS unchanged (13.6226GB, identical to last check). Nothing
+finished/failed since last check.
+
+11:32 CDT (2026-08-25) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~39h15min in), 121% CPU, RSS unchanged for 3 consecutive checks (13.6226GB) — re-verified
+via utime delta again (+101 ticks between two quick snapshots), confirming still genuinely
+computing. Nothing finished/failed since last check.
+
+11:42 CDT (2026-08-25) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~39h25min in), 121% CPU, RSS unchanged (13.6226GB, 4th consecutive identical reading —
+steady-state plateau). Nothing finished/failed since last check. (Separate ad-hoc
+ddh/four_features+eight_features eval, PID 2042631, completed cleanly earlier — see
+four_eight_features_ddh_eval_report.txt — unrelated to this run.)
+
+12:30 CDT (2026-08-26) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~2d16h27min in), 121% CPU, RSS 13.58GB (essentially flat vs. last reading, 13.6226GB —
+within noise). No new log lines since 20:17:42 CDT (2026-08-23). Nothing finished/failed
+since last check.
+
+12:35 CDT (2026-08-26) — user asked to double-check CPU vs GPU usage for the ddh
+process. Confirmed GPU, not CPU: `get_device()` (pkgs/experiments/utils.py:316-325)
+picks a random cuda:1-7 whenever `torch.cuda.is_available()`, never CPU on this host.
+Direct `nvidia-smi` check: PID 1614105 holds memory on GPU 2 (2340MiB, actively
+computing, 23-26% utilization across two snapshots 3s apart) plus small leftover
+reservations on GPUs 1/3/4/6/7 (256-352MiB each, residual from earlier trials that
+picked different random GPUs — not concurrent compute). 121% CPU is just host-side
+data loading/orchestration, not the actual forward/backward (that's on GPU 2) — CPU%
+was never the right "is it stuck" signal on its own; GPU utilization is. Still trial 0
+of `twenty_features_heterogeneous`, no change otherwise.
+
+12:38 CDT (2026-08-26) — no change. Still trial 0 of `twenty_features_heterogeneous`
+(~2d16h32min in), 121% CPU, RSS flat (13.58GB). No new log lines. Nothing
+finished/failed since last check.
+
+12:15 CDT (2026-08-26) — user requested: (1) get_device() now picks lowest-utilization
+GPU via nvidia-smi instead of random; (2) run_rep.sh now launches experiments in
+parallel (own subshell + own log per experiment) instead of sequentially, with new
+EXCLUDE_EXPERIMENTS/RUN_TAG env vars; (3) relaunched rep1's remaining experiments
+(cox, hazard_transformer, logistic_hazard, rnnsurv, kfre) in parallel via
+`RUN_TAG=resume_no_ddh EXCLUDE_EXPERIMENTS="dynamic_deephit" bash pkgs/scripts/run_rep.sh 1`
+(outer PID 2291673, sunlab-serv-01) WITHOUT touching the original dynamic_deephit run
+(PID 1613542/1614105, untouched, still on trial 0 of twenty_features_heterogeneous).
+kfre finished immediately (CPU-only, C-index 0.637/IBS 0.396/AUC 0.6632). cox,
+hazard_transformer, logistic_hazard, rnnsurv confirmed running as separate PIDs
+(2291711/2291720/2291726/2291731). Full details: stage3_0_parallel_resume_report.txt.
+
+12:32 CDT (2026-08-26) — original ddh run: no change (still trial 0 of
+twenty_features_heterogeneous, 121% CPU, RSS flat, no new log lines). Resume run
+(PID 2291673): all 4 remaining experiments confirmed alive and progressing —
+cox (PID 2291711, 107% CPU, loading/scoring cached models, no output yet at
+~2m30s in — expected, evaluation over large cached models takes some time even
+without retraining), hazard_transformer (2291720, high multi-thread CPU + GPU
+mem growing 1.4GB->2.0GB, actively training twenty_features_heterogeneous),
+logistic_hazard (2291726, past its own Optuna trial 9, now on twenty_features_
+heterogeneous study), rnnsurv (2291731, mid Optuna search). kfre already done
+(reported at launch). No failures. Nothing finished since last check.
+
+12:36 CDT (2026-08-26) — CHANGE: `cox` finished in the resume run (PID 2291711,
+started 12:09:04, ended 12:16:34 — ~7.5min, evaluating all 3 cached models, no
+retraining needed). Results (rep1, all scenarios): four_features C-index 0.534,
+AUC 0.4817, Brier not computable (sksurv time-range rejection, known limitation);
+eight_features C-index 0.533, IBS 0.448, AUC 0.4964; twenty_features_heterogeneous
+C-index 0.44, IBS 0.872, AUC 0.4239. All near-chance discrimination for cox on
+rep1 (consistent with rep99's cox results being weak too) — not a bug, just a
+weak model for this scenario, not investigated further here.
+Other 3 (hazard_transformer, logistic_hazard, rnnsurv) still running, all healthy
+(R state, active CPU/GPU, logistic_hazard past trial 0 of its twenty_features_
+heterogeneous study). Original ddh run: no change, still trial 0. No failures.
+
+12:52 CDT (2026-08-26) — no change. Original ddh: still trial 0, no new log lines.
+Resume run: hazard_transformer still mid twenty_features_heterogeneous training
+(no new log line since 12:09:33, but confirmed alive/computing — 2502% CPU,
+GPU mem growing 1.4GB->1.95GB across checks); logistic_hazard progressing (now
+trial 5 of its twenty_features_heterogeneous study); rnnsurv still no trial
+output since study creation at 12:09:09 (~22min in) but confirmed alive
+(98.2% CPU accumulated, GPU mem allocated on PID 2291731, S/R state alternating
+— not stalled). No failures, nothing finished since last check.
+
+13:02 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still no new log line since
+12:09:33 (~28min) but confirmed genuinely computing via utime delta
+(4693129->4702321 over 5s, 2414% CPU); logistic_hazard progressing (trial 7);
+rnnsurv finished its first Optuna trial (trial 0, value 0.585, ~24min for that
+trial) — still mid-search, not a full experiment completion. No failures.
+
+13:12 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still no new log line since
+12:09:33 (~42min) but confirmed genuinely computing via utime delta
+(5819701->5829188 over 5s, 2292% CPU) — this is its first Optuna trial on
+twenty_features_heterogeneous, plausibly a long single trial given the dataset
+size; logistic_hazard progressing (trial 8); rnnsurv on trial 1 (0.533, best
+still trial 0 @ 0.585). No failures.
+
+13:22 CDT (2026-08-26) — CHANGE: `logistic_hazard` finished in the resume run
+(PID 2291726, started 12:09:04, ended ~12:52:06). Results (rep1, all
+scenarios): four_features AUC 0.518 (Brier not reported in log — likely same
+sksurv time-range limitation seen elsewhere); eight_features AUC 0.564, IBS
+0.563; twenty_features_heterogeneous AUC 0.544, IBS 0.561. Weak discrimination
+across the board (consistent with other models on rep1 so far), no errors.
+(Note: the main resume log's per-experiment `wait` loop lags behind actual
+per-experiment completion — it only prints an experiment's "✓ completed" line
+once its turn comes up in the loop, which blocks on whichever PID it's
+currently waiting on. Check the per-experiment log directly for real-time
+status, not just the main log.)
+Still running: original ddh (trial 0, no change), hazard_transformer
+(2291720, still mid first trial on twenty_features_heterogeneous, ~2517% CPU,
+confirmed alive), rnnsurv (2291731, trial 1 done @ 0.533, best still trial 0
+@ 0.585, confirmed alive). No failures.
+
+13:32 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still no new log line since
+12:09:33 (~53min into its first trial now — noticeably longer than any other
+model's first trial so far) but confirmed genuinely computing via utime delta
+(9975663->9993755 over 5s, 2671% CPU, GPU mem climbing 1.4GB->1.95GB across
+checks) — not stalled, just a long trial (likely twenty_features_heterogeneous's
+6.5M-row scale, similar to what was seen with ddh); rnnsurv on trial 2 (0.593,
+new best). No failures.
+
+13:42 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on its first
+twenty_features_heterogeneous trial (~63min in now, no new log line since
+12:09:33) but confirmed alive/computing (utime delta over 5s, 2788% CPU);
+rnnsurv still on trial 2 (no new trial since 13:02:36) but also confirmed
+alive/computing (utime delta over 5s, 98.4% CPU). No failures.
+
+13:52 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~73min in,
+no new log line since 12:09:33) but confirmed alive/computing (utime delta,
+2878% CPU); rnnsurv now on trial 3 (0.563, best still trial 2 @ 0.593). No
+failures.
+
+14:02 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~83min in,
+no new log line since 12:09:33) but confirmed alive/computing (utime delta,
+2947% CPU); rnnsurv still trial 3 (no new trial since 13:24:25) but confirmed
+alive/computing. No failures.
+
+14:12 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~93min in,
+no new log line since 12:09:33) but confirmed alive/computing (utime delta,
+3003% CPU); rnnsurv now trial 4 (0.558, best still trial 2 @ 0.593). No
+failures.
+
+14:22 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~103min in,
+no new log line since 12:09:33) but confirmed alive/computing; rnnsurv still
+trial 4 (no new trial since 13:49:41) but confirmed alive/computing. No
+failures.
+
+14:32 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~113min in,
+no new log line since 12:09:33 — approaching 2h on a single trial, notably long
+but confirmed genuinely alive/computing via utime delta each check, same
+pattern previously seen on ddh before it eventually completed trials); rnnsurv
+still trial 4 (no new trial since 13:49:41, ~43min) but also confirmed
+alive/computing. No failures.
+
+14:42 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~123min in,
+now past 2h on a single trial, no new log line since 12:09:33) but confirmed
+alive/computing via utime delta (3115% CPU); rnnsurv now trial 5 (0.542, best
+still trial 2 @ 0.593). No failures.
+
+14:52 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~133min in,
+no new log line since 12:09:33) but confirmed alive/computing via utime delta
+(3143% CPU); rnnsurv now trial 6 (0.546, best still trial 2 @ 0.593). No
+failures.
+
+15:02 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~143min in,
+no new log line since 12:09:33) but confirmed alive/computing via utime delta
+(3165% CPU); rnnsurv still trial 6 (no new trial since 14:24:43) but confirmed
+alive/computing. No failures.
+
+15:12 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~153min in,
+no new log line since 12:09:33) but confirmed alive/computing via utime delta
+(3187% CPU); rnnsurv now trial 7 (0.567, best still trial 2 @ 0.593). No
+failures.
+
+15:22 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~163min in,
+no new log line since 12:09:33) but confirmed alive/computing via utime delta
+(3206% CPU); rnnsurv still trial 7 (no new trial since 14:50:27) but confirmed
+alive/computing. No failures.
+
+15:32 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~173min in,
+no new log line since 12:09:33) but confirmed alive/computing via utime delta
+(3223% CPU); rnnsurv now trial 8 (0.656, new best). No failures.
+
+15:42 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~183min in,
+now past 3h on a single trial, no new log line since 12:09:33) but confirmed
+alive/computing via utime delta (3239% CPU); rnnsurv still trial 8 (no new
+trial since 15:09:48) but confirmed alive/computing. No failures.
+
+15:52 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~193min in,
+no new log line since 12:09:33) but confirmed alive/computing via utime delta
+(3252% CPU); rnnsurv still trial 8 (no new trial since 15:09:48) but confirmed
+alive/computing. No failures.
+
+16:02 CDT (2026-08-26) — no experiment/failure completion (whole-module sense),
+but noting real progress: rnnsurv finished its first scenario's Optuna search
+(10/10 trials, best 0.656) and started a new study at 15:31:39 — i.e. moved on
+to its 2nd scenario, now 1 trial in (0.547). Diagnostic note: rnnsurv's
+per-scenario final C-Index/Brier/AUC print (score_model_train / run()'s tail)
+did NOT appear in the log between the old study ending and the new one
+starting — this is Python's default full-buffering of print() when stdout is
+redirected to a file (optuna's own logger flushes per-line/message, which is
+why only "Trial N finished"/warnings show up promptly). So "no new log line"
+for a while is NOT on its own evidence of stalling — it explains why
+hazard_transformer's log has stayed silent for 3+ hours despite being
+genuinely alive each time (utime delta is the reliable signal, which is what
+I've been checking). No action needed, just documenting the explanation.
+Original ddh: still trial 0, no change. hazard_transformer: still first trial
+(~213min in), confirmed alive via utime delta. No failures.
+
+16:12 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~213min in)
+confirmed alive/computing via utime delta (3276% CPU); rnnsurv now trial 3 of
+its 2nd scenario (0.598, new best). No failures.
+
+16:22 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~223min in)
+confirmed alive/computing via utime delta (3287% CPU); rnnsurv now trial 6 of
+its 2nd scenario (0.601, best still trial 5 @ 0.665). No failures.
+
+16:32 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~233min in)
+confirmed alive/computing via utime delta (3295% CPU); rnnsurv now trial 8 of
+its 2nd scenario (0.589, best still trial 5 @ 0.665). No failures.
+
+16:42 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~243min in)
+confirmed alive/computing via utime delta (3304% CPU); rnnsurv finished its
+2nd scenario (10/10 trials, best 0.665) and started its 3rd/final study at
+16:12:11 (likely twenty_features_heterogeneous, matching its __main__'s
+FOUR/EIGHT/TWENTY order) — still just progress, not a full-module completion
+yet. No failures.
+
+16:52 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~253min in)
+confirmed alive/computing via utime delta; rnnsurv still on trial 0 of its 3rd
+study (no output yet, ~40min in) but confirmed alive/computing via utime delta
+— RSS jumped to 8.9GB (from ~1.7GB), consistent with this being
+twenty_features_heterogeneous (much larger dataset than the first two
+scenarios). No failures.
+
+17:02 CDT (2026-08-26) — no change (no experiment finished/failed). Original ddh:
+still trial 0. Resume run: hazard_transformer still on first trial (~263min in)
+confirmed alive/computing; rnnsurv still trial 0 of 3rd study (no output yet,
+~50min in) confirmed alive/computing. No failures.

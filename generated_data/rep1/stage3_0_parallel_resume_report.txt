@@ -1,0 +1,93 @@
+STAGE 3.0 — CODE CHANGES + PARALLEL RESUME OF REMAINING rep1 EXPERIMENTS
+================================================================================
+User request (2026-08-26): (1) make get_device() pick the GPU with the most
+available compute instead of a random one, (2) make the experiment runner
+launch models in parallel instead of sequentially, (3) relaunch Stage 3.0 for
+the models still blocked behind the in-progress dynamic_deephit run — without
+touching that run.
+
+1. get_device() change
+-----------------------
+File: pkgs/experiments/utils.py
+
+Was: `random.randint(1, 7)` — picked a uniformly random GPU (excluding GPU 0),
+regardless of load.
+
+Now: on every call, shells out to
+`nvidia-smi --query-gpu=index,utilization.gpu,memory.used,memory.total
+--format=csv,noheader,nounits`, excludes GPU 0 (matching the prior behavior),
+and picks the GPU with the lowest utilization.gpu%, tie-broken by most free
+memory. Falls back to the old random-GPU-1-7 behavior if nvidia-smi is
+missing/unparseable, and to CPU if CUDA isn't available at all. No caching —
+each call re-queries live state, so concurrent processes each get a
+reasonably load-balanced (though not lock-coordinated) pick.
+
+Verified standalone before use:
+  PYTHONPATH=. python3 -c "from pkgs.experiments.utils import get_device; get_device()"
+  -> "Using GPU: cuda:5 (utilization=0%, free_mem=11260MiB)" — correctly
+     skipped GPU 2, which had residual memory/utilization from the in-progress
+     dynamic_deephit run.
+
+2. Parallel experiment launching
+----------------------------------
+File: pkgs/scripts/run_rep.sh
+
+Was: a `for experiment in "${EXPERIMENTS[@]}"` loop running each experiment's
+`python -m pkgs.experiments.<name>` sequentially, all appending to one shared
+LOG_FILE.
+
+Now: each experiment is launched as its own background subshell (`&`),
+each writing to its own per-experiment log
+(`eval_rep<N>[_<RUN_TAG>]_<experiment>.log`) to avoid interleaved output,
+then the script `wait`s on all of them and aggregates pass/fail into the
+main LOG_FILE. Two new optional env vars:
+  - `EXCLUDE_EXPERIMENTS` — space-separated experiment names to skip this
+    invocation (e.g. `EXCLUDE_EXPERIMENTS="dynamic_deephit"`).
+  - `RUN_TAG` — suffix appended to this invocation's LOG_FILE/MASTER_LOG/
+    PID_FILE names (e.g. `RUN_TAG=resume_no_ddh`), so a second invocation for
+    a rep that already has a live process doesn't clobber its log/pid files.
+Verified with `bash -n` (syntax check) before use; correctness verified live
+by the resume launch below (dynamic_deephit correctly skipped, the other 4
+correctly launched as separate parallel PIDs, kfre — CPU-only, no GPU/torch
+use — completed within seconds as expected).
+
+3. Resume launch for rep1's remaining experiments (this run only)
+--------------------------------------------------------------------
+The already-running Stage 3.0 process (PID 1613542 / child 1614105 on
+sunlab-serv-01) was NOT touched — it continues training
+dynamic_deephit/twenty_features_heterogeneous undisturbed. A second,
+separate invocation was launched to make progress on the other 5 experiments
+in parallel (cox was already fully cached from the earlier run, so this
+mainly unblocks hazard_transformer/twenty_features_heterogeneous,
+logistic_hazard, rnnsurv, and kfre, all of which were previously stuck queued
+behind dynamic_deephit in the sequential run).
+
+Launch:
+  RUN_TAG=resume_no_ddh EXCLUDE_EXPERIMENTS="dynamic_deephit" \
+    bash pkgs/scripts/run_rep.sh 1
+  Host: sunlab-serv-01.cs.illinois.edu
+  Outer PID (setsid launcher): 2291673
+  Log: pkgs/scripts/eval_all_rep1_resume_no_ddh.log
+  Per-experiment logs: pkgs/scripts/eval_rep1_resume_no_ddh_<experiment>.log
+  Start time: 2026-08-26 12:09:04 CDT
+
+  Launched child PIDs (all on sunlab-serv-01):
+    cox                 -> 2291711 (reuses fully cached rep1 models from the
+                            earlier sequential run — expected to finish fast)
+    hazard_transformer   -> 2291720
+    logistic_hazard      -> 2291726
+    rnnsurv              -> 2291731
+    kfre                 -> 2291727 (completed within ~5s — CPU-only, no
+                            torch/GPU use: C-index 0.637, IBS 0.396, mean
+                            time-dependent AUC 0.6632)
+    dynamic_deephit      -> skipped (already running as PID 1614105 under the
+                            original PID 1613542 launch — not started here)
+
+No file/resource conflicts expected: cox/hazard_transformer/logistic_hazard/
+rnnsurv/kfre model artifacts are all rep1-scoped paths distinct from
+dynamic_deephit's, and none of them had been touched yet by the original
+(still-ddh-blocked) sequential run.
+
+Ongoing status for both the original and this resume process: see
+stage3_0_background_process_log.txt (periodic health-check log, updated
+every ~10min per CLAUDE.md's auto-check rule).
