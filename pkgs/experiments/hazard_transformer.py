@@ -153,6 +153,35 @@ def hazard_loss(hazard_preds, delta, time_mask, eps=1e-7):
     neg_ll = - (ll1 + ll0) * time_mask.unsqueeze(1)      
     return neg_ll.sum() / (time_mask.sum() * hazard_preds.size(1) + eps)
 
+
+def hazard_transformer_pmf_loss(pmf_preds, time_intervals, event_indicators, max_time, eps=1e-7):
+    """Replaces hazard_loss() now that the model outputs a softmax-normalized
+    PMF over time bins instead of independent per-bin sigmoid hazards (see
+    HazardTransformer's class docstring in pkgs/models/hazard_transformer.py).
+    Mirrors combine_loss_pmf() in pkgs/experiments/utils.py (used for
+    DynamicDeepHit), adapted to this model's day->bin_idx mapping (100 bins
+    spanning [0, max_time] days, not one bin per literal day). Per-day PMF
+    mass already IS P(T=bin) directly (softmax normalizes across all bins at
+    once), so unlike the old hazard_loss() there's no separate mask/delta
+    construction needed -- P(event by bin) = cumsum(pmf), matching combine_loss_pmf's
+    event_log_prob/censor_log_prob structure exactly."""
+    batch, _, T = pmf_preds.shape
+    risk_pmf = pmf_preds[:, 0, :]  # single risk (ESRD)
+    event_indicators = event_indicators.view(-1).float()
+
+    bin_idx = torch.clamp((time_intervals.view(-1).float() / max_time * (T - 1)).round().long(), min=0, max=T - 1)
+    idx = torch.arange(batch, device=pmf_preds.device)
+
+    cif = torch.cumsum(risk_pmf, dim=1)
+
+    pmf_at_t = risk_pmf[idx, bin_idx].clamp(min=eps)
+    event_log_prob = torch.log(pmf_at_t) * event_indicators
+
+    surv_at_t = (1.0 - cif[idx, bin_idx]).clamp(min=eps)
+    censor_log_prob = torch.log(surv_at_t) * (1 - event_indicators)
+
+    return -torch.mean(event_log_prob + censor_log_prob)
+
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
 
@@ -187,39 +216,14 @@ def objective(trial, scenario_name: ExperimentScenario):
             features, mask, time_intervals, event_indicators = [x.to(device) for x in (features, mask, time_intervals, event_indicators)]
             optimizer.zero_grad()
 
-            hazard_preds, _, _ = model(features, mask)
+            pmf_preds, _, _ = model(features, mask)
 
-            batch, _, T = hazard_preds.shape
-            # map raw day counts onto the discretized [0, T) bin axis produced by the model
-            bin_idx = torch.clamp((time_intervals.squeeze(1).float() / model.max_time * (T - 1)).round().long(), min=0, max=T - 1)
-            arange = torch.arange(T, device=device)
-            # INCLUSIVE (<=), not exclusive (<): bin_idx is where `delta` is set
-            # to 1 for event subjects (see below). The strict "<" version
-            # masked the event's OWN bin out of the loss entirely, so the
-            # "reward high hazard exactly at the true event time" term
-            # (`delta * log(p)` in hazard_loss) was always multiplied by 0 and
-            # never actually reached the loss -- the model was only ever
-            # rewarded for LOW hazard everywhere (every bin before an event,
-            # every bin up to and including a censor), with nothing ever
-            # pushing hazard up. That's the root cause of the collapsed/
-            # near-chance HazardTransformer results seen on real data (e.g.
-            # eight_features rep99: c_index=0.572, Brier=1.016) -- the same
-            # general "unconstrained per-bin sigmoid + a loss that can't
-            # actually push hazard up" class of bug fixed for DynamicDeepHit
-            # (see generated_data/rep1/ddh_collapse_fix_report.txt), here via
-            # a masking bug rather than a missing loss term. For a CENSORED
-            # subject, including their own bin_idx is also correct: their
-            # censor bin still contributes `log(1 - hazard)` (delta=0 there),
-            # which is a real observation ("hazard was still low as of this
-            # bin") that the exclusive version was discarding.
-            time_mask = (arange.unsqueeze(0) <= bin_idx.unsqueeze(1)).float()
-
-            delta = torch.zeros_like(hazard_preds)
-            for i in range(batch):
-                if event_indicators[i].item() == 1:
-                    delta[i, 0, bin_idx[i].item()] = 1.0
-
-            loss = hazard_loss(hazard_preds, delta, time_mask)
+            # PMF-based loss (see HazardTransformer's class docstring and
+            # hazard_transformer_pmf_loss()'s docstring) -- replaces the old
+            # per-bin hazard_loss() + delta/time_mask construction entirely;
+            # a PMF's per-bin mass already IS P(T=bin) directly, no separate
+            # masking needed.
+            loss = hazard_transformer_pmf_loss(pmf_preds, time_intervals, event_indicators, model.max_time)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
@@ -255,9 +259,12 @@ def c_idx(model, data_loader, train_df, device):
     with torch.no_grad():
         for X, mask, times, events, _, _ in data_loader:
             X, mask = X.to(device), mask.to(device)
-            hazard_preds, _, _ = model(X, mask)              
-            # Survival probability by end of horizon (cumprod over the time axis); higher = longer survival
-            surv_final = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1)[:, -1].cpu().numpy()
+            pmf_preds, _, _ = model(X, mask)
+            # model output is a per-subject PMF over time bins (see class
+            # docstring); cumsum -> CIF, survival at end of horizon = 1 - CIF
+            # at the last bin. Higher = longer survival, matching lifelines'
+            # concordance_index convention used below.
+            surv_final = (1 - torch.cumsum(pmf_preds[:, 0, :], dim=1))[:, -1].cpu().numpy()
 
             all_scores.extend(surv_final.tolist())
             all_times.extend(times.squeeze(1).cpu().numpy().tolist())
@@ -281,9 +288,10 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
             name_time='duration_in_days'
         )
 
-        hazard_preds, _, _ = model(features, mask)
-        surv = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1)
-        risk_scores = (1 - surv[:, -1]).detach().cpu().numpy()
+        pmf_preds, _, _ = model(features, mask)
+        # cumsum -> CIF (P(event by bin)); risk_scores = CIF at the last bin.
+        cif = torch.cumsum(pmf_preds[:, 0, :], dim=1)
+        risk_scores = cif[:, -1].detach().cpu().numpy()
 
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
         aucs.append(mean_auc)
@@ -300,9 +308,9 @@ def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataL
     for features, mask, time_to_events, event_indicators, _, _ in dataloader:
         features, mask = features.to(device), mask.to(device)
         
-        hazard_preds, _, _ = model(features, mask)
-        surv = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1)
-        risk_scores = (1 - surv[:, -1]).detach().cpu().numpy()
+        pmf_preds, _, _ = model(features, mask)
+        cif = torch.cumsum(pmf_preds[:, 0, :], dim=1)
+        risk_scores = cif[:, -1].detach().cpu().numpy()
 
         all_risk_scores.extend(risk_scores)
         all_times.extend(time_to_events.squeeze().numpy())

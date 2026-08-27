@@ -20,6 +20,34 @@ class PositionalEncoding(nn.Module):
         return x + self.pe[:, :x.size(1)]
 
 class HazardTransformer(nn.Module):
+    """Each risk decoder outputs a per-subject probability-mass-function
+    (PMF) over its num_time_bins time bins (softmax across the bin axis),
+    not independent per-bin hazards. This bounds total predicted event
+    probability across all bins at <=1 by construction -- the same fix
+    applied to DynamicDeepHit (see pkgs/models/dynamicdeephit.py's class
+    docstring and generated_data/rep1/ddh_collapse_fix_report.txt).
+
+    This replaces an earlier per-bin-independent-sigmoid parametrization
+    that had no such bound. Confirmed to still collapse even after fixing a
+    separate masking bug in the training loss (see
+    pkgs/experiments/hazard_transformer.py's objective(), "INCLUSIVE" mask
+    comment): a fresh rep99 retrain under the mask fix alone still collapsed
+    2 of 3 scenarios (eight_features, twenty_features_heterogeneous both
+    landed on c_index=0.5, predicted risk constant across every patient) --
+    proof the mask fix wasn't sufficient and the architecture itself needed
+    the same bounded-PMF fix DDH got.
+
+    Downstream consumers must read this output as a PMF (cumsum over bins =
+    CIF) rather than as a hazard curve (cumprod(1-hazard)) -- see
+    hazard_transformer_pmf_loss() and c_idx()/auc()/brier_score_evaluation()
+    in pkgs/experiments/hazard_transformer.py, and
+    hazard_transformer_predictions() in
+    pkgs/data_analysis/clinical_validity_analysis.py.
+
+    NOTE: every previously-trained *_hazard_transformer_model.pt file (any
+    scenario, any rep) was trained under the OLD sigmoid parametrization and
+    is NOT compatible with this forward() -- must be deleted and retrained."""
+
     def __init__(self, input_dim, d_model, num_risks, num_layers, nhead, dropout, num_time_bins=100):
         super(HazardTransformer, self).__init__()
         self.num_risks = num_risks
@@ -82,11 +110,17 @@ class HazardTransformer(nn.Module):
         
         encoded = encoded.transpose(0, 1)
         
-        hazard_outputs = []
+        # softmax across the time-bin axis (dim=-2, since encoded is
+        # (batch, num_time_bins, d_model) transposed back to
+        # (batch, num_time_bins, 1) by risk_decoder -- softmax over bins,
+        # not over the singleton last dim), not sigmoid per-bin: normalizes
+        # each risk decoder's output into a genuine per-subject PMF over
+        # time (see class docstring).
+        pmf_outputs = []
         for risk_decoder in self.hazard_decoders:
-            hazard = torch.sigmoid(risk_decoder(encoded))
-            hazard_outputs.append(hazard.squeeze(-1))
-        
-        hazard_preds = torch.stack(hazard_outputs, dim=1)
-        
-        return hazard_preds, encoded, eval_times
+            logits = risk_decoder(encoded).squeeze(-1)  # (batch, num_time_bins)
+            pmf_outputs.append(torch.softmax(logits, dim=-1))
+
+        pmf_preds = torch.stack(pmf_outputs, dim=1)
+
+        return pmf_preds, encoded, eval_times

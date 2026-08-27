@@ -21,6 +21,21 @@ from pkgs.commons import (
     twenty_features_heterogeneous_train_data_path, twenty_features_heterogeneous_test_data_path,
 )
 from pkgs.experiments.utils import load_pkl_and_dill_model
+from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_last_observation_data
+
+# string scenario_name -> ExperimentScenario enum, needed only for the 5
+# one-row-per-patient models (deepsurv/gbsa/srf/survival_svm/weibul) added
+# alongside cox/ddh/hazard_transformer/logistic_hazard/rnn_surv: unlike
+# those, these 5 were trained on get_last_observation_data()'s flattened
+# data, not the raw time-varying test_data this module otherwise uses
+# uniformly for every model.
+_SCENARIO_ENUM_BY_NAME = {
+    'four_features': ExperimentScenario.FOUR_FEATURES,
+    'eight_features': ExperimentScenario.EIGHT_FEATURES,
+    'twenty_features_heterogeneous': ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS,
+}
+_FLAT_MODELS = {'deepsurv', 'gbsa', 'srf', 'survival_svm', 'weibul'}
 
 
 class FeatureImportanceAnalyzer:
@@ -31,14 +46,20 @@ class FeatureImportanceAnalyzer:
         self.report_lines = []
         self.current_scenario = None
         self.scenario_report_lines = {}
-        self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv']
+        self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv',
+                       'deepsurv', 'gbsa', 'srf', 'survival_svm', 'weibul']
         self.all_importances = {}
         self.model_pretty_names = {
             'cox': 'Cox',
             'ddh': 'Dynamic DeepHit',
             'hazard_transformer': 'Hazard Transformer',
             'logistic_hazard': 'Logistic Hazard',
-            'rnn_surv': 'RNN-Surv'
+            'rnn_surv': 'RNN-Surv',
+            'deepsurv': 'DeepSurv',
+            'gbsa': 'GBSA',
+            'srf': 'Survival RF',
+            'survival_svm': 'Survival SVM',
+            'weibul': 'Weibull AFT',
         }
         
     def log(self, message):
@@ -303,7 +324,12 @@ class FeatureImportanceAnalyzer:
             'ddh': generate_data_path_latest_rep + f'/{scenario_name}_ddh_model.pt',
             'hazard_transformer': generate_data_path_latest_rep + f'/{scenario_name}_hazard_transformer_model.pt',
             'logistic_hazard': generate_data_path_latest_rep + f'/{scenario_name}_logistic_hazard_model.pt',
-            'rnn_surv': generate_data_path_latest_rep + f'/{scenario_name}_rnn_surv_model.pt'
+            'rnn_surv': generate_data_path_latest_rep + f'/{scenario_name}_rnn_surv_model.pt',
+            'deepsurv': generate_data_path_latest_rep + f'/{scenario_name}_deepsurv_model.pt',
+            'gbsa': generate_data_path_latest_rep + f'/{scenario_name}_gbsa_model.dill',
+            'srf': generate_data_path_latest_rep + f'/{scenario_name}_srf_model.dill',
+            'survival_svm': generate_data_path_latest_rep + f'/{scenario_name}_survival_svm_model.dill',
+            'weibul': generate_data_path_latest_rep + f'/{scenario_name}_weibul_model.dill',
         }
         
         for model_name, model_path in model_paths.items():
@@ -311,7 +337,7 @@ class FeatureImportanceAnalyzer:
                 self.log(f"\nAnalyzing {model_name.upper()} model...")
                 try:
                     importance_data = self.get_model_feature_importance(
-                        model_name, model_path, test_data, feature_cols
+                        model_name, model_path, test_data, feature_cols, scenario_name
                     )
                     self.all_importances[scenario_name][model_name] = importance_data
                     self.log_model_feature_importance(model_name, importance_data)
@@ -322,9 +348,16 @@ class FeatureImportanceAnalyzer:
         
         self.create_consolidated_importance_plot(scenario_name, feature_cols)
     
-    def get_model_feature_importance(self, model_name, model_path, test_data, feature_cols):
+    def get_model_feature_importance(self, model_name, model_path, test_data, feature_cols, scenario_name=None):
         importance_data = {'features': feature_cols, 'importance': None, 'coefficients': None}
-        
+
+        # deepsurv/gbsa/srf/survival_svm/weibul were trained on
+        # get_last_observation_data()'s flattened one-row-per-patient data,
+        # not the raw time-varying test_data every other model here uses --
+        # swap it in so the importance sample actually matches training.
+        if model_name in _FLAT_MODELS and scenario_name in _SCENARIO_ENUM_BY_NAME:
+            _, test_data = get_last_observation_data(_SCENARIO_ENUM_BY_NAME[scenario_name])
+
         if model_name == 'cox':
             try:
                 cox_model = load_pkl_and_dill_model(model_path)
@@ -341,13 +374,100 @@ class FeatureImportanceAnalyzer:
             except Exception as e:
                 self.log(f"Error loading Cox model: {e}")
                 
+        elif model_name == 'weibul':
+            # lifelines WeibullAFTFitter: params_ is a MultiIndex Series
+            # (('lambda_', feature), ('rho_', 'Intercept'), ...) -- the scale
+            # ('lambda_') sub-model's coefficients are the per-feature
+            # analogue of Cox's params_, same "abs(coefficient)" treatment.
+            try:
+                model = load_pkl_and_dill_model(model_path)
+                if model is not None and hasattr(model, 'params_'):
+                    coefficients = model.params_
+                    lambda_coefs = coefficients.get('lambda_', coefficients)
+                    feature_coeffs, raw_coeffs = [], []
+                    for feat in feature_cols:
+                        val = lambda_coefs[feat] if feat in lambda_coefs.index else 0.0
+                        feature_coeffs.append(abs(val))
+                        raw_coeffs.append(val)
+                    importance_data['importance'] = feature_coeffs
+                    importance_data['coefficients'] = raw_coeffs
+            except Exception as e:
+                self.log(f"Error loading Weibull AFT model: {e}")
+
+        elif model_name == 'gbsa':
+            # sksurv GradientBoostingSurvivalAnalysis: sklearn-style tree
+            # ensemble exposing .feature_importances_ directly (impurity/gain
+            # -based), the standard tree-model importance, same idea as
+            # Cox's coefficient magnitudes but architecture-native rather
+            # than a generic gradient probe.
+            try:
+                model = load_pkl_and_dill_model(model_path)
+                if model is not None and hasattr(model, 'feature_importances_'):
+                    raw = list(model.feature_importances_)
+                    if len(raw) != len(feature_cols):
+                        raise ValueError(f"feature_importances_ length {len(raw)} != {len(feature_cols)} feature_cols")
+                    importance_data['importance'] = [abs(v) for v in raw]
+                else:
+                    raise ValueError("model has no feature_importances_ (unexpected estimator type)")
+            except Exception as e:
+                self.log(f"Error extracting feature importance from {model_name}: {e}")
+                importance_data['importance'] = [0.0] * len(feature_cols)
+
+        elif model_name == 'srf':
+            # sksurv RandomSurvivalForest deliberately raises NotImplementedError
+            # on .feature_importances_ (impurity-based importance is known-biased
+            # for survival forests; sksurv's own docs point to permutation
+            # importance instead) -- compute it directly: shuffle one feature
+            # column at a time, measure the drop in sksurv's own
+            # concordance_index_censored (same metric/orientation the model
+            # was scored with elsewhere in this codebase), importance = drop.
+            try:
+                from sksurv.metrics import concordance_index_censored
+                model = load_pkl_and_dill_model(model_path)
+                X = test_data[feature_cols].values
+                durations = test_data['duration_in_days'].values
+                events = test_data['has_esrd'].values.astype(bool)
+                rng = np.random.RandomState(42)
+
+                baseline_pred = model.predict(X)
+                baseline_c = concordance_index_censored(events, durations, baseline_pred)[0]
+
+                importances = []
+                for i in range(len(feature_cols)):
+                    X_perm = X.copy()
+                    X_perm[:, i] = rng.permutation(X_perm[:, i])
+                    perm_pred = model.predict(X_perm)
+                    perm_c = concordance_index_censored(events, durations, perm_pred)[0]
+                    importances.append(max(0.0, baseline_c - perm_c))
+                importance_data['importance'] = importances
+            except Exception as e:
+                self.log(f"Error extracting permutation importance from srf: {e}")
+                importance_data['importance'] = [0.0] * len(feature_cols)
+
+        elif model_name == 'survival_svm':
+            # sksurv FastSurvivalSVM is a LINEAR model (no kernel) -- exposes
+            # .coef_ directly, same "abs(coefficient)" treatment as Cox/Weibull.
+            try:
+                model = load_pkl_and_dill_model(model_path)
+                if model is not None and hasattr(model, 'coef_'):
+                    raw = list(np.asarray(model.coef_).flatten())
+                    if len(raw) != len(feature_cols):
+                        raise ValueError(f"coef_ length {len(raw)} != {len(feature_cols)} feature_cols")
+                    importance_data['importance'] = [abs(v) for v in raw]
+                    importance_data['coefficients'] = raw
+                else:
+                    raise ValueError("model has no coef_ (unexpected estimator type / kernel)")
+            except Exception as e:
+                self.log(f"Error extracting feature importance from survival_svm: {e}")
+                importance_data['importance'] = [0.0] * len(feature_cols)
+
         else:
             try:
                 importance_data['importance'] = self.extract_nn_feature_importance(model_path, test_data, feature_cols)
             except Exception as e:
                 self.log(f"Error extracting feature importance from {model_name}: {e}")
                 importance_data['importance'] = [0.0] * len(feature_cols)
-        
+
         return importance_data
     
     def extract_nn_feature_importance(self, model_path, test_data, feature_cols):        

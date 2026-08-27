@@ -57,6 +57,7 @@ from pkgs.commons import (
     twenty_features_heterogeneous_train_data_path, twenty_features_heterogeneous_test_data_path,
 )
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.model_data_store import get_last_observation_data
 from pkgs.experiments.utils import load_pkl_and_dill_model, get_tv_rnn_model_features
 from pkgs.experiments.hazard_transformer import HazardTransformerDataset, custom_collate_fn
 from pkgs.experiments.logistic_hazard import LogisticHazardDataset
@@ -367,31 +368,41 @@ def hazard_transformer_predictions(model, df_test, scenario):
     """HazardTransformer discretizes into NUM_TIME_BINS=100 bins spanning
     exactly [0, self.max_time=730] days (both hardcoded in
     pkgs/models/hazard_transformer.py's HazardTransformer.__init__) — so
-    surv[:, k] IS the model's genuine predicted survival probability at
-    ~k/99*730 days, not an arbitrary score. Read it off directly at any
-    horizon <= 730; beyond that the model has no native prediction at all
-    (it was never trained/evaluated past day 730), so native_prob_fn
-    correctly returns None there and the caller falls back to extrapolation."""
+    cif[:, k] IS the model's genuine predicted P(event by ~k/99*730 days),
+    not an arbitrary score. Read it off directly at any horizon <= 730;
+    beyond that the model has no native prediction at all (it was never
+    trained/evaluated past day 730), so native_prob_fn correctly returns
+    None there and the caller falls back to extrapolation.
+
+    Model output is a per-subject PMF over time bins (softmax-normalized —
+    see HazardTransformer's class docstring), not independent per-bin
+    hazards — an earlier version used per-bin sigmoid hazards with
+    survival = cumprod(1 - hazard), unbounded and prone to collapsing to
+    predicting event probability 1.0 for every subject (see
+    generated_data/rep1/ddh_collapse_fix_report.txt and this model's own
+    class docstring for the confirmed rep99 evidence). With a PMF,
+    cumsum(pmf) IS the CIF directly."""
     dataloader = DataLoader(HazardTransformerDataset(df_test, scenario), shuffle=False,
                              collate_fn=custom_collate_fn, batch_size=256)
-    all_surv, all_times, all_events = [], [], []
+    all_pmf, all_times, all_events = [], [], []
     model.eval()
     with torch.no_grad():
         for features, mask, time_to_events, event_indicators, _, _ in dataloader:
-            hazard_preds, _, _ = model(features, mask)
-            surv = torch.cumprod(1 - hazard_preds[:, 0, :], dim=1).detach().cpu().numpy()
-            all_surv.append(surv)
+            pmf_preds, _, _ = model(features, mask)
+            pmf = pmf_preds[:, 0, :].detach().cpu().numpy()
+            all_pmf.append(pmf)
             all_times.extend(time_to_events.squeeze().numpy())
             all_events.extend(event_indicators.squeeze().numpy())
-    surv_matrix = np.concatenate(all_surv, axis=0)
-    eval_times = np.linspace(0, 730, surv_matrix.shape[1])
-    risk_scores = 1.0 - surv_matrix[:, -1]
+    pmf_matrix = np.concatenate(all_pmf, axis=0)
+    cif_matrix = np.cumsum(pmf_matrix, axis=1)
+    eval_times = np.linspace(0, 730, cif_matrix.shape[1])
+    risk_scores = cif_matrix[:, -1]
 
     def native_prob_fn(horizon_days):
         if horizon_days > eval_times[-1]:
             return None
         idx = int(np.argmin(np.abs(eval_times - horizon_days)))
-        return 1.0 - surv_matrix[:, idx]
+        return cif_matrix[:, idx]
 
     return risk_scores, np.array(all_times), np.array(all_events), native_prob_fn
 
@@ -521,6 +532,73 @@ def rnn_surv_predictions(model, df_test, scenario):
     return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, None
 
 
+# --- deepsurv/gbsa/srf/survival_svm/weibul: one-row-per-patient models ---
+#
+# Unlike cox/ddh/hazard_transformer/logistic_hazard/rnn_surv (which consume
+# the time-varying, many-rows-per-subject train/test data directly), these 5
+# models were trained against get_last_observation_data()'s flattened
+# one-row-per-subject data (see pkgs/experiments/{deepsurv,gbsa,srf,
+# survival_svm,weibul}.py's run_scenario()). The `df_test` parameter these
+# functions receive from analyze_scenario() is the raw time-varying frame,
+# which doesn't match what these models were fit on -- so each of these
+# functions ignores it and re-derives the correct flattened test set itself.
+
+def deepsurv_predictions(model, df_test, scenario):
+    """DeepSurv's raw output IS already "higher=more hazard=shorter
+    survival" by construction (Cox partial-likelihood training, see
+    pkgs/experiments/deepsurv.py's neg_log_partial_likelihood) -- matches
+    this module's uniform "higher=riskier" convention directly, no
+    transform needed."""
+    _, df_test_flat = get_last_observation_data(scenario)
+    features = get_tv_rnn_model_features(scenario)
+    X_test = torch.tensor(df_test_flat[features].values, dtype=torch.float32)
+    model.eval()
+    with torch.no_grad():
+        risk_scores = model(X_test).squeeze().cpu().numpy()
+    return risk_scores, df_test_flat['duration_in_days'].values, df_test_flat['has_esrd'].values, None
+
+
+def _sksurv_tabular_predictions(model, scenario):
+    """Shared extraction for gbsa/srf/survival_svm: all three are sksurv
+    estimators (GradientBoostingSurvivalAnalysis/RandomSurvivalForest/
+    FastSurvivalSVM) whose .predict() already returns "higher=more risk"
+    (sksurv's own convention, e.g. as used directly with sksurv's
+    concordance_index_censored in pkgs/experiments/survival_svm.py, no
+    inversion) -- matches this module's convention directly."""
+    _, df_test_flat = get_last_observation_data(scenario)
+    features = get_tv_rnn_model_features(scenario)
+    X_test = df_test_flat[features].values
+    risk_scores = model.predict(X_test)
+    return risk_scores, df_test_flat['duration_in_days'].values, df_test_flat['has_esrd'].values, None
+
+
+def gbsa_predictions(model, scenario):
+    return _sksurv_tabular_predictions(model, scenario)
+
+
+def srf_predictions(model, scenario):
+    return _sksurv_tabular_predictions(model, scenario)
+
+
+def survival_svm_predictions(model, scenario):
+    return _sksurv_tabular_predictions(model, scenario)
+
+
+def weibul_predictions(model, scenario):
+    """WeibullAFTFitter predicts a median SURVIVAL TIME, not a risk score --
+    "higher=longer survival", the opposite of this module's convention.
+    Negate it (same transform pkgs/experiments/weibul.py's own Brier-score
+    call already uses: `-predicted_survival_times`) to get "higher=riskier"."""
+    _, df_test_flat = get_last_observation_data(scenario)
+    features = get_tv_rnn_model_features(scenario)
+    cols = features + ['duration_in_days', 'has_esrd']
+    df_test_flat = df_test_flat[cols].copy()
+    df_test_flat['duration_in_days'] = df_test_flat['duration_in_days'].replace(0, 1e-5)
+    predicted_survival_times = model.predict_median(df_test_flat)
+    risk_scores = -predicted_survival_times.values if hasattr(predicted_survival_times, 'values') else -np.asarray(predicted_survival_times)
+    return risk_scores, df_test_flat['duration_in_days'].values, df_test_flat['has_esrd'].values, None
+
+
 def kfre_predictions(risk_scores_2yr_path, scenario, df_test):
     """KFRE (pkgs/experiments/kfre.py) was missing entirely from this module —
     it's one of the 6 model types Stage 3.0 actually runs/evaluates (see
@@ -579,10 +657,13 @@ class ClinicalValidityAnalyzer:
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.current_scenario = None
         self.scenario_report_lines = {}
-        self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv', 'kfre']
+        self.models = ['cox', 'ddh', 'hazard_transformer', 'logistic_hazard', 'rnn_surv', 'kfre',
+                       'deepsurv', 'gbsa', 'srf', 'survival_svm', 'weibul']
         self.model_pretty_names = {
             'cox': 'Cox', 'ddh': 'Dynamic DeepHit', 'hazard_transformer': 'Hazard Transformer',
             'logistic_hazard': 'Logistic Hazard', 'rnn_surv': 'RNN-Surv', 'kfre': 'KFRE',
+            'deepsurv': 'DeepSurv', 'gbsa': 'GBSA', 'srf': 'Survival RF',
+            'survival_svm': 'Survival SVM', 'weibul': 'Weibull AFT',
         }
         # scenario_name -> horizon_days -> {'treat_all':.., 'egfr_nb':.., 'models': {model_name: {'calibration':.., 'model_nb':..}}}
         # populated by analyze_scenario, read back by create_calibration_plot/create_decision_curve_plot.
@@ -600,6 +681,11 @@ class ClinicalValidityAnalyzer:
             'hazard_transformer': generate_data_path_latest_rep + f'/{scenario_name}_hazard_transformer_model.pt',
             'logistic_hazard': generate_data_path_latest_rep + f'/{scenario_name}_logistic_hazard_model.pt',
             'rnn_surv': generate_data_path_latest_rep + f'/{scenario_name}_rnn_surv_model.pt',
+            'deepsurv': generate_data_path_latest_rep + f'/{scenario_name}_deepsurv_model.pt',
+            'gbsa': generate_data_path_latest_rep + f'/{scenario_name}_gbsa_model.dill',
+            'srf': generate_data_path_latest_rep + f'/{scenario_name}_srf_model.dill',
+            'survival_svm': generate_data_path_latest_rep + f'/{scenario_name}_survival_svm_model.dill',
+            'weibul': generate_data_path_latest_rep + f'/{scenario_name}_weibul_model.dill',
         }
         # KFRE has no published equation for twenty_features_heterogeneous (only
         # 4-/8-variable, per kfre.py) — omit the key entirely rather than
@@ -622,6 +708,22 @@ class ClinicalValidityAnalyzer:
         if model_name == 'kfre':
             return kfre_predictions(model_path, scenario, df_test)
 
+        # gbsa/srf/survival_svm/weibul are dill-pickled sklearn/sksurv/lifelines
+        # estimators, not torch models -- load with the same generic loader
+        # cox.py uses, not torch.load.
+        if model_name in ('gbsa', 'srf', 'survival_svm', 'weibul'):
+            model = load_pkl_and_dill_model(model_path)
+            if model is None:
+                return None
+            if model_name == 'gbsa':
+                return gbsa_predictions(model, scenario)
+            if model_name == 'srf':
+                return srf_predictions(model, scenario)
+            if model_name == 'survival_svm':
+                return survival_svm_predictions(model, scenario)
+            if model_name == 'weibul':
+                return weibul_predictions(model, scenario)
+
         model = torch.load(model_path, map_location='cpu', weights_only=False)
         if model_name == 'hazard_transformer':
             return hazard_transformer_predictions(model, df_test, scenario)
@@ -631,6 +733,8 @@ class ClinicalValidityAnalyzer:
             return dynamic_deephit_predictions(model, df_test, scenario)
         if model_name == 'rnn_surv':
             return rnn_surv_predictions(model, df_test, scenario)
+        if model_name == 'deepsurv':
+            return deepsurv_predictions(model, df_test, scenario)
         raise ValueError(f"Unknown model_name {model_name}")
 
     def analyze_scenario(self, scenario_name, scenario_enum, df_train, df_test):
