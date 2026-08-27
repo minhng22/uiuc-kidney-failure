@@ -5,7 +5,7 @@ from pkgs.models.dynamicdeephit import DynamicDeepHit
 import torch
 from torch.utils.data import DataLoader, Dataset
 
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss_pmf, compute_brier_score_from_risk_scores
 from pkgs.data_analysis.types import ExperimentScenario
 
 import os
@@ -229,8 +229,8 @@ def objective(trial, scenario_name: ExperimentScenario):
                       f"event_indicator shape: {event_indicator.shape}, time_to_events shape: {time_to_events.shape}, "
                       f"event_indicators shape: {event_indicators.shape}, sequence lengths shape: {seq_lens.shape}")
 
-            hazard_preds, _ = model(features, mask, debug_mode)
-            loss = combine_loss(hazard_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
+            pmf_preds, _ = model(features, mask, debug_mode)
+            loss = combine_loss_pmf(pmf_preds, time_to_event, event_indicator, num_risks, llh_loss, ranking_loss)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
@@ -306,18 +306,23 @@ def auc(model: DynamicDeepHit, test_dataset: DynamicDeepHitDataset, train_df: pd
             print(f"time_to_events shape: {time_to_events.shape}")
             print(f"seq_lens shape: {seq_lens.shape}")
 
-        hazard_preds, _ = model(features, mask, debug_mode)
+        pmf_preds, _ = model(features, mask, debug_mode)
 
-        hazard_preds = hazard_preds.cpu().detach().numpy()
-        hazard_preds = hazard_preds[:, 0, :] # only one risk, which is esrd
+        pmf_preds = pmf_preds.cpu().detach().numpy()
+        pmf_preds = pmf_preds[:, 0, :] # only one risk, which is esrd
+        # model output is a per-subject PMF over time (see DynamicDeepHit's
+        # class docstring); cumsum gives the CIF (P(event by day t)), the
+        # cumulative risk quantity AUC needs -- using the raw per-day PMF
+        # value here would be an instantaneous, not cumulative, quantity.
+        cif_preds = np.cumsum(pmf_preds, axis=1)
 
         if debug_mode:
-            print(f"calc hazard_preds shape: {hazard_preds.shape}")
+            print(f"calc cif_preds shape: {cif_preds.shape}")
 
-        for j in range(hazard_preds.shape[0]):
+        for j in range(cif_preds.shape[0]):
             p_seq_len = int(seq_lens[j])
             all_time_to_events.append(time_to_events[j][:p_seq_len].cpu().detach().numpy())
-            all_risk_scores.append(hazard_preds[j][:p_seq_len])
+            all_risk_scores.append(cif_preds[j][:p_seq_len])
             all_event_indicators.append(event_indicators[j][:p_seq_len].cpu().detach().numpy())
 
     f_time_to_events = np.concatenate(all_time_to_events, axis=0)
@@ -351,13 +356,15 @@ def brier_score_evaluation(model: DynamicDeepHit, test_dataset: DynamicDeepHitDa
     for features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens in dataloader:
         features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens = [x.to(device) for x in (features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens)]
         
-        hazard_preds, _ = model(features, mask)
-        hazard_preds = hazard_preds.cpu().detach().numpy()
-        hazard_preds = hazard_preds[:, 0, :]  # only one risk (ESRD)
-        
-        for j in range(hazard_preds.shape[0]):
+        pmf_preds, _ = model(features, mask)
+        pmf_preds = pmf_preds.cpu().detach().numpy()
+        pmf_preds = pmf_preds[:, 0, :]  # only one risk (ESRD)
+        # cumsum -> CIF, same reasoning as auc() above.
+        cif_preds = np.cumsum(pmf_preds, axis=1)
+
+        for j in range(cif_preds.shape[0]):
             p_seq_len = int(seq_lens[j])
-            all_risk_scores.extend(hazard_preds[j][:p_seq_len])
+            all_risk_scores.extend(cif_preds[j][:p_seq_len])
             all_times.extend(time_to_events[j][:p_seq_len].cpu().detach().numpy())
             all_events.extend(event_indicators[j][:p_seq_len].cpu().detach().numpy())
     
@@ -409,7 +416,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     # above (this one is under torch.no_grad() so was lower-risk, but keep
     # it aligned to be safe against the same seq_len=5644 outlier).
     loader = DataLoader(dataset, shuffle=False, batch_size=16)
-    
+
     all_times = []
     all_events = []
     all_risks = []
@@ -418,22 +425,31 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
         debug_print = True
         for features, mask, T, E, _, _, _ in loader:
             features, mask = features.to(device), mask.to(device)
-            hazards, _ = model(features, mask, False)
-            hazards = hazards[:, 0, :].cpu().numpy()
+            pmf, _ = model(features, mask, False)
+            pmf = pmf[:, 0, :].cpu().numpy()
+            # model output is a per-subject PMF over time (see
+            # DynamicDeepHit's class docstring) -- cumsum gives the
+            # cumulative incidence function (CIF), i.e. P(event by day t),
+            # which is the risk quantity c-index/AUC/Brier need. Using the
+            # raw per-day PMF value here (as this used to, back when the
+            # model output independent per-day hazards) would compare an
+            # instantaneous quantity across subjects with different t_j
+            # instead of a cumulative one.
+            cif = np.cumsum(pmf, axis=1)
 
             if debug_print:
-                print(f"features shape: {features.shape}, mask shape: {mask.shape}, T shape: {T.shape}, E shape: {E.shape} hazards shape: {hazards.shape}")
-                
+                print(f"features shape: {features.shape}, mask shape: {mask.shape}, T shape: {T.shape}, E shape: {E.shape} cif shape: {cif.shape}")
+
             T = T.cpu().numpy().ravel().astype(int)
             E = E.cpu().numpy().ravel().astype(bool)
 
             for j, t_j in enumerate(T):
                 if debug_print:
-                    print(f"Processing subject {j} with time {t_j} and event {E[j]} hazards shape: {hazards[j, t_j : t_j + 1]}")
+                    print(f"Processing subject {j} with time {t_j} and event {E[j]} cif at t_j: {cif[j, t_j : t_j + 1]}")
                     debug_print = False
                 all_times.append(t_j)
                 all_events.append(E[j])
-                all_risks.append(hazards[j, t_j : t_j + 1])
+                all_risks.append(cif[j, t_j : t_j + 1])
 
     all_times = np.array(all_times)
     all_events = np.array(all_events)

@@ -298,6 +298,70 @@ def combine_loss(hazard_preds, time_intervals, event_indicators, num_risks, w1=0
 
     return total_loss / num_risks
 
+
+def combine_loss_pmf(pmf_preds, time_intervals, event_indicators, num_risks, w1=0.5, w2=0.1):
+    """Same log-likelihood + ranking-loss structure as combine_loss(), but for
+    DynamicDeepHit's softmax-normalized PMF output (see
+    pkgs/models/dynamicdeephit.py's class docstring) instead of independent
+    per-day sigmoid hazards. Only dynamic_deephit.py's training loop should
+    call this -- hazard_transformer.py still outputs per-day sigmoid hazards
+    and must keep using combine_loss() (left untouched above).
+
+    Two things are structurally different from combine_loss(), not just a
+    substitution of variable names:
+      1. Per-day PMF mass already IS P(T=t) directly (softmax normalizes
+         across all days at once), so there's no need for combine_loss()'s
+         separate "prod(1-hazard) before t_i" term for event subjects --
+         that information is already baked into a single day's PMF value by
+         construction, whereas independent per-day sigmoids need it added
+         explicitly (that missing term for event subjects, in the original
+         combine_loss(), was itself part of the hazard-collapse bug -- see
+         generated_data/rep1/ddh_collapse_fix_report.txt).
+      2. The ranking loss's cumulative-incidence proxy is cumsum(pmf), which
+         is bounded in [0, 1] by construction (unlike combine_loss()'s
+         cumsum(hazard), which is an unbounded sum of up to `pred_times`
+         independent (0,1) values) -- this is what stops
+         exp(-diff/w2) from being able to blow up during training.
+    """
+    batch_size = pmf_preds.size(0)
+    num_timepoints = pmf_preds.size(2)
+    total_loss = 0
+    raw_time = time_intervals[:, 0]
+    eps = 1e-7
+
+    for risk in range(num_risks):
+        risk_pmf = pmf_preds[:, risk, :]
+        risk_event_indicators = event_indicators[:, risk]
+        time_indices = raw_time.clamp(max=num_timepoints - 1).long()
+
+        cif = torch.cumsum(risk_pmf, dim=1)  # CIF(t) = P(T <= t), true model CIF
+
+        pmf_at_t = risk_pmf[torch.arange(batch_size), time_indices].clamp(min=eps)
+        event_log_prob = torch.log(pmf_at_t) * risk_event_indicators
+
+        surv_at_t = (1.0 - cif[torch.arange(batch_size), time_indices]).clamp(min=eps)
+        censor_log_prob = torch.log(surv_at_t) * (1 - risk_event_indicators)
+
+        log_likelihood_loss = -torch.mean(event_log_prob + censor_log_prob)
+
+        f_idx = (time_indices - 1).clamp(min=0)
+        F_matrix = cif[:, f_idx]
+        zero_mask = (time_indices == 0).unsqueeze(0)
+        F_matrix = F_matrix.masked_fill(zero_mask, 0.0)
+        F_i_own = torch.diagonal(F_matrix)
+        diff = F_i_own.unsqueeze(1) - F_matrix.t()
+        pair_mask = (raw_time.unsqueeze(1) < raw_time.unsqueeze(0)) & risk_event_indicators.bool().unsqueeze(1)
+        count = pair_mask.sum()
+        if count > 0:
+            ranking_loss = (torch.exp((-diff / w2).clamp(max=50.0)) * pair_mask.float()).sum() / count
+        else:
+            ranking_loss = torch.zeros((), device=pmf_preds.device)
+
+        total_loss += log_likelihood_loss * w1 + ranking_loss * w2
+
+    return total_loss / num_risks
+
+
 def load_pkl_and_dill_model(model_path):
     model_pkl_path = model_path.replace('.dill', '.pkl')
 

@@ -251,11 +251,34 @@ def brier_score_up_to(df_train, durations, events, risk_scores, horizon_days):
     len(unique subjects) rows, so sksurv's shape check failed and this always
     returned None for those two models (caught, not a crash, but silently
     wrong) — always build y_test from the same durations/events actually
-    paired with risk_scores instead."""
+    paired with risk_scores instead.
+
+    Also administratively censors any test subject followed longer than
+    df_train's longest observed duration, at that train-set max. sksurv's
+    IPCW machinery estimates the censoring distribution G(t) from y_train
+    alone, so it has no information past y_train's max follow-up; a test
+    subject who WAS followed past it (observed: four_features rep1, train
+    max 4216d vs test max 4333d) makes sksurv raise "time must be smaller
+    than largest observed time point" -- for EVERY horizon_days, not just
+    the one requested (confirmed by testing horizons from 1yr to 12yr, all
+    identically broken) -- since the break is a train/test max-duration
+    mismatch, not a horizon choice. There's no true information available
+    about what happens to that subject past the training set's covered
+    range, so the standard treatment is to cut their follow-up there and
+    mark them censored at that point, same as any other right-censoring."""
     times = np.linspace(1, horizon_days, 50)
     survival_probs = risk_scores_to_survival_probs(risk_scores, times)
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
-    y_test = Surv.from_arrays(event=np.asarray(events).astype(bool), time=np.asarray(durations))
+
+    durations = np.asarray(durations, dtype=np.float64).copy()
+    events = np.asarray(events).astype(bool).copy()
+    train_max = float(df_train['duration_in_days'].max())
+    beyond_train_range = durations > train_max
+    if beyond_train_range.any():
+        durations[beyond_train_range] = train_max
+        events[beyond_train_range] = False
+
+    y_test = Surv.from_arrays(event=events, time=durations)
     try:
         return round(float(integrated_brier_score(y_train, y_test, survival_probs, times)), 5)
     except Exception as e:
@@ -415,40 +438,50 @@ def logistic_hazard_predictions(net, df_train, df_test, scenario):
 
 
 def dynamic_deephit_predictions(model, df_test, scenario):
-    """Corrected from the previous version, which reused
+    """Corrected from an earlier version that reused
     pkgs/experiments/dynamic_deephit.py's brier_score_evaluation()/auc() row
-    extraction as-is: that code pairs hazard_preds[j][:p_seq_len] (the first
-    p_seq_len entries of subject j's per-CALENDAR-DAY hazard curve — see
-    pkgs/models/dynamicdeephit.py: self.pred_times = 365*15, one hazard value
-    per literal day 0..5474) with time_to_events[j][:p_seq_len] (that
-    subject's actual, irregularly-spaced LAB-VISIT days). Those two index sets
-    don't correspond — "hazard on day 13" was being paired with "this
-    patient's 13th lab visit" (e.g. day 1200), silently mixing calendar-day
-    bins with visit-sequence position for every patient with non-daily visits
-    (i.e. nearly all of them). Fixed here: hazard_preds[j] IS a per-day curve
-    (index = literal day number, one curve per SUBJECT — the model pools each
-    subject's whole sequence via attention before predicting, see
-    DynamicDeepHit.forward()), so cumulative survival at day t is
-    prod(1 - hazard_preds[j, :t]) and can be read off directly at any t.
+    extraction as-is: that code paired hazard_preds[j][:p_seq_len] (the first
+    p_seq_len entries of subject j's per-CALENDAR-DAY curve — see
+    pkgs/models/dynamicdeephit.py: self.pred_times = 365*15, one value per
+    literal day 0..5474) with time_to_events[j][:p_seq_len] (that subject's
+    actual, irregularly-spaced LAB-VISIT days). Those two index sets don't
+    correspond — "day 13" was being paired with "this patient's 13th lab
+    visit" (e.g. day 1200), silently mixing calendar-day bins with
+    visit-sequence position for every patient with non-daily visits (i.e.
+    nearly all of them). Fixed here: model output is one curve per SUBJECT
+    with a literal-day index (the model pools each subject's whole sequence
+    via attention before predicting, see DynamicDeepHit.forward()), so it can
+    be read off directly at any day t without needing to align it to that
+    subject's own visit sequence at all.
+
+    Model output is a per-subject PMF over time (softmax-normalized — see
+    DynamicDeepHit's class docstring), not independent per-day hazards: an
+    earlier version of both the model and this function used per-day
+    sigmoid hazards with survival = cumprod(1 - hazard), which had no bound
+    on total predicted probability across time and could saturate to
+    predicting event probability 1.0 for every subject regardless of input
+    features (see generated_data/rep1/ddh_collapse_fix_report.txt). With a
+    PMF, cumsum(pmf) IS the cumulative incidence function (CIF) directly —
+    P(event by day t) = cumsum(pmf)[:, t] — no cumprod-of-survival needed.
     Operates per-subject (like cox/rnn_surv's row-level predictions, but here
     one prediction per unique subject, not per df_test row — dynamic_deephit
     only ever produces one curve per subject regardless of how many lab-event
     rows they have in df_test)."""
     dataloader = DataLoader(DynamicDeepHitDataset(df_test, scenario), shuffle=False, batch_size=16)
-    all_hazard, all_durations, all_events = [], [], []
+    all_pmf, all_durations, all_events = [], [], []
     model.eval()
     with torch.no_grad():
         for features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens in dataloader:
-            hazard_preds, _ = model(features, mask)
-            hazard_preds = hazard_preds.cpu().detach().numpy()[:, 0, :]  # (batch, pred_times) per subject
-            all_hazard.append(hazard_preds)
+            pmf_preds, _ = model(features, mask)
+            pmf_preds = pmf_preds.cpu().detach().numpy()[:, 0, :]  # (batch, pred_times) per subject
+            all_pmf.append(pmf_preds)
             all_durations.extend(time_to_event.squeeze(-1).cpu().numpy())
             all_events.extend(event_indicator.squeeze(-1).cpu().numpy())
 
-    hazard_matrix = np.concatenate(all_hazard, axis=0)
-    surv_matrix = np.cumprod(1 - hazard_matrix, axis=1)
-    max_day_idx = surv_matrix.shape[1] - 1
-    risk_scores = 1.0 - surv_matrix[:, min(730, max_day_idx)]
+    pmf_matrix = np.concatenate(all_pmf, axis=0)
+    cif_matrix = np.cumsum(pmf_matrix, axis=1)  # P(event by day t)
+    max_day_idx = cif_matrix.shape[1] - 1
+    risk_scores = cif_matrix[:, min(730, max_day_idx)]
     durations = np.array(all_durations)
     events = np.array(all_events)
 
@@ -456,7 +489,7 @@ def dynamic_deephit_predictions(model, df_test, scenario):
         idx = int(round(horizon_days))
         if idx > max_day_idx:
             return None
-        return 1.0 - surv_matrix[:, max(idx, 0)]
+        return cif_matrix[:, max(idx, 0)]
 
     return risk_scores, durations, events, native_prob_fn
 
