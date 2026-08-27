@@ -128,3 +128,9 @@ def run_scenario(scenario: ExperimentScenario):
 
 if __name__ == '__main__':
     run_ti()
+    print("\nRunning FOUR_FEATURES Weibull AFT model evaluation...")
+    run_scenario(ExperimentScenario.FOUR_FEATURES)
+    print("\nRunning EIGHT_FEATURES Weibull AFT model evaluation...")
+    run_scenario(ExperimentScenario.EIGHT_FEATURES)
+    print("\nRunning TWENTY_FEATURES_HETEROGENEOUS Weibull AFT model evaluation...")
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)

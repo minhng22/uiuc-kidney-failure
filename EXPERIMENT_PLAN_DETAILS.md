@@ -507,7 +507,16 @@ methodology): see
 ## Stage 3.0: rep1 full experiment run + analysis report — approval gate before 3.1
 After stage 2 and stage 2.1 passes, get approval before run this stage.
 
-- Launch the full run via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh)
+Models covered (per user decision): 11 total —
+`cox`/`dynamic_deephit`/`hazard_transformer`/`logistic_hazard`/`rnnsurv`/`kfre`
+plus `deepsurv`/`gbsa`/`srf`/`survival_svm`/`weibul`. The 5 extra models'
+`__main__` blocks were edited (user-approved) to also run
+`four_features`/`eight_features`/`twenty_features_heterogeneous` via their
+existing `run_scenario()`, same pattern already used by
+cox/ddh/hazard_transformer/logistic_hazard/rnnsurv — so all 11 are now
+launched the same way, no separate driver script.
+
+- Launch all 11 via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh)
   (no new script) for `N=1` only — in the background, PID/log recorded in `EXPERIMENT_STATUS.md`
   (own rows/section, per the repo's background-process-tracking rules above).
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
@@ -521,7 +530,8 @@ After stage 2 and stage 2.1 passes, get approval before run this stage.
 
 ## Stage 3.1: Full experiment runs (rep2 → rep4)
 Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone — requires Stage
-3.0's approval gate to have passed first.
+3.0's approval gate to have passed first. Same model scope as Stage 3.0: all 11 models via
+`run_rep.sh`.
 
 - Launch full runs via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new
   script) for `N` in 2, 3, 4 — each in the background, each PID/log recorded in

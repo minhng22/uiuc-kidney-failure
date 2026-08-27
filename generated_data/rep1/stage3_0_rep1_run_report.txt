@@ -47,3 +47,42 @@ clinical-validity via run_stage21_feature_importance.py and
 run_stage21_clinical_validity.py, both pointed at CKD_REP=1), then stop at the
 Stage 3.0→3.1 approval gate (do not launch Stage 3.1 without explicit
 approval).
+
+Termination (2026-08-27, sunlab-serv-01.cs.illinois.edu)
+----------------------------------------------------------
+User requested both background process trees be killed. SIGTERM sent to all
+PIDs in both trees; confirmed dead via `ps -p` (no remaining matches):
+- PID 1613542 (`run_rep.sh 1`) + PID 1614105 (`dynamic_deephit`, 3d6h in,
+  mid-training, no completed checkpoint from this run).
+- PID 2291673 (`run_rep.sh 1`, resume-no-ddh) + PID 2291712/2291721
+  (subshells) + PID 2291720 (`hazard_transformer`, mid-optuna-search) +
+  PID 2291731 (`rnnsurv`, mid-optuna-search, 13h43m in).
+No models from this run had finished training at time of kill; cox/kfre/
+logistic_hazard had already completed in the resume run per the master log
+before dynamic_deephit/hazard_transformer/rnnsurv were killed mid-flight.
+Stage 3.0 is now stopped pending relaunch (not resumed automatically).
+
+Relaunch (2026-08-27, sunlab-serv-01.cs.illinois.edu)
+-------------------------------------------------------
+Per user request to run Stage 3. Reused cox/kfre/logistic_hazard results
+from the killed run (all 3 completed for all 3 new scenarios per their
+per-experiment logs; confirmed no four_features/eight_features/
+twenty_features_heterogeneous model artifacts exist yet for
+dynamic_deephit/hazard_transformer/rnnsurv in generated_data/rep1/, so those
+3 are relaunched fresh from scratch, not resumed from checkpoint).
+- Command: `EXCLUDE_EXPERIMENTS="cox logistic_hazard kfre" RUN_TAG=resume2 pkgs/scripts/run_rep.sh 1`
+- PID: 2449903, host: sunlab-serv-01.cs.illinois.edu
+- Log: pkgs/scripts/eval_all_rep1_resume2.log
+- Per-experiment logs: pkgs/scripts/eval_rep1_resume2_{dynamic_deephit,hazard_transformer,rnnsurv}.log
+- Start time: 2026-08-27 01:55:19 CDT
+- Subprocess PIDs at launch: dynamic_deephit 2449936, hazard_transformer
+  2449940, rnnsurv 2449948.
+
+Termination #2 (2026-08-27, sunlab-serv-01.cs.illinois.edu)
+--------------------------------------------------------------
+User requested everything terminated. SIGTERM sent to PID 2449903's process
+group (`kill -TERM -2449903`); confirmed dead via `ps -p` (no matches for
+2449903/2449936/2449940/2449948), no `python -m pkgs.experiments.*` processes
+remain, and `nvidia-smi` shows 0% util / ~0 MiB used on all 8 GPUs. No models
+had finished in this relaunch before the kill (elapsed ~6m50s). Stage 3.0 is
+again stopped pending relaunch (not resumed automatically).

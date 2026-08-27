@@ -240,5 +240,12 @@ def run_all():
     print("\nTime-variant scenarios not supported for Survival SVM")
     print("Skipping TIME_VARIANT, HETEROGENEOUS, and EGFR_COMPONENTS scenarios")
 
+    print("\nRunning FOUR_FEATURES Survival SVM model evaluation...")
+    run_scenario(ExperimentScenario.FOUR_FEATURES)
+    print("\nRunning EIGHT_FEATURES Survival SVM model evaluation...")
+    run_scenario(ExperimentScenario.EIGHT_FEATURES)
+    print("\nRunning TWENTY_FEATURES_HETEROGENEOUS Survival SVM model evaluation...")
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+
 if __name__ == "__main__":
     run_all()

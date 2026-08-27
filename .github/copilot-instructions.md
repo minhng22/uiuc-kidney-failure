@@ -192,3 +192,22 @@ full-scale rep:
 - This is in addition to, not instead of, the existing rule about full-scale
   reps you own that fail (diagnose, fix, relaunch) — rep99 verification
   comes first, full-scale relaunch comes after.
+
+## When asked about an implemented model, check the actual model structure — never just a code comment
+
+If the user asks anything about how an already-implemented model works (its
+architecture, what data shape it takes, whether it supports a given
+scenario, why it behaves a certain way, etc.), answer from the actual
+model/training code, not from a comment describing it.
+
+- Read the model class itself (`pkgs/models/*.py` for custom `nn.Module`s)
+  and/or the library call that constructs it in `pkgs/experiments/*.py`
+  (e.g. `sksurv.ensemble.GradientBoostingSurvivalAnalysis`,
+  `lifelines.WeibullAFTFitter`) — the layers/estimator it's actually built
+  from — before answering.
+- A comment can be wrong, stale, or written for a different revision of the
+  code than what's currently there. Treat it as a hint of where to look, not
+  as the answer.
+- This applies even when a comment already states the exact fact being
+  asked about — verify it against the code it's describing before repeating
+  it back as your answer.

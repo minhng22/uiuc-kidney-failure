@@ -211,4 +211,10 @@ def joblib_to_dill():
 
 if __name__ == '__main__':
     run_gbsa()
+    print("\nRunning FOUR_FEATURES GBSA model evaluation...")
+    run_scenario(ExperimentScenario.FOUR_FEATURES)
+    print("\nRunning EIGHT_FEATURES GBSA model evaluation...")
+    run_scenario(ExperimentScenario.EIGHT_FEATURES)
+    print("\nRunning TWENTY_FEATURES_HETEROGENEOUS GBSA model evaluation...")
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
 

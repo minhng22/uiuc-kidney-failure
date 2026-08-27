@@ -37,7 +37,7 @@ LOG_FILE="${SCRIPT_DIR}/eval_all_rep${REP_NUM}${TAG_SUFFIX}.log"
 MASTER_LOG="${SCRIPT_DIR}/run_rep${REP_NUM}${TAG_SUFFIX}_master.log"
 PID_FILE="${SCRIPT_DIR}/run_rep${REP_NUM}${TAG_SUFFIX}.pid"
 
-EXPERIMENTS=("cox" "dynamic_deephit" "hazard_transformer" "logistic_hazard" "rnnsurv" "kfre")
+EXPERIMENTS=("cox" "dynamic_deephit" "hazard_transformer" "logistic_hazard" "rnnsurv" "kfre" "deepsurv" "gbsa" "srf" "survival_svm" "weibul")
 EXCLUDE_EXPERIMENTS="${EXCLUDE_EXPERIMENTS:-}"
 
 # On the first invocation, re-exec ourselves under setsid so the whole run
