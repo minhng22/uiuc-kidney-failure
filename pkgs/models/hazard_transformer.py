@@ -48,8 +48,12 @@ class HazardTransformer(nn.Module):
     scenario, any rep) was trained under the OLD sigmoid parametrization and
     is NOT compatible with this forward() -- must be deleted and retrained."""
 
+    ARCHITECTURE_VERSION = 2
+
     def __init__(self, input_dim, d_model, num_risks, num_layers, nhead, dropout, num_time_bins=100):
         super(HazardTransformer, self).__init__()
+        # Instance marker makes old sigmoid-head checkpoints detectable.
+        self.architecture_version = self.ARCHITECTURE_VERSION
         self.num_risks = num_risks
         self.d_model = d_model
         self.max_time = 730

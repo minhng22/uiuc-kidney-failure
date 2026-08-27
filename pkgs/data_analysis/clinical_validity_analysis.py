@@ -352,7 +352,7 @@ def discrimination_metrics(df_train, risk_scores, durations, events, auc_horizon
 #     time-indexed prediction that can be read off AT the requested horizon
 #     (not approximated from a generic risk score), this returns it; None means
 #     "no native prediction available at this horizon, use the fallback."
-#     cox/rnn_surv have no such thing (see below) so always return None.
+#     cox has no such thing (see below), so it always returns None.
 
 def cox_predictions(model, df_test):
     risk_scores = model.predict_partial_hazard(df_test).values.flatten()
@@ -382,6 +382,10 @@ def hazard_transformer_predictions(model, df_test, scenario):
     generated_data/rep1/ddh_collapse_fix_report.txt and this model's own
     class docstring for the confirmed rep99 evidence). With a PMF,
     cumsum(pmf) IS the CIF directly."""
+    if getattr(model, 'architecture_version', 1) != 2:
+        raise ValueError(
+            "This Hazard Transformer checkpoint uses the obsolete sigmoid head; retrain it before analysis."
+        )
     dataloader = DataLoader(HazardTransformerDataset(df_test, scenario), shuffle=False,
                              collate_fn=custom_collate_fn, batch_size=256)
     all_pmf, all_times, all_events = [], [], []
@@ -396,7 +400,21 @@ def hazard_transformer_predictions(model, df_test, scenario):
     pmf_matrix = np.concatenate(all_pmf, axis=0)
     cif_matrix = np.cumsum(pmf_matrix, axis=1)
     eval_times = np.linspace(0, 730, cif_matrix.shape[1])
-    risk_scores = cif_matrix[:, -1]
+    # Fixed common horizon (365d) for the scalar risk_scores used in
+    # c-index/AUC/Brier -- NOT each patient's own observed time. That was
+    # tried first (to dodge the final-bin-always-1.0 PMF degeneracy) but
+    # introduced a worse confound: CIF only grows over time, so a patient
+    # followed LONGER (typically lower-risk, especially censored) automatically
+    # lands on a LATER bin with more accumulated risk regardless of true
+    # risk -- confirmed empirically (eight_features/rep99: own-time c-index
+    # 0.148, badly inverted; fixed-horizon c-index 0.477, a real if modest
+    # reading). Same reasoning as pkgs/experiments/hazard_transformer.py's
+    # EVAL_HORIZON_DAYS -- 365 rather than the max_time=730 boundary, which
+    # hits the OTHER degeneracy (last bin's CIF == 1.0 for every softmax PMF).
+    # native_prob_fn below is unaffected by any of this -- it already reads a
+    # fixed, caller-specified horizon per call, same as every other model here.
+    horizon_bin = int(round(min(365.0, float(model.max_time)) / float(model.max_time) * (cif_matrix.shape[1] - 1)))
+    risk_scores = cif_matrix[:, horizon_bin]
 
     def native_prob_fn(horizon_days):
         if horizon_days > eval_times[-1]:
@@ -506,30 +524,29 @@ def dynamic_deephit_predictions(model, df_test, scenario):
 
 
 def rnn_surv_predictions(model, df_test, scenario):
-    """RNN-Surv's risk score is explicitly NOT a probability by the model's
-    own design — see pkgs/models/rnnsurv.py's forward(): "the risk score is a
-    linear combination of the survival function estimates" (sums 1-survival
-    across K discrete intervals into one unbounded scalar), and that sum is
-    already "higher = riskier" by construction (larger when 1-survival is
-    larger at more intervals). Fixed here: this used to return `1 -
-    test_risk_scores`, inverting an already-correctly-oriented score (on top
-    of discrimination_metrics()'s own `-risk_scores` negation for
-    concordance_index, i.e. a double sign-flip net inversion) — confirmed by
-    directly comparing both conventions against the same trained
-    eight_features/rep99 model: c_index 0.441 with the inversion vs 0.559
-    without it (exact complements, 0.441+0.559=1.0, confirming it was a pure
-    sign bug rather than noise). No native per-horizon probability exists to
-    read off; the generic risk-score transform is the appropriate (and only)
-    option here, matching how the rest of the codebase already treats this
-    model's output."""
+    """Return RNN-Surv's PMF-derived risk and native horizon probabilities."""
+    if getattr(model, 'architecture_version', 1) != 2:
+        raise ValueError(
+            "This RNN-Surv checkpoint uses the obsolete sigmoid head; retrain it before analysis."
+        )
     features = get_tv_rnn_model_features(scenario)
     X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
     model.eval()
     with torch.no_grad():
-        _, test_risk_scores = model(X_test)
+        event_pmf, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
     risk_scores = test_risk_scores.cpu().numpy()
-    return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, None
+    cif = event_pmf[:, -1, :].cumsum(dim=1).cpu().numpy()
+    max_bin = cif.shape[1] - 1
+    max_time = float(getattr(model, 'max_time', 730.0))
+
+    def native_prob_fn(horizon_days):
+        if horizon_days < 0 or horizon_days > max_time:
+            return None
+        bin_idx = int(round(horizon_days / max_time * max_bin))
+        return cif[:, min(max(bin_idx, 0), max_bin)]
+
+    return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, native_prob_fn
 
 
 # --- deepsurv/gbsa/srf/survival_svm/weibul: one-row-per-patient models ---

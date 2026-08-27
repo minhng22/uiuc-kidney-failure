@@ -17,6 +17,29 @@ from pkgs.experiments.utils import get_device
 
 num_risks = 1
 NUM_TIME_BINS = 100
+# Fixed common horizon (days) for scalar c-index/AUC/Brier evaluation below --
+# NOT each patient's own observed time. Reading CIF at each patient's own time
+# was tried first (to dodge the "final-bin CIF is always 1.0 for every
+# softmax-normalized PMF" degeneracy) but introduced a worse confound: CIF only
+# grows over time, so a patient followed LONGER (typically the healthier,
+# lower-risk ones, especially censored) automatically gets evaluated at a
+# LATER bin where cumulative risk has grown more, regardless of true risk --
+# this systematically inflates long-survivors' scores and deflates
+# short-survivors', independent of how good the model actually is. Confirmed
+# empirically on the trained eight_features/rep99 model: own-time c-index was
+# 0.148 (badly inverted), a FIXED common horizon gave 0.477 (still modest, but
+# a real, unconfounded reading) -- same direction of fix DDH's
+# dynamic_deephit_predictions() already uses (day 730, fixed for everyone).
+# 365 (not 730, this model's own max_time) specifically avoids the *separate*
+# final-bin-saturation issue: bins span exactly [0, max_time], so day 730
+# lands on the very last bin, where cumsum(softmax(...)) == 1.0 for everyone
+# by construction -- also degenerate, just for a different reason.
+EVAL_HORIZON_DAYS = 365
+
+
+def _fixed_horizon_bin_idx(num_bins, max_time, device):
+    """Same bin index for every patient in the batch -- see EVAL_HORIZON_DAYS."""
+    return int(round(min(EVAL_HORIZON_DAYS, max_time) / max_time * (num_bins - 1)))
 
 class HazardTransformerDataset(Dataset):
     def __init__(self, df, scenario_name: ExperimentScenario):
@@ -260,13 +283,15 @@ def c_idx(model, data_loader, train_df, device):
         for X, mask, times, events, _, _ in data_loader:
             X, mask = X.to(device), mask.to(device)
             pmf_preds, _, _ = model(X, mask)
-            # model output is a per-subject PMF over time bins (see class
-            # docstring); cumsum -> CIF, survival at end of horizon = 1 - CIF
-            # at the last bin. Higher = longer survival, matching lifelines'
-            # concordance_index convention used below.
-            surv_final = (1 - torch.cumsum(pmf_preds[:, 0, :], dim=1))[:, -1].cpu().numpy()
+            # Fixed common horizon for every patient -- see EVAL_HORIZON_DAYS
+            # above for why (own-observed-time was confounded by follow-up
+            # duration itself, not just the final-bin degeneracy it was meant
+            # to dodge).
+            cif = torch.cumsum(pmf_preds[:, 0, :], dim=1)
+            bin_idx = _fixed_horizon_bin_idx(cif.size(1), model.max_time, device)
+            surv_at_horizon = 1 - cif[:, bin_idx]
 
-            all_scores.extend(surv_final.tolist())
+            all_scores.extend(surv_at_horizon.cpu().tolist())
             all_times.extend(times.squeeze(1).cpu().numpy().tolist())
             all_events.extend(events.squeeze(1).cpu().numpy().tolist())
 
@@ -289,9 +314,10 @@ def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
         )
 
         pmf_preds, _, _ = model(features, mask)
-        # cumsum -> CIF (P(event by bin)); risk_scores = CIF at the last bin.
+        # Fixed common horizon -- see EVAL_HORIZON_DAYS.
         cif = torch.cumsum(pmf_preds[:, 0, :], dim=1)
-        risk_scores = cif[:, -1].detach().cpu().numpy()
+        bin_idx = _fixed_horizon_bin_idx(cif.size(1), model.max_time, device)
+        risk_scores = cif[:, bin_idx].detach().cpu().numpy()
 
         _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
         aucs.append(mean_auc)
@@ -309,8 +335,10 @@ def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataL
         features, mask = features.to(device), mask.to(device)
         
         pmf_preds, _, _ = model(features, mask)
+        # Fixed common horizon -- see EVAL_HORIZON_DAYS.
         cif = torch.cumsum(pmf_preds[:, 0, :], dim=1)
-        risk_scores = cif[:, -1].detach().cpu().numpy()
+        bin_idx = _fixed_horizon_bin_idx(cif.size(1), model.max_time, device)
+        risk_scores = cif[:, bin_idx].detach().cpu().numpy()
 
         all_risk_scores.extend(risk_scores)
         all_times.extend(time_to_events.squeeze().numpy())
@@ -346,10 +374,12 @@ def run(scenario_name: ExperimentScenario):
     }
     model_saved_path = model_saved_path_dict[scenario_name]
     
-    if os.path.exists(model_saved_path):
+    if os.path.exists(model_saved_path) and getattr(torch.load(model_saved_path, map_location='cpu', weights_only=False), 'architecture_version', 1) == HazardTransformer.ARCHITECTURE_VERSION:
         print("Loading from saved weights")
         model = torch.load(model_saved_path, map_location=device, weights_only=False)
     else:
+        if os.path.exists(model_saved_path):
+            print("Saved Hazard Transformer model uses the obsolete sigmoid head; retraining the PMF model.")
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
         torch.save(model, model_saved_path)
     

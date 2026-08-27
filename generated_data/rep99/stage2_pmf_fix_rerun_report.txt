@@ -1,0 +1,46 @@
+Stage 2 / 2.1 PMF-fix rerun report
+====================================
+
+Run date: 2026-08-27
+Host: sunlab-serv-02.cs.illinois.edu
+
+Scope
+-----
+Removed every existing Hazard Transformer and RNN-Surv checkpoint in rep1
+(8 files) and rep99 (6 files). Ran the scoped rep99 Stage 2 driver, then
+the Stage 2.1 feature-importance and clinical-validity scoped drivers.
+
+Stage 2 outcome
+---------------
+All three rep99 Hazard Transformer and RNN-Surv checkpoint pairs were
+regenerated from scratch using the softmax-PMF implementations:
+
+* four_features
+* eight_features
+* twenty_features_heterogeneous
+
+The Stage 2 driver completed its 17 combinations. Twelve completed cleanly.
+Five four_features combinations (cox, dynamic_deephit, hazard_transformer,
+rnn_surv, kfre) reported the pre-existing sksurv IPCW error
+"censoring survival function is zero at one or more time points" during AUC
+evaluation after the models had completed training/saving. This did not
+prevent saving either regenerated PMF checkpoint.
+
+Stage 2.1 outcome
+-----------------
+Both scoped analyses completed successfully against the regenerated rep99
+models:
+
+* Feature importance: pkgs/scripts/logs/stage21_pmf_fix_feature_importance_rep99_20260827_1758.log
+* Clinical validity: pkgs/scripts/logs/stage21_pmf_fix_clinical_validity_rep99_20260827_1758.log
+
+Artifacts were refreshed in generated_data/rep99/, including the three
+<scenario>_shap_analysis_report.txt files, the three
+<scenario>_clinical_validity_report.txt files, scenario plots, and aggregate
+metric charts.
+
+Logs
+----
+* Stage 2: pkgs/scripts/logs/stage2_pmf_fix_rep99_20260827_1744.log
+* Stage 2.1 feature importance: pkgs/scripts/logs/stage21_pmf_fix_feature_importance_rep99_20260827_1758.log
+* Stage 2.1 clinical validity: pkgs/scripts/logs/stage21_pmf_fix_clinical_validity_rep99_20260827_1758.log

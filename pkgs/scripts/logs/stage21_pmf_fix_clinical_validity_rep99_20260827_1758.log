@@ -1,0 +1,1633 @@
+/home/minhn2/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-vs41rdpp because there was an issue with the default path (/home/minhn2/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+Starting Stage 2.1 clinical-validity analysis (calibration + DCA, new scenarios only)...
+Output directory: /home/minhn2/uiuc-kidney-failure/generated_data/rep99
+Current repetition: 99
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+================================================================================
+CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
+================================================================================
+Test samples (rows): 3667
+Max test follow-up: 4333.0 days. Horizons used: [730, 1825]
+
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Cox: c_index=0.4715 brier=0.06988 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  Dynamic DeepHit: c_index=0.8362 brier=0.25801 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  Hazard Transformer: c_index=0.1979 brier=0.68225 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  Logistic Hazard: c_index=0.5182 brier=0.42375 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  RNN-Surv: c_index=0.5559 brier=0.07469 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  DeepSurv: c_index=0.5578 brier=0.50953 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  GBSA: c_index=0.518 brier=0.61747 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  Survival RF: c_index=0.5537 brier=0.93028 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  Survival SVM: c_index=0.5472 brier=0.38491 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  Weibull AFT: c_index=0.5474 brier=0.94376 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+  KFRE: c_index=0.627 brier=0.09861 auc=None
+    (auc unavailable: censoring survival function is zero at one or more time points)
+
+=== Horizon: 730 days ===
+Treat-all net benefit: {0.05: 0.03201, 0.1: -0.02177, 0.15: -0.08187, 0.2: -0.14949, 0.25: -0.22612, 0.3: -0.3137, 0.4: -0.53265, 0.5: -0.83918}
+eGFR-threshold referral rule net benefit: {30: -0.03683, 45: -0.14036}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 367 events= 14 predicted=0.0737 observed(KM)=0.476
+  n= 367 events= 26 predicted=0.0996 observed(KM)=0.1801
+  n= 366 events= 28 predicted=0.1164 observed(KM)=0.1042
+  n= 367 events= 18 predicted=0.1291 observed(KM)=0.088
+  n= 367 events= 32 predicted=0.1410 observed(KM)=0.122
+  n= 366 events= 34 predicted=0.1546 observed(KM)=0.08
+  n= 367 events= 36 predicted=0.1680 observed(KM)=0.0717
+  n= 366 events= 68 predicted=0.1858 observed(KM)=0.1166
+  n= 367 events= 44 predicted=0.2130 observed(KM)=0.0575
+  n= 367 events= 44 predicted=0.2629 observed(KM)=0.0339
+Integrated Brier score (0-730d): 0.06988
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.03186  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=-0.01839  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=-0.04536  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=-0.03639  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=-0.01727  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=-0.00421  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=None  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.83918  treat_none=0.0
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 15 predicted=0.0980 observed(KM)=0.0972
+  n=  34 events= 20 predicted=0.1175 observed(KM)=0.2242
+  n=  35 events= 21 predicted=0.1680 observed(KM)=0.1929
+  n=  34 events= 24 predicted=0.2582 observed(KM)=0.3261
+  n=  35 events= 22 predicted=0.3404 observed(KM)=0.4503
+  n=  34 events= 25 predicted=0.4347 observed(KM)=0.445
+  n=  34 events= 27 predicted=0.6587 observed(KM)=0.725
+  n=  35 events= 34 predicted=0.8493 observed(KM)=0.8929
+  n=  34 events= 30 predicted=0.8811 observed(KM)=0.8824
+  n=  35 events= 32 predicted=0.8966 observed(KM)=0.9238
+Integrated Brier score (0-730d): 0.25801
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.48926  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.45881  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.4312  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.41464  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.39408  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.37436  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.31988  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.30036  treat_all=-0.83918  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  42 events= 30 predicted=1.0000 observed(KM)=0.5087
+  n=  43 events= 34 predicted=1.0000 observed(KM)=0.518
+  n=  52 events= 32 predicted=1.0000 observed(KM)=0.4849
+  n= 105 events= 80 predicted=1.0000 observed(KM)=0.5184
+  n=  81 events= 57 predicted=1.0000 observed(KM)=0.4859
+  n=  22 events= 17 predicted=1.0000 observed(KM)=0.7017
+Integrated Brier score (0-730d): 0.68225
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.48926  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.46089  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.42917  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.3935  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.35306  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.30685  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.19133  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.02959  treat_all=-0.83918  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 25 predicted=0.9920 observed(KM)=0.3746
+  n=  34 events= 22 predicted=0.9939 observed(KM)=0.383
+  n=  35 events= 28 predicted=0.9946 observed(KM)=0.6351
+  n=  34 events= 22 predicted=0.9951 observed(KM)=0.4792
+  n=  35 events= 26 predicted=0.9969 observed(KM)=0.5488
+  n=  34 events= 22 predicted=0.9982 observed(KM)=0.4842
+  n=  34 events= 32 predicted=0.9989 observed(KM)=0.7149
+  n=  35 events= 21 predicted=0.9995 observed(KM)=0.4783
+  n=  34 events= 26 predicted=0.9998 observed(KM)=0.5238
+  n=  35 events= 26 predicted=1.0000 observed(KM)=0.5496
+Integrated Brier score (0-730d): 0.42375
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.49171  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.46347  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.43191  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.39641  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.35617  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.31018  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.19521  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.03425  treat_all=-0.83918  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 370 events= 29 predicted=0.0422 observed(KM)=0.0598
+  n= 364 events= 21 predicted=0.0656 observed(KM)=0.0954
+  n= 367 events= 19 predicted=0.0820 observed(KM)=0.0473
+  n= 366 events= 18 predicted=0.0973 observed(KM)=0.027
+  n= 648 events= 75 predicted=0.1139 observed(KM)=0.0911
+  n=  90 events=  7 predicted=0.1180 observed(KM)=0.0621
+  n= 362 events= 45 predicted=0.1232 observed(KM)=0.108
+  n= 366 events= 46 predicted=0.1408 observed(KM)=0.1127
+  n= 367 events= 35 predicted=0.1665 observed(KM)=0.0831
+  n= 367 events= 49 predicted=0.2261 observed(KM)=0.1095
+Integrated Brier score (0-730d): 0.07469
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.03044  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=-0.00495  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=-0.01412  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=-0.00881  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=-0.00114  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=-0.0  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.83918  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 19 predicted=0.0198 observed(KM)=0.4803
+  n=  34 events= 21 predicted=0.0198 observed(KM)=0.2682
+  n=  35 events= 27 predicted=0.0198 observed(KM)=0.6659
+  n=  34 events= 26 predicted=0.0198 observed(KM)=0.5535
+  n=  35 events= 26 predicted=0.0198 observed(KM)=0.5532
+  n=  34 events= 25 predicted=0.0198 observed(KM)=0.3371
+  n=  34 events= 25 predicted=0.0198 observed(KM)=0.5345
+  n=  35 events= 26 predicted=0.0198 observed(KM)=0.5846
+  n=  34 events= 27 predicted=0.0199 observed(KM)=0.6018
+  n=  35 events= 28 predicted=0.0200 observed(KM)=0.5726
+Integrated Brier score (0-730d): 0.50953
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.0  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.0  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.0  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.83918  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 23 predicted=0.6846 observed(KM)=0.3658
+  n=  35 events= 24 predicted=0.8823 observed(KM)=0.426
+  n=  34 events= 28 predicted=0.9286 observed(KM)=0.5846
+  n=  34 events= 24 predicted=0.9514 observed(KM)=0.6264
+  n=  35 events= 27 predicted=0.9674 observed(KM)=0.5106
+  n=  34 events= 22 predicted=0.9805 observed(KM)=0.539
+  n=  34 events= 26 predicted=0.9878 observed(KM)=0.5588
+  n=  35 events= 28 predicted=0.9929 observed(KM)=0.5096
+  n=  34 events= 23 predicted=0.9958 observed(KM)=0.5644
+  n=  35 events= 25 predicted=0.9981 observed(KM)=0.4707
+Integrated Brier score (0-730d): 0.61747
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.49208  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.46403  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.43267  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.39739  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.35741  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.31186  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.1991  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.04124  treat_all=-0.83918  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9965) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 345 events=250 predicted=0.9965 observed(KM)=0.5171
+Integrated Brier score (0-730d): 0.93028
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.49208  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.46403  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.43267  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.39739  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.35741  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.31172  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.19749  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.03757  treat_all=-0.83918  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 22 predicted=0.4073 observed(KM)=0.5237
+  n=  34 events= 25 predicted=0.5228 observed(KM)=0.4902
+  n=  35 events= 20 predicted=0.5773 observed(KM)=0.4045
+  n=  34 events= 23 predicted=0.6252 observed(KM)=0.3737
+  n=  35 events= 25 predicted=0.6580 observed(KM)=0.5168
+  n=  34 events= 25 predicted=0.6921 observed(KM)=0.5779
+  n=  34 events= 24 predicted=0.7234 observed(KM)=0.4622
+  n=  35 events= 26 predicted=0.7586 observed(KM)=0.5363
+  n=  34 events= 28 predicted=0.8032 observed(KM)=0.6055
+  n=  35 events= 32 predicted=0.8681 observed(KM)=0.6595
+Integrated Brier score (0-730d): 0.38491
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.49121  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.4631  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.42879  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.39055  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.3505  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.30473  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.18483  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.04152  treat_all=-0.83918  treat_none=0.0
+
+--- Weibull AFT ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9972) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 345 events=250 predicted=0.9972 observed(KM)=0.5171
+Integrated Brier score (0-730d): 0.94376
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.49121  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=0.4631  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=0.43169  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=0.39635  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=0.3563  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=0.31053  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=0.1961  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=0.0359  treat_all=-0.83918  treat_none=0.0
+
+--- KFRE ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 370 events= 19 predicted=0.0000 observed(KM)=0.0578
+  n= 364 events= 10 predicted=0.0000 observed(KM)=0.0248
+  n= 368 events= 15 predicted=0.0001 observed(KM)=0.0449
+  n= 375 events= 20 predicted=0.0002 observed(KM)=0.042
+  n= 357 events= 31 predicted=0.0006 observed(KM)=0.0874
+  n= 366 events= 43 predicted=0.0019 observed(KM)=0.102
+  n= 369 events= 67 predicted=0.0080 observed(KM)=0.1355
+  n= 367 events= 54 predicted=0.0340 observed(KM)=0.1055
+  n= 364 events= 47 predicted=0.1246 observed(KM)=0.1177
+  n= 367 events= 38 predicted=0.6777 observed(KM)=0.0942
+Integrated Brier score (0-730d): 0.09861
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.01178  treat_all=0.03201  treat_none=0.0
+  pt=0.10  model=-0.00114  treat_all=-0.02177  treat_none=0.0
+  pt=0.15  model=-0.00817  treat_all=-0.08187  treat_none=0.0
+  pt=0.20  model=-0.01378  treat_all=-0.14949  treat_none=0.0
+  pt=0.25  model=-0.02082  treat_all=-0.22612  treat_none=0.0
+  pt=0.30  model=-0.0271  treat_all=-0.3137  treat_none=0.0
+  pt=0.40  model=-0.04134  treat_all=-0.53265  treat_none=0.0
+  pt=0.50  model=-0.0572  treat_all=-0.83918  treat_none=0.0
+
+=== Horizon: 1825 days ===
+Treat-all net benefit: {0.05: 0.10205, 0.1: 0.05216, 0.15: -0.0036, 0.2: -0.06632, 0.25: -0.13741, 0.3: -0.21865, 0.4: -0.42176, 0.5: -0.70611}
+eGFR-threshold referral rule net benefit: {30: -0.01895, 45: -0.09094}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 367 events= 14 predicted=0.1739 observed(KM)=0.476
+  n= 367 events= 26 predicted=0.2306 observed(KM)=0.1801
+  n= 366 events= 28 predicted=0.2661 observed(KM)=0.4987
+  n= 367 events= 18 predicted=0.2922 observed(KM)=0.1617
+  n= 367 events= 32 predicted=0.3161 observed(KM)=0.2082
+  n= 366 events= 34 predicted=0.3428 observed(KM)=0.138
+  n= 367 events= 36 predicted=0.3686 observed(KM)=0.1493
+  n= 366 events= 68 predicted=0.4018 observed(KM)=0.2054
+  n= 367 events= 44 predicted=0.4503 observed(KM)=0.1317
+  n= 367 events= 44 predicted=0.5322 observed(KM)=0.0722
+Integrated Brier score (0-1825d): 0.13178
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.10204  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.05217  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=-0.00287  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=-0.05927  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=-0.11346  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=-0.14127  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=-0.12127  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=-0.05688  treat_all=-0.70611  treat_none=0.0
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 15 predicted=0.2237 observed(KM)=0.3758
+  n=  34 events= 20 predicted=0.2608 observed(KM)=0.5608
+  n=  35 events= 21 predicted=0.3333 observed(KM)=0.4365
+  n=  34 events= 24 predicted=0.4638 observed(KM)=0.6147
+  n=  35 events= 22 predicted=0.5876 observed(KM)=0.7071
+  n=  34 events= 25 predicted=0.6884 observed(KM)=0.7621
+  n=  34 events= 27 predicted=0.8279 observed(KM)=0.8167
+  n=  35 events= 34 predicted=0.9375 observed(KM)=0.9286
+  n=  34 events= 30 predicted=0.9538 observed(KM)=0.8824
+  n=  35 events= 32 predicted=0.9610 observed(KM)=0.9238
+Integrated Brier score (0-1825d): 0.34931
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69165  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.67452  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.65537  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.63383  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.58366  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.53928  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.49649  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.43561  treat_all=-0.70611  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 28 predicted=0.2871 observed(KM)=1.0
+  n=  34 events= 26 predicted=0.5092 observed(KM)=1.0
+  n=  35 events= 25 predicted=0.7382 observed(KM)=1.0
+  n=  34 events= 29 predicted=0.7447 observed(KM)=0.8529
+  n=  35 events= 32 predicted=0.7460 observed(KM)=1.0
+  n=  34 events= 17 predicted=0.7796 observed(KM)=1.0
+  n=  44 events= 30 predicted=0.9859 observed(KM)=0.4571
+  n=  58 events= 39 predicted=0.9926 observed(KM)=0.4014
+  n=  31 events= 21 predicted=0.9926 observed(KM)=0.4567
+  n=   5 events=  3 predicted=0.9926 observed(KM)=0.4
+Integrated Brier score (0-1825d): 0.92779
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.68875  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.66872  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.64645  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.62489  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.60046  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.52531  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.40948  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.27355  treat_all=-0.70611  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  35 events= 24 predicted=1.0000 observed(KM)=0.5651
+  n=  34 events= 20 predicted=1.0000 observed(KM)=0.5057
+  n=  36 events= 29 predicted=1.0000 observed(KM)=0.712
+  n=  33 events= 25 predicted=1.0000 observed(KM)=0.6865
+  n=  36 events= 28 predicted=1.0000 observed(KM)=0.8453
+  n=  37 events= 24 predicted=1.0000 observed(KM)=0.7634
+  n=  31 events= 27 predicted=1.0000 observed(KM)=0.8602
+  n= 103 events= 73 predicted=1.0000 observed(KM)=0.7148
+Integrated Brier score (0-1825d): 0.4961
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69318  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.67613  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.65708  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.63565  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.61136  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.5836  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.5142  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.41704  treat_all=-0.70611  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 373 events= 26 predicted=0.0669 observed(KM)=0.1211
+  n= 361 events= 26 predicted=0.0973 observed(KM)=0.1414
+  n= 373 events= 11 predicted=0.1154 observed(KM)=0.0481
+  n= 360 events= 29 predicted=0.1301 observed(KM)=0.1751
+  n= 443 events= 47 predicted=0.1400 observed(KM)=0.1419
+  n= 292 events= 36 predicted=0.1435 observed(KM)=0.1491
+  n= 366 events= 51 predicted=0.1571 observed(KM)=0.2532
+  n= 369 events= 38 predicted=0.1828 observed(KM)=0.1254
+  n= 365 events= 36 predicted=0.2368 observed(KM)=0.2545
+  n= 365 events= 44 predicted=0.3249 observed(KM)=0.1534
+Integrated Brier score (0-1825d): 0.12821
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.10218  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.04589  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.01508  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=-0.00232  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=-0.01866  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=-0.01898  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.00245  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.70611  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 19 predicted=0.0488 observed(KM)=0.5669
+  n=  34 events= 21 predicted=0.0488 observed(KM)=0.4816
+  n=  35 events= 27 predicted=0.0488 observed(KM)=0.7912
+  n=  34 events= 26 predicted=0.0488 observed(KM)=0.6753
+  n=  35 events= 26 predicted=0.0488 observed(KM)=0.7518
+  n=  34 events= 25 predicted=0.0488 observed(KM)=0.6198
+  n=  34 events= 25 predicted=0.0488 observed(KM)=0.7911
+  n=  35 events= 26 predicted=0.0488 observed(KM)=0.8564
+  n=  34 events= 27 predicted=0.0490 observed(KM)=0.727
+  n=  35 events= 28 predicted=0.0492 observed(KM)=0.7698
+Integrated Brier score (0-1825d): 0.72623
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=None  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.0  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.0  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.70611  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 23 predicted=0.8996 observed(KM)=0.673
+  n=  35 events= 24 predicted=0.9950 observed(KM)=0.7591
+  n=  34 events= 28 predicted=0.9986 observed(KM)=0.8039
+  n=  34 events= 24 predicted=0.9995 observed(KM)=0.8399
+  n=  35 events= 27 predicted=0.9998 observed(KM)=0.6612
+  n=  34 events= 22 predicted=0.9999 observed(KM)=0.649
+  n=  34 events= 26 predicted=1.0000 observed(KM)=0.7426
+  n=  35 events= 28 predicted=1.0000 observed(KM)=0.7241
+  n=  34 events= 23 predicted=1.0000 observed(KM)=0.6569
+  n=  35 events= 25 predicted=1.0000 observed(KM)=0.5489
+Integrated Brier score (0-1825d): 0.81511
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69408  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.67725  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.65843  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.63726  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.61327  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.58586  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.51732  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.42136  treat_all=-0.70611  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9972) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 345 events=250 predicted=0.9972 observed(KM)=0.7085
+Integrated Brier score (0-1825d): 0.97372
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69266  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.67575  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.65685  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.63558  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.61148  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.58394  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.51507  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.41867  treat_all=-0.70611  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  35 events= 22 predicted=0.7144 observed(KM)=0.567
+  n=  34 events= 25 predicted=0.8422 observed(KM)=0.7195
+  n=  35 events= 20 predicted=0.8836 observed(KM)=0.5812
+  n=  34 events= 23 predicted=0.9139 observed(KM)=0.6466
+  n=  35 events= 25 predicted=0.9315 observed(KM)=0.756
+  n=  34 events= 25 predicted=0.9473 observed(KM)=0.7151
+  n=  34 events= 24 predicted=0.9597 observed(KM)=0.7386
+  n=  35 events= 26 predicted=0.9712 observed(KM)=0.7253
+  n=  34 events= 28 predicted=0.9827 observed(KM)=0.7042
+  n=  35 events= 32 predicted=0.9933 observed(KM)=0.8762
+Integrated Brier score (0-1825d): 0.5935
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69172  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.67476  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.6558  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.63447  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.61029  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.57976  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.50779  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.41109  treat_all=-0.70611  treat_none=0.0
+
+--- Weibull AFT ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9972) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 345 events=250 predicted=0.9972 observed(KM)=0.7085
+Integrated Brier score (0-1825d): 0.98267
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69172  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.67476  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=0.6558  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=0.63447  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=0.61029  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=0.58266  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=0.51359  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=0.41688  treat_all=-0.70611  treat_none=0.0
+
+--- KFRE ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 370 events= 19 predicted=0.0000 observed(KM)=0.0658
+  n= 364 events= 10 predicted=0.0001 observed(KM)=0.0248
+  n= 368 events= 15 predicted=0.0002 observed(KM)=0.0743
+  n= 375 events= 20 predicted=0.0006 observed(KM)=0.0666
+  n= 357 events= 31 predicted=0.0019 observed(KM)=0.1375
+  n= 366 events= 43 predicted=0.0059 observed(KM)=0.2704
+  n= 369 events= 67 predicted=0.0247 observed(KM)=0.2583
+  n= 367 events= 54 predicted=0.1016 observed(KM)=0.3201
+  n= 364 events= 47 predicted=0.3340 observed(KM)=0.1717
+  n= 367 events= 38 predicted=0.8930 observed(KM)=0.1226
+Integrated Brier score (0-1825d): 0.17506
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.04032  treat_all=0.10205  treat_none=0.0
+  pt=0.10  model=0.01691  treat_all=0.05216  treat_none=0.0
+  pt=0.15  model=-0.00142  treat_all=-0.0036  treat_none=0.0
+  pt=0.20  model=-0.01392  treat_all=-0.06632  treat_none=0.0
+  pt=0.25  model=-0.02557  treat_all=-0.13741  treat_none=0.0
+  pt=0.30  model=-0.03849  treat_all=-0.21865  treat_none=0.0
+  pt=0.40  model=-0.05744  treat_all=-0.42176  treat_none=0.0
+  pt=0.50  model=-0.08052  treat_all=-0.70611  treat_none=0.0
+Calibration plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_calibration_plot.png
+Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_decision_curve_plot.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_clinical_validity_report.txt
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Test samples (rows): 1100
+Max test follow-up: 3188.2 days. Horizons used: [730, 1825]
+
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Cox: c_index=0.5092 brier=0.32632 auc=0.4668
+  Dynamic DeepHit: c_index=0.85 brier=0.60815 auc=0.9391
+  Hazard Transformer: c_index=0.1481 brier=0.80419 auc=0.0122
+  Logistic Hazard: c_index=0.4867 brier=0.85036 auc=0.4691
+  RNN-Surv: c_index=0.6355 brier=0.30192 auc=0.677
+  DeepSurv: c_index=0.4849 brier=0.99562 auc=0.4943
+  GBSA: c_index=0.5014 brier=0.65543 auc=0.4937
+  Survival RF: c_index=0.4901 brier=0.81466 auc=0.5152
+  Survival SVM: c_index=0.5145 brier=0.62472 auc=0.5674
+  Weibull AFT: c_index=0.5102 brier=0.81759 auc=0.5472
+  KFRE: c_index=0.6368 brier=0.31231 auc=0.6624
+
+=== Horizon: 730 days ===
+Treat-all net benefit: {0.05: 0.2981, 0.1: 0.25911, 0.15: 0.21553, 0.2: 0.1665, 0.25: 0.11093, 0.3: 0.04742, 0.4: -0.11134, 0.5: -0.33361}
+eGFR-threshold referral rule net benefit: {30: 0.07074, 45: 0.01244}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 110 events= 25 predicted=0.2991 observed(KM)=1.0
+  n= 110 events= 28 predicted=0.3830 observed(KM)=0.8265
+  n= 110 events= 26 predicted=0.4343 observed(KM)=0.3842
+  n= 110 events= 31 predicted=0.4718 observed(KM)=0.3831
+  n= 110 events= 33 predicted=0.5030 observed(KM)=0.3376
+  n= 110 events= 29 predicted=0.5340 observed(KM)=0.2969
+  n= 110 events= 25 predicted=0.5667 observed(KM)=0.2174
+  n= 110 events= 25 predicted=0.6051 observed(KM)=0.1866
+  n= 110 events= 41 predicted=0.6514 observed(KM)=0.4043
+  n= 110 events= 45 predicted=0.7391 observed(KM)=0.3465
+Integrated Brier score (0-730d): 0.32632
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.29803  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.25891  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.21553  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.1667  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.11107  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.03983  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=-0.11358  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=-0.22744  treat_all=-0.33361  treat_none=0.0
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 18 predicted=0.3745 observed(KM)=0.4442
+  n=  24 events= 20 predicted=0.3902 observed(KM)=0.4511
+  n=  24 events= 20 predicted=0.4200 observed(KM)=0.5926
+  n=  24 events= 20 predicted=0.5560 observed(KM)=0.8393
+  n=  25 events= 22 predicted=0.6768 observed(KM)=1.0
+  n=  24 events= 21 predicted=0.7597 observed(KM)=0.875
+  n=  24 events= 21 predicted=0.9080 observed(KM)=0.9306
+  n=  24 events= 23 predicted=0.9429 observed(KM)=0.9167
+  n=  24 events= 22 predicted=0.9433 observed(KM)=0.9167
+  n=  25 events= 25 predicted=0.9434 observed(KM)=1.0
+Integrated Brier score (0-730d): 0.60815
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.79106  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.77945  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.76647  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.75188  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.73534  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.71643  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.66133  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.62648  treat_all=-0.33361  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  25 events= 25 predicted=1.0000 observed(KM)=0.88
+  n=  40 events= 34 predicted=1.0000 observed(KM)=0.7773
+  n=  27 events= 23 predicted=1.0000 observed(KM)=0.7672
+  n=  52 events= 46 predicted=1.0000 observed(KM)=0.8543
+  n=  51 events= 42 predicted=1.0000 observed(KM)=0.7714
+  n=  32 events= 28 predicted=1.0000 observed(KM)=0.7869
+  n=  16 events= 14 predicted=1.0000 observed(KM)=0.6528
+Integrated Brier score (0-730d): 0.80419
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.79106  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.77945  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.76647  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.75188  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.73534  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.71643  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.66917  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.60301  treat_all=-0.33361  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 22 predicted=0.0766 observed(KM)=0.68
+  n=  24 events= 22 predicted=0.4262 observed(KM)=0.8523
+  n=  24 events= 21 predicted=0.6887 observed(KM)=0.7569
+  n=  24 events= 22 predicted=0.7978 observed(KM)=0.7619
+  n=  25 events= 21 predicted=0.8610 observed(KM)=0.8473
+  n=  24 events= 18 predicted=0.9125 observed(KM)=0.7212
+  n=  24 events= 21 predicted=0.9509 observed(KM)=0.8788
+  n=  24 events= 22 predicted=0.9771 observed(KM)=1.0
+  n=  24 events= 23 predicted=0.9941 observed(KM)=0.8095
+  n=  25 events= 20 predicted=0.9997 observed(KM)=0.7689
+Integrated Brier score (0-730d): 0.85036
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.76619  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.7415  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.72607  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.70787  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.69471  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.66618  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.59606  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.51642  treat_all=-0.33361  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 110 events= 24 predicted=0.2399 observed(KM)=0.2508
+  n= 110 events= 12 predicted=0.2536 observed(KM)=0.1007
+  n= 110 events= 23 predicted=0.2646 observed(KM)=0.2474
+  n= 110 events= 16 predicted=0.2696 observed(KM)=0.1687
+  n= 110 events= 16 predicted=0.2714 observed(KM)=0.2467
+  n= 110 events= 42 predicted=0.2758 observed(KM)=0.3304
+  n= 110 events= 31 predicted=0.2835 observed(KM)=0.5383
+  n= 110 events= 32 predicted=0.2895 observed(KM)=0.4316
+  n= 110 events= 56 predicted=0.3007 observed(KM)=0.6197
+  n= 110 events= 56 predicted=0.3185 observed(KM)=0.6962
+Integrated Brier score (0-730d): 0.30192
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.2981  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.25911  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.21553  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.1665  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.11943  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.08227  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.33361  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 23 predicted=0.0296 observed(KM)=0.8483
+  n=  24 events= 20 predicted=0.0373 observed(KM)=0.7222
+  n=  24 events= 24 predicted=0.0409 observed(KM)=0.8333
+  n=  24 events= 23 predicted=0.0448 observed(KM)=0.8333
+  n=  25 events= 20 predicted=0.0549 observed(KM)=0.8306
+  n=  24 events= 23 predicted=0.0671 observed(KM)=0.8542
+  n=  24 events= 24 predicted=0.0775 observed(KM)=0.6667
+  n=  24 events= 19 predicted=0.0800 observed(KM)=0.8255
+  n=  24 events= 20 predicted=0.0820 observed(KM)=0.9306
+  n=  25 events= 16 predicted=0.0878 observed(KM)=0.7525
+Integrated Brier score (0-730d): 0.99562
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.46156  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=None  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.0  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.33361  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 22 predicted=0.7730 observed(KM)=0.86
+  n=  24 events= 17 predicted=0.9093 observed(KM)=0.6822
+  n=  24 events= 22 predicted=0.9489 observed(KM)=1.0
+  n=  24 events= 19 predicted=0.9686 observed(KM)=0.6619
+  n=  25 events= 25 predicted=0.9772 observed(KM)=0.96
+  n=  24 events= 23 predicted=0.9827 observed(KM)=0.8542
+  n=  24 events= 21 predicted=0.9880 observed(KM)=0.6991
+  n=  24 events= 22 predicted=0.9905 observed(KM)=0.6901
+  n=  24 events= 16 predicted=0.9927 observed(KM)=0.9034
+  n=  25 events= 25 predicted=0.9956 observed(KM)=0.84
+Integrated Brier score (0-730d): 0.65543
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.79263  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.78134  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.76872  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.75452  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.73843  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.72004  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.67407  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.60971  treat_all=-0.33361  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.996) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 243 events=212 predicted=0.9960 observed(KM)=0.8069
+Integrated Brier score (0-730d): 0.81466
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.79262  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.78133  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.76871  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.75451  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.73842  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.72003  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.67405  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.60969  treat_all=-0.33361  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 22 predicted=0.2384 observed(KM)=0.8003
+  n=  24 events= 20 predicted=0.4079 observed(KM)=0.7273
+  n=  24 events= 23 predicted=0.4914 observed(KM)=0.7619
+  n=  24 events= 20 predicted=0.5427 observed(KM)=0.8214
+  n=  25 events= 22 predicted=0.5836 observed(KM)=0.784
+  n=  24 events= 19 predicted=0.6271 observed(KM)=0.7857
+  n=  24 events= 21 predicted=0.6572 observed(KM)=0.9271
+  n=  24 events= 23 predicted=0.7000 observed(KM)=0.75
+  n=  24 events= 21 predicted=0.7448 observed(KM)=0.9312
+  n=  25 events= 21 predicted=0.8117 observed(KM)=0.8176
+Integrated Brier score (0-730d): 0.62472
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.79266  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.77176  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.75495  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.72735  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.6986  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.66775  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.58131  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.47138  treat_all=-0.33361  treat_none=0.0
+
+--- Weibull AFT ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.996) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 243 events=212 predicted=0.9960 observed(KM)=0.8069
+Integrated Brier score (0-730d): 0.81759
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.79204  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.78072  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.76806  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.75382  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.73769  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.71924  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.67314  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=0.60859  treat_all=-0.33361  treat_none=0.0
+
+--- KFRE ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 110 events=  8 predicted=0.0000 observed(KM)=0.0865
+  n= 110 events= 11 predicted=0.0001 observed(KM)=0.1044
+  n= 110 events= 25 predicted=0.0002 observed(KM)=0.3487
+  n= 110 events= 26 predicted=0.0009 observed(KM)=0.3252
+  n= 110 events= 29 predicted=0.0029 observed(KM)=0.336
+  n= 110 events= 43 predicted=0.0108 observed(KM)=0.4135
+  n= 110 events= 59 predicted=0.0531 observed(KM)=0.5278
+  n= 110 events= 31 predicted=0.1698 observed(KM)=0.45
+  n= 110 events= 47 predicted=0.4218 observed(KM)=0.7446
+  n= 110 events= 29 predicted=0.8661 observed(KM)=0.291
+Integrated Brier score (0-730d): 0.31231
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.15535  treat_all=0.2981  treat_none=0.0
+  pt=0.10  model=0.11746  treat_all=0.25911  treat_none=0.0
+  pt=0.15  model=0.09148  treat_all=0.21553  treat_none=0.0
+  pt=0.20  model=0.0736  treat_all=0.1665  treat_none=0.0
+  pt=0.25  model=0.0552  treat_all=0.11093  treat_none=0.0
+  pt=0.30  model=0.03396  treat_all=0.04742  treat_none=0.0
+  pt=0.40  model=0.00205  treat_all=-0.11134  treat_none=0.0
+  pt=0.50  model=-0.03828  treat_all=-0.33361  treat_none=0.0
+
+=== Horizon: 1825 days ===
+Treat-all net benefit: {0.05: 0.57584, 0.1: 0.55228, 0.15: 0.52594, 0.2: 0.49631, 0.25: 0.46273, 0.3: 0.42436, 0.4: 0.32842, 0.5: 0.1941}
+eGFR-threshold referral rule net benefit: {30: 0.12845, 45: 0.19538}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 110 events= 25 predicted=0.5840 observed(KM)=1.0
+  n= 110 events= 28 predicted=0.7006 observed(KM)=1.0
+  n= 110 events= 26 predicted=0.7591 observed(KM)=0.7947
+  n= 110 events= 31 predicted=0.7971 observed(KM)=0.4793
+  n= 110 events= 33 predicted=0.8258 observed(KM)=1.0
+  n= 110 events= 29 predicted=0.8516 observed(KM)=0.4376
+  n= 110 events= 25 predicted=0.8763 observed(KM)=0.4664
+  n= 110 events= 25 predicted=0.9019 observed(KM)=0.6057
+  n= 110 events= 41 predicted=0.9280 observed(KM)=0.5473
+  n= 110 events= 45 predicted=0.9624 observed(KM)=0.5447
+Integrated Brier score (0-1825d): 0.41706
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.57544  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.5519  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.5256  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.49531  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.46185  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.4236  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.3279  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.19324  treat_all=0.1941  treat_none=0.0
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 18 predicted=0.6161 observed(KM)=0.7228
+  n=  24 events= 18 predicted=0.6339 observed(KM)=0.8382
+  n=  24 events= 20 predicted=0.6508 observed(KM)=0.8684
+  n=  24 events= 22 predicted=0.6932 observed(KM)=1.0
+  n=  25 events= 22 predicted=0.7653 observed(KM)=1.0
+  n=  24 events= 21 predicted=0.8258 observed(KM)=0.875
+  n=  24 events= 21 predicted=0.9343 observed(KM)=0.9306
+  n=  24 events= 23 predicted=0.9603 observed(KM)=1.0
+  n=  24 events= 22 predicted=0.9606 observed(KM)=0.9167
+  n=  25 events= 25 predicted=0.9606 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.67891
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.93219  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.92842  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.92421  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.91948  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.91411  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.90797  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.89263  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.87116  treat_all=0.1941  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 23 predicted=0.7545 observed(KM)=1.0
+  n=  24 events= 21 predicted=0.8585 observed(KM)=0.875
+  n=  24 events= 17 predicted=0.8587 observed(KM)=0.7333
+  n=  24 events= 21 predicted=0.8589 observed(KM)=1.0
+  n=  25 events= 22 predicted=0.8590 observed(KM)=0.88
+  n=  24 events= 23 predicted=0.8592 observed(KM)=0.9583
+  n=  24 events= 21 predicted=0.8595 observed(KM)=0.875
+  n=  24 events= 22 predicted=0.8830 observed(KM)=1.0
+  n=  24 events= 20 predicted=0.9779 observed(KM)=0.8246
+  n=  25 events= 22 predicted=0.9933 observed(KM)=0.7078
+Integrated Brier score (0-1825d): 0.83376
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.92396  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.91608  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.91187  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.90713  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.90176  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.89563  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.88029  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.85882  treat_all=0.1941  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 23 predicted=0.1931 observed(KM)=0.8827
+  n=  24 events= 23 predicted=0.5951 observed(KM)=0.9542
+  n=  24 events= 22 predicted=0.8195 observed(KM)=0.9048
+  n=  24 events= 20 predicted=0.8943 observed(KM)=0.8158
+  n=  25 events= 23 predicted=0.9501 observed(KM)=0.9467
+  n=  24 events= 15 predicted=0.9832 observed(KM)=0.8229
+  n=  24 events= 23 predicted=0.9961 observed(KM)=1.0
+  n=  24 events= 19 predicted=0.9994 observed(KM)=1.0
+  n=  24 events= 22 predicted=0.9999 observed(KM)=0.9492
+  n=  25 events= 22 predicted=1.0000 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.9126
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.91905  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.90582  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.89839  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.87629  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.87216  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.85914  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.81887  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.78567  treat_all=0.1941  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 110 events= 15 predicted=0.4788 observed(KM)=0.1768
+  n= 110 events= 19 predicted=0.4937 observed(KM)=0.1975
+  n= 110 events= 21 predicted=0.4996 observed(KM)=0.447
+  n= 110 events= 35 predicted=0.5088 observed(KM)=0.6476
+  n= 110 events= 43 predicted=0.5156 observed(KM)=0.6881
+  n= 110 events= 18 predicted=0.5180 observed(KM)=0.3269
+  n= 110 events= 24 predicted=0.5189 observed(KM)=0.7233
+  n= 110 events= 25 predicted=0.5221 observed(KM)=1.0
+  n= 110 events= 49 predicted=0.5276 observed(KM)=1.0
+  n= 110 events= 59 predicted=0.5432 observed(KM)=0.8456
+Integrated Brier score (0-1825d): 0.34682
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.57584  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.55228  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.52594  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.49631  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.46273  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.42436  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.32842  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.34172  treat_all=0.1941  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 23 predicted=0.0724 observed(KM)=0.8989
+  n=  24 events= 20 predicted=0.0906 observed(KM)=0.9167
+  n=  24 events= 24 predicted=0.0992 observed(KM)=0.9583
+  n=  24 events= 23 predicted=0.1082 observed(KM)=0.8889
+  n=  25 events= 20 predicted=0.1315 observed(KM)=1.0
+  n=  24 events= 23 predicted=0.1593 observed(KM)=1.0
+  n=  24 events= 24 predicted=0.1827 observed(KM)=0.9167
+  n=  24 events= 19 predicted=0.1882 observed(KM)=0.9127
+  n=  24 events= 20 predicted=0.1925 observed(KM)=0.9306
+  n=  25 events= 16 predicted=0.2053 observed(KM)=0.835
+Integrated Brier score (0-1825d): 1.22131
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.93041  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.70785  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.46261  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.07094  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=None  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=0.1941  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 22 predicted=0.9399 observed(KM)=0.93
+  n=  24 events= 17 predicted=0.9974 observed(KM)=1.0
+  n=  24 events= 22 predicted=0.9994 observed(KM)=1.0
+  n=  24 events= 19 predicted=0.9998 observed(KM)=0.7183
+  n=  25 events= 25 predicted=0.9999 observed(KM)=1.0
+  n=  24 events= 23 predicted=1.0000 observed(KM)=0.9514
+  n=  24 events= 21 predicted=1.0000 observed(KM)=0.8663
+  n=  24 events= 22 predicted=1.0000 observed(KM)=0.9115
+  n=  24 events= 16 predicted=1.0000 observed(KM)=1.0
+  n=  25 events= 25 predicted=1.0000 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.76546
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.92992  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.92626  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.92216  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.91755  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.91233  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.90636  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.89145  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.87056  treat_all=0.1941  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9961) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 243 events=212 predicted=0.9961 observed(KM)=0.9373
+Integrated Brier score (0-1825d): 0.83665
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.92992  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.92625  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.92216  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.91755  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.91233  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.90636  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.89144  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.87055  treat_all=0.1941  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  25 events= 22 predicted=0.4804 observed(KM)=0.9501
+  n=  24 events= 20 predicted=0.7290 observed(KM)=0.8636
+  n=  24 events= 23 predicted=0.8149 observed(KM)=0.9524
+  n=  24 events= 20 predicted=0.8584 observed(KM)=0.881
+  n=  25 events= 22 predicted=0.8878 observed(KM)=0.919
+  n=  24 events= 19 predicted=0.9150 observed(KM)=0.9286
+  n=  24 events= 21 predicted=0.9311 observed(KM)=0.9271
+  n=  24 events= 23 predicted=0.9505 observed(KM)=1.0
+  n=  24 events= 21 predicted=0.9669 observed(KM)=1.0
+  n=  25 events= 21 predicted=0.9835 observed(KM)=0.8784
+Integrated Brier score (0-1825d): 0.61275
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.92993  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.92627  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.91781  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.90883  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.90358  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.89757  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.87433  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.82114  treat_all=0.1941  treat_none=0.0
+
+--- Weibull AFT ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9961) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 243 events=212 predicted=0.9961 observed(KM)=0.9373
+Integrated Brier score (0-1825d): 0.839
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.92973  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.92606  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.92195  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.91733  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.91209  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.9061  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.89114  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.87019  treat_all=0.1941  treat_none=0.0
+
+--- KFRE ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 110 events=  8 predicted=0.0001 observed(KM)=0.0865
+  n= 110 events= 11 predicted=0.0002 observed(KM)=0.4598
+  n= 110 events= 25 predicted=0.0008 observed(KM)=1.0
+  n= 110 events= 26 predicted=0.0031 observed(KM)=0.4752
+  n= 110 events= 29 predicted=0.0095 observed(KM)=0.8317
+  n= 110 events= 43 predicted=0.0346 observed(KM)=0.7466
+  n= 110 events= 59 predicted=0.1609 observed(KM)=0.8184
+  n= 110 events= 31 predicted=0.4505 observed(KM)=0.5417
+  n= 110 events= 47 predicted=0.8073 observed(KM)=0.7446
+  n= 110 events= 29 predicted=0.9938 observed(KM)=0.3744
+Integrated Brier score (0-1825d): 0.38398
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.27634  treat_all=0.57584  treat_none=0.0
+  pt=0.10  model=0.23915  treat_all=0.55228  treat_none=0.0
+  pt=0.15  model=0.19423  treat_all=0.52594  treat_none=0.0
+  pt=0.20  model=0.16331  treat_all=0.49631  treat_none=0.0
+  pt=0.25  model=0.113  treat_all=0.46273  treat_none=0.0
+  pt=0.30  model=0.09216  treat_all=0.42436  treat_none=0.0
+  pt=0.40  model=0.04649  treat_all=0.32842  treat_none=0.0
+  pt=0.50  model=0.01276  treat_all=0.1941  treat_none=0.0
+Calibration plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_calibration_plot.png
+Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_decision_curve_plot.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_clinical_validity_report.txt
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+================================================================================
+CLINICAL VALIDITY ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Test samples (rows): 9115
+Max test follow-up: 4630.9 days. Horizons used: [730, 1825]
+
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 4575 rows/20 subjects -> 20 rows; test 9115 rows/20 subjects -> 20 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 4575 rows/20 subjects -> 20 rows; test 9115 rows/20 subjects -> 20 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 4575 rows/20 subjects -> 20 rows; test 9115 rows/20 subjects -> 20 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 4575 rows/20 subjects -> 20 rows; test 9115 rows/20 subjects -> 20 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 4575 rows/20 subjects -> 20 rows; test 9115 rows/20 subjects -> 20 rows
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Cox: c_index=0.3368 brier=0.08788 auc=0.2961
+  Dynamic DeepHit: c_index=0.8496 brier=0.2522 auc=0.9287
+  Hazard Transformer: c_index=0.1947 brier=0.69491 auc=0.0122
+  Logistic Hazard: c_index=0.3729 brier=0.44993 auc=0.3772
+  RNN-Surv: c_index=0.5178 brier=0.02872 auc=0.5053
+  DeepSurv: c_index=0.6525 brier=0.28961 auc=0.5693
+  GBSA: c_index=0.5424 brier=0.24487 auc=0.5314
+  Survival RF: c_index=0.428 brier=0.24823 auc=0.2597
+  Survival SVM: c_index=0.5847 brier=0.46957 auc=0.787
+  Weibull AFT: c_index=0.7119 brier=1.01735 auc=0.7378
+
+=== Horizon: 730 days ===
+Treat-all net benefit: {0.05: -0.02963, 0.1: -0.08683, 0.15: -0.15076, 0.2: -0.22269, 0.25: -0.3042, 0.3: -0.39736, 0.4: -0.63025, 0.5: -0.9563}
+eGFR-threshold referral rule net benefit: {30: -18.46279, 45: -25.81404}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 912 events= 39 predicted=0.2097 observed(KM)=0.0345
+  n= 911 events= 33 predicted=0.2915 observed(KM)=0.0223
+  n= 912 events= 40 predicted=0.3397 observed(KM)=0.0399
+  n= 911 events= 79 predicted=0.3544 observed(KM)=0.072
+  n= 912 events= 42 predicted=0.3647 observed(KM)=0.0416
+  n= 911 events=  6 predicted=0.3727 observed(KM)=0.0068
+  n= 911 events=  7 predicted=0.3805 observed(KM)=0.0
+  n= 912 events= 20 predicted=0.3886 observed(KM)=0.0011
+  n= 911 events= 18 predicted=0.4053 observed(KM)=0.0022
+  n= 912 events= 12 predicted=0.4186 observed(KM)=0.0022
+Integrated Brier score (0-730d): 0.08788
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=-0.02986  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=-0.08725  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=-0.1501  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=-0.216  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=-0.27937  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=-0.33348  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=-0.11585  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.9563  treat_none=0.0
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.1628) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=   2 events=  0 predicted=0.1628 observed(KM)=None
+  n=   2 events=  1 predicted=0.1628 observed(KM)=None
+  n=   2 events=  1 predicted=0.1628 observed(KM)=None
+  n=   2 events=  0 predicted=0.1628 observed(KM)=None
+  n=   2 events=  1 predicted=0.1628 observed(KM)=None
+  n=   2 events=  1 predicted=0.1628 observed(KM)=None
+  n=   2 events=  1 predicted=0.1628 observed(KM)=None
+  n=   2 events=  2 predicted=0.1628 observed(KM)=None
+  n=   2 events=  1 predicted=0.1628 observed(KM)=None
+  n=   2 events=  2 predicted=0.1628 observed(KM)=None
+Integrated Brier score (0-730d): 0.2522
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.21805  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.1746  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.12605  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.9563  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=   4 events=  1 predicted=1.0000 observed(KM)=0.25
+  n=   3 events=  1 predicted=1.0000 observed(KM)=0.3333
+  n=   5 events=  4 predicted=1.0000 observed(KM)=0.25
+  n=   6 events=  3 predicted=1.0000 observed(KM)=0.3333
+  n=   2 events=  1 predicted=1.0000 observed(KM)=None
+Integrated Brier score (0-730d): 0.69491
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.21805  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.1746  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.12605  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.07143  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.00952  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=-0.06122  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=-0.2381  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=-0.48571  treat_all=-0.9563  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   3 events=  2 predicted=0.0137 observed(KM)=0.3333
+  n=   1 events=  1 predicted=0.0450 observed(KM)=None
+  n=   2 events=  0 predicted=0.0608 observed(KM)=None
+  n=   2 events=  2 predicted=0.1105 observed(KM)=None
+  n=   2 events=  1 predicted=0.3358 observed(KM)=None
+  n=   3 events=  1 predicted=0.9514 observed(KM)=0.0
+  n=   1 events=  0 predicted=0.9971 observed(KM)=None
+  n=   6 events=  3 predicted=1.0000 observed(KM)=0.1667
+Integrated Brier score (0-730d): 0.44993
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.12456  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.1  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.02484  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=-0.01111  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=-0.11667  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=-0.16429  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=-0.28333  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=-0.4  treat_all=-0.9563  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 917 events= 33 predicted=0.0193 observed(KM)=0.0303
+  n= 910 events= 29 predicted=0.0254 observed(KM)=0.0196
+  n= 930 events= 16 predicted=0.0282 observed(KM)=0.0122
+  n= 889 events= 35 predicted=0.0306 observed(KM)=0.0244
+  n= 913 events= 35 predicted=0.0319 observed(KM)=0.0233
+  n= 931 events= 40 predicted=0.0329 observed(KM)=0.028
+  n= 898 events= 16 predicted=0.0340 observed(KM)=0.0129
+  n= 904 events= 45 predicted=0.0387 observed(KM)=0.0309
+  n= 913 events= 26 predicted=0.0427 observed(KM)=0.0191
+  n= 910 events= 21 predicted=0.0478 observed(KM)=0.0177
+Integrated Brier score (0-730d): 0.02872
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=-9e-05  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.00033  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.0  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.9563  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  0 predicted=0.0955 observed(KM)=None
+  n=   2 events=  0 predicted=0.1768 observed(KM)=None
+  n=   2 events=  0 predicted=0.1784 observed(KM)=None
+  n=   3 events=  2 predicted=0.1890 observed(KM)=0.3333
+  n=   1 events=  1 predicted=0.1950 observed(KM)=None
+  n=   2 events=  0 predicted=0.2078 observed(KM)=None
+  n=   3 events=  3 predicted=0.4160 observed(KM)=0.6667
+  n=   1 events=  0 predicted=0.5723 observed(KM)=None
+  n=   2 events=  2 predicted=0.6075 observed(KM)=None
+  n=   2 events=  2 predicted=0.7987 observed(KM)=None
+Integrated Brier score (0-730d): 0.28961
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.22126  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.18077  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.13552  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.0625  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.01667  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=-0.00714  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=-0.06667  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=-0.15  treat_all=-0.9563  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   4 events=  2 predicted=0.0198 observed(KM)=0.25
+  n=  11 events=  4 predicted=0.1828 observed(KM)=0.1818
+  n=   3 events=  2 predicted=0.1996 observed(KM)=0.3333
+  n=   2 events=  2 predicted=0.9176 observed(KM)=None
+Integrated Brier score (0-730d): 0.24487
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.17799  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.15  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.11471  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=None  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=None  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=None  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=None  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=None  treat_all=-0.9563  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  4 predicted=0.0204 observed(KM)=0.2727
+  n=   9 events=  6 predicted=0.0872 observed(KM)=0.2222
+Integrated Brier score (0-730d): 0.24823
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.08158  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.0  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.0  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.9563  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  1 predicted=0.2392 observed(KM)=None
+  n=   2 events=  2 predicted=0.6724 observed(KM)=None
+  n=   2 events=  1 predicted=0.7575 observed(KM)=None
+  n=   2 events=  2 predicted=0.7962 observed(KM)=None
+  n=   2 events=  0 predicted=0.9093 observed(KM)=None
+  n=   2 events=  0 predicted=0.9262 observed(KM)=None
+  n=   2 events=  0 predicted=0.9276 observed(KM)=None
+  n=   3 events=  2 predicted=0.9351 observed(KM)=0.3333
+  n=   1 events=  1 predicted=0.9390 observed(KM)=None
+  n=   2 events=  1 predicted=0.9499 observed(KM)=None
+Integrated Brier score (0-730d): 0.46957
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.22126  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.18077  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.13552  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.08462  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.02692  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=-0.03901  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=-0.20385  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=-0.38333  treat_all=-0.9563  treat_none=0.0
+
+--- Weibull AFT ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.951) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  20 events= 10 predicted=0.9510 observed(KM)=0.2571
+Integrated Brier score (0-730d): 1.01735
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.22126  treat_all=-0.02963  treat_none=0.0
+  pt=0.10  model=0.18077  treat_all=-0.08683  treat_none=0.0
+  pt=0.15  model=0.13552  treat_all=-0.15076  treat_none=0.0
+  pt=0.20  model=0.08462  treat_all=-0.22269  treat_none=0.0
+  pt=0.25  model=0.02692  treat_all=-0.3042  treat_none=0.0
+  pt=0.30  model=-0.03901  treat_all=-0.39736  treat_none=0.0
+  pt=0.40  model=-0.20385  treat_all=-0.63025  treat_none=0.0
+  pt=0.50  model=-0.43462  treat_all=-0.9563  treat_none=0.0
+
+=== Horizon: 1825 days ===
+Treat-all net benefit: {0.05: -0.00508, 0.1: -0.06092, 0.15: -0.12333, 0.2: -0.19353, 0.25: -0.2731, 0.3: -0.36404, 0.4: -0.59138, 0.5: -0.90966}
+eGFR-threshold referral rule net benefit: {30: -18.00268, 45: -25.1741}
+
+--- Cox ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 912 events= 39 predicted=0.4425 observed(KM)=0.0526
+  n= 911 events= 33 predicted=0.5767 observed(KM)=0.056
+  n= 912 events= 40 predicted=0.6456 observed(KM)=0.0419
+  n= 911 events= 79 predicted=0.6651 observed(KM)=0.103
+  n= 912 events= 42 predicted=0.6783 observed(KM)=0.0502
+  n= 911 events=  6 predicted=0.6883 observed(KM)=0.0068
+  n= 911 events=  7 predicted=0.6979 observed(KM)=0.0217
+  n= 912 events= 20 predicted=0.7077 observed(KM)=0.1079
+  n= 911 events= 18 predicted=0.7272 observed(KM)=0.0456
+  n= 912 events= 12 predicted=0.7422 observed(KM)=0.0222
+Integrated Brier score (0-1825d): 0.49202
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=-0.0052  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=-0.06103  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=-0.12366  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=-0.19399  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=-0.27338  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=-0.36361  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=-0.57833  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=-0.83921  treat_all=-0.90966  treat_none=0.0
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  0 predicted=0.4358 observed(KM)=None
+  n=   2 events=  1 predicted=0.4358 observed(KM)=None
+  n=   2 events=  1 predicted=0.4358 observed(KM)=None
+  n=   2 events=  0 predicted=0.4359 observed(KM)=None
+  n=   2 events=  1 predicted=0.4359 observed(KM)=None
+  n=   2 events=  1 predicted=0.4359 observed(KM)=None
+  n=   2 events=  1 predicted=0.4359 observed(KM)=None
+  n=   2 events=  2 predicted=0.4359 observed(KM)=None
+  n=   2 events=  1 predicted=0.4360 observed(KM)=None
+  n=   2 events=  2 predicted=0.4362 observed(KM)=None
+Integrated Brier score (0-1825d): 0.515
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.51731  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.4905  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.46052  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.42681  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.38859  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.34492  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.23574  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.90966  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  2 predicted=0.0496 observed(KM)=None
+  n=   2 events=  1 predicted=0.0505 observed(KM)=None
+  n=   2 events=  1 predicted=0.0758 observed(KM)=None
+  n=   2 events=  1 predicted=0.8170 observed(KM)=None
+  n=   2 events=  0 predicted=0.9923 observed(KM)=None
+  n=   4 events=  3 predicted=0.9923 observed(KM)=0.5
+  n=   4 events=  1 predicted=0.9923 observed(KM)=0.25
+  n=   2 events=  1 predicted=0.9923 observed(KM)=None
+Integrated Brier score (0-1825d): 1.74424
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.46731  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.27234  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.22796  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.19846  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.16502  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.12681  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.03128  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=-0.10247  treat_all=-0.90966  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  0 predicted=0.1984 observed(KM)=None
+  n=   3 events=  2 predicted=0.4650 observed(KM)=0.6667
+  n=   1 events=  1 predicted=0.4827 observed(KM)=None
+  n=   3 events=  3 predicted=0.7963 observed(KM)=1.0
+  n=   1 events=  1 predicted=0.9441 observed(KM)=None
+  n=  10 events=  3 predicted=0.9999 observed(KM)=0.25
+Integrated Brier score (0-1825d): 1.26267
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.51524  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.49108  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.46409  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.43372  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.3993  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.35997  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.31333  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.04  treat_all=-0.90966  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 931 events= 31 predicted=0.0573 observed(KM)=0.0378
+  n= 898 events= 36 predicted=0.0713 observed(KM)=0.0517
+  n= 906 events= 21 predicted=0.0750 observed(KM)=0.0332
+  n= 971 events= 28 predicted=0.0811 observed(KM)=0.0449
+  n= 858 events= 27 predicted=0.0860 observed(KM)=0.0527
+  n= 905 events= 26 predicted=0.0897 observed(KM)=0.0345
+  n= 935 events= 41 predicted=0.0946 observed(KM)=0.0638
+  n= 897 events= 31 predicted=0.0960 observed(KM)=0.0494
+  n= 902 events= 20 predicted=0.1014 observed(KM)=0.0311
+  n= 912 events= 35 predicted=0.1296 observed(KM)=0.0524
+Integrated Brier score (0-1825d): 0.11018
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=-0.00411  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=-0.00872  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=-0.00036  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.00044  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.00044  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.00033  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.90966  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  0 predicted=0.2117 observed(KM)=None
+  n=   2 events=  0 predicted=0.3851 observed(KM)=None
+  n=   2 events=  0 predicted=0.3882 observed(KM)=None
+  n=   3 events=  2 predicted=0.4078 observed(KM)=1.0
+  n=   1 events=  1 predicted=0.4185 observed(KM)=None
+  n=   2 events=  0 predicted=0.4413 observed(KM)=None
+  n=   3 events=  3 predicted=0.7133 observed(KM)=1.0
+  n=   1 events=  0 predicted=0.8803 observed(KM)=None
+  n=   2 events=  2 predicted=0.9031 observed(KM)=None
+  n=   2 events=  2 predicted=0.9764 observed(KM)=None
+Integrated Brier score (0-1825d): 0.63045
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.51524  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.49108  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.46409  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.43372  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.3993  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.35997  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.4119  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.15  treat_all=-0.90966  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   4 events=  2 predicted=0.0488 observed(KM)=0.625
+  n=  11 events=  4 predicted=0.3935 observed(KM)=0.3182
+  n=   3 events=  2 predicted=0.4268 observed(KM)=0.6667
+  n=   2 events=  2 predicted=0.9980 observed(KM)=None
+Integrated Brier score (0-1825d): 0.42005
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.39181  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.36913  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.36277  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.33857  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.31114  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.2798  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.20143  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=None  treat_all=-0.90966  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  4 predicted=0.0503 observed(KM)=0.4182
+  n=   9 events=  6 predicted=0.2039 observed(KM)=0.6543
+Integrated Brier score (0-1825d): 0.46945
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.29971  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.27716  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.26699  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.25556  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.90966  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=   2 events=  1 predicted=0.4165 observed(KM)=None
+  n=   2 events=  2 predicted=0.9356 observed(KM)=None
+  n=   2 events=  1 predicted=0.9710 observed(KM)=None
+  n=   2 events=  2 predicted=0.9813 observed(KM)=None
+  n=   2 events=  0 predicted=0.9974 observed(KM)=None
+  n=   2 events=  0 predicted=0.9985 observed(KM)=None
+  n=   2 events=  0 predicted=0.9986 observed(KM)=None
+  n=   3 events=  2 predicted=0.9989 observed(KM)=1.0
+  n=   1 events=  1 predicted=0.9991 observed(KM)=None
+  n=   2 events=  1 predicted=0.9994 observed(KM)=None
+Integrated Brier score (0-1825d): 1.5122
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.45926  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.432  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.40153  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.36725  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.3284  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.284  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.173  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.0176  treat_all=-0.90966  treat_none=0.0
+
+--- Weibull AFT ---
+Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (0.9524) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  20 events= 10 predicted=0.9524 observed(KM)=0.5414
+Integrated Brier score (0-1825d): 1.71756
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.51524  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.49108  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.46409  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.43372  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.3993  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.35997  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.26163  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.12395  treat_all=-0.90966  treat_none=0.0
+Calibration plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_calibration_plot.png
+Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_decision_curve_plot.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt
+Metrics comparison chart saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/c_index_comparison.png
+Metrics comparison chart saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/brier_comparison.png
+Metrics comparison chart saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/auc_comparison.png
+================================================================================
+ANALYSIS COMPLETE
+================================================================================

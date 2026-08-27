@@ -5,7 +5,9 @@ from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
 from pkgs.data_analysis.model_data_store import get_train_test_data
-from pkgs.experiments.utils import round_metric, ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import (round_metric, ex_optuna,
+                                    get_tv_rnn_model_features,
+                                    compute_brier_score_from_survival_probs)
 from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path,
                           fivelabms_rnn_surv_model_path, ckd_fifty_features_heterogeneous_rnn_surv_model_path, current_rep,
                           four_features_rnn_surv_model_path, eight_features_rnn_surv_model_path,
@@ -31,62 +33,46 @@ class RNNSurvDataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx], self.durations[idx], self.events[idx]
 
-def rnn_surv_loss(survival_probabilities, risk_scores, durations, events, time_intervals, cross_entropy_loss_weight):
+def rnn_surv_loss(event_pmf, durations, events, time_intervals,
+                  likelihood_loss_weight, eps=1e-7):
+    """PMF likelihood plus a bounded cumulative-incidence ranking loss.
+
+    Events are scored by their observed interval's mass; censored patients
+    are scored by the probability of surviving beyond that interval.  The
+    ranking term uses CIFs, which are bounded in [0, 1], unlike the old sum
+    of independent sigmoid values.
     """
-    Loss function based on the original RNNSurv paper.
+    pmf = event_pmf[:, -1, :]
+    n_patients, n_time_intervals = pmf.shape
+    interval_indices = torch.bucketize(durations, time_intervals, right=True)
+    interval_indices = interval_indices.clamp(max=n_time_intervals - 1)
+    patient_indices = torch.arange(n_patients, device=pmf.device)
 
-    Args:
-        survival_probabilities (torch.Tensor): Predicted survival probabilities
-            of shape (batch, seq_len, num_time_intervals).
-        risk_scores (torch.Tensor): Predicted risk scores of shape (batch, 1).
-        durations (torch.Tensor): True durations of shape (batch,).
-        events (torch.Tensor): Event indicators of shape (batch,).
-        time_intervals (torch.Tensor): Tensor of time interval endpoints.
+    cif = torch.cumsum(pmf, dim=1)
+    event_log_prob = torch.log(pmf[patient_indices, interval_indices].clamp(min=eps)) * events
+    censor_log_prob = torch.log(
+        (1.0 - cif[patient_indices, interval_indices]).clamp(min=eps)
+    ) * (1.0 - events)
+    likelihood_loss = -(event_log_prob + censor_log_prob).mean()
 
-    Returns:
-        torch.Tensor: The combined loss value.
-    """
-    n_patients = survival_probabilities.size(0)
-    n_time_intervals = survival_probabilities.size(2)
-    max_observed_time = time_intervals[-1]
+    # For an event i, compare its CIF with every patient j at i's observed
+    # interval. Earlier failures should have higher cumulative risk.
+    cif_at_event_times = cif[:, interval_indices]
+    own_cif = torch.diagonal(cif_at_event_times)
+    diff = own_cif.unsqueeze(1) - cif_at_event_times.T
+    comparable_pairs = (
+        (durations.unsqueeze(1) < durations.unsqueeze(0))
+        & events.bool().unsqueeze(1)
+    )
+    pair_count = comparable_pairs.sum()
+    if pair_count > 0:
+        ranking_loss = (
+            torch.exp((-diff / 0.1).clamp(max=50.0)) * comparable_pairs.float()
+        ).sum() / pair_count
+    else:
+        ranking_loss = torch.zeros((), device=pmf.device)
 
-    loss_1 = 0.0
-    for i in range(n_patients):
-        observed_time = durations[i]
-        event = events[i]
-        for k in range(n_time_intervals):
-            t_start = 0 if k == 0 else time_intervals[k-1]
-            t_end = time_intervals[k]
-            if t_start <= observed_time < t_end:
-                indicator = 1.0
-                survival_prob = survival_probabilities[i, -1, k] # Use last time step
-                term = (event * torch.log(torch.clamp(1 - survival_prob, 1e-7, 1.0)) +
-                        (1 - event) * torch.log(torch.clamp(survival_prob, 1e-7, 1.0)))
-                loss_1 -= indicator * term
-                break 
-
-    loss_1 /= n_patients
-
-    loss_2 = 0.0
-    for i in range(n_patients):
-        observed_time = durations[i]
-        survival_prob_at_observed_time = torch.tensor(1.0)
-        for k in range(n_time_intervals):
-            t_start = 0 if k == 0 else time_intervals[k-1]
-            t_end = time_intervals[k]
-            if observed_time < t_end:
-                survival_prob_at_observed_time = survival_probabilities[i, -1, k] # Use last time step
-                break
-            elif observed_time >= max_observed_time:
-                survival_prob_at_observed_time = survival_probabilities[i, -1, -1] # Last interval
-                break
-
-        loss_2 += (risk_scores[i] - (-torch.log(torch.clamp(survival_prob_at_observed_time, 1e-7, 1.0))))**2
-
-    loss_2 /= n_patients
-
-    total_loss = cross_entropy_loss_weight * loss_1 + (1 - cross_entropy_loss_weight) * loss_2
-    return total_loss
+    return likelihood_loss_weight * likelihood_loss + (1 - likelihood_loss_weight) * ranking_loss
 
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
@@ -128,7 +114,10 @@ def objective(trial, scenario_name: ExperimentScenario):
     max_duration = df[duration_col].max()
     time_intervals = torch.linspace(0, max_duration, num_time_intervals + 1)[1:].to(device)
 
-    model = RNNSurv(input_dim, embedding_size, num_embedding_layers, hidden_dims, num_recurrent_layers, num_time_intervals).to(device)
+    model = RNNSurv(
+        input_dim, embedding_size, num_embedding_layers, hidden_dims,
+        num_recurrent_layers, num_time_intervals, max_time=max_duration,
+    ).to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Early stopping parameters
@@ -143,8 +132,11 @@ def objective(trial, scenario_name: ExperimentScenario):
         for batch in train_loader:
             X_batch, durations_batch, events_batch = [x.to(device) for x in batch]
             optimizer.zero_grad()
-            survival_probabilities, risk_scores = model(X_batch)
-            loss = rnn_surv_loss(survival_probabilities, risk_scores, durations_batch, events_batch, time_intervals, cross_entropy_loss_weight)
+            event_pmf, _ = model(X_batch)
+            loss = rnn_surv_loss(
+                event_pmf, durations_batch, events_batch, time_intervals,
+                cross_entropy_loss_weight,
+            )
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
@@ -163,10 +155,15 @@ def objective(trial, scenario_name: ExperimentScenario):
             print("Early stopping triggered")
             break
     
+    saved_model_is_compatible = False
     if os.path.exists(model_saved_path):
-        c_index = score_model_train(model, df, rnn_surv_features, device)
+        saved_model = torch.load(model_saved_path, map_location=device, weights_only=False)
+        saved_model_is_compatible = (
+            getattr(saved_model, 'architecture_version', 1) == RNNSurv.ARCHITECTURE_VERSION
+        )
 
-        saved_model = torch.load(model_saved_path, map_location=device)
+    if saved_model_is_compatible:
+        c_index = score_model_train(model, df, rnn_surv_features, device)
         saved_c_index = score_model_train(saved_model, df, rnn_surv_features, device)
         
         print(f"Current trial C-index: {c_index:.4f}, Previously saved model C-index: {saved_c_index:.4f}")
@@ -174,7 +171,7 @@ def objective(trial, scenario_name: ExperimentScenario):
             print("Current model performs better, saving it...")
             torch.save(model, model_saved_path)
     else:
-        print(f"No existing model found, saving current model")
+        print("No compatible saved model found, saving current PMF model")
         torch.save(model, model_saved_path)
 
     c_index = score_model_train(model, df, rnn_surv_features, device)
@@ -189,7 +186,7 @@ def score_model_train(model: RNNSurv, df, features, device):
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = round_metric(concordance_index(df['duration_in_days'], 1 - test_risk_scores.cpu().numpy(), df['has_esrd']))
+    c_index = round_metric(concordance_index(df['duration_in_days'], -test_risk_scores.cpu().numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
     return c_index
@@ -211,31 +208,51 @@ def run(scenario_name: ExperimentScenario):
     }
     model_saved_path = model_path_dict[scenario_name]
 
-    if os.path.exists(model_saved_path):
+    if os.path.exists(model_saved_path) and getattr(torch.load(model_saved_path, map_location='cpu', weights_only=False), 'architecture_version', 1) == RNNSurv.ARCHITECTURE_VERSION:
         print("Loading from saved weights")
         model = torch.load(model_saved_path, map_location=device, weights_only=False)
     else:
+        if os.path.exists(model_saved_path):
+            print("Saved RNN-Surv model uses the obsolete sigmoid head; retraining the PMF model.")
         model = ex_optuna(lambda trial: objective(trial, scenario_name))
     model.to(device)
 
     X_test = torch.tensor(df_test[get_tv_rnn_model_features(scenario_name)].values, dtype=torch.float32).unsqueeze(1).to(device)
     model.eval()
     with torch.no_grad():
-        _, test_risk_scores = model(X_test)
+        event_pmf, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
 
-    c_index = round_metric(concordance_index(df_test['duration_in_days'], 1 - test_risk_scores.cpu().numpy(), df_test['has_esrd']))
+    c_index = round_metric(concordance_index(df_test['duration_in_days'], -test_risk_scores.cpu().numpy(), df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
 
-    # Compute Brier Score
-    brier_score = compute_brier_score_from_risk_scores(df, df_test, 1 - test_risk_scores.cpu().numpy())
+    # PMF -> CIF -> survival curve, rather than fabricating a curve from the
+    # scalar ranking score.  Evaluation times must stay within the test set's
+    # observed follow-up range.
+    max_eval_time = min(int(df_test['duration_in_days'].max()) - 1, int(model.max_time))
+    times = np.arange(1, max_eval_time + 1)
+    if len(times) == 0:
+        print("Skipping Brier/AUC: no positive evaluation time within follow-up.")
+        return
+
+    cif = torch.cumsum(event_pmf[:, -1, :], dim=1)
+    bin_indices = torch.clamp(
+        (torch.as_tensor(times, device=device, dtype=torch.float32) / model.max_time
+         * (cif.size(1) - 1)).round().long(),
+        min=0, max=cif.size(1) - 1,
+    )
+    risk_by_time = cif[:, bin_indices].cpu().numpy()
+    survival_by_time = 1.0 - risk_by_time
+
+    brier_score = compute_brier_score_from_survival_probs(
+        df, df_test, survival_by_time, times,
+    )
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 730, 1)
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
     y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, test_risk_scores.cpu().numpy(), times)
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_by_time, times)
 
     print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 

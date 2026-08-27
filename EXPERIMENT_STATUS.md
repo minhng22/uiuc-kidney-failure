@@ -14,6 +14,8 @@ approved). Do not restart another session's row without confirming its host is a
 | 1c | Full extraction (rep2-5, parallel) | done | [report](generated_data/rep1/stage1c_full_extraction_report.txt) |
 | 2 | Mini-experiment (rep99) | **done** — all rep99 models deleted and retrained from scratch (picks up DDH/HazardTransformer/RNN-Surv/DeepSurv fixes + the 5 newly-added models); 12/17 official-driver combos clean, 5 hit the same known four_features AUC-censoring-sparsity edge case (models still trained/saved fine — see Background processes) | [report](generated_data/rep99/mini_experiment_status_report.txt) |
 | 2.1 | Feature-importance analysis + additional analyses (calibration + decision-curve, rep99 sanity check) | **done** — rerun 2026-08-27 against the retrained rep99 models (Stage 2 above); clean, no errors | SHAP reports: [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt); clinical-validity reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
+| 2 | PMF-fix rerun (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
+| 2.1 | PMF-fix rerun analyses (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
 | 3.0 | rep1 full run + analysis report — approval gate before 3.1. Model scope widened by user decision 2026-08-27: now 11 models (original 6 + deepsurv/gbsa/srf/survival_svm/weibul, all launched via `run_rep.sh` — their `__main__` blocks now cover the 3 new scenarios directly) | **running** — relaunched 2026-08-27 with the widened scope (8 models: ddh/hazard_transformer/rnnsurv/deepsurv/gbsa/srf/survival_svm/weibul; cox/kfre/logistic_hazard already done from an earlier run) — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt) | see Background processes below |
 | 3.1 | rep2-4 full runs (blocked on 3.0's approval gate) | **not done** — rep2/rep3/rep4 were started (2 sessions) before Stage 3 was split into 3.0/3.1; all stopped/killed by user request before finishing; needs relaunch once 3.0 is approved | see Background processes below |
 
@@ -100,3 +102,8 @@ a process that's still doing confirmed real work just because it's slow.
 The other 4 models (dynamic_deephit/rnnsurv/gbsa/srf) remain healthy, no
 errors, dynamic_deephit/rnnsurv both approaching the end of their first
 (four_features) 10-trial optuna search.
+
+Last Updated (PMF rerun): 2026-08-27 18:00 CDT
+(sunlab-serv-02.cs.illinois.edu) — rep99 Stage 2 retraining and both scoped
+Stage 2.1 analyses completed; see
+[report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt).
