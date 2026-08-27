@@ -12,12 +12,19 @@ approved). Do not restart another session's row without confirming its host is a
 | 1b | Code changes (types/commons/time_series_store/model_data_store/experiments/kfre) | done | [report](generated_data/rep1/stage1b_implementation_report.txt) |
 | 1c-0 | Pilot extraction (rep1) + cohort-flow analysis — approval gate | done, approved | [report](generated_data/rep1/stage1c0_pilot_extraction_report.txt) |
 | 1c | Full extraction (rep2-5, parallel) | done | [report](generated_data/rep1/stage1c_full_extraction_report.txt) |
-| 2 | Mini-experiment (rep99) | done | [report](generated_data/rep99/mini_experiment_status_report.txt) |
-| 2.1 | Feature-importance analysis + additional analyses (calibration + decision-curve, rep99 sanity check) | done | SHAP reports: [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt); clinical-validity reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
+| 2 | Mini-experiment (rep99) | **rerunning** — all rep99 models deleted and retrained from scratch (picks up DDH/HazardTransformer/RNN-Surv/DeepSurv fixes + the 5 newly-added models found/added this session) — see Background processes | [report](generated_data/rep99/mini_experiment_status_report.txt) |
+| 2.1 | Feature-importance analysis + additional analyses (calibration + decision-curve, rep99 sanity check) | **queued** — will rerun once Stage 2's rep99 retrain finishes | SHAP reports: [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt); clinical-validity reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
 | 3.0 | rep1 full run + analysis report — approval gate before 3.1 | **running** — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt) | see Background processes below |
 | 3.1 | rep2-4 full runs (blocked on 3.0's approval gate) | **not done** — rep2/rep3/rep4 were started (2 sessions) before Stage 3 was split into 3.0/3.1; all stopped/killed by user request before finishing; needs relaunch once 3.0 is approved | see Background processes below |
 
 ## Background processes
+
+### Stage 2 rerun (rep99) — owner: session on sunlab-serv-02.cs.illinois.edu
+
+| PID | Rep | Log | Status |
+|---|---|---|---|
+| 3948360 | 99 | [stage2_rerun_rep99.log](pkgs/scripts/logs/stage2_rerun_rep99.log) | in progress — cox/ddh/hazard_transformer/logistic_hazard/rnnsurv/kfre, official Stage 2 driver (`pkgs/scripts/run_stage2_new_scenarios.py`) |
+| 3948361 | 99 | [stage3_extra_models_rerun_rep99.log](pkgs/scripts/logs/stage3_extra_models_rerun_rep99.log) | in progress — deepsurv/gbsa/srf/survival_svm/weibul (added this session, not part of the official Stage 2 plan but rebuilt alongside it since their models were deleted too) |
 
 ### Stage 3.0 (rep1 full run) — owner: session on sunlab-serv-01.cs.illinois.edu
 
