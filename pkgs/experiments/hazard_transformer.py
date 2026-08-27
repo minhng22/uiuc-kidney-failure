@@ -193,7 +193,26 @@ def objective(trial, scenario_name: ExperimentScenario):
             # map raw day counts onto the discretized [0, T) bin axis produced by the model
             bin_idx = torch.clamp((time_intervals.squeeze(1).float() / model.max_time * (T - 1)).round().long(), min=0, max=T - 1)
             arange = torch.arange(T, device=device)
-            time_mask = (arange.unsqueeze(0) < bin_idx.unsqueeze(1)).float()
+            # INCLUSIVE (<=), not exclusive (<): bin_idx is where `delta` is set
+            # to 1 for event subjects (see below). The strict "<" version
+            # masked the event's OWN bin out of the loss entirely, so the
+            # "reward high hazard exactly at the true event time" term
+            # (`delta * log(p)` in hazard_loss) was always multiplied by 0 and
+            # never actually reached the loss -- the model was only ever
+            # rewarded for LOW hazard everywhere (every bin before an event,
+            # every bin up to and including a censor), with nothing ever
+            # pushing hazard up. That's the root cause of the collapsed/
+            # near-chance HazardTransformer results seen on real data (e.g.
+            # eight_features rep99: c_index=0.572, Brier=1.016) -- the same
+            # general "unconstrained per-bin sigmoid + a loss that can't
+            # actually push hazard up" class of bug fixed for DynamicDeepHit
+            # (see generated_data/rep1/ddh_collapse_fix_report.txt), here via
+            # a masking bug rather than a missing loss term. For a CENSORED
+            # subject, including their own bin_idx is also correct: their
+            # censor bin still contributes `log(1 - hazard)` (delta=0 there),
+            # which is a real observation ("hazard was still low as of this
+            # bin") that the exclusive version was discarding.
+            time_mask = (arange.unsqueeze(0) <= bin_idx.unsqueeze(1)).float()
 
             delta = torch.zeros_like(hazard_preds)
             for i in range(batch):

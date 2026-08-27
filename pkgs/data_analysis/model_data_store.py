@@ -219,6 +219,46 @@ def get_train_test_data(scenario: ExperimentScenario):
 
     return data_train, data_test
 
+def get_last_observation_data(scenario: ExperimentScenario):
+    """Flattens a time-varying scenario's train/test data (multiple rows per
+    subject_id, one per lab record) down to one row per subject_id -- that
+    subject's LAST (most recent) observation -- for one-row-per-patient
+    models (deepsurv/gbsa/srf/survival_svm/weibul) that can't consume the
+    multi-row-per-patient shape the RNN-style models
+    (cox/ddh/hazard_transformer/logistic_hazard/rnn_surv) use directly.
+
+    "Last" = highest duration_in_days per subject, matching how those models'
+    own datasets already read a subject's overall duration_in_days/has_esrd
+    off their final row (see e.g. DynamicDeepHitDataset.__getitem__:
+    `subject_data['duration_in_days'].iloc[-1]`) -- consistent with "risk as
+    of now, using this patient's most recent labs" rather than a baseline/
+    inception-cohort framing.
+
+    Only meaningful for scenarios with multiple rows per subject; used for
+    FOUR_FEATURES/EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS specifically
+    (Stage 3's new scenarios), which is the only case this has been exercised
+    against so far, but works for any get_train_test_data() scenario shaped
+    the same way."""
+    data_train, data_test = get_train_test_data(scenario)
+
+    def flatten(df):
+        assert df.groupby('subject_id')['duration_in_days'].apply(lambda s: s.is_monotonic_increasing).all(), \
+            "expected each subject's rows sorted ascending by duration_in_days"
+        flat = df.groupby('subject_id', as_index=False).last()
+        flat.reset_index(drop=True, inplace=True)
+        return flat
+
+    train_flat = flatten(data_train)
+    test_flat = flatten(data_test)
+
+    print(
+        f'get_last_observation_data({scenario}): '
+        f'train {len(data_train)} rows/{data_train["subject_id"].nunique()} subjects -> {len(train_flat)} rows; '
+        f'test {len(data_test)} rows/{data_test["subject_id"].nunique()} subjects -> {len(test_flat)} rows'
+    )
+
+    return train_flat, test_flat
+
 def analyze_train_test_data():
     for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]:
         print(f"Analyzing scenario: {scenario}")

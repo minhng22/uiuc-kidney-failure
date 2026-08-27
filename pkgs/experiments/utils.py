@@ -15,8 +15,15 @@ def get_y_for_sckit_survival_model(df):
               dtype=[('event', bool), ('time', np.float64)])
 
 # X must be a 2D array
-def get_x_for_sckit_survival_model(df):
-    X = df['egfr'].values.reshape(-1, 1)
+def get_x_for_sckit_survival_model(df, scenario=None):
+    """Default (scenario=None) preserves the original NON_TIME_VARIANT-only
+    behavior (single 'egfr' feature). Pass a scenario to get that scenario's
+    full feature list instead (via get_tv_rnn_model_features), e.g. for
+    FOUR_FEATURES/EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS."""
+    if scenario is None:
+        X = df['egfr'].values.reshape(-1, 1)
+    else:
+        X = df[get_tv_rnn_model_features(scenario)].values
     print(f'X shape: {X.shape}')
     return X
 

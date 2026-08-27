@@ -498,17 +498,26 @@ def rnn_surv_predictions(model, df_test, scenario):
     """RNN-Surv's risk score is explicitly NOT a probability by the model's
     own design — see pkgs/models/rnnsurv.py's forward(): "the risk score is a
     linear combination of the survival function estimates" (sums 1-survival
-    across K discrete intervals into one unbounded scalar, for ranking only).
-    No native per-horizon probability exists to read off; the generic
-    risk-score transform is the appropriate (and only) option here, matching
-    how the rest of the codebase already treats this model's output."""
+    across K discrete intervals into one unbounded scalar), and that sum is
+    already "higher = riskier" by construction (larger when 1-survival is
+    larger at more intervals). Fixed here: this used to return `1 -
+    test_risk_scores`, inverting an already-correctly-oriented score (on top
+    of discrimination_metrics()'s own `-risk_scores` negation for
+    concordance_index, i.e. a double sign-flip net inversion) — confirmed by
+    directly comparing both conventions against the same trained
+    eight_features/rep99 model: c_index 0.441 with the inversion vs 0.559
+    without it (exact complements, 0.441+0.559=1.0, confirming it was a pure
+    sign bug rather than noise). No native per-horizon probability exists to
+    read off; the generic risk-score transform is the appropriate (and only)
+    option here, matching how the rest of the codebase already treats this
+    model's output."""
     features = get_tv_rnn_model_features(scenario)
     X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
     model.eval()
     with torch.no_grad():
         _, test_risk_scores = model(X_test)
         test_risk_scores = test_risk_scores.squeeze()
-    risk_scores = 1 - test_risk_scores.cpu().numpy()
+    risk_scores = test_risk_scores.cpu().numpy()
     return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, None
 
 

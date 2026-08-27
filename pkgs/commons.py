@@ -222,6 +222,14 @@ four_features_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/fo
 four_features_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/four_features_hazard_transformer_model.pt'
 four_features_rnn_surv_model_path = f'{generate_data_path_latest_rep}/four_features_rnn_surv_model.pt'
 four_features_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/four_features_logistic_hazard_model.pt'
+# one-row-per-patient models (last-observation flattened, see
+# pkgs/data_analysis/model_data_store.py's get_last_observation_data()) --
+# added alongside the original 5 to reach parity with pkgs/experiments/
+four_features_deepsurv_model_path = f'{generate_data_path_latest_rep}/four_features_deepsurv_model.pt'
+four_features_gbsa_model_path = f'{generate_data_path_latest_rep}/four_features_gbsa_model.dill'
+four_features_srf_model_path = f'{generate_data_path_latest_rep}/four_features_srf_model.dill'
+four_features_survival_svm_model_path = f'{generate_data_path_latest_rep}/four_features_survival_svm_model.dill'
+four_features_weibul_model_path = f'{generate_data_path_latest_rep}/four_features_weibul_model.dill'
 
 # trained models - eight_features scenario (benchmarked against 8-variable KFRE)
 eight_features_cox_model_path = f'{generate_data_path_latest_rep}/eight_features_cox_model.dill'
@@ -229,6 +237,11 @@ eight_features_dynamic_deep_hit_model_path = f'{generate_data_path_latest_rep}/e
 eight_features_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/eight_features_hazard_transformer_model.pt'
 eight_features_rnn_surv_model_path = f'{generate_data_path_latest_rep}/eight_features_rnn_surv_model.pt'
 eight_features_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/eight_features_logistic_hazard_model.pt'
+eight_features_deepsurv_model_path = f'{generate_data_path_latest_rep}/eight_features_deepsurv_model.pt'
+eight_features_gbsa_model_path = f'{generate_data_path_latest_rep}/eight_features_gbsa_model.dill'
+eight_features_srf_model_path = f'{generate_data_path_latest_rep}/eight_features_srf_model.dill'
+eight_features_survival_svm_model_path = f'{generate_data_path_latest_rep}/eight_features_survival_svm_model.dill'
+eight_features_weibul_model_path = f'{generate_data_path_latest_rep}/eight_features_weibul_model.dill'
 
 # trained models - twenty_features_heterogeneous scenario (top 20 most common CKD->ESRD lab features)
 twenty_features_heterogeneous_cox_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_cox_model.dill'
@@ -236,6 +249,11 @@ twenty_features_heterogeneous_dynamic_deep_hit_model_path = f'{generate_data_pat
 twenty_features_heterogeneous_hazard_transformer_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_hazard_transformer_model.pt'
 twenty_features_heterogeneous_rnn_surv_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_rnn_surv_model.pt'
 twenty_features_heterogeneous_logistic_hazard_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_logistic_hazard_model.pt'
+twenty_features_heterogeneous_deepsurv_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_deepsurv_model.pt'
+twenty_features_heterogeneous_gbsa_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_gbsa_model.dill'
+twenty_features_heterogeneous_srf_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_srf_model.dill'
+twenty_features_heterogeneous_survival_svm_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_survival_svm_model.dill'
+twenty_features_heterogeneous_weibul_model_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_weibul_model.dill'
 
 # train and test data
 heterogen_train_data_path = f'{generate_data_path_latest_rep}/heterogen_train_data.csv'

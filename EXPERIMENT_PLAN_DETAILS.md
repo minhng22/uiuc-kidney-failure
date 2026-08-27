@@ -358,7 +358,7 @@ because the neural models may be more N-sensitive than the closed-form benchmark
 - Run `pkgs/scripts/run_rep.sh 99` to sanity-check the full pipeline (3 new scenarios × 5 ML models, plus
   `kfre` for `four_features`/`eight_features`) end-to-end before committing to full 5-rep runs.
 
-### Stage 2 addendum: `twenty_features_heterogeneous` uses a smaller subsample than the other two rep99 scenarios (resolved 2026-08-22)
+### Addendum: `twenty_features_heterogeneous` uses a smaller subsample than the other two rep99 scenarios (resolved 2026-08-22)
 
 **Also note**: the actual Stage 2 driver ended up being
 [pkgs/scripts/run_stage2_new_scenarios.py](pkgs/scripts/run_stage2_new_scenarios.py), not
@@ -406,7 +406,7 @@ mid-trained on the old 500-patient sample), were rebuilt/cleared.
 - Output report saved under `generated_data/rep<N>/<scenario>_shap_analysis_report.txt`, matching existing
   naming (`egfr_components_shap_analysis_report.txt`).
 
-### Stage 2.1 additional analyses (beyond feature importance)
+### Additional analyses (beyond feature importance)
 
 Feature importance alone only says which inputs a model leans on, not whether its
 risk estimates are calibrated or clinically useful. Reviewed the CKD/kidney-failure

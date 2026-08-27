@@ -6,11 +6,29 @@ from sksurv.metrics import concordance_index_censored, cumulative_dynamic_auc, i
 from sksurv.util import Surv
 import pandas as pd
 
-from pkgs.commons import egfr_ti_survival_svm_model_path
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.commons import (
+    egfr_ti_survival_svm_model_path, four_features_survival_svm_model_path,
+    eight_features_survival_svm_model_path, twenty_features_heterogeneous_survival_svm_model_path,
+)
+from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model
+from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, get_tv_rnn_model_features
 import dill
+
+# Path dict + scenario-aware run added for Stage 3's four/eight/
+# twenty_features_heterogeneous scenarios, alongside (not replacing) the
+# original NON_TIME_VARIANT-only run_ti_survival_svm_model() below. See
+# gbsa.py's equivalent comment for why get_last_observation_data() is used.
+# Unlike run_ti_survival_svm_model()'s generic "every column except
+# duration/event/subject_id/Unnamed: 0" feature selection (fine when
+# NON_TIME_VARIANT's data has nothing else in it), these 3 scenarios' data
+# also carries start/stop columns from the time-varying source, so features
+# are selected explicitly via get_tv_rnn_model_features() instead.
+survival_svm_model_path_dict = {
+    ExperimentScenario.FOUR_FEATURES: four_features_survival_svm_model_path,
+    ExperimentScenario.EIGHT_FEATURES: eight_features_survival_svm_model_path,
+    ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS: twenty_features_heterogeneous_survival_svm_model_path,
+}
 
 def compute_time_dependent_auc(model, data_train, data_test, duration_col, event_col, times):
     """Compute time-dependent AUC for Survival SVM"""
@@ -155,6 +173,64 @@ def run_ti_survival_svm_model():
     # Compute time-dependent AUC  
     _, mean_auc = compute_time_dependent_auc(model, data_train, data_test_filtered, 'duration_in_days', 'has_esrd', times)
     print(f"Mean AUC: {mean_auc:.3f}")
+
+def run_scenario(scenario: ExperimentScenario):
+    """Scenario-aware entry point for four_features/eight_features/
+    twenty_features_heterogeneous."""
+    data_train, data_test = get_last_observation_data(scenario)
+    features = get_tv_rnn_model_features(scenario)
+    cols = features + ['duration_in_days', 'has_esrd']
+    data_train = data_train[cols].copy()
+    data_test = data_test[cols].copy()
+
+    model_path = survival_svm_model_path_dict[scenario]
+    trained_model = load_pkl_and_dill_model(model_path)
+
+    if not trained_model:
+        valid_mask_train = data_train['duration_in_days'] > 0
+        data_train_filtered = data_train[valid_mask_train].copy()
+        print(f"Filtered out {len(data_train) - len(data_train_filtered)} training samples with duration <= 0")
+
+        X_train = data_train_filtered[features].values
+        y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=data_train_filtered)
+
+        print(f'Fitting Survival SVM model with {len(features)} features: {features}')
+        model = FastSurvivalSVM(alpha=0.01, max_iter=1000, tol=1e-6, random_state=42)
+        model.fit(X_train, y_train)
+
+        with open(model_path, 'wb') as f:
+            dill.dump(model, f, protocol=4)
+    else:
+        model = trained_model
+
+    valid_mask_test = data_test['duration_in_days'] > 0
+    data_test_filtered = data_test[valid_mask_test].copy()
+    print(f"Filtered out {len(data_test) - len(data_test_filtered)} test samples with duration <= 0")
+
+    X_test = data_test_filtered[features].values
+    risk_scores = model.predict(X_test)
+
+    c_index_test = concordance_index_censored(
+        data_test_filtered['has_esrd'].astype(bool),
+        data_test_filtered['duration_in_days'],
+        risk_scores
+    )[0]
+    print(f'Concordance Index Test: {round_metric(c_index_test)}')
+
+    times = np.arange(1, min(730, int(data_test_filtered['duration_in_days'].max())), 1)
+    try:
+        brier_score = compute_brier_score(model, data_train, data_test_filtered, 'duration_in_days', 'has_esrd', times)
+        if brier_score is not None:
+            print(f'Integrated Brier Score Test: {brier_score}')
+    except Exception as e:
+        print(f"Warning: could not compute Brier score: {e}")
+
+    try:
+        _, mean_auc = compute_time_dependent_auc(model, data_train, data_test_filtered, 'duration_in_days', 'has_esrd', times)
+        print(f"Mean AUC: {mean_auc:.3f}")
+    except Exception as e:
+        print(f"Warning: could not compute AUC: {e}")
+
 
 def run_all():
     """Run all Survival SVM experiments"""
