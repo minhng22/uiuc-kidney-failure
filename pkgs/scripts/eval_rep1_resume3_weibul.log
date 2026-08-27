@@ -1,0 +1,97 @@
+Start time: Thu Aug 27 02:23:26 CDT 2026
+/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/__init__.py:1120: ConvergenceWarning: Column ('lambda_', 'bicarbonate') have very low variance when conditioned on death event present or not. This may harm convergence. This could be a form of 'complete separation'. For example, try the following code:
+
+>>> events = df['has_esrd'].astype(bool)
+>>> print(df.loc[events, '('lambda_', 'bicarbonate')'].var())
+>>> print(df.loc[~events, '('lambda_', 'bicarbonate')'].var())
+
+A very low variance means that the column ('lambda_', 'bicarbonate') completely determines whether a subject dies or not. See https://stats.stackexchange.com/questions/11109/how-to-deal-with-perfect-separation-in-logistic-regression.
+
+  warnings.warn(dedent(warning_text), ConvergenceWarning)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/weibul.py", line 136, in <module>
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/weibul.py", line 101, in run_scenario
+    model.fit(df, event_col='has_esrd', duration_col='duration_in_days')
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/utils/__init__.py", line 56, in f
+    return function(model, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/__init__.py", line 2872, in fit
+    super(ParametericAFTRegressionFitter, self)._fit(
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/__init__.py", line 1837, in _fit
+    _params, self.log_likelihood_, self._hessian_ = self._fit_model(
+                                                    ^^^^^^^^^^^^^^^^
+  File "/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/__init__.py", line 1976, in _fit_model
+    raise exceptions.ConvergenceError(
+lifelines.exceptions.ConvergenceError: 
+               Fitting did not converge. Try the following:
+
+               0. Are there any lifelines warnings outputted during the `fit`?
+               1. Inspect your DataFrame: does everything look as expected?
+               2. Try scaling your duration vector down, i.e. `df[duration_col] = df[duration_col]/100`
+               3. Is there high-collinearity in the dataset? Try using the variance inflation factor (VIF) to find redundant variables.
+               4. Try using an alternate minimizer: ``fitter._scipy_fit_method = "SLSQP"``.
+               5. Trying adding a small penalizer (or changing it, if already present). Example: `WeibullAFTFitter(penalizer=0.01).fit(...)`.
+               6. Are there any extreme outliers? Try modeling them or dropping them to see if it helps convergence.
+
+               minimum_results= message: Iteration limit reached
+success: False
+ status: 9
+    fun: 4.954977002594553
+      x: [ 4.089e+01 -3.498e+01 ...  4.835e-01 -2.172e+00]
+    nit: 200
+    jac: [ 3.031e-03 -2.081e-02 ... -1.098e-03  3.733e-03]
+   nfev: 286
+   njev: 200
+
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Train data shape: (27361, 5)
+Test data shape: (6841, 5)
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_weibul_model.dill
+Loading model from file
+Evaluate on test data
+C-index: 0.5236
+Integrated Brier Score Test: 0.4
+cumulative hazard shape: (6841, 729)
+Mean time-dependent AUC: 0.5362
+
+Running FOUR_FEATURES Weibull AFT model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Fitting model:
+Evaluate on test data
+C-index: 0.5507
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+cumulative hazard shape: (562, 729)
+Mean time-dependent AUC: 0.5786
+
+Running EIGHT_FEATURES Weibull AFT model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Fitting model:
+Evaluate on test data
+C-index: 0.5470
+Integrated Brier Score Test: 0.257
+cumulative hazard shape: (243, 729)
+Mean time-dependent AUC: 0.5975
+
+Running TWENTY_FEATURES_HETEROGENEOUS Weibull AFT model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Fitting model:
+✗ weibul failed with exit code 1
+End time: Thu Aug 27 02:25:07 CDT 2026

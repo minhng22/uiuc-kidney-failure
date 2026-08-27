@@ -96,7 +96,17 @@ def run_scenario(scenario: ExperimentScenario):
     trained_model = load_pkl_and_dill_model(model_path)
 
     if not trained_model:
-        model = WeibullAFTFitter()
+        # penalizer=0.1: twenty_features_heterogeneous's flattened data carries
+        # several low-variance binary *_missing indicator columns (e.g.
+        # bicarbonate_missing) that WeibullAFTFitter's unregularized MLE hits
+        # as near-complete separation on at rep1's full scale (26080 subjects)
+        # -- reproduced via lifelines.exceptions.ConvergenceError, fixed by
+        # adding a small penalizer per the library's own suggested remedy.
+        # Verified against rep1's actual training data (read-only, no model
+        # file written) before this fix was applied; rep99's smaller sample
+        # never triggered this failure in the first place, so there was
+        # nothing to re-verify there.
+        model = WeibullAFTFitter(penalizer=0.1)
         print('Fitting model:')
         model.fit(df, event_col='has_esrd', duration_col='duration_in_days')
         with open(model_path, 'wb') as f:
