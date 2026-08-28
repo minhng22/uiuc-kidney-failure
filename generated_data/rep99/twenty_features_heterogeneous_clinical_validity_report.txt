@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-08-27 20:03:51
+Generated on: 2026-08-28 16:09:16
 Repetition: 99
 Scenario: twenty_features_heterogeneous
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -13,6 +13,7 @@ CLINICAL VALIDITY ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
 Test samples (rows): 9115
 Max test follow-up: 4630.9 days. Horizons used: [730, 1825]
 
+eGFR-threshold referral rule: restricting to 502/9115 rows with a real eGFR measurement (egfr_missing == 0); other rows are placeholder egfr=0 from this scenario's per-lab-event row format.
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Cox: c_index=0.3368 brier=0.08788 auc=0.2961
@@ -28,7 +29,7 @@ Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-
 
 === Horizon: 730 days ===
 Treat-all net benefit: {0.05: -0.02963, 0.1: -0.08683, 0.15: -0.15076, 0.2: -0.22269, 0.25: -0.3042, 0.3: -0.39736, 0.4: -0.63025, 0.5: -0.9563}
-eGFR-threshold referral rule net benefit: {30: -18.46279, 45: -25.81404}
+eGFR-threshold referral rule net benefit: {30: -0.00522, 45: -0.17051}
 
 --- Cox ---
 Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
@@ -243,7 +244,7 @@ Decision curve analysis (net benefit by risk threshold):
 
 === Horizon: 1825 days ===
 Treat-all net benefit: {0.05: -0.00508, 0.1: -0.06092, 0.15: -0.12333, 0.2: -0.19353, 0.25: -0.2731, 0.3: -0.36404, 0.4: -0.59138, 0.5: -0.90966}
-eGFR-threshold referral rule net benefit: {30: -18.00268, 45: -25.1741}
+eGFR-threshold referral rule net benefit: {30: -0.00522, 45: -0.15367}
 
 --- Cox ---
 Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)

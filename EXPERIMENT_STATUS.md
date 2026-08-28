@@ -16,16 +16,19 @@ approved). Do not restart another session's row without confirming its host is a
 | 2.1 | Feature-importance analysis + additional analyses (calibration + decision-curve, rep99 sanity check) | **done** — rerun 2026-08-27 against the retrained rep99 models (Stage 2 above); clean, no errors | SHAP reports: [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt); clinical-validity reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
 | 2 | PMF-fix rerun (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
 | 2.1 | PMF-fix rerun analyses (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
+| 2.2 | Debug self-check on Stage 2.1's rep99 analysis | **Finding #1 fixed, verified, rerun (2026-08-28)** — eGFR-referral-rule net benefit bug for twenty_features_heterogeneous; Stage 2.1's clinical-validity report regenerated for rep99 (model retraining skipped — fix doesn't touch models). **Finding #2 still open** (generic risk-score→probability transform saturates for 6/11 models' calibration/Brier/DCA numbers in every scenario) — awaiting user direction on 1 of 3 proposed options. 2 open questions (#3/#4) not yet root-caused | [report](generated_data/rep99/stage2_2_debug_report.txt) |
 | 3.0 | rep1 four_features/eight_features run (all 11 models) — analysis report, then approval gate before 3.1 and separately before `twenty_features_heterogeneous` (per Stage 3.0's scenario-ordering rule) | **run + analysis report both done** 2026-08-28, no errors — but `dynamic_deephit`'s `eight_features` model was clobbered mid-run by a second, unidentified writer (unresolved caveat carries into the analysis too — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt)); **awaiting user review + approval gate** before Stage 3.1 or `twenty_features_heterogeneous` | see Background processes below |
 | 3.1 | rep2-4 full runs (blocked on 3.0's approval gate) | **not done** — rep2/rep3/rep4 were started (2 sessions) before Stage 3 was split into 3.0/3.1; all stopped/killed by user request before finishing; needs relaunch once 3.0 is approved | see Background processes below |
 
 ## Background processes
 
-### Hazard Transformer horizon-fix rerun (rep99) — owner: session on sunlab-serv-02.cs.illinois.edu
-
-| PID | Rep | Log | Status |
-|---|---|---|---|
-| 4190139 | 99 | [stage2_ht_horizonfix_rep99.log](pkgs/scripts/logs/stage2_ht_horizonfix_rep99.log) | in progress — hazard_transformer only (own-observed-time eval was confounded by follow-up duration; fixed to a shared 365d horizon — see `EVAL_HORIZON_DAYS` in `pkgs/experiments/hazard_transformer.py`). Old checkpoints deleted to force retrain since the metric fix doesn't bump `architecture_version`. Other models untouched. Stage 2.1 (SHAP + clinical-validity, all 11 models) queued to rerun after this finishes. |
+(Hazard Transformer horizon-fix rerun on rep99, PID 4190139 on
+sunlab-serv-02, confirmed finished 2026-08-27 — log
+[stage2_ht_horizonfix_rep99.log](pkgs/scripts/logs/stage2_ht_horizonfix_rep99.log)
+ends in "DONE" for all 3 scenarios, and the Stage 2.1 rep99 reports it
+queued a rerun for are timestamped after its completion. Row dropped now
+that it's finished; see [Stage 2.2 debug report](generated_data/rep99/stage2_2_debug_report.txt)
+for the verification detail.)
 
 (Stage 3.0's rep1 four_features/eight_features run, PID 2697933 on
 sunlab-serv-02, finished 2026-08-28 05:56 CDT — 11/11 done, no errors. Row
@@ -125,3 +128,18 @@ no errors. A second clobbering incident hit `dynamic_deephit`'s
 found) — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt) for
 full detail and the caveat on using that specific model file. Analysis
 report + Stage 3.0→3.1 approval gate still pending, not started.
+
+Last Updated (Stage 2.2 debug): 2026-08-28 11:44 CDT
+(sunlab-serv-01.cs.illinois.edu) — ran Stage 2.2's self-check against Stage
+2.1's rep99 reports; 2 confirmed issues + 2 open questions, see
+[report](generated_data/rep99/stage2_2_debug_report.txt) — awaiting user
+direction before applying either proposed fix or proceeding further.
+
+Last Updated (Finding #1 fix): 2026-08-28 16:13 CDT
+(sunlab-serv-01.cs.illinois.edu) — applied the eGFR-referral-rule fix
+(user-approved), verified against rep99 data, reran Stage 2.1's
+clinical-validity driver for rep99 (model retraining skipped — fix is
+analysis-code-only), confirmed the regenerated report and unchanged
+discrimination metrics. Detail in
+[report](generated_data/rep99/stage2_2_debug_report.txt). Finding #2 still
+open, awaiting direction.

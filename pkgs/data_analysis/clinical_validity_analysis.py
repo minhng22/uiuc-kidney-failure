@@ -770,6 +770,30 @@ class ClinicalValidityAnalyzer:
 
         has_egfr = 'egfr' in df_test.columns
 
+        # eGFR-threshold referral rule rows: for scenarios where each row is one
+        # lab EVENT (e.g. twenty_features_heterogeneous — see
+        # time_series_store.py's heterogeneous branch), only the row's own drawn
+        # lab has a real value; every other lab column (including egfr) is a
+        # placeholder 0 with a companion `<lab>_missing=1` flag. Feeding those
+        # placeholder zeros into "egfr < cutoff" misclassifies them as severely
+        # low eGFR, inflating n_high toward n and blowing up the net-benefit
+        # formula's implied_pt/(1-implied_pt) term (see Stage 2.2 debug report,
+        # generated_data/rep99/stage2_2_debug_report.txt, Finding #1 — confirmed
+        # 8,613/9,115 rep99 twenty_features_heterogeneous test rows had
+        # egfr_missing=1/egfr=0). Restrict to rows with a genuine eGFR
+        # measurement when that flag column exists; four_features/eight_features
+        # have no egfr_missing column (egfr is always real there, anchored on a
+        # creatinine draw) so this is a no-op for them.
+        egfr_referral_df = df_test
+        if has_egfr and 'egfr_missing' in df_test.columns:
+            egfr_referral_df = df_test[df_test['egfr_missing'] == 0]
+            self.log(f"eGFR-threshold referral rule: restricting to "
+                      f"{len(egfr_referral_df)}/{len(df_test)} rows with a real eGFR "
+                      f"measurement (egfr_missing == 0); other rows are placeholder "
+                      f"egfr=0 from this scenario's per-lab-event row format.")
+            if len(egfr_referral_df) == 0:
+                has_egfr = False
+
         # Get every model's predictions once up front — risk_scores/durations/
         # events don't depend on horizon, only the model does.
         predictions = {}
@@ -818,8 +842,8 @@ class ClinicalValidityAnalyzer:
             if has_egfr:
                 try:
                     egfr_nb = egfr_threshold_net_benefit(
-                        df_test['egfr'].values, df_test['duration_in_days'].values,
-                        df_test['has_esrd'].values, horizon)
+                        egfr_referral_df['egfr'].values, egfr_referral_df['duration_in_days'].values,
+                        egfr_referral_df['has_esrd'].values, horizon)
                     self.log(f"eGFR-threshold referral rule net benefit: {egfr_nb}")
                 except Exception as e:
                     self.log(f"Error computing eGFR-threshold net benefit: {e}")

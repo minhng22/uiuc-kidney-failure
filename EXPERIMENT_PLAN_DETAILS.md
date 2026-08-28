@@ -406,7 +406,7 @@ mid-trained on the old 500-patient sample), were rebuilt/cleared.
 - Output report saved under `generated_data/rep<N>/<scenario>_shap_analysis_report.txt`, matching existing
   naming (`egfr_components_shap_analysis_report.txt`).
 
-### Additional analyses (beyond feature importance)
+### Additional analyses:
 
 Feature importance alone only says which inputs a model leans on, not whether its
 risk estimates are calibrated or clinically useful. Reviewed the CKD/kidney-failure
@@ -427,6 +427,8 @@ and run via
    KFRE's own validation papers (net benefit of model-guided referral vs.
    treat-all / treat-none / eGFR-threshold strategies, across a range of risk
    thresholds relevant to nephrology referral/dialysis-planning decisions).
+   - Note about "eGFR-threshold referral rule": eGFR (estimated Glomerular Filtration Rate) is the standard lab-derived measure of kidney function — roughly, how well the kidneys are filtering blood, in mL/min/1.73m². Lower eGFR = worse kidney function; it's the core input to CKD staging (e.g. eGFR < 30 is CKD stage 4, a common trigger for nephrology referral / dialysis planning in real clinical practice).
+   The "eGFR-threshold referral rule" here is just: "flag/refer a patient if their eGFR falls below cutoff X" (this repo uses X=30 and X=45) — a simple rule doctors already use today, with no model at all. It's included in the decision-curve analysis as the non-model baseline to compare against: does a trained survival model (Cox, DDH, KFRE, etc.) actually do better than "just refer everyone below this eGFR cutoff"?
 
 A third candidate, **competing-risk analysis (death before ESRD)**, was reviewed
 and explicitly decided against (user decision, 2026-08-23): it would need each
