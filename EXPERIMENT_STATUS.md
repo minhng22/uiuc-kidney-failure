@@ -21,9 +21,11 @@ approved). Do not restart another session's row without confirming its host is a
 
 ## Background processes
 
-(Stage 2/2.1 rep99 rerun — owner: session on sunlab-serv-02.cs.illinois.edu —
-finished, rows dropped; see Stage 2/2.1 rows above and
-generated_data/rep99/mini_experiment_status_report.txt for detail.)
+### Hazard Transformer horizon-fix rerun (rep99) — owner: session on sunlab-serv-02.cs.illinois.edu
+
+| PID | Rep | Log | Status |
+|---|---|---|---|
+| 4190139 | 99 | [stage2_ht_horizonfix_rep99.log](pkgs/scripts/logs/stage2_ht_horizonfix_rep99.log) | in progress — hazard_transformer only (own-observed-time eval was confounded by follow-up duration; fixed to a shared 365d horizon — see `EVAL_HORIZON_DAYS` in `pkgs/experiments/hazard_transformer.py`). Old checkpoints deleted to force retrain since the metric fix doesn't bump `architecture_version`. Other models untouched. Stage 2.1 (SHAP + clinical-validity, all 11 models) queued to rerun after this finishes. |
 
 ### Stage 3.0 (rep1 full run) — owner: session on sunlab-serv-01.cs.illinois.edu
 

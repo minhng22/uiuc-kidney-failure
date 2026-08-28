@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-08-27 18:03:23
+Generated on: 2026-08-27 20:03:51
 Repetition: 99
 Scenario: twenty_features_heterogeneous
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -17,7 +17,7 @@ Max test follow-up: 4630.9 days. Horizons used: [730, 1825]
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Cox: c_index=0.3368 brier=0.08788 auc=0.2961
   Dynamic DeepHit: c_index=0.8496 brier=0.2522 auc=0.9287
-  Hazard Transformer: c_index=0.1947 brier=0.69491 auc=0.0122
+  Hazard Transformer: c_index=0.1903 brier=0.25222 auc=0.0589
   Logistic Hazard: c_index=0.3729 brier=0.44993 auc=0.3772
   RNN-Surv: c_index=0.5178 brier=0.02872 auc=0.5053
   DeepSurv: c_index=0.6525 brier=0.28961 auc=0.5693
@@ -83,12 +83,10 @@ Decision curve analysis (net benefit by risk threshold):
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
   NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
-  n=   4 events=  1 predicted=1.0000 observed(KM)=0.25
-  n=   3 events=  1 predicted=1.0000 observed(KM)=0.3333
-  n=   5 events=  4 predicted=1.0000 observed(KM)=0.25
-  n=   6 events=  3 predicted=1.0000 observed(KM)=0.3333
-  n=   2 events=  1 predicted=1.0000 observed(KM)=None
-Integrated Brier score (0-730d): 0.69491
+  n=   6 events=  5 predicted=1.0000 observed(KM)=0.6667
+  n=  13 events=  4 predicted=1.0000 observed(KM)=0.0909
+  n=   1 events=  1 predicted=1.0000 observed(KM)=None
+Integrated Brier score (0-730d): 0.25222
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.21805  treat_all=-0.02963  treat_none=0.0
   pt=0.10  model=0.1746  treat_all=-0.08683  treat_none=0.0
@@ -298,24 +296,18 @@ Decision curve analysis (net benefit by risk threshold):
 --- Hazard Transformer ---
 Predicted-probability source: approximate (generic risk-score extrapolation — see module docstring)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=   2 events=  2 predicted=0.0496 observed(KM)=None
-  n=   2 events=  1 predicted=0.0505 observed(KM)=None
-  n=   2 events=  1 predicted=0.0758 observed(KM)=None
-  n=   2 events=  1 predicted=0.8170 observed(KM)=None
-  n=   2 events=  0 predicted=0.9923 observed(KM)=None
-  n=   4 events=  3 predicted=0.9923 observed(KM)=0.5
-  n=   4 events=  1 predicted=0.9923 observed(KM)=0.25
-  n=   2 events=  1 predicted=0.9923 observed(KM)=None
-Integrated Brier score (0-1825d): 1.74424
+  NOTE: predicted risk is the same (0.0488) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  20 events= 10 predicted=0.0488 observed(KM)=0.5414
+Integrated Brier score (0-1825d): 0.51505
 Decision curve analysis (net benefit by risk threshold):
-  pt=0.05  model=0.46731  treat_all=-0.00508  treat_none=0.0
-  pt=0.10  model=0.27234  treat_all=-0.06092  treat_none=0.0
-  pt=0.15  model=0.22796  treat_all=-0.12333  treat_none=0.0
-  pt=0.20  model=0.19846  treat_all=-0.19353  treat_none=0.0
-  pt=0.25  model=0.16502  treat_all=-0.2731  treat_none=0.0
-  pt=0.30  model=0.12681  treat_all=-0.36404  treat_none=0.0
-  pt=0.40  model=0.03128  treat_all=-0.59138  treat_none=0.0
-  pt=0.50  model=-0.10247  treat_all=-0.90966  treat_none=0.0
+  pt=0.05  model=0.0  treat_all=-0.00508  treat_none=0.0
+  pt=0.10  model=0.0  treat_all=-0.06092  treat_none=0.0
+  pt=0.15  model=0.0  treat_all=-0.12333  treat_none=0.0
+  pt=0.20  model=0.0  treat_all=-0.19353  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=-0.2731  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=-0.36404  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=-0.59138  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=-0.90966  treat_none=0.0
 
 --- Logistic Hazard ---
 Predicted-probability source: native (model output read directly at this horizon)

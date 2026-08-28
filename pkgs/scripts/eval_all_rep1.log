@@ -1,79 +1,33 @@
 Starting rep1 (CKD_REP=1)...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep1.log
-Start time: Sun Aug 23 19:28:36 CDT 2026
+Start time: Thu Aug 27 20:04:54 CDT 2026
+Running experiments IN PARALLEL; per-experiment logs: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_<experiment>.log
 =========================================
-==================== Running cox for rep1 ====================
-Start time: Sun Aug 23 19:28:36 CDT 2026
-
-Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at /home/minhn2/uiuc-kidney-failure/generated_data/rep1/ckd_fifty_features_heterogeneous_train_data.csv
-
-Running FOUR_FEATURES Cox model evaluation with time-dependent AUC...
-Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
-Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
-Number of patients: test 562 and train 2247
-Number of records: test 5511 and train 21318
-Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_cox_model.dill
-Evaluate on test data
-Concordance Index Test: 0.534
-Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
-Risk scores test: (5511,)
-Mean time-dependent AUC: 0.4817
-
-Running EIGHT_FEATURES Cox model evaluation with time-dependent AUC...
-Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
-Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
-Number of patients: test 243 and train 970
-Number of records: test 1100 and train 4307
-Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_cox_model.dill
-Evaluate on test data
-Concordance Index Test: 0.533
-Integrated Brier Score Test: 0.448
-Risk scores test: (1100,)
-Mean time-dependent AUC: 0.4964
-
-Running TWENTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...
-Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
-Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
-Number of patients: test 6521 and train 26080
-Number of records: test 1613452 and train 6512638
-Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_cox_model.dill
-Evaluate on test data
-Concordance Index Test: 0.44
-Integrated Brier Score Test: 0.872
-Risk scores test: (1613452,)
-Mean time-dependent AUC: 0.4239
-✓ cox completed successfully
-End time: Sun Aug 23 19:34:01 CDT 2026
-
-==================== Running dynamic_deephit for rep1 ====================
-Start time: Sun Aug 23 19:34:01 CDT 2026
-[I 2026-08-23 19:34:14,533] A new study created in memory with name: no-name-0bc05bd9-8a38-4bd3-bf1b-e4193ebc256f
-[I 2026-08-23 19:42:03,207] Trial 0 finished with value: 0.8290072035091955 and parameters: {'num_layer': 2, 'hidden_dim_0': 120, 'hidden_dim_1': 36, 'learning_rate': 1.0595819506210885e-05, 'drop_out_rate': 0.11357419871585882, 'llh_loss': 0.3462865228071631}. Best is trial 0 with value: 0.8290072035091955.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 19:44:59,518] Trial 1 finished with value: 0.872375145881122 and parameters: {'num_layer': 3, 'hidden_dim_0': 62, 'hidden_dim_1': 38, 'hidden_dim_2': 100, 'learning_rate': 0.0003664853514020185, 'drop_out_rate': 0.19131983356624455, 'llh_loss': 0.7975993973689492}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 19:47:42,003] Trial 2 finished with value: 0.26483560706668274 and parameters: {'num_layer': 1, 'hidden_dim_0': 128, 'learning_rate': 0.0018927402875043907, 'drop_out_rate': 0.36393818626124796, 'llh_loss': 0.7366808232658697}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 19:53:47,753] Trial 3 finished with value: 0.8573664936214737 and parameters: {'num_layer': 2, 'hidden_dim_0': 20, 'hidden_dim_1': 69, 'learning_rate': 3.248415199567393e-05, 'drop_out_rate': 0.4044088545041302, 'llh_loss': 0.40333986086802276}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 19:56:04,072] Trial 4 finished with value: 0.41976739506619987 and parameters: {'num_layer': 3, 'hidden_dim_0': 17, 'hidden_dim_1': 119, 'hidden_dim_2': 65, 'learning_rate': 1.5147938304940728e-05, 'drop_out_rate': 0.3560920527284902, 'llh_loss': 0.17135782033130542}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 20:03:52,063] Trial 5 finished with value: 0.8028733550645901 and parameters: {'num_layer': 1, 'hidden_dim_0': 101, 'learning_rate': 2.0162184200329134e-05, 'drop_out_rate': 0.3193224090714323, 'llh_loss': 0.4004199178033446}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 20:07:10,582] Trial 6 finished with value: 0.8509618093283432 and parameters: {'num_layer': 2, 'hidden_dim_0': 60, 'hidden_dim_1': 128, 'learning_rate': 0.00032387221316191315, 'drop_out_rate': 0.4781131481328772, 'llh_loss': 0.17791747715629003}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 20:09:50,722] Trial 7 finished with value: 0.8404000160972273 and parameters: {'num_layer': 1, 'hidden_dim_0': 72, 'learning_rate': 0.0008403329867097757, 'drop_out_rate': 0.2324903973066657, 'llh_loss': 0.6900318457341946}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 20:16:24,273] Trial 8 finished with value: 0.8603082619018874 and parameters: {'num_layer': 4, 'hidden_dim_0': 43, 'hidden_dim_1': 74, 'hidden_dim_2': 48, 'hidden_dim_3': 110, 'learning_rate': 1.2969349652659916e-05, 'drop_out_rate': 0.376463634779732, 'llh_loss': 0.762452480276031}. Best is trial 1 with value: 0.872375145881122.
-/home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:256: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  saved_model = torch.load(saved_path, map_location=device)
-[I 2026-08-23 20:17:21,381] Trial 9 finished with value: 0.801171073282627 and parameters: {'num_layer': 2, 'hidden_dim_0': 49, 'hidden_dim_1': 64, 'learning_rate': 0.004441710895506889, 'drop_out_rate': 0.4949089946473161, 'llh_loss': 0.45789174514023123}. Best is trial 1 with value: 0.872375145881122.
-[I 2026-08-23 20:17:42,502] A new study created in memory with name: no-name-52599d60-a82f-4e9e-a7aa-ce7977318944
+==================== Launched cox for rep1 (PID 12586, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_cox.log) ====================
+==================== Launched dynamic_deephit for rep1 (PID 12590, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_dynamic_deephit.log) ====================
+==================== Launched hazard_transformer for rep1 (PID 12595, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_hazard_transformer.log) ====================
+==================== Launched logistic_hazard for rep1 (PID 12600, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_logistic_hazard.log) ====================
+==================== Launched rnnsurv for rep1 (PID 12606, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_rnnsurv.log) ====================
+==================== Launched kfre for rep1 (PID 12612, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_kfre.log) ====================
+==================== Launched deepsurv for rep1 (PID 12617, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_deepsurv.log) ====================
+==================== Launched gbsa for rep1 (PID 12623, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_gbsa.log) ====================
+==================== Launched srf for rep1 (PID 12629, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_srf.log) ====================
+==================== Launched survival_svm for rep1 (PID 12635, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_survival_svm.log) ====================
+==================== Launched weibul for rep1 (PID 12640, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_weibul.log) ====================
+✓ weibul completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_weibul.log)
+✓ kfre completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_kfre.log)
+✓ hazard_transformer completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_hazard_transformer.log)
+✓ survival_svm completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_survival_svm.log)
+✓ deepsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_deepsurv.log)
+✓ srf completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_srf.log)
+✓ gbsa completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_gbsa.log)
+✓ dynamic_deephit completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_dynamic_deephit.log)
+✓ logistic_hazard completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_logistic_hazard.log)
+✓ rnnsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_rnnsurv.log)
+✓ cox completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_cox.log)
+=========================================
+Rep1 Summary:
+Total experiments run: 11
+Failed experiments: 0
+✓ All experiments completed successfully!
+End time: Thu Aug 27 20:04:54 CDT 2026
