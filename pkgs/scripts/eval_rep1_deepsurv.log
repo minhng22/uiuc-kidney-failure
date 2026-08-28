@@ -1,9 +1,53 @@
-Start time: Thu Aug 27 20:04:54 CDT 2026
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/deepsurv.py", line 2, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
-✗ deepsurv failed with exit code 1
-End time: Thu Aug 27 20:04:54 CDT 2026
+Start time: Thu Aug 27 20:07:24 CDT 2026
+Using GPU: cuda:1 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading from saved weights
+C-Index on Test Data: 0.474
+Integrated Brier Score Test: 0.57
+Risk scores shape: (6841,)
+First 10 risk scores: [-0.05981906 -0.05970863 -0.05982057 -0.05807529 -0.06061506 -0.05940301
+ -0.0610926  -0.05956358 -0.06001833 -0.05994125]
+y_train shape: (27361,)
+y_test shape: (6841,)
+Mean AUC: 0.461
+
+Running FOUR_FEATURES DeepSurv model evaluation...
+Using GPU: cuda:2 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Loading from saved weights
+C-Index on Test Data: 0.553
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Mean AUC: 0.562
+
+Running EIGHT_FEATURES DeepSurv model evaluation...
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Loading from saved weights
+C-Index on Test Data: 0.525
+Integrated Brier Score Test: 0.726
+Mean AUC: 0.553
+
+Running TWENTY_FEATURES_HETEROGENEOUS DeepSurv model evaluation...
+Using GPU: cuda:4 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Loading from saved weights
+C-Index on Test Data: 0.529
+Integrated Brier Score Test: 0.253
+Mean AUC: 0.537
+✓ deepsurv completed successfully
+End time: Thu Aug 27 20:08:13 CDT 2026

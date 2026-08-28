@@ -1,9 +1,64 @@
-Start time: Thu Aug 27 20:04:54 CDT 2026
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/survival_svm.py", line 2, in <module>
-    import numpy as np
-ModuleNotFoundError: No module named 'numpy'
-✗ survival_svm failed with exit code 1
-End time: Thu Aug 27 20:04:54 CDT 2026
+Start time: Thu Aug 27 20:07:24 CDT 2026
+
+Running non-time-variant Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Train data path N/A
+Test data path N/A
+Number of patients: test 6841 and train 27361
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/egfr_ti_survival_svm_model.dill
+Evaluate on test data
+Filtered out 705 test samples with duration <= 0
+Risk scores shape: (6136,)
+First 10 risk scores: [-0.04904808 -0.05716056 -0.04896866 -0.0910584  -0.02281767 -0.07125759
+ -0.0085137  -0.06501448 -0.03860225 -0.04290716]
+Concordance Index Test: 0.522
+Integrated Brier Score Test: 0.242
+Risk scores test: (6136,)
+Mean AUC: 0.468
+
+Time-variant scenarios not supported for Survival SVM
+Skipping TIME_VARIANT, HETEROGENEOUS, and EGFR_COMPONENTS scenarios
+
+Running FOUR_FEATURES Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_survival_svm_model.dill
+Filtered out 128 test samples with duration <= 0
+Concordance Index Test: 0.553
+Warning: Could not compute Brier score: time must be smaller than largest observed time point: 4216.413194444444
+Risk scores test: (434,)
+Mean AUC: 0.404
+
+Running EIGHT_FEATURES Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_survival_svm_model.dill
+Filtered out 79 test samples with duration <= 0
+Concordance Index Test: 0.566
+Integrated Brier Score Test: 0.262
+Risk scores test: (164,)
+Mean AUC: 0.384
+
+Running TWENTY_FEATURES_HETEROGENEOUS Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_survival_svm_model.dill
+Filtered out 1087 test samples with duration <= 0
+Concordance Index Test: 0.548
+Integrated Brier Score Test: 0.241
+Risk scores test: (5434,)
+Mean AUC: 0.405
+✓ survival_svm completed successfully
+End time: Thu Aug 27 20:08:12 CDT 2026

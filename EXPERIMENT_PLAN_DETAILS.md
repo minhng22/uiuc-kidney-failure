@@ -521,10 +521,11 @@ launched the same way, no separate driver script.
   (own rows/section, per the repo's background-process-tracking rules above).
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until rep1 finishes or fails-and-is-relaunched.
-- **Once rep1 finishes, produce its analysis report**: repeat Stage 2.1's analysis (SHAP-style
+- **As soon as scenarios `four_features` and `eight_features` finished for all models, produce analysis report**: repeat Stage 2.1's analysis (SHAP-style
   feature importance + the three additional analyses — calibration, decision-curve, etc.) pointed
   at rep1's models instead of rep99 — no new stage, same code/output convention as Stage 2.1, just
   rerun with `CKD_REP=1`.
+- **When rep 1 finished, produce this analysis report again**
 - **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's full
   run + analysis report and explicitly approved moving on.**
 
