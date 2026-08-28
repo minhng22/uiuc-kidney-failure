@@ -516,23 +516,51 @@ existing `run_scenario()`, same pattern already used by
 cox/ddh/hazard_transformer/logistic_hazard/rnnsurv — so all 11 are now
 launched the same way, no separate driver script.
 
+**Scenario ordering: `four_features` and
+`eight_features` for all 11 models first, across every stage below —
+`twenty_features_heterogeneous` is deliberately held back until the user
+explicitly approves running it, separately from Stage 3.0's own rep1→3.1
+approval gate.** Concretely:
+1. Launch all 11 models for `four_features`/`eight_features` only.
+2. Once those finish, produce the analysis report, Stage 2.1-style(SHAP-style feature importance + the three additional
+  analyses — calibration, decision-curve, etc.), for `four_features`/`eight_features` only.
+3. **Do not launch `twenty_features_heterogeneous` for any model until the
+   user has reviewed that four/eight_features analysis and separately
+   approved running it** — in addition to (not a replacement for) Stage
+   3.0's existing rep1→3.1 approval gate below.
+
 - Launch all 11 via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh)
   (no new script) for `N=1` only — in the background, PID/log recorded in `EXPERIMENT_STATUS.md`
-  (own rows/section, per the repo's background-process-tracking rules above).
+  (own rows/section, per the repo's background-process-tracking rules above). Since `run_rep.sh`
+  itself has no per-scenario scope flag, launching "four_features/eight_features only" per the
+  ordering rule above means either passing/filtering scenarios at the point this is actually
+  launched (whatever mechanism that session uses — scoped driver, env var, or editing the
+  invocation) or explicitly deferring/skipping any `twenty_features_heterogeneous` runs a shared
+  `__main__` block would otherwise trigger, and recording which approach was used alongside the
+  PID/log.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until rep1 finishes or fails-and-is-relaunched.
-- **As soon as scenarios `four_features` and `eight_features` finished for all models, produce analysis report**: repeat Stage 2.1's analysis (SHAP-style
-  feature importance + the three additional analyses — calibration, decision-curve, etc.) pointed
-  at rep1's models instead of rep99 — no new stage, same code/output convention as Stage 2.1, just
-  rerun with `CKD_REP=1`.
-- **When rep 1 finished, produce this analysis report again**
-- **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's full
-  run + analysis report and explicitly approved moving on.**
+- **When `four_features` + `eight_features` + `twenty_features_heterogeneous` finish for all models, produce the analysis
+  report again**: repeat Stage 2.1's analysis (SHAP-style feature importance + the three additional
+  analyses — calibration, decision-curve, etc.) pointed at rep1's models instead of rep99, scoped
+  to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
+  2.1, just rerun with `CKD_REP=1`.
+- **As soon as `four_features`/`eight_features` finish for all models, produce the analysis
+  report**: repeat Stage 2.1's analysis (SHAP-style feature importance + the three additional
+  analyses — calibration, decision-curve, etc.) pointed at rep1's models instead of rep99, scoped
+  to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
+  2.1, just rerun with `CKD_REP=1`.
+- **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's
+  four_features/eight_features run + analysis report and explicitly approved moving on** (and,
+  separately, `twenty_features_heterogeneous` stays gated per the ordering rule above regardless
+  of this gate's outcome — once approved, re-run the analysis report to also cover it).
 
 ## Stage 3.1: Full experiment runs (rep2 → rep4)
 Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone — requires Stage
 3.0's approval gate to have passed first. Same model scope as Stage 3.0: all 11 models via
-`run_rep.sh`.
+`run_rep.sh`. Same scenario-ordering rule as Stage 3.0 applies here too: four_features/
+eight_features for all 11 models first, analysis, then separate user approval before touching
+`twenty_features_heterogeneous`.
 
 - Launch full runs via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new
   script) for `N` in 2, 3, 4 — each in the background, each PID/log recorded in
@@ -551,11 +579,14 @@ Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone �
   auto-check rules above.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until the launched reps finish or fail-and-are-relaunched.
-- **After rep2-4 finish**: repeat Stage 2.1's analysis (SHAP + the three additional analyses) per
-  rep, pointed at each rep's models instead of rep99 — no new stage, same code/output convention
-  as Stage 2.1/3.0, just rerun with `CKD_REP=<N>` for `N` in 2, 3, 4. The SHAP part can start
-  per-rep as soon as that rep finishes; the three additional analyses can also start per-rep
-  (rep99's small subsample is the only reason those were sanity-checked there first — full reps
-  don't have that limitation), no need to wait for all 3 before starting.
+- **After each rep's `four_features`/`eight_features` finish**: repeat Stage 2.1's analysis (SHAP
+  + the three additional analyses) for that rep, scoped to `four_features`/`eight_features` only,
+  pointed at that rep's models instead of rep99 — no new stage, same code/output convention as
+  Stage 2.1/3.0, just rerun with `CKD_REP=<N>` for `N` in 2, 3, 4. The SHAP part can start per-rep
+  as soon as that rep finishes; the three additional analyses can also start per-rep (rep99's
+  small subsample is the only reason those were sanity-checked there first — full reps don't have
+  that limitation), no need to wait for all 3 before starting. `twenty_features_heterogeneous`
+  stays gated per the scenario-ordering rule above — hold off launching it (and its own analysis
+  rerun) for any rep until the user approves it, same as Stage 3.0.
 
 ## Open questions before implementation starts
