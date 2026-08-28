@@ -522,45 +522,54 @@ launched the same way, no separate driver script.
 explicitly approves running it, separately from Stage 3.0's own rep1→3.1
 approval gate.** Concretely:
 1. Launch all 11 models for `four_features`/`eight_features` only.
+  - Launch all 11 via [pkgs/scripts/run_rep_stage3_0_four_eight.sh](pkgs/scripts/run_rep_stage3_0_four_eight.sh)
+  `<rep_number>` — not `run_rep.sh` directly, since `run_rep.sh` has no
+  per-scenario scope flag and 10 of the 11 models' `__main__` blocks always
+  also train `twenty_features_heterogeneous`. This wrapper follows the same
+  conventions as `run_rep.sh` (background/setsid, one subprocess per
+  experiment, per-experiment logs, PID file) but calls
+  [pkgs/scripts/run_stage3_0_four_eight_features.py](pkgs/scripts/run_stage3_0_four_eight_features.py)
+  per model, which calls each model's underlying run function directly for
+  `FOUR_FEATURES`/`EIGHT_FEATURES` only, bypassing `__main__` entirely.
+  Reuse this same script pair for Stage 3.1's reps too.
+  - Launch for `N=1` only — PID/log recorded in `EXPERIMENT_STATUS.md` (own
+  rows/section, per the repo's background-process-tracking rules above).
+  - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
+  log tail) and the plan doc updated until rep1 finishes or fails-and-is-relaunched.
 2. Once those finish, produce the analysis report, Stage 2.1-style(SHAP-style feature importance + the three additional
-  analyses — calibration, decision-curve, etc.), for `four_features`/`eight_features` only.
+  analyses — calibration, decision-curve, etc.), for `four_features`/`eight_features` only. Guide:
+  - Use the scoped variants:
+    [pkgs/scripts/run_stage3_0_four_eight_feature_importance.py](pkgs/scripts/run_stage3_0_four_eight_feature_importance.py)
+    and
+    [pkgs/scripts/run_stage3_0_four_eight_clinical_validity.py](pkgs/scripts/run_stage3_0_four_eight_clinical_validity.py)
+    — same analyzer classes, any `CKD_REP`, four_features/eight_features only.
+  - `CKD_REP=1 PYTHONPATH=. python -m pkgs.scripts.run_stage3_0_four_eight_feature_importance`
+    then `CKD_REP=1 PYTHONPATH=. python -m pkgs.scripts.run_stage3_0_four_eight_clinical_validity`.
 3. **Do not launch `twenty_features_heterogeneous` for any model until the
    user has reviewed that four/eight_features analysis and separately
    approved running it** — in addition to (not a replacement for) Stage
    3.0's existing rep1→3.1 approval gate below.
-
-- Launch all 11 via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh)
-  (no new script) for `N=1` only — in the background, PID/log recorded in `EXPERIMENT_STATUS.md`
-  (own rows/section, per the repo's background-process-tracking rules above). Since `run_rep.sh`
-  itself has no per-scenario scope flag, launching "four_features/eight_features only" per the
-  ordering rule above means either passing/filtering scenarios at the point this is actually
-  launched (whatever mechanism that session uses — scoped driver, env var, or editing the
-  invocation) or explicitly deferring/skipping any `twenty_features_heterogeneous` runs a shared
-  `__main__` block would otherwise trigger, and recording which approach was used alongside the
-  PID/log.
-- Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
-  log tail) and the plan doc updated until rep1 finishes or fails-and-is-relaunched.
-- **When `four_features` + `eight_features` + `twenty_features_heterogeneous` finish for all models, produce the analysis
+4. After approve, launch `twenty_features_heterogeneous`. Guide:
+  - Launch via [pkgs/scripts/run_rep_stage3_0_twenty.sh](pkgs/scripts/run_rep_stage3_0_twenty.sh)
+    `<rep_number>` — mirrors `run_rep_stage3_0_four_eight.sh`'s conventions, calling
+    [pkgs/scripts/run_stage3_0_twenty_features.py](pkgs/scripts/run_stage3_0_twenty_features.py)
+    per model for `TWENTY_FEATURES_HETEROGENEOUS` only. 10 models, not 11 —
+    `kfre` is excluded (no published equation for this scenario).
+5. **When `four_features` + `eight_features` + `twenty_features_heterogeneous` finish for all models, produce the analysis
   report again**: repeat Stage 2.1's analysis (SHAP-style feature importance + the three additional
   analyses — calibration, decision-curve, etc.) pointed at rep1's models instead of rep99, scoped
   to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
   2.1, just rerun with `CKD_REP=1`.
-- **As soon as `four_features`/`eight_features` finish for all models, produce the analysis
-  report**: repeat Stage 2.1's analysis (SHAP-style feature importance + the three additional
-  analyses — calibration, decision-curve, etc.) pointed at rep1's models instead of rep99, scoped
-  to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
-  2.1, just rerun with `CKD_REP=1`.
-- **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's
-  four_features/eight_features run + analysis report and explicitly approved moving on** (and,
-  separately, `twenty_features_heterogeneous` stays gated per the ordering rule above regardless
-  of this gate's outcome — once approved, re-run the analysis report to also cover it).
+6. **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's
+    four_features/eight_features run + analysis report and explicitly approved moving on** (and,
+    separately, `twenty_features_heterogeneous` stays gated per the ordering rule above regardless
+    of this gate's outcome — once approved, re-run the analysis report to also cover it).
 
 ## Stage 3.1: Full experiment runs (rep2 → rep4)
 Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone — requires Stage
 3.0's approval gate to have passed first. Same model scope as Stage 3.0: all 11 models via
-`run_rep.sh`. Same scenario-ordering rule as Stage 3.0 applies here too: four_features/
-eight_features for all 11 models first, analysis, then separate user approval before touching
-`twenty_features_heterogeneous`.
+`run_rep.sh`. Different scenario-ordering rule fromt Stage 3.0: four_features/
+eight_features/twenty_features_heterogeneous for all 11 models first then analysis
 
 - Launch full runs via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new
   script) for `N` in 2, 3, 4 — each in the background, each PID/log recorded in
@@ -579,14 +588,7 @@ eight_features for all 11 models first, analysis, then separate user approval be
   auto-check rules above.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until the launched reps finish or fail-and-are-relaunched.
-- **After each rep's `four_features`/`eight_features` finish**: repeat Stage 2.1's analysis (SHAP
-  + the three additional analyses) for that rep, scoped to `four_features`/`eight_features` only,
-  pointed at that rep's models instead of rep99 — no new stage, same code/output convention as
-  Stage 2.1/3.0, just rerun with `CKD_REP=<N>` for `N` in 2, 3, 4. The SHAP part can start per-rep
-  as soon as that rep finishes; the three additional analyses can also start per-rep (rep99's
-  small subsample is the only reason those were sanity-checked there first — full reps don't have
-  that limitation), no need to wait for all 3 before starting. `twenty_features_heterogeneous`
-  stays gated per the scenario-ordering rule above — hold off launching it (and its own analysis
-  rerun) for any rep until the user approves it, same as Stage 3.0.
+- **After each rep finish**: repeat Stage 2.1's analysis (SHAP
+  + the three additional analyses) for that rep
 
 ## Open questions before implementation starts

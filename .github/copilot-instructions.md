@@ -170,6 +170,28 @@ intend.
   for the pattern), rather than editing the shared `__main__` block, unless
   the user has approved that edit (per the previous-stage-work rule above).
 
+## When a plan doc's guidance leads you to write a new script, record that script in the plan doc
+
+If an `*_EXPERIMENT_PLAN.md`/`EXPERIMENT_PLAN_DETAILS.md` section describes a
+mechanism only in the abstract (e.g. "a scoped driver", "filtering scenarios
+at the point this is actually launched — whatever mechanism that session
+uses") and, following that guidance, you write the actual script/driver that
+implements it, go back and edit that same section to name the concrete
+script(s) you built and how to invoke them — don't leave the doc still
+describing the mechanism in the abstract once a concrete implementation
+exists.
+
+- **Why:** a plan doc that still says "whatever mechanism that session uses"
+  after a concrete script has already been built for exactly that purpose
+  sends the next session (this one in a later turn, or a different one) to
+  re-derive or re-implement the same driver from scratch, duplicating work
+  and risking a second, slightly different scoped driver that behaves
+  differently from the first.
+- Do this in addition to (not instead of) the existing PID/log/report-file
+  recording rules above — the plan doc's own body is where the abstract
+  guidance lives, so that's where its concrete resolution belongs too, right
+  next to the guidance it resolves.
+
 ## When a bug is found in experiment code, verify the fix on rep99 first
 
 If you discover a bug in `pkgs/experiments/*.py` (or code it depends on,

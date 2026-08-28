@@ -16,7 +16,7 @@ approved). Do not restart another session's row without confirming its host is a
 | 2.1 | Feature-importance analysis + additional analyses (calibration + decision-curve, rep99 sanity check) | **done** — rerun 2026-08-27 against the retrained rep99 models (Stage 2 above); clean, no errors | SHAP reports: [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt); clinical-validity reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
 | 2 | PMF-fix rerun (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
 | 2.1 | PMF-fix rerun analyses (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
-| 3.0 | rep1 full run + analysis report — approval gate before 3.1. Model scope widened by user decision 2026-08-27: now 11 models (original 6 + deepsurv/gbsa/srf/survival_svm/weibul, all launched via `run_rep.sh` — their `__main__` blocks now cover the 3 new scenarios directly) | **running** — relaunched 2026-08-27 with the widened scope (8 models: ddh/hazard_transformer/rnnsurv/deepsurv/gbsa/srf/survival_svm/weibul; cox/kfre/logistic_hazard already done from an earlier run) — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt) | see Background processes below |
+| 3.0 | rep1 four_features/eight_features run (all 11 models) — analysis report, then approval gate before 3.1 and separately before `twenty_features_heterogeneous` (per Stage 3.0's scenario-ordering rule) | **11/11 done** 2026-08-28 05:56 CDT, no errors — but `dynamic_deephit`'s `eight_features` model was clobbered mid-run by a second, unidentified writer (unresolved — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt)); analysis report + approval gate still pending | see Background processes below |
 | 3.1 | rep2-4 full runs (blocked on 3.0's approval gate) | **not done** — rep2/rep3/rep4 were started (2 sessions) before Stage 3 was split into 3.0/3.1; all stopped/killed by user request before finishing; needs relaunch once 3.0 is approved | see Background processes below |
 
 ## Background processes
@@ -27,11 +27,10 @@ approved). Do not restart another session's row without confirming its host is a
 |---|---|---|---|
 | 4190139 | 99 | [stage2_ht_horizonfix_rep99.log](pkgs/scripts/logs/stage2_ht_horizonfix_rep99.log) | in progress — hazard_transformer only (own-observed-time eval was confounded by follow-up duration; fixed to a shared 365d horizon — see `EVAL_HORIZON_DAYS` in `pkgs/experiments/hazard_transformer.py`). Old checkpoints deleted to force retrain since the metric fix doesn't bump `architecture_version`. Other models untouched. Stage 2.1 (SHAP + clinical-validity, all 11 models) queued to rerun after this finishes. |
 
-### Stage 3.0 (rep1 full run) — owner: session on sunlab-serv-01.cs.illinois.edu
-
-| PID | Rep | Log | Status |
-|---|---|---|---|
-| 2458050 | 1 | [eval_all_rep1_resume3.log](pkgs/scripts/eval_all_rep1_resume3.log) | in progress — dynamic_deephit/hazard_transformer/rnnsurv/gbsa/srf running, no errors; deepsurv+survival_svm+weibul done (weibul via separate retry PID, fix confirmed — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt)) |
+(Stage 3.0's rep1 four_features/eight_features run, PID 2697933 on
+sunlab-serv-02, finished 2026-08-28 05:56 CDT — 11/11 done, no errors. Row
+dropped now that it's finished; full story, including a second clobbering
+incident mid-run, in [report](generated_data/rep1/stage3_0_rep1_run_report.txt).)
 
 Launch/reuse-plan details: [report](generated_data/rep1/stage3_0_rep1_run_report.txt).
 `get_device()` GPU-selection change + parallel experiment launching + this resume
@@ -109,3 +108,20 @@ Last Updated (PMF rerun): 2026-08-27 18:00 CDT
 (sunlab-serv-02.cs.illinois.edu) — rep99 Stage 2 retraining and both scoped
 Stage 2.1 analyses completed; see
 [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt).
+
+Last Updated (Stage 3.0 restart): 2026-08-28 01:16 CDT
+(sunlab-serv-02.cs.illinois.edu) — everything above this line about PID
+2458050 is superseded: an untracked duplicate run collided with it and
+deleted rep1's four_features/eight_features model files (full incident in
+[report](generated_data/rep1/stage3_0_rep1_run_report.txt)); both process
+trees killed, rep1 restarted from scratch as PID 2697933 via the new scoped
+driver, per-scenario logs confirmed clean so far — see the Background
+processes row above.
+
+Last Updated (Stage 3.0 four/eight complete): 2026-08-28 05:56 CDT
+(sunlab-serv-02.cs.illinois.edu) — PID 2697933 finished, 11/11 models done,
+no errors. A second clobbering incident hit `dynamic_deephit`'s
+`eight_features` model mid-run (unidentified second writer, root cause not
+found) — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt) for
+full detail and the caveat on using that specific model file. Analysis
+report + Stage 3.0→3.1 approval gate still pending, not started.

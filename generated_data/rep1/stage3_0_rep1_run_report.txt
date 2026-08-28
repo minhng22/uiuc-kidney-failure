@@ -86,3 +86,114 @@ group (`kill -TERM -2449903`); confirmed dead via `ps -p` (no matches for
 remain, and `nvidia-smi` shows 0% util / ~0 MiB used on all 8 GPUs. No models
 had finished in this relaunch before the kill (elapsed ~6m50s). Stage 3.0 is
 again stopped pending relaunch (not resumed automatically).
+
+Incident: untracked duplicate rep1 run + resulting model-file loss (2026-08-27/28)
+------------------------------------------------------------------------------------
+Discovered from sunlab-serv-02.cs.illinois.edu: a second, completely
+untracked `run_rep.sh 1` process tree (master PID 13436, `CKD_REP=1`,
+launched ~2026-08-27 20:07 on serv-02) had been running concurrently with
+the doc-tracked resume3 run (PID 2458050, serv-01) — never logged in
+`EXPERIMENT_STATUS.md` or any report. Both hosts were training
+`dynamic_deephit`/`hazard_transformer`/`gbsa` for rep1 at the same time,
+writing to the same shared `generated_data/rep1/...` model-file paths
+(`torch.save`/`joblib.dump`, non-atomic). `rnnsurv` and `srf` had already
+failed on the serv-02 copy (exit 1, exit 137/OOM) before this was found. A
+sibling untracked `run_rep2.pid` (PID 12138) from the same window on serv-02
+had already died on its own — every one of its 10 experiments failed
+instantly with `ModuleNotFoundError` (wrong interpreter/venv), no clobber
+risk there.
+
+Evidence of actual corruption from the collision: repo commit `d698189`
+("init", 2026-08-28 00:30:07) shows every `four_features`/`eight_features`
+(and two `twenty_features_heterogeneous`) model artifact for rep1 across
+nearly all 11 models deleted/emptied out from under the running processes
+(`git show --stat` shows each as e.g. `Bin 234903 -> 0 bytes`) — consistent
+with two processes racing to open the same model file for writing. Verified
+post-kill: none of those paths exist any more on disk (not 0-byte, fully
+absent) — i.e. every four_features/eight_features model for rep1 needs
+retraining from scratch regardless of which run's results anyone might have
+preferred to keep.
+
+Resolution: both process trees killed —
+`kill -TERM -13436` on serv-02 (confirmed dead, no `pkgs.experiments`
+processes remained), and `kill -TERM -2458050` on serv-01 (killed and
+confirmed dead by the user directly). Stage 3.0's rep1 four_features/
+eight_features work restarted from scratch afterward — see "Relaunch
+(scoped four/eight only)" below. Root cause of the duplicate launch itself
+(which session/host started PID 13436, and why it went unlogged) was not
+recoverable from available logs.
+
+Relaunch (scoped four/eight only) (2026-08-28, sunlab-serv-02.cs.illinois.edu)
+---------------------------------------------------------------------------------
+Per the incident above, rep1 had no surviving four_features/eight_features
+model artifacts for any model, so this is a clean retrain, not a resume.
+Launched via the new scoped driver (see EXPERIMENT_PLAN_DETAILS.md Stage 3.0
+for why a scoped driver instead of `run_rep.sh` directly — the ordering rule
+requires holding back `twenty_features_heterogeneous`, and 10 of 11 models'
+`__main__` blocks don't support that on their own):
+- Command: `pkgs/scripts/run_rep_stage3_0_four_eight.sh 1`
+- PID: 2697933, host: sunlab-serv-02.cs.illinois.edu
+- Log: pkgs/scripts/eval_all_rep1_stage3_0_four_eight.log
+- Per-experiment logs: pkgs/scripts/eval_rep1_stage3_0_four_eight_<experiment>.log
+- Start time: 2026-08-28 01:16:04 CDT
+- Verified clean: cox/kfre/hazard_transformer/deepsurv/survival_svm/weibul
+  completed within the first ~15s (no cached four/eight models existed, so
+  these trained fresh rather than silently reusing anything from the
+  corrupted run); dynamic_deephit/logistic_hazard/gbsa/srf running.
+  Confirmed via `grep` across all per-experiment logs that no
+  `twenty_features_heterogeneous`/`TWENTY_FEATURES` string appears anywhere
+  — the scenario gate is holding.
+
+Second clobbering incident, mid-run (2026-08-28, sunlab-serv-02.cs.illinois.edu)
+------------------------------------------------------------------------------------
+10/11 models finished cleanly and quickly (cox/kfre/hazard_transformer/
+logistic_hazard/rnnsurv/deepsurv/srf/survival_svm/weibul/gbsa — all done by
+~03:32 CDT). `dynamic_deephit` took much longer (its own two 10-trial optuna
+searches, ~4h40m total) and during its `eight_features` search, clear
+evidence emerged of a second, unidentified process also running
+`run(EIGHT_FEATURES)` concurrently against the same rep1 paths:
+- `pkgs/scripts/eval_rep1_stage3_0_four_eight_dynamic_deephit.log` shows 4
+  distinct "A new study created in memory" events, though this process's own
+  code (`run_stage3_0_four_eight_features.py` calling `dynamic_deephit.run()`
+  exactly twice, and `run()` calling `ex_optuna`/`optuna.create_study()` at
+  most once per call) can produce at most 2 in one process's lifetime.
+  `lsof` confirmed only PID 2697976 (this host) had the log file open, so a
+  second host is implicated, not a second local process.
+- Trial-number sequences appeared out of order (e.g. "Trial 2 finished"
+  before "Trial 1 finished") — interleaved writes from two independent
+  optuna studies into the same shared log file.
+- `generated_data/rep1/eight_features_ddh_model.pt` was overwritten three
+  times during this window (05:14, 3.2MB; 05:23, 1.0MB; 05:56, 2.1MB) —
+  each a different model architecture/size, consistent with two independent
+  optuna searches each saving their own "best" result to the same path.
+  The file was verified loadable (`torch.load`) at every check — not
+  corrupted, just overwritten by whichever process's `run()` call finished
+  last. `four_features_ddh_model.pt` was not affected (only saved once, at
+  05:04, before the second writer's activity appeared).
+- Root cause (which host, which session) not identified — never surfaced by
+  the user during the incident, and no second host's row was ever added to
+  EXPERIMENT_STATUS.md's Stage 3.0 section to explain it. This host's own
+  process (PID 2697933 tree) never errored and was not touched.
+- **Caveat for downstream use:** `dynamic_deephit`'s own printed eval
+  metrics for `eight_features` (C-index 0.735, AUC 0.92, Brier 0.153, logged
+  above) are self-consistent — they come from the in-memory model this
+  process's own optuna search produced, evaluated before any save/overwrite
+  race. But whatever `eight_features_ddh_model.pt` holds on disk right now
+  may be a *different* model (the other process's result) than the one those
+  metrics describe. Anything that loads this file from disk later (e.g. the
+  Stage 2.1-style SHAP/feature-importance analysis) should be aware the
+  metrics and the on-disk model may not match. Retraining
+  `dynamic_deephit`/`eight_features` cleanly (delete the file, rerun) before
+  relying on it for feature-importance analysis is the safe option if this
+  matters for that analysis.
+
+Completion (2026-08-28 05:56:38 CDT, sunlab-serv-02.cs.illinois.edu)
+------------------------------------------------------------------------------
+All 11 models finished successfully for `four_features`/`eight_features`,
+rep1, zero failures reported by `run_rep_stage3_0_four_eight.sh`'s own
+summary. `twenty_features_heterogeneous` was never triggered (confirmed via
+grep across every per-experiment log). Next: Stage 2.1-style analysis report
+(per EXPERIMENT_PLAN_DETAILS.md Stage 3.0 step 2's guide — the
+`run_stage3_0_four_eight_feature_importance.py`/
+`run_stage3_0_four_eight_clinical_validity.py` scripts), then the Stage
+3.0→3.1 approval gate — both still pending, not started by this session.

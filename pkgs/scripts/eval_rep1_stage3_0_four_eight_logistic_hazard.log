@@ -1,0 +1,57 @@
+Start time: Fri Aug 28 01:16:04 CDT 2026
+Using GPU: cuda:2 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=4, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.45177494852907885, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=16, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.45177494852907885, inplace=False)
+    )
+    (2): Linear(in_features=16, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for four_features ===
+Global test C-index: 0.463
+Event rate: 467/562 (83.10%)
+Mean time-dependent AUC: 0.564
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=8, out_features=16, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.3909492265156267, inplace=False)
+    )
+    (1): Linear(in_features=16, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for eight_features ===
+Global test C-index: 0.491
+Event rate: 212/243 (87.24%)
+Mean time-dependent AUC: 0.533
+Integrated Brier Score Test: 0.573
+✓ logistic_hazard completed successfully
+End time: Fri Aug 28 01:16:34 CDT 2026

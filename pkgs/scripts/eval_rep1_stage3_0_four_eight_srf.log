@@ -1,0 +1,31 @@
+Start time: Fri Aug 28 01:16:04 CDT 2026
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.3s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_srf_model.dill
+Model file found at /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_srf_model.dill. Loading model...
+X shape: (562, 4)
+Concordance Index Test: 0.53
+Mean AUC: 0.54
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_srf_model.dill
+Model file found at /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_srf_model.dill. Loading model...
+X shape: (243, 8)
+Concordance Index Test: 0.513
+Mean AUC: 0.523
+Integrated Brier Score Test: 0.261
+✓ srf completed successfully
+End time: Fri Aug 28 01:16:32 CDT 2026

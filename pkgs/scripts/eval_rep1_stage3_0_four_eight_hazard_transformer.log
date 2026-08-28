@@ -1,0 +1,87 @@
+Start time: Fri Aug 28 01:16:04 CDT 2026
+Using GPU: cuda:1 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Loading from saved weights
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=4, out_features=20, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=10, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=10, out_features=20, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-1): 2 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=20, out_features=20, bias=True)
+        )
+        (linear1): Linear(in_features=20, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.3492721226198928, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=20, bias=True)
+        (norm1): LayerNorm((20,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((20,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.3492721226198928, inplace=False)
+        (dropout2): Dropout(p=0.3492721226198928, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=20, out_features=10, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=10, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.6322
+Mean time-dependent AUC: 0.71
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Loading from saved weights
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=8, out_features=42, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=21, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=21, out_features=42, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-4): 5 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=42, out_features=42, bias=True)
+        )
+        (linear1): Linear(in_features=42, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.3743472980738888, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=42, bias=True)
+        (norm1): LayerNorm((42,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((42,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.3743472980738888, inplace=False)
+        (dropout2): Dropout(p=0.3743472980738888, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=42, out_features=21, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=21, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.6074
+Mean time-dependent AUC: 0.65
+Integrated Brier Score Test: 0.966
+✓ hazard_transformer completed successfully
+End time: Fri Aug 28 01:16:18 CDT 2026

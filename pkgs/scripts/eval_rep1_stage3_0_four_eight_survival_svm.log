@@ -1,0 +1,25 @@
+Start time: Fri Aug 28 01:16:04 CDT 2026
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_survival_svm_model.dill
+Filtered out 128 test samples with duration <= 0
+Concordance Index Test: 0.553
+Warning: Could not compute Brier score: time must be smaller than largest observed time point: 4216.413194444444
+Risk scores test: (434,)
+Mean AUC: 0.404
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_survival_svm_model.dill
+Filtered out 79 test samples with duration <= 0
+Concordance Index Test: 0.566
+Integrated Brier Score Test: 0.262
+Risk scores test: (164,)
+Mean AUC: 0.384
+✓ survival_svm completed successfully
+End time: Fri Aug 28 01:16:13 CDT 2026
