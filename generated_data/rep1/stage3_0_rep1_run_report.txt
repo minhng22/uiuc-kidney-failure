@@ -192,8 +192,32 @@ Completion (2026-08-28 05:56:38 CDT, sunlab-serv-02.cs.illinois.edu)
 All 11 models finished successfully for `four_features`/`eight_features`,
 rep1, zero failures reported by `run_rep_stage3_0_four_eight.sh`'s own
 summary. `twenty_features_heterogeneous` was never triggered (confirmed via
-grep across every per-experiment log). Next: Stage 2.1-style analysis report
-(per EXPERIMENT_PLAN_DETAILS.md Stage 3.0 step 2's guide — the
-`run_stage3_0_four_eight_feature_importance.py`/
-`run_stage3_0_four_eight_clinical_validity.py` scripts), then the Stage
-3.0→3.1 approval gate — both still pending, not started by this session.
+grep across every per-experiment log).
+
+Analysis report (2026-08-28 10:56-10:58 CDT, sunlab-serv-02.cs.illinois.edu)
+------------------------------------------------------------------------------
+Per Stage 3.0 step 2's guide (EXPERIMENT_PLAN_DETAILS.md), ran both scoped
+analysis scripts against `CKD_REP=1`, `four_features`/`eight_features` only
+— no approval gate on this step, only on `twenty_features_heterogeneous`
+and Stage 3.1:
+- `CKD_REP=1 PYTHONPATH=. python -m pkgs.scripts.run_stage3_0_four_eight_feature_importance`
+  — clean, no errors. Outputs:
+  generated_data/rep1/{four,eight}_features_shap_analysis_report.txt,
+  generated_data/rep1/{four,eight}_features_all_models_feature_importance.png.
+- `CKD_REP=1 PYTHONPATH=. python -m pkgs.scripts.run_stage3_0_four_eight_clinical_validity`
+  — clean, no errors. Outputs:
+  generated_data/rep1/{four,eight}_features_clinical_validity_report.txt,
+  generated_data/rep1/{four,eight}_features_calibration_plot.png,
+  generated_data/rep1/{four,eight}_features_decision_curve_plot.png,
+  generated_data/rep1/{c_index,brier,auc}_comparison.png.
+- Caveat carried over from the clobbering incident above still applies:
+  `dynamic_deephit`'s `eight_features` SHAP/calibration numbers in this
+  analysis were computed against whatever `eight_features_ddh_model.pt`
+  held on disk when this analysis ran (loaded fresh from disk, not the
+  in-memory model from training) — so they may reflect the other process's
+  model rather than the one dynamic_deephit's own training log reported
+  metrics for.
+
+Next: Stage 3.0→3.1 approval gate — user needs to review this analysis and
+explicitly approve before rep2-4 (Stage 3.1) or `twenty_features_heterogeneous`
+proceed.

@@ -504,6 +504,21 @@ metrics-correctness investigation per model, and citations backing this
 methodology): see
 [report](generated_data/rep99/stage2_1_implementation_report.txt).
 
+## Stage 2.2: Debug
+
+Look at analysis report in stage 2.1
+Ask your self:
+1. Are models's performance consistent (e.g.: no model low on c-index but also low on Brier)?
+1. Are there any models that should perform well, but performing poorly?
+1. Do the model's performance tell a cohesive story?
+1. Are there any model performing too well compared to the rest (e.g. c-index too close to 1)?
+1. Are these performance ready to be included in a paper to publish in good journal? **IMPORTANT**:Model performs
+bad is not a problem. The problem is the model performance hints that there is a bug in model architecture.
+
+If there are issues, investigate why. Then propose and wait for user agreement on the fix. If user agrees, apply the fix. Then run stage 2.0 -> 2.2 again, no need to ask
+permission.
+
+If not, investigate if there is a problem with model structure.
 ## Stage 3.0: rep1 full experiment run + analysis report — approval gate before 3.1
 After stage 2 and stage 2.1 passes, get approval before run this stage.
 
@@ -549,21 +564,51 @@ approval gate.** Concretely:
    user has reviewed that four/eight_features analysis and separately
    approved running it** — in addition to (not a replacement for) Stage
    3.0's existing rep1→3.1 approval gate below.
-4. After approve, launch `twenty_features_heterogeneous`. Guide:
+4. **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's
+    four_features/eight_features run + analysis report and explicitly approved moving on** (and,
+    separately, `twenty_features_heterogeneous` stays gated per the ordering rule above regardless
+    of this gate's outcome — once approved, re-run the analysis report to also cover it).
+
+## Stage 3.0.1: Debug
+
+Look at analysis report in stage 3.0
+Ask your self:
+1. Are models's performance consistent (e.g.: no model low on c-index but also low on Brier)?
+1. Are there any models that should perform well, but performing poorly?
+1. Do the model's performance tell a cohesive story?
+1. Are there any model performing too well compared to the rest (e.g. c-index too close to 1)?
+1. Are these performance ready to be included in a paper to publish in good journal? **IMPORTANT**:Model performs
+bad is not a problem. The problem is the model performance hints that there is a bug in model architecture.
+
+If there are issues, investigate why. Ask for user agreement on the fix. If user agrees, apply the fix. Then run stage 2.0 -> 3.0.1 again, no need to ask
+permission.
+
+## Stage 3.0.2: twenty_features_heterogeneous on rep 1
+1. After user approved, launch `twenty_features_heterogeneous`. Guide:
   - Launch via [pkgs/scripts/run_rep_stage3_0_twenty.sh](pkgs/scripts/run_rep_stage3_0_twenty.sh)
     `<rep_number>` — mirrors `run_rep_stage3_0_four_eight.sh`'s conventions, calling
     [pkgs/scripts/run_stage3_0_twenty_features.py](pkgs/scripts/run_stage3_0_twenty_features.py)
     per model for `TWENTY_FEATURES_HETEROGENEOUS` only. 10 models, not 11 —
     `kfre` is excluded (no published equation for this scenario).
-5. **When `four_features` + `eight_features` + `twenty_features_heterogeneous` finish for all models, produce the analysis
+1. **When `four_features` + `eight_features` + `twenty_features_heterogeneous` finish for all models, produce the analysis
   report again**: repeat Stage 2.1's analysis (SHAP-style feature importance + the three additional
   analyses — calibration, decision-curve, etc.) pointed at rep1's models instead of rep99, scoped
   to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
   2.1, just rerun with `CKD_REP=1`.
-6. **Approval gate: do not proceed to Stage 3.1 (rep2-4) until the user has reviewed rep1's
-    four_features/eight_features run + analysis report and explicitly approved moving on** (and,
-    separately, `twenty_features_heterogeneous` stays gated per the ordering rule above regardless
-    of this gate's outcome — once approved, re-run the analysis report to also cover it).
+
+## Stage 3.0.3: Debug
+
+Look at analysis report in stage 3.0
+Ask your self:
+1. Are models's performance consistent (e.g.: no model low on c-index but also low on Brier)?
+1. Are there any models that should perform well, but performing poorly?
+1. Do the model's performance tell a cohesive story?
+1. Are there any model performing too well compared to the rest (e.g. c-index too close to 1)?
+1. Are these performance ready to be included in a paper to publish in good journal? **IMPORTANT**:Model performs
+bad is not a problem. The problem is the model performance hints that there is a bug in model architecture.
+
+If there are issues, investigate why. Ask for user agreement on the fix. If user agrees, apply the fix. Then run stage 2.0 -> 3.0.3 again, no need to ask
+permission.
 
 ## Stage 3.1: Full experiment runs (rep2 → rep4)
 Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone — requires Stage
