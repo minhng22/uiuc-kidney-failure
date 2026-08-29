@@ -1,0 +1,88 @@
+% use the "wcp" class option for workshop and conference
+% proceedings
+%\documentclass[gray]{jmlr} % test grayscale version
+%\documentclass[tablecaption=bottom]{jmlr}% journal article
+\documentclass[pmlr,twocolumn,10pt]{jmlr} % W&CP article
+\usepackage{caption}
+% The following packages will be automatically loaded:
+% amsmath, amssymb, natbib, graphicx, url, algorithm2e
+
+% The booktabs package is used for better table formatting
+% Remove the next line if you don't require it.
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{amsmath}
+% The siunitx package is used for number alignment in tables
+% Remove the next line if you don't require it.
+\usepackage{siunitx}
+
+% The lineno package is required for denoting line
+% numbers for paper review.
+\usepackage[switch]{lineno}
+
+% The following is to recognise equal contribution for authorship
+\newcommand{\equal}[1]{{\hypersetup{linkcolor=black}\thanks{#1}}}
+
+% Replace XXX below with the specific PMLR volume number sent to you before the camera-ready submission
+\jmlrvolume{XXX}
+\jmlryear{2025}
+\jmlrworkshop{Machine Learning for Health (ML4H) 2025} % W&CP title
+
+% The optional argument of \title is used in the header
+\title[MIMIC-CKD Benchmark]{MIMIC-CKD: A Large-Scale Benchmark for Comprehensive Survival Analysis in Chronic Kidney Disease}
+
+% Authors with equal contribution:
+% \author{%
+% \Name{Minh Nguyen}\equal{These authors contributed equally to this work.} \Email{minhn2@illinois.edu}\\
+% \addr University of Illinois, Urbana-Champaign, USA
+% \AND
+% % footnotemark[1] is to refer to the \equal footnote
+% \Name{John Wu}\footnotemark[1] \Email{johnwu3@illinois.edu}\\
+% \addr University of Illinois, Urbana-Champaign, USA
+% \AND
+% \Name{Jimeng Sun} \Email{jimeng@illinois.edu}\\
+% \addr University of Illinois, Urbana-Champaign, USA
+% }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%% Remove the \linenumbers in the final version %%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\linenumbers % Activate line numbering
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Affecting more than 1 in 7 American adults, the prevalence of Chronic Kidney Disease (CKD) cannot be understated. Modeling CKD progression is crucial in identifying patients who are at high risk for end stage renal disease (ESRD), a disease with high mortality rates. However, existing models often make unrealistic assumptions such as time invariance, complete patient feature monitoring, and a reliance on pre-defined measures such as eGFR. Complete and standardized data in realistic hospital settings are rare. Currently, no CKD progression benchmarks exist to test model performance under imperfect settings. To the best of our knowledge, we construct the first large-scale CKD survival analysis benchmark dataset extracted from the large MIMIC-IV dataset with over 10,000 patients, 50,000 visits, and design several benchmark scenarios to better understand how survival analysis models perform across different feature sets such as time variant, invariant, and across a wide range of features. In our benchmarking, we show that the incorporation of time variant features directly improves model performance by upwards of 20\%, and that exploring alternative features can boost performance upwards of an additional 4\%.
+\end{abstract}
+
+\begin{keywords}
+Deep learning, chronic kidney disease, heterogenous data
+\end{keywords}
+
+\paragraph*{Data and Code Availability}
+We use MIMIC-IV \citep{johnson2023mimic_ehr} for our CKD benchmark construction. We offer our initial loader and implementation through the submitted code files.
+
+\paragraph*{Institutional Review Board (IRB)}
+No IRB was required as we did not run any human experiments.
+
+
+\input{sections/introduction}
+\input{sections/methodology}
+\input{sections/results}
+\input{sections/discussion}
+
+% \acks{Acknowledgments go here \emph{but should only appear in the camera-ready version of the paper if it is accepted}. Acknowledgments do not count toward the paper page limit.}
+\clearpage
+% Create a .bib file with your references and replace "sn-bibliography" with your filename
+\bibliography{sn-bibliography}
+
+% Uncomment the following lines if you have appendices
+%\appendix
+%
+%\section{First Appendix}\label{apd:first}
+%
+%Content of first appendix.
+
+\end{document}

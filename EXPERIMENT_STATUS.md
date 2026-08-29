@@ -27,7 +27,7 @@ approved). Do not restart another session's row without confirming its host is a
 
 | What | PID | Host | Log | Status |
 |---|---|---|---|---|
-| Stage 3.0.2 rep1 twenty_features_heterogeneous (10 models), batched run (2nd attempt, fresh restart) | 3131354 | sunlab-serv-01.cs.illinois.edu | [log](generated_data/rep1/stage3_0_background_process_log.txt) | batch 1 done; batch 2/4: srf OK, dynamic_deephit/hazard_transformer still running (~1h24m, no failures, memory stable) |
+| Stage 3.0.2 rep1 twenty_features_heterogeneous (10 models), batched run (2nd attempt, fresh restart) | 3131354 | sunlab-serv-01.cs.illinois.edu | [log](generated_data/rep1/stage3_0_background_process_log.txt) | batch 1 done; batch 2/4: srf OK, dynamic_deephit/hazard_transformer still running (~1h40m, no failures, memory stable) |
 
 Last Updated: 2026-08-29 13:49 CDT (sunlab-serv-01.cs.illinois.edu). Full
 history for this stage (launches, incidents, health checks) is in

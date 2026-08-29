@@ -1,0 +1,113 @@
+\section{Methodology}
+
+\subsection{Problem Formulation} \label{sec: problem formulation}
+
+Time-to-event analysis or survival analysis studies the probability of an event occurring by a given time. We note that this formulation is not unique to the medical field \cite{friedman2015fundamentals_medical_clinical_trials}, and has been applied in business \cite{morrison2004introduction_business} and reliability engineering \cite{pena2004models_reliability_engineering}. Nonetheless, within the medical space and typical EHR systems \cite{kline2022multimodal_medical}, there exist three main data scenarios as depicted in Figure \ref{fig:CKD_benchmark}, each with an additional layer of complexity: time-invariant, time-varying, and heterogeneous.
+
+\textbf{Time invariant and variant eGFR features.} For the time invariant and time variant settings, we use the widely-established estimated glomerular filtration rate (eGFR) as our input biomarker, calculated using the CKD-EPI 2021 equation \cite{omuse2024new_creatinine_epi_equation}:
+$$
+\mathrm{eGFR} = 142 \times \min\left(\frac{\mathrm{Scr}}{\kappa}, 1\right)^{\alpha} \times \max\left(\frac{\mathrm{Scr}}{\kappa}, 1\right)^{-1.2} \\
+\times 0.9938^{\mathrm{Age}} \times (1.012)^{\mathrm{I}[\mathrm{Female}]}
+$$
+where $\mathrm{Scr}$ is serum creatinine (mg/dL), and $\kappa$ and $\alpha$ are gender-specific parameters. 
+
+\textbf{Raw Features.} We also explore time varying the raw features of the equation above as direct inputs rather than weighing it by its previously estimated formulation and compare the predictive performance in Table \ref{tab:time_variant_performance}.
+
+\subsubsection{Time Invariant}
+In the time-invariant setting, we assume each patient has a snapshot of their profile, regardless of time. In this case, our survival data
+$$\mathcal{D} = \{(\boldsymbol{x}_i, t_i, e_i)\}_{i=1}^n$$
+is composed of three components where $\boldsymbol{x}_i \in \mathbb{R}^d$ with $d$ the number of features, $t_i \in \mathbb{R}^+$, and $e_i \in \{0,1,\dots,|E|\}$ where $E$ is the set of all competing events (i.e., ESRD, mortality, etc.). When $e_i = 0$, the patient is considered to be right-censored.
+
+In this scenario, the goal is to estimate the hazard function $h(t)$ with our model $f(t)$:
+$$h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T < t + \Delta t | T \geq t)}{\Delta t}$$
+
+Here, $h(t)$ represents the instantaneous rate of event occurrence at time $t$, given that the event has not occurred before time $t$. More specifically, it is the probability that a patient experiences ESRD or death, given they survive up to that time point $t$. In some sense, we are essentially estimating the probability mass function (PMF) of the time-to-event:
+$$f(t | \boldsymbol{x}) = P(T = t | \boldsymbol{x})$$
+
+\subsubsection{Time Varying}
+However, as suggested in Section 1, most patients were hospitalized multiple times over the course of observation for this dataset. Thus, their profiles consist of multiple snapshots, which is commonly known as time-varying survival analysis \cite{zhang2018time_variant_surv_analysis}. Again, we define our dataset of triples of data, time of event, and event types:
+$$\mathcal{D} = \{(\boldsymbol{x}_i, t_i, e_i)\}_{i=1}^n$$
+where $\boldsymbol{x}_i \in \mathbb{R}^{s_i \times d}$, $s_i$ is the number of time points observed for individual $i$, $d$ is the feature dimension, and $t_i \in \mathbb{R}^+$. Note that the only difference here is that we have added a sequential component in the data $\boldsymbol{x}_i$.
+
+\subsubsection{Heterogeneous} \label{sec: Heterogeneous}
+In the heterogeneous setting, we build upon the time-varying framework but account for missing features across different time points. Our dataset structure remains similar:
+$\mathcal{D} = \{(\boldsymbol{x}_i, t_i, e_i)\}_{i=1}^n$
+where $\boldsymbol{x}_i \in \mathbb{R}^{s_i \times d}$, with $s_i$ representing the number of observed time points for individual $i$, and $d$ is the feature dimension. However, unlike the time-varying setting, not all features are observed at each time point, resulting in a sparse representation. Formally, we can represent this as a mask $\boldsymbol{m}_i \in \{0,1\}^{s_i \times d}$ where $m_{i,j,k} = 0$ indicates that feature $k \in \{1, \dots, d\}$ at time point $j \in \{1, \dots, s_i\}$ for individual $i$ is missing.
+
+In our specific implementation, each input representation for patient $i$ at time $j$ includes three types of features, eGFR, proteinuria, and serum albumin with six columns to represent missing features: $\mathbf{x}_{i,j} = (\text{eGFR}_{i,j}, I^{(m)}_{\text{eGFR},i,j}, P_{i,j}, I^{(m)}_{P,i,j}, A_{i,j}, I^{(m)}_{A,i,j})$ where $I^{(m)}_{\text{eGFR},i,j} \in \{0,1\}$ indicates that $\text{eGFR}_{i,j}$ is missing when equal to 1 (similarly for $I^{(m)}_{P,i,j}$ and $I^{(m)}_{A,i,j}$). Here, $P_{i,j}$ represents proteinuria measurement for patient $i$ at time $j$, $A_{i,j}$ represents serum albumin level for patient $i$ at time $j$, and $I^{(m)}_{\cdot,i,j}$ denotes the missing data indicator with superscript $(m)$ for "missing".
+
+
+
+% This setting better reflects real-world clinical scenarios, particularly in datasets like MIMIC, where patients undergo different tests and procedures at varying time points based on their condition and clinical necessity. The challenge in this framework extends beyond modeling temporal dynamics to also handling the missing information across the feature space.
+
+Models designed for this setting must account for both the temporal evolution of patient states and the informativeness of the missing pattern itself, as the absence of certain measurements may carry clinical significance (e.g., tests not ordered because the clinician deemed them unnecessary based on other observations). Nonetheless, in our benchmark, we note that this representation is not fixed, and should be explored in future work.
+
+\subsection{Benchmarked Models} \label{sec:models}
+
+In this subsection, we introduce each model evaluated in our survival analysis experiments across the different data scenarios described above.
+
+\subsubsection{Traditional Survival Analysis Models}
+We include two parametric/nonparametric baseline models, implemented via the lifelines Python package \cite{davidson2019lifelines}.
+
+\textbf{Cox Proportional Hazards Model} \cite{cox1972regression} models the hazard function as:
+\[\lambda(t \mid \mathbf{x}) = \lambda_0(t)\,\exp\bigl(\mathbf{x}^\intercal \boldsymbol{\beta}\bigr)\]
+where $\lambda_0(t)$ is the baseline hazard function and $\boldsymbol{\beta}$ represents the coefficients that quantify the effect of covariates $\mathbf{x}$ on the hazard. The model is trained by maximizing the partial likelihood:
+\[L(\boldsymbol{\beta}) = \prod_{i:e_i=1} \frac{\exp(\boldsymbol{\beta}^\intercal \mathbf{x}_i)}{\sum_{j:t_j \geq t_i} \exp(\boldsymbol{\beta}^\intercal \mathbf{x}_j)}\]
+
+We use the lifeline implementation for time invariant and time variant scenarios.
+% Then use it like this:
+% \begin{lstlisting}[language=Python]
+% from lifelines import CoxPHFitter
+% from lifelines import CoxTimeVaryingFitter
+% \end{lstlisting}
+
+\textbf{Weibull Accelerated Failure Time (AFT)} model \cite{anderson1991nonproportional_weibull} parameterizes the survival function as:
+\[S(t \mid \mathbf{x}) = \exp\left(-\left(\frac{t}{\lambda(\mathbf{x})}\right)^{\rho}\right)\]
+where $\lambda(\mathbf{x}) = \exp(\mathbf{x}^\intercal \boldsymbol{\beta})$ is the scale parameter and $\rho$ is the shape parameter. Implemented as \texttt{from lifelines import WeibullAFTFitter}, we estimate regression coefficients $\boldsymbol{\beta}$ and shape parameter $\rho$. Continuous covariates are standardized; categorical covariates are one-hot encoded.
+
+% The fundamental difference between the Cox and Weibull models lies in their modeling approach: while the Cox model directly models the hazard rate $\lambda(t \mid \mathbf{x})$ without specifying the baseline hazard distribution, the Weibull AFT model assumes a specific parametric form for the entire survival distribution. This parametric assumption allows the Weibull model to directly predict survival times, whereas the Cox model primarily estimates relative risks and requires additional steps to obtain absolute survival probabilities or time predictions.
+
+\subsubsection{Deep Survival Analysis Models}
+
+Recent years have seen a surge in deep learning approaches for survival analysis, capable of handling complex data structures and relationships. All deep architectures consume time-indexed feature tensors $x_i \in \mathbb{R}^{s_i\times d}$ as described in the experimental settings.
+
+\textbf{DeepSurv} \cite{katzman2018deepsurv} is a feedforward implementation of the Cox model with fully connected layers. We modify the original implementation to handle time-varying inputs by stacking each visit as a separate "instance" and encoding time-to-event as an additional feature. The network has three hidden layers (ReLU activations, size 128) followed by a linear output layer representing the log-hazard. We use Cox partial log-likelihood as the loss.
+
+\textbf{DeepHit} \cite{lee2018deephit} directly estimates the joint distribution of survival times and competing events without assuming any specific form for the underlying stochastic process. It employs a neural network architecture with a shared subnetwork and cause-specific subnetworks to model the discrete probability mass function:
+\[P(T=t, E=k|\boldsymbol{x}) = y_{t,k}\]
+where $y_{t,k}$ is the output of the network for time $t$ and event $k$. The model is trained using a composite loss function:
+\[L_{total} = L_1 + \alpha L_2\]
+where $L_1$ is the negative log-likelihood term accounting for right censoring:
+\[L_1 = -\sum_{i=1}^n \left[ \mathbf{1}_{(e_i \neq 0)} \log(y_{t_i,e_i}) + \mathbf{1}_{(e_i = 0)} \log\left(1 - \sum_{k=1}^K \sum_{t \leq t_i} y_{t,k}\right) \right]\]
+and $L_2$ is a ranking loss that encourages proper ordering of events:
+\[L_2 = \sum_{k=1}^K \sum_{i,j: e_i=k, t_i<t_j} \sigma\left(\hat{F}_k(t_i|\boldsymbol{x}_j) - \hat{F}_k(t_i|\boldsymbol{x}_i)\right)\]
+Here, $\hat{F}_k(t|\boldsymbol{x})$ is the estimated cumulative incidence function for event $k$ up to time $t$ given covariates $\boldsymbol{x}$, and $\sigma$ is a smoothing function. This composite loss formulation has inspired many subsequent deep survival models.
+
+\textbf{Dynamic-DeepHit} \cite{lee2020dynamicdeephit} extends DeepHit to irregularly sampled time series. At each timestep we feed $\{\mathbf{x}_{i,j}, m_{i,j}, \Delta t_{i,j}\}$ where $\Delta t_{i,j} = t_{i,j} - t_{i,j-1}$. The architecture comprises a shared MLP encoder, a bi-directional LSTM layer, and cause-specific MLP heads that output discrete hazard probabilities over pre-specified time bins. The model uses the combined log-likelihood and ranking loss from DeepHit, tuning coefficient $\alpha \in [0.1, 1.0]$.
+
+\textbf{RNN-Surv} \cite{martinez2020rnnsurv} uses gated recurrent units (GRUs) to model temporal dependencies and outputs risk scores for each patient at each visit. The architecture includes an input embedding layer projecting $\mathbb{R}^d \to \mathbb{R}^{64}$, two-layer GRU (hidden size 64), and a time-to-event decoder mapping the last hidden state to a scalar risk score. Different from Dynamic-DeepHit, RNN-Surv model employs the traditional negative Cox partial log-likelihood on final risk scores. 
+% \cite{nagpal2021hazard}
+
+\textbf{LogisticHazard} implements a discrete‐time survival model by framing event hazards in logistic form. Time is first divided into a fixed number of intervals, and for each interval the model learns the log-odds of “failure” versus “survival” in that window. Under the hood it’s a neural network whose final layer outputs one logit per time interval; training minimizes the negative log‐likelihood of the observed interval‐censored outcomes. This approach marries classic discrete‐time hazard modeling with the flexibility of deep nets, allowing rich feature representations, non‐linear covariate effects, and end-to-end learning of survival curves directly from data.
+
+\textbf{Hazard Transformer} Inspired by the original Transformer model\cite{vaswani2017attention}, the Hazard Trasnformer \cite{hazard_transformer} replaces RNNs with the self-attention mechanism. It consists of positional encoding added to each $\mathbf{x}_{i,j}$, two Transformer encoder blocks (4 heads, hidden size 64; feedforward sublayers size 128), and a final linear layer producing discrete hazard probabilities over pre-binned intervals. The model uses cross-entropy-based ranking loss inspired by the DeepHit framework, with dropout 0.2 on attention and feedforward layers.
+
+\subsubsection{Ensemble-Learning-Based Models}
+
+We evaluated two tree-based survival learners from `scikit-survival`:
+
+\textbf{Gradient Boosting Survival Analysis (GBSA)} \cite{chen2013gradient_GBSA} offers a powerful nonparametric alternative that can capture complex, non-linear relationships without imposing restrictive assumptions on the hazard function form. The objective function approximates the Cox model through additive ensemble learning:
+\[L = \sum_i \ell(y_i, \hat{y}_i) + \Omega(f)\]
+where $\ell$ is the negative log partial likelihood and $\Omega(f)$ is regularization. For brevity's sake, we defer to the literature for their exact details.
+
+\textbf{Random Survival Forest (SRF)} \cite{pickett2021random_survival_forests, ishwaran2008random} extends random forests to survival data. Implemented as \texttt{sksurv.ensemble.RandomSurvivalForest}, it uses Harrell's concordance index (C-index) on out-of-bag samples to guide hyperparameter selection. Again, we defer to the literature for their exact implementation. 
+
+\textbf{FastSurvivalSVM} adapts support vector machines to right‐censored survival data by optimizing a convex surrogate for the concordance index. It learns a linear ranking function over feature space that pushes subjects with earlier events to have higher “risk scores” than those with later or censored times, subject to margin constraints and regularization.
+
+\subsection{Model Training and Optimization}
+
+\textbf{Hyperparameter Tuning for Deep Models:} For RNN-based and Transformer architectures, we perform Bayesian hyperparameter optimization using Optuna with 10 trials and 50 epochs per trial. Learning rates are tuned in log-uniform range $[10^{-5}, 10^{-2}]$, dropout rates in $[0.1, 0.5]$, and weight decay in $[10^{-6}, 10^{-3}]$.
+
+\textbf{Ensemble Model Tuning:} For GBSA and SRF, we perform grid search over number of trees, learning rates, max depths, and minimum samples split parameters.
+
+\textbf{Data Preprocessing:} Categorical variables are one-hot encoded, and we use an 80/20 train/test split by patient ID to ensure generalization capability. Traditional models use default optimization routines, deep models use Adam with early stopping, and ensemble models use validation-based selection.
