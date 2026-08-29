@@ -1,0 +1,20 @@
+Trial start: Sat Aug 29 13:54:09 CDT 2026, n_patients=4000, seed=42, safety_cap=125829120KB, max_wall=2700s
+Loading TWENTY_FEATURES_HETEROGENEOUS train/test data...
+  [poll] elapsed=15s rss=2380176KB (2GB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Loaded full train: 6512638 rows, 26080 unique patients (21.1s)
+Subsampled train: 1037761 rows, 4000 patients (3656 events, 91.4% event rate), seed=42
+Fitting CoxTimeVaryingFitter...
+  [poll] elapsed=30s rss=5396524KB (5GB)
+  [poll] elapsed=45s rss=5396544KB (5GB)
+  [poll] elapsed=60s rss=5399704KB (5GB)
+  [poll] elapsed=75s rss=5399884KB (5GB)
+  [poll] elapsed=90s rss=5400048KB (5GB)
+  [poll] elapsed=105s rss=5400048KB (5GB)
+  [poll] elapsed=120s rss=5400048KB (5GB)
+  [poll] elapsed=135s rss=4946376KB (4GB)
+SUCCESS: fit completed in 113.4s (4000 patients, 1037761 rows)
+Trial end: Sat Aug 29 13:56:39 CDT 2026, result=success

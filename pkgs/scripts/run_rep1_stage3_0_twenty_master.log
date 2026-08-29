@@ -1,0 +1,36 @@
+Starting rep1 (CKD_REP=1), TWENTY_FEATURES_HETEROGENEOUS only...
+Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep1_stage3_0_twenty.log
+Start time: Sat Aug 29 02:37:06 CDT 2026
+Running experiments IN PARALLEL; per-experiment logs: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_<experiment>.log
+=========================================
+==================== Launched cox for rep1 (PID 3011839, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_cox.log) ====================
+==================== Launched dynamic_deephit for rep1 (PID 3011844, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_dynamic_deephit.log) ====================
+==================== Launched hazard_transformer for rep1 (PID 3011849, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_hazard_transformer.log) ====================
+==================== Launched logistic_hazard for rep1 (PID 3011855, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_logistic_hazard.log) ====================
+==================== Launched rnnsurv for rep1 (PID 3011861, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_rnnsurv.log) ====================
+==================== Launched deepsurv for rep1 (PID 3011867, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_deepsurv.log) ====================
+==================== Launched gbsa for rep1 (PID 3011873, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_gbsa.log) ====================
+==================== Launched srf for rep1 (PID 3011882, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_srf.log) ====================
+==================== Launched survival_svm for rep1 (PID 3011887, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_survival_svm.log) ====================
+==================== Launched weibul for rep1 (PID 3011903, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_weibul.log) ====================
+pkgs/scripts/run_rep_stage3_0_twenty.sh: line 58: 3011900 Killed                  python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1
+pkgs/scripts/run_rep_stage3_0_twenty.sh: line 58: 3011859 Killed                  python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1
+pkgs/scripts/run_rep_stage3_0_twenty.sh: line 58: 3011908 Killed                  python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1
+✓ weibul completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_weibul.log)
+✓ hazard_transformer completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_hazard_transformer.log)
+pkgs/scripts/run_rep_stage3_0_twenty.sh: line 58: 3011854 Killed                  python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1
+pkgs/scripts/run_rep_stage3_0_twenty.sh: line 58: 3011907 Killed                  python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1
+✓ survival_svm completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_survival_svm.log)
+✓ deepsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_deepsurv.log)
+✓ srf completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_srf.log)
+✓ gbsa completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_gbsa.log)
+✓ dynamic_deephit completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_dynamic_deephit.log)
+✓ logistic_hazard completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_logistic_hazard.log)
+✓ rnnsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_rnnsurv.log)
+✓ cox completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_cox.log)
+=========================================
+Rep1 (twenty_features_heterogeneous only) Summary:
+Total experiments run: 10
+Failed experiments: 0
+✓ All experiments completed successfully!
+End time: Sat Aug 29 11:27:21 CDT 2026

@@ -1,0 +1,33 @@
+Start time: Sat Aug 29 13:43:10 CDT 2026
+Using GPU: cuda:1 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Loading from saved weights
+Model summary:
+MLPVanilla(
+  (net): Sequential(
+    (0): DenseVanillaBlock(
+      (linear): Linear(in_features=40, out_features=32, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.32717285949281594, inplace=False)
+    )
+    (1): DenseVanillaBlock(
+      (linear): Linear(in_features=32, out_features=32, bias=True)
+      (activation): ReLU()
+      (batch_norm): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (dropout): Dropout(p=0.32717285949281594, inplace=False)
+    )
+    (2): Linear(in_features=32, out_features=50, bias=False)
+  )
+)
+
+=== Evaluation Results for twenty_features_heterogeneous ===
+Global test C-index: 0.481
+Event rate: 5976/6521 (91.64%)
+Mean time-dependent AUC: 0.522
+Integrated Brier Score Test: 0.570
+✓ logistic_hazard completed successfully
+End time: Sat Aug 29 13:43:53 CDT 2026

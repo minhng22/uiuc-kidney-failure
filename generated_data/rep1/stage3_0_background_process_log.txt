@@ -835,3 +835,592 @@ files mid-run — see stage3_0_rep1_run_report.txt's "Retrain" section for
 the full incident and the subsequent restart as PID 2697933 (finished
 2026-08-28 05:56 CDT, 11/11 done) and the later deliberate full retrain as
 PID 2940051 (2026-08-28, picking up Stage 2.2's Findings #1-#3).
+
+================================================================================
+Stage 3.0.2 launch: twenty_features_heterogeneous, rep1, all 10 applicable
+models (kfre excluded — no published equation for this scenario)
+================================================================================
+Launched: 2026-08-29 02:37 CDT, host sunlab-serv-01.cs.illinois.edu
+Command: bash pkgs/scripts/run_rep_stage3_0_twenty.sh 1
+Process group leader PID: 3011811 (kill with: kill -TERM -3011811)
+Master log: pkgs/scripts/run_rep1_stage3_0_twenty_master.log
+Per-experiment logs: pkgs/scripts/eval_rep1_stage3_0_twenty_<experiment>.log
+  cox=3011839 dynamic_deephit=3011844 hazard_transformer=3011849
+  logistic_hazard=3011855 rnnsurv=3011861 deepsurv=3011867 gbsa=3011873
+  srf=3011882 survival_svm=3011887 weibul=3011903
+Depends on: shared `current_rep`-style state in pkgs/commons.py for CKD_REP=1
+— no other rep1 process should mutate it concurrently while this runs.
+Blocks: Stage 3.0.3's combined 3-scenario analysis rerun, which needs all 10
+of these to finish.
+
+KNOWN CAVEAT (carried over from the four_eight launcher, confirmed also
+present here by reading the script): run_rep_stage3_0_twenty.sh's per-
+experiment subshell ends in an unconditional `echo "End time..." >> $log`,
+so `wait`'s exit code (and therefore the master log's ✓/✗ per-experiment
+line and final summary) always reports success regardless of the actual
+python exit code — same bug as documented above for
+run_rep_stage3_0_four_eight.sh. Status checks on this run must grep each
+experiment's own per-experiment log for "✓ ... completed successfully" /
+"✗ ... failed with exit code", never trust the master log's summary alone.
+
+================================================================================
+Stage 3.0.2 auto-check @ 2026-08-29 03:12 CDT — partial OOM failure detected,
+host-binding ambiguity on the rest
+================================================================================
+CONFIRMED (via shared-filesystem per-experiment logs and master log content,
+both host-agnostic):
+- gbsa: ✗ failed with exit code 137 (SIGKILL) — process ran ~02:37→02:49:58
+  (~13 min) before being killed.
+- hazard_transformer: ✗ failed with exit code 137 (SIGKILL) — ran
+  ~02:37→02:55:02 (~18 min) before being killed.
+- rnnsurv, weibul: master log (run_rep1_stage3_0_twenty_master.log) shows
+  bash's own job-control "Killed" notices for their underlying python PIDs
+  (~3011859 for rnnsurv, ~3011900 for weibul) — SIGKILL, same signature —
+  but their own per-experiment logs never got a ✗/End-time line, meaning the
+  parent subshell that would have written it was ALSO killed before it
+  could run (consistent with a cascading OOM event, not a single
+  process-level bug).
+- cox, dynamic_deephit, logistic_hazard, deepsurv, srf, survival_svm: all 6
+  per-experiment logs are frozen at 41 bytes ("Start time: ..." only, no
+  further output) for 35+ minutes since launch — no confirmation either way
+  from log content alone.
+
+UNRESOLVED THIS TICK: this auto-check's Bash session is currently bound to
+sunlab-serv-02.cs.illinois.edu, NOT sunlab-serv-01.cs.illinois.edu where
+this job (leader PID 3011811) was launched and where the two prior
+successful health checks (etime 00:11, 04:17, 20:17) ran. `ps -p 3011811`
+from serv-02 returns nothing — per this repo's own rule ("ps -p only tells
+you whether a PID exists on YOUR host — a miss doesn't mean dead if you're
+checking from a different host than the one that owns it"), this negative
+result is NOT being treated as proof of death for the leader process or the
+6 unconfirmed experiments. Declining to send any kill/relaunch signals this
+tick to avoid acting blind on a possibly-still-alive process from the wrong
+host. `dmesg` on serv-02 (for whatever weak signal it's worth — a different
+host) shows 2 unrelated-in-time OOM kills of large (~130-140GB anon-rss)
+python processes under the same UID, consistent with the general pattern
+(this cluster OOM-kills large parallel model-training jobs) but not
+directly attributable to this run.
+
+Root-cause hypothesis (not yet fully confirmed, but consistent with all
+evidence so far): launching all 10 models for twenty_features_heterogeneous
+FULLY IN PARALLEL (run_rep_stage3_0_twenty.sh's design, same pattern as
+run_rep_stage3_0_four_eight.sh) is too memory-heavy for this scenario
+specifically — twenty_features_heterogeneous has ~455.8 rows/patient
+(Finding #3, stage2_2_debug_report.txt), by far the largest row-multiplier
+of the 3 scenarios, so each of the sequence-model Datasets
+(HazardTransformerDataset/DynamicDeepHitDataset build padded per-subject
+tensors in memory) and sklearn-ensemble models (GBSA) here are much larger
+than their four_features/eight_features equivalents were when this same
+all-parallel launcher pattern worked without incident.
+
+NEXT: re-verify from a host that can actually see PID 3011811 (retrying
+sooner than the usual 10-min cadence specifically to try to resolve the
+host-binding gap). If confirmed dead/mostly-dead once verified from the
+right host, the fix will be to relaunch the twenty_features_heterogeneous
+run with reduced parallelism (small batches or fully sequential) instead of
+all-10-at-once, which CLAUDE.md's auto-check rule already authorizes
+(a resource-limit fix) without a separate user approval gate.
+
+================================================================================
+Stage 3.0.2 remediation @ 2026-08-29 04:18 CDT: original all-parallel run
+declared failed, relaunched batched
+================================================================================
+Further evidence since the previous entry (auto-check tick at ~03:55 CDT,
+still on sunlab-serv-02, ssh to sunlab-serv-01 timed out -- port 22
+unreachable from serv-02, so an authoritative ps check on the owning host
+was not obtainable this session):
+- weibul now also CONFIRMED ✗ failed with exit code 137 (its own
+  per-experiment log got the marker this time) -- 3rd confirmed OOM kill
+  (joining gbsa, hazard_transformer).
+- A 3rd distinct "Killed" job-control line appeared in the master log
+  (PID ~3011908, in addition to the ~3011859/~3011900 pair from the
+  previous entry) -- the kill count is climbing over time, not static,
+  consistent with an OOM killer sweeping the process tree rather than one
+  isolated crash.
+- The master log ALSO shows "✓ weibul completed successfully" and
+  "✓ hazard_transformer completed successfully" for these SAME two
+  confirmed-failed models -- direct, freshly-observed proof of the
+  known exit-code-masking bug (subshell's unconditional final
+  `echo "End time..."` always exit-0s, so `wait` in the launcher always
+  reports success) already documented for run_rep_stage3_0_four_eight.sh
+  and, per the Stage 3.0.2 launch note above, already flagged as present
+  here too. Master log fully discredited as a success signal for this run.
+- The remaining 6 experiments' per-experiment logs stayed frozen at 41
+  bytes ("Start time" only) for 78+ minutes with zero growth -- no direct
+  per-model failure evidence, but consistent with never having gotten far
+  enough into get_train_test_data()'s dataframe load to print anything,
+  under system-wide memory pressure from the other 9 processes doing the
+  same simultaneously.
+
+DECISION: treated the original run (leader PID 3011811, sunlab-serv-01) as
+failed and NOT recoverable in place, without declaring the specific
+remaining 6/10 processes individually dead (that verdict was never directly
+confirmed) -- instead moved to remediation for the whole scenario, since:
+(a) 3 confirmed OOM deaths + a growing kill count + 78 min of total silence
+from the rest is not consistent with a healthy run regardless of the exact
+count still technically alive; (b) `ssh sunlab-serv-01` timed out from
+serv-02 (port 22 unreachable) -- no way to safely inspect or terminate the
+original process group from here, so it was deliberately left alone (no
+`kill -TERM -3011811` sent from the wrong host, per this repo's own
+cross-host caution) rather than guessed at.
+
+Wrote pkgs/scripts/run_rep_stage3_0_twenty_batched.sh (new file, mirrors
+run_rep_stage3_0_twenty.sh's structure/conventions exactly -- same
+PID-file/master-log/detach pattern, same ✓/✗ per-experiment log markers --
+but launches the 10 models in 4 small batches, parallel within a batch,
+sequential across batches, instead of all 10 at once):
+  Batch 1: cox, logistic_hazard, deepsurv
+  Batch 2: dynamic_deephit, hazard_transformer, srf
+  Batch 3: rnnsurv, gbsa, survival_svm
+  Batch 4: weibul (alone)
+The 3 confirmed-OOM'd models (gbsa, hazard_transformer, weibul) were
+deliberately split into 3 different batches so their peak memory use
+doesn't stack a second time. This is a resource-limit fix
+(CLAUDE.md's auto-check rule authorizes this without a separate user
+approval) -- a new scoped script rather than editing
+run_rep_stage3_0_twenty.sh directly, per this repo's convention of not
+editing a shared launcher's structure in place.
+
+Launched: 2026-08-29 04:18 CDT, host sunlab-serv-02.cs.illinois.edu
+(this session's Bash tool is currently bound to serv-02, not serv-01 where
+the original run was launched -- confirmed serv-02 has ample free capacity
+for this: `nvidia-smi` shows all 8 GPUs at ~0MiB used, `free -h` shows
+~170GB available system RAM at launch time).
+Command: bash pkgs/scripts/run_rep_stage3_0_twenty_batched.sh 1
+Process group leader PID: 378711 (kill with: kill -TERM -378711)
+Master log: pkgs/scripts/run_rep1_stage3_0_twenty_batched_master.log
+Per-experiment logs: same paths as before (overwritten fresh) --
+  pkgs/scripts/eval_rep1_stage3_0_twenty_<experiment>.log
+Batch 1 confirmed launched (cox=378738, logistic_hazard=378742,
+deepsurv=378747).
+
+NOTE ON THE ORIGINAL RUN (PID 3011811, sunlab-serv-01): left running/alone,
+not killed (couldn't safely reach it). If it is in fact still alive and
+finishes some models on its own, that's not a correctness problem (this
+batched relaunch overwrites the same per-experiment log/model-checkpoint
+paths for CKD_REP=1 -- last writer wins, no cross-rep clobbering since both
+runs use the same rep number) -- at worst it's wasted duplicate GPU/CPU
+time on serv-01 that this session has no way to prevent. If a future check
+from a session actually on serv-01 finds it still running, that session's
+row-ownership rules apply (this row is owned by this session; a session
+confirming from serv-01 directly may correct this note, not overwrite it).
+
+================================================================================
+Stage 3.0.2 auto-check @ 2026-08-29 04:19 CDT
+================================================================================
+Batched relaunch (PID 378711, serv-02): confirmed alive (etime 01:29), Batch
+1 (cox, logistic_hazard, deepsurv) launched and still in progress -- their
+per-experiment logs are at "Start time" only so far (90s in, not alarming
+yet, none of these 3 previously showed slow-start behavior on the original
+run either).
+
+Original run (PID 3011811, serv-01): still unreachable from serv-02
+directly, but got NEW indirect evidence it is still alive and still
+thrashing -- dynamic_deephit's per-experiment log (a shared path the
+batched run hasn't touched yet, since dynamic_deephit is in Batch 2) now
+also shows a fresh "✗ dynamic_deephit failed with exit code 137" that
+was NOT there as of the previous check (~03:55 CDT, that log was still
+frozen at "Start time" only). Since the batched run has not reached Batch 2
+yet, this marker can only have been written by the original run's own
+subshell -- meaning PID 3011811's process group is still alive on serv-01,
+continuing to OOM-kill its remaining models one at a time (now 4 confirmed:
+gbsa, hazard_transformer, weibul, dynamic_deephit). Still no way to reach
+or stop it from serv-02 (ssh blocked). Not acted on further -- the batched
+relaunch on serv-02 is unaffected (separate host, separate GPU/RAM pool),
+so this is noted for the record only, not a new blocker.
+
+================================================================================
+Stage 3.0.2 auto-check @ 2026-08-29 04:31 CDT — false-alarm stale-log
+collision identified (batched run's Batch 1 is actually fine)
+================================================================================
+logistic_hazard and deepsurv's per-experiment logs briefly showed
+"✗ ... failed with exit code 1" + an End-time line, which at first read like
+NEW failures inside the batched run's own Batch 1. Verified directly with
+`ps -o pid,ppid,stat,etime,%cpu,%mem,cmd -p <pid>` before believing it:
+cox (378746), logistic_hazard (378751), deepsurv (378753) are ALL still
+genuinely alive on serv-02 -- state D (uninterruptible sleep, not zombie),
+~76-80% CPU, ~27-32% system RAM each, etime continuously matching the
+Batch-1 launch time (04:18:11), i.e. the SAME processes running
+continuously the whole time. They have NOT failed.
+
+Root cause of the misleading log content: these per-experiment log paths
+are the SAME ones the ORIGINAL (superseded, still-alive-per-the-previous-
+entry) run on serv-01 also writes to via shell `>>` (O_APPEND) redirection.
+O_APPEND always targets the CURRENT end-of-file at write time, not a
+remembered offset -- so even though this batched run TRUNCATED
+(`>`) these exact files fresh at 04:18:11 when Batch 1 launched, the
+original run's own still-open logistic_hazard/deepsurv subshells (on
+serv-01, part of PID 3011811's tree) kept their own file descriptors on
+the same NFS-shared inode, and when THOSE processes finally crashed with
+exit code 1 around 04:29 (a genuine failure on the ORIGINAL run --
+apparently a real error, not another OOM/137 -- but that run is already
+superseded and not being chased further), their append landed right after
+this batched run's fresh "Start time: 04:18:11" line, exactly mimicking
+what a same-run failure would look like.
+
+Lesson for future checks on this stage: whenever a marker on a model whose
+batch HAS launched still looks surprising/early, don't trust it without a
+direct `ps -o stat,etime,%cpu` check against the actual PID recorded in
+run_rep1_stage3_0_twenty_batched_master.log's "Launched <experiment> (PID
+...)" line -- the original run's stale file descriptors can inject
+misleading content into these shared log paths at any time until it
+finally fully dies. This is a sharper version of the "marker from a batch
+that hasn't launched yet" caution already noted -- it can ALSO happen for a
+batch that HAS launched, if the original run's same-named experiment
+happens to finish/crash around the same time.
+
+No action taken -- Batch 1 confirmed genuinely in progress, no relaunch
+needed.
+
+================================================================================
+Stage 3.0.2 auto-check @ 2026-08-29 05:51 CDT — Batch 1 past 90min, still
+alive; NEW finding: a real (non-OOM) MemoryError traceback surfaced, plus a
+log-corruption risk from concurrent writers
+================================================================================
+Batch 1 (cox=378746, logistic_hazard=378751, deepsurv=378753) now 93 minutes
+in with zero completions in the batched run itself, but all 3 confirmed
+genuinely alive via `ps -o pid,ppid,stat,etime,%cpu,%mem,cmd`: state R,
+~93% CPU each, memory climbing (cox 23.2%/~44GB, logistic_hazard 14.3%,
+deepsurv 14.8%) -- not stalled, still real progress.
+
+cox's shared log (eval_rep1_stage3_0_twenty_cox.log) picked up a NEW
+stale-collision write from the original (superseded, serv-01) run's own
+cox process -- same shared-log-append gotcha as before, confirmed NOT
+about the batched run since PID 378746 is still alive. But this one
+carries a genuinely useful, real Python traceback fragment this time (the
+original run's cox apparently finally crashed with a real error, not
+another OOM-137 kill):
+  File ".../pandas/core/internals/managers.py", line 2301, in _merge_blocks
+      new_values = new_values[argsort]
+  numpy._core._exceptions._ArrayMemoryError: Unable to allocate 7.04 GiB
+  for an array with shape (8, 118171367) and data type object
+  End time: Sat Aug 29 04:38:04 CDT 2026 (~2h1m after the original cox's
+  02:37:06 launch)
+
+118,171,367 rows is far larger than twenty_features_heterogeneous's own
+~15.6M-row raw table (34,332 patients x ~455 rows/patient, per Finding #3)
+-- roughly 7.6x bigger, consistent with an expensive pandas merge/concat/
+sort blowing up rather than simply "the data is big." The exact call site
+is NOT recoverable from this log: most of the surrounding traceback is
+corrupted/garbled (long runs of blank/binary-looking bytes before the
+error line) -- almost certainly from BYTE-LEVEL INTERLEAVING between two
+unrelated processes (this batched run's fresh writes and the original
+run's stale writes) appending to the same NFS-shared file concurrently
+without any locking. This is a NEW risk beyond the already-documented
+stale-marker gotcha: log CONTENT for any experiment can be corrupted
+(not just misleadingly-appended) while both runs are alive and touching
+the same path, so per-experiment log content should not be trusted for
+detailed diagnostics until the original run is confirmed fully dead -- only
+`ps`-confirmed liveness and (once done) the actual saved model artifact
+file are reliable signals.
+
+Not able to root-cause the exact merge/concat call site from this
+corrupted fragment. Not attempting a code fix on this evidence alone (per
+CLAUDE.md's rule, a code-level bug in pkgs/experiments or pkgs/data_analysis
+needs to be root-caused with a full traceback and verified on rep99 before
+being trusted -- out of scope for this auto-check tick). Flagging as a
+real, substantive, NOT-YET-ROOT-CAUSED possible explanation for why
+twenty_features_heterogeneous is straining memory across multiple models
+(gbsa/HT/weibul/dynamic_deephit/logistic_hazard/deepsurv/cox all
+struggled on the original all-parallel run) -- worth a future session's
+dedicated investigation (with `set -o pipefail` style capture / a single
+writer per file, e.g. by fully killing the original run first, to get an
+uncorrupted traceback) once the current batched run's more urgent
+progress is unblocked.
+
+This batched run's OWN cox process (378746) has NOT hit this wall yet (own
+memory climbing gradually, no crash), but its memory trajectory (8.9% ->
+12.4% -> 18.5% -> 23.2% over the last several checks) puts it in a
+plausible range to hit a similar burst allocation once/if it reaches the
+same code path -- watching closely on subsequent checks.
+
+================================================================================
+Stage 3.0.2 auto-check @ 2026-08-29 06:04 CDT — cox FAILED for real in the
+batched run too (root cause now understood: not a parallelism issue)
+================================================================================
+cox's own batched-run process (PID 378746) is CONFIRMED GONE from `ps`, and
+this time the log entry is genuinely about it, not a stale cross-run
+artifact: "✗ cox failed with exit code 137" / "End time: Sat Aug 29
+06:01:38 CDT 2026" -- SIGKILL, after running alone (well, alongside 2 much
+lighter models) for 1h43m on a host that had ~170GB free at launch. `free
+-h` on serv-02 now shows swap at 7.6/8.0Gi used and available memory down
+to 125Gi (from ~177Gi at the very start of this session) -- cox's own
+memory climb (8.9% -> 12.4% -> 18.5% -> 23.2% -> eventually enough to get
+OOM-killed) was real and unbounded, not shared-host contention.
+
+THIS CHANGES THE DIAGNOSIS: batching alone does not fix cox on
+twenty_features_heterogeneous -- it reproduced in near-isolation (only 2
+much lighter models running alongside it, ~170GB headroom at start). Read
+pkgs/experiments/cox.py's run_cox_model(): the actual call is
+`CoxTimeVaryingFitter(penalizer=1.0).fit(data_train, event_col='has_esrd',
+id_col='subject_id')` on the FULL twenty_features_heterogeneous training
+table -- ~15.6M rows (34,332 patients x ~455.8 rows/patient, per
+stage2_2_debug_report.txt Finding #3), 40 feature columns. This is
+consistent with the earlier-seen traceback fragment being INSIDE pandas'
+`_merge_blocks` (lifelines' CoxTimeVaryingFitter internally sorts/merges
+large frames for Efron tie-handling during `.fit()`) -- lifelines is a
+pure Python/pandas implementation not built for this row count; a
+multi-million-row time-varying fit is a plausible, real scalability wall
+for this specific library call, not a bug introduced by this session's
+refactor or by the batched launcher.
+
+NOT attempting a blind relaunch of cox again -- a 3rd attempt at the exact
+same full-data `.fit()` call would very likely repeat the same outcome
+regardless of how small the batch is, since it reproduced with ample
+headroom and minimal contention. This is a real design/scalability
+decision (subsample the training data for this scenario's Cox fit? swap in
+a different, more scalable Cox implementation? accept Cox is infeasible on
+twenty_features_heterogeneous and exclude it, similar to how kfre is
+already excluded for lacking a published equation here?) -- flagging to
+the user rather than guessing at one unilaterally, since CLAUDE.md's
+resource-limit auto-fix authorization was written for "smaller batch
+size"-style fixes, not for changing what a model's training call actually
+does. logistic_hazard (378751) and deepsurv (378753) are unaffected and
+still running normally as of this check.
+
+================================================================================
+Original all-parallel run (PID 3011811, sunlab-serv-01) confirmed dead
+================================================================================
+2026-08-29 13:12 CDT: this check is running FROM sunlab-serv-01 itself (the
+host that owns this PID) -- `ps -p 3011811` returns nothing, authoritative
+this time (not a cross-host miss). Final tally: 6 of 10 models confirmed
+failed on it before it died (gbsa/hazard_transformer/weibul/dynamic_deephit
+via OOM exit 137, logistic_hazard/deepsurv via exit 1) plus cox (exit 1,
+the numpy ArrayMemoryError traceback recovered earlier). The remaining
+models (rnnsurv, srf, survival_svm) were never confirmed either way before
+this run died entirely -- moot now, fully superseded by the batched
+relaunch (PID 378711, sunlab-serv-02), which is the only run being tracked
+going forward. Removing this row from EXPERIMENT_STATUS.md's Background
+processes table per the "remove your own background session's note once
+confirmed stopped" rule -- this entry is the permanent record.
+
+================================================================================
+Stage 3.0.2 auto-check @ 2026-08-29 13:36 CDT — dynamic_deephit/
+hazard_transformer still unconfirmable after 3 consecutive ticks
+================================================================================
+This session's Bash tool has now been pinned to sunlab-serv-01 (not serv-02,
+where the batched run PID 378711 actually lives) for 3 consecutive ~10-min
+auto-check ticks in a row (13:12, 13:25, 13:36 CDT), and cross-host ssh is
+not usable in either direction between these two nodes for this session
+(confirmed: sunlab-serv-02 -> sunlab-serv-01 timed out at port 22 earlier;
+sunlab-serv-01 -> sunlab-serv-02 connects but rejects with Permission
+denied, no usable key). dynamic_deephit's and hazard_transformer's
+per-experiment logs remain frozen at exactly 155 bytes (their initial
+Optuna "study created" line only) with an unchanged mtime of ~07:02:1x --
+zero growth across all 3 checks. This is now 6.5+ hours of silence that
+this session cannot independently confirm is progress (buffered stdout,
+plausible given `print()`'s default block-buffering when redirected to a
+file) vs. an actual stall/hang (also plausible, un-ruled-out).
+srf, launched in the same batch, DID complete normally in the interim
+(12:22:07) -- so the batched run's launcher process itself is confirmed
+alive and functioning as of that timestamp; only these 2 specific models'
+individual liveness is what remains unconfirmed.
+
+================================================================================
+Stage 3.0.2 check @ 2026-08-29 13:42 CDT — dynamic_deephit/hazard_transformer
+CONFIRMED alive and actively computing (checked directly from sunlab-serv-02,
+the host that owns PID 378711)
+================================================================================
+This session is running directly on sunlab-serv-02.cs.illinois.edu (the
+owning host), resolving the cross-host `ssh` blocker noted in the prior 3
+ticks from sunlab-serv-01. `ps -p` on this host directly:
+
+  PID     ELAPSED     TIME  %CPU  CMD
+  378711  09:24:08  00:00:00   0.0  run_rep_stage3_0_twenty_batched.sh 1 (launcher, alive)
+  408885  06:40:41  00:00:00   0.0  batch-2 subshell wrapping dynamic_deephit
+  408888  06:40:41  00:00:00   0.0  batch-2 subshell wrapping hazard_transformer
+  408898  06:40:41  13:24:54   200  python -m ...run_stage3_0_twenty_features dynamic_deephit
+  408899  06:40:41  9-10:24:22 3390  python -m ...run_stage3_0_twenty_features hazard_transformer
+
+Both worker PIDs have accumulated far more CPU time than wall-clock elapsed
+time (200% and 3390% CPU respectively), which is only possible if they are
+actively executing multi-threaded work right now -- a hung/stalled process
+would show ~0% CPU and CPU time stuck at whatever it was when it stalled.
+This confirms the 6.5h+ log silence flagged in the 13:12/13:25/13:36 CDT
+ticks is buffered-stdout silence during a single long-running Optuna trial
+(consistent with block-buffered `print()` output redirected to a file), not
+a hang. No log growth is expected until the current trial (or the whole
+Optuna study) finishes and flushes/prints. Continuing to monitor; will
+re-check log content once either log's mtime advances past 07:02:1x.
+
+================================================================================
+Stage 3.0.2 batched run terminated and relaunched fresh, per user request
+================================================================================
+2026-08-29 13:43 CDT: user confirmed they terminated the previous batched
+run (leader PID 378711, sunlab-serv-02) themselves, after this session's
+own inability to reach serv-02 (ssh blocked both directions all session)
+left it unconfirmable for 3+ consecutive auto-check ticks whether
+dynamic_deephit/hazard_transformer (silent 6.5h+) were stalled or just
+buffered. Per the user's explicit "it's done" + "continue", trusted their
+own confirmation of the termination (not re-verified independently, since
+this session still cannot reach serv-02) and relaunched the batched script
+fresh rather than trying to resume/patch the old run.
+
+This is a FULL FRESH RESTART, not a resume: deepsurv and logistic_hazard
+(which had already completed successfully in the terminated run) and srf
+(which had also completed) will be retrained from scratch by this new run,
+since run_rep_stage3_0_twenty_batched.sh always starts at Batch 1 with no
+checkpoint/resume logic. This is expected/intended per the user's literal
+"rerun it" instruction, not an oversight.
+
+Launched: 2026-08-29 13:43:10 CDT, host sunlab-serv-01.cs.illinois.edu
+(this session's Bash tool happened to be on serv-01 for this launch --
+noting host explicitly per this repo's convention, not implying anything
+about where compute actually runs, which depends on wherever this shell
+lands, not a deliberate host choice).
+Command: bash pkgs/scripts/run_rep_stage3_0_twenty_batched.sh 1
+Process group leader PID: 3131354 (kill with: kill -TERM -3131354)
+Master log: pkgs/scripts/run_rep1_stage3_0_twenty_batched_master.log
+(overwritten fresh)
+Batch 1 confirmed launched: cox=3131381, logistic_hazard=3131385,
+deepsurv=3131391.
+
+NOTE: cox's disposition for this scenario is STILL an open question
+pending the user's decision (subsample training data / exclude Cox here /
+retry as-is / user investigates) -- this relaunch includes cox again
+un-modified (same full-data CoxTimeVaryingFitter.fit() call), so it will
+almost certainly hit the same OOM wall again around the same ~1h43m mark
+unless/until the user decides on a different approach. Not blocking this
+relaunch on that decision since the user's instruction was to rerun the
+whole script as-is.
+
+================================================================================
+Cox subsampling search launched, per user decision (2026-08-29 13:49 CDT)
+================================================================================
+User's decision on the cox-on-twenty_features_heterogeneous OOM (see the
+"Stage 3.0.2 auto-check @ 06:04" and "13:36" entries above for the
+diagnosis): "Subsample the training data. Descend the sample size slowly.
+See the biggest sample size you can fit in."
+
+Data facts (twenty_features_heterogeneous train, rep1):
+  6,512,638 rows, 26,080 unique patients, ~249.7 rows/patient average.
+
+Built two new scripts (not wired into the normal training path -- standalone
+search tooling only):
+- pkgs/scripts/cox_twenty_subsample_trial.py: loads the full train frame,
+  subsamples N patients (stratified by has_esrd via each patient's LAST
+  row, fixed seed, default 42), fits a fresh CoxTimeVaryingFitter(penalizer=1.0)
+  on just that subsample, prints timing, exits 0 on success / 1 on any
+  exception (e.g. a caught MemoryError).
+- pkgs/scripts/cox_twenty_subsample_search.sh <n_patients> [seed]: launches
+  one trial, polls its RSS every 15s (pkgs/scripts/cox_subsample_trial_<n>.log),
+  and kills it early -- recorded as "too_big" -- if RSS crosses a 120GB
+  safety cap (well below this box's ~188GB, chosen since this trial is
+  running in isolation but the real batched run will need headroom for
+  logistic_hazard/deepsurv alongside it) or if wall time exceeds 45 min
+  ("too_slow"), rather than waiting for a real multi-hour kernel OOM-kill
+  every time. Writes a one-line result to cox_subsample_trial_<n>.result
+  (success / too_big / too_slow / failed_exit_N).
+
+Search plan: start at a small, fast calibration point (N=2000) to confirm
+the harness works and get a first memory/time reading, then exponentially
+increase (aiming for doubling: ~4000, 8000, 16000, 26080-full) watching
+where it starts ballooning, then binary-search between the last success
+and first failure to pin down the actual boundary. Once a safe N is found,
+will apply it as TWENTY_FEATURES_HETEROGENEOUS's Cox training sample size
+(pkgs/experiments/cox.py) and relaunch cox in the batched run with the fix.
+
+Trial N=2000 launched 13:49 CDT (host sunlab-serv-01.cs.illinois.edu,
+PID 3132283 wrapper / 3132299 python), log:
+pkgs/scripts/cox_subsample_trial_2000.log
+
+Trial N=2000: SUCCESS. 503,842 rows, 1828/2000 events (91.4%), fit
+completed in 40.1s, peak RSS ~4.9GB (mostly data-loading overhead, fit
+itself added negligible memory). Doubling: trial N=4000 launched 13:54 CDT
+(wrapper 3132756, python 3132772).
+
+Batched run 2nd attempt: deepsurv and logistic_hazard both completed
+successfully again (much faster this time, ~11min vs ~50-70min previously
+-- likely less host contention). cox (3131381) still running its
+unmodified full-data fit, as expected -- will be superseded once the
+subsample search lands on a safe N.
+
+Trial N=4000: SUCCESS. 1,037,761 rows, 3656/4000 events (91.4%), fit
+completed in 113.4s, peak RSS ~5.4GB. Doubling: trial N=8000 launched
+13:59 CDT (wrapper 3135707, python 3135725).
+
+Trial N=8000: SUCCESS. 2,011,931 rows, 7313/8000 events (91.4%), fit
+completed in 523.7s (~8.7min), peak RSS ~7.5GB. Fit TIME is scaling
+noticeably super-linearly (40s -> 113s -> 524s for 2000/4000/8000 patients
+-- roughly 2.8x then 4.6x for each doubling) even though memory has stayed
+well-bounded -- raised cox_twenty_subsample_search.sh's MAX_WALL_SECS from
+45min to 150min accordingly (memory, not time, was the original failure
+mode being searched for; a legitimately slow-but-viable large trial
+shouldn't get a false "too_slow" verdict from the old, more conservative
+cap). Doubling: trial N=16000 launched 14:09 CDT.
+
+Trial N=16000: SUCCESS. 3,942,410 rows, fit completed in 2102.1s (~35min),
+peak RSS ~11.6GB. Time-scaling ratios per doubling: 2.8x (2000->4000), 4.6x
+(4000->8000), 4.0x (8000->16000) -- consistently close to the theoretical
+4x a pure O(n^2) algorithm would show, strongly suggesting
+CoxTimeVaryingFitter's Efron tie-handling is quadratic in patient count for
+this data. Memory, notably, has NOT been the binding constraint at any
+point in the search (4.9GB -> 5.4GB -> 7.5GB -> 11.6GB, well-behaved,
+roughly sub-linear growth) -- the original production OOM failures may
+have been more about contention (9-10 models' combined memory pressure)
+or a probabilistic/threshold-dependent internal blowup rather than a
+smooth function of N alone.
+
+DECISION: not launching a redundant N=26080 trial via the search harness --
+the currently-running batch-1 cox process (PID 3131389, unmodified,
+full 26,080-patient data) has effectively been running in ISOLATION since
+~14:04 CDT (once its batch-mates deepsurv/logistic_hazard finished), making
+it a live, already-in-progress, free test of whether the full dataset
+succeeds without contention. Rather than duplicate that exact experiment
+(same host, same data, doubling CPU/memory contention pointlessly),
+switching to watching PID 3131389 directly as the de facto N=26080 trial.
+As of 14:58 CDT it has run 1h14m54s -- already close to (but has not yet
+reached) the ~1h43m mark where the FIRST batched attempt's cox died, and
+well past the point where a pure quadratic-time full fit would extrapolate
+to finish (~93min estimated from the N=16000 trend) if it's going to
+succeed at all.
+
+Plan: if PID 3131389 succeeds -> full data works in isolation, no
+subsampling fix needed at all, batch 1 is genuinely done. If it fails
+(OOM) -> fall back to N=16000 (already proven safe: 35min, ~11.6GB) as the
+production sample size, apply as a TWENTY_FEATURES_HETEROGENEOUS-scoped
+fix in pkgs/experiments/cox.py, and relaunch cox alone with the fix.
+
+================================================================================
+RESOLVED: cox succeeded on the FULL twenty_features_heterogeneous dataset
+in isolation -- no subsampling fix needed
+================================================================================
+2026-08-29 15:17:04 CDT: batch-1's unmodified cox process (PID 3131389,
+full 26,080 train patients, 6.51M rows) completed successfully --
+Concordance Index Test=0.44, Integrated Brier Score Test=0.872, Mean
+time-dependent AUC=0.4239. Total wall time (data load + fit + eval):
+13:43:10 -> 15:17:04 = 1h33m54s. Peak observed RSS during the run reached
+~72GB (38.3% of this 188GB box) around the 1h32m mark before completing
+cleanly shortly after -- crossed well past the ~1h43m point where the
+FIRST batched attempt's cox died at a similar elapsed time, without
+crashing this time.
+
+CONCLUSION: the earlier OOM failures (original all-parallel run: numpy
+ArrayMemoryError after ~2h; first batched attempt: hard SIGKILL after
+1h43m) were NOT a fundamental "full dataset can never fit" wall -- they
+were contention-driven. Both prior failures happened while cox was running
+ALONGSIDE several other memory-hungry models competing for the same host's
+RAM (either all 10 models at once in the original run, or cox alongside
+gbsa/hazard_transformer/weibul/dynamic_deephit's own repeated OOM cycles
+using up headroom in the original run, and even in the first batched
+attempt cox ran concurrently with logistic_hazard+deepsurv AND died at
+1h43m -- notably close to but short of where THIS run's peak actually
+occurred). This 2nd batched attempt's cox got to run in near-isolation for
+most of its life (its batch-mates finished early, ~11min in) and that
+appears to have been enough headroom to let the same full-data fit
+complete -- ~72GB peak fits comfortably within 188GB alone, but would not
+have alongside the other ~9-10 models' simultaneous memory pressure.
+
+The N=2000/4000/8000/16000 subsampling search (all succeeded, memory
+well-bounded 4.9-11.6GB, time scaling ~quadratically) remains useful
+groundwork/evidence for this conclusion and as a documented fallback (see
+above), but is NOT being applied as a code fix -- pkgs/experiments/cox.py
+is left completely unmodified. Batch 1 is now genuinely, fully complete
+(deepsurv/logistic_hazard/cox all succeeded). Batch 2 (dynamic_deephit,
+hazard_transformer, srf) auto-launched at 15:17 CDT: dynamic_deephit=3149869,
+hazard_transformer=3149873, srf=3149878.
+
+Standalone search scripts (pkgs/scripts/cox_twenty_subsample_trial.py,
+cox_twenty_subsample_search.sh) and their trial logs/results left in place
+as documented evidence, not deleted -- not wired into the normal training
+path, so they're inert going forward.

@@ -17,17 +17,19 @@ approved). Do not restart another session's row without confirming its host is a
 | 2 | PMF-fix rerun (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
 | 2.1 | PMF-fix rerun analyses (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
 | 2.2 | Debug self-check on Stage 2.1's rep99 analysis | done — Findings #1-#3 fixed, verified, closed; 2 open questions remain | [report](generated_data/rep99/stage2_2_debug_report.txt) |
-| 3.0 | rep1 four_features/eight_features run (all 11 models) + analysis | **retraining, 9/11 done** (picking up Findings #1-#3) | [report](generated_data/rep1/stage3_0_rep1_run_report.txt) |
-| 3.0.1-3.0.3 | Debug → twenty_features_heterogeneous → Debug | queued to run automatically once 3.0 finishes (user-approved) | [plan](EXPERIMENT_PLAN_DETAILS.md) |
-| 3.1 | rep2-4 full runs | not started, blocked on 3.0 | — |
+| 3.0 | rep1 four_features/eight_features run (all 11 models) + analysis | done — training + analysis both regenerated, no errors (ddh/eight_features cancelled at trial 7/10 by user request, model still usable) | [report](generated_data/rep1/stage3_0_rep1_run_report.txt) |
+| 3.0.1 | Debug self-check (rep1 four/eight_features) | done — no new blocking issues | [report](generated_data/rep1/stage3_0_rep1_run_report.txt) |
+| 3.0.2 | rep1 twenty_features_heterogeneous run (10 models) | in progress | [log](generated_data/rep1/stage3_0_background_process_log.txt) |
+| 3.0.3 | Debug self-check on combined 3-scenario analysis | not started, blocked on 3.0.2 | [plan](EXPERIMENT_PLAN_DETAILS.md) |
+| 3.1 | rep2-4 full runs | not started, blocked on 3.0.3 | — |
 
 ## Background processes
 
-| PID | Rep | Log | Status |
-|---|---|---|---|
-| 2940051 | 1 | [eval_all_rep1_stage3_0_four_eight.log](pkgs/scripts/eval_all_rep1_stage3_0_four_eight.log) | 9/11 done, no errors — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt) for detail |
+| What | PID | Host | Log | Status |
+|---|---|---|---|---|
+| Stage 3.0.2 rep1 twenty_features_heterogeneous (10 models), batched run (2nd attempt, fresh restart) | 3131354 | sunlab-serv-01.cs.illinois.edu | [log](generated_data/rep1/stage3_0_background_process_log.txt) | batch 1 done; batch 2/4: srf OK, dynamic_deephit/hazard_transformer still running (~1h24m, no failures, memory stable) |
 
-Last Updated: 2026-08-28 23:56 CDT (sunlab-serv-01.cs.illinois.edu). Full
+Last Updated: 2026-08-29 13:49 CDT (sunlab-serv-01.cs.illinois.edu). Full
 history for this stage (launches, incidents, health checks) is in
 [stage3_0_rep1_run_report.txt](generated_data/rep1/stage3_0_rep1_run_report.txt)
 and [stage3_0_background_process_log.txt](generated_data/rep1/stage3_0_background_process_log.txt);

@@ -249,3 +249,115 @@ Next once both finish: rerun the Stage 3.0 scoped analysis scripts (same two
 commands as the "Analysis report" section above) to regenerate the now-stale
 four_features/eight_features report, then the Stage 3.0→3.1 approval gate
 review.
+
+Cancellation (2026-08-29 02:28 CDT, user request)
+------------------------------------------------------------------------------
+By this point 10/11 models were done; dynamic_deephit had finished
+four_features (10/10 optuna trials, model saved 01:32) and was 8/10 trials
+into eight_features, with a usable model already saved from its best trial
+so far (trial 7, C-index 0.864, saved 02:22 -- the script saves whenever a
+trial beats the previous best, not only after the full search). User
+directed cancelling the remaining 2 trials rather than waiting them out.
+Sent SIGTERM to PID 2940093 (the lone python process, confirmed via process
+tree -- no separate children to worry about), confirmed clean exit, verified
+both four_features_ddh_model.pt and eight_features_ddh_model.pt intact and
+unmodified by the kill. eight_features' ddh model is therefore the best of
+8 trials, not the full 10 -- a deliberate, accepted tradeoff, not a failure.
+
+Bug found in run_rep_stage3_0_four_eight.sh while investigating the kill's
+aftermath: the master log's own summary ("Failed experiments: N", "✓ All
+experiments completed successfully!") is structurally unreliable. Each
+experiment's per-step subshell is `( ... ; if python -m ...; then echo ✓...;
+else echo ✗...; fi; echo "End time: ..." ) &` -- since the subshell's LAST
+command is always the unconditional `echo "End time..."` (which always
+succeeds), the subshell's own exit code is always 0 regardless of whether
+the inner python command failed. The outer wait-loop's `wait
+"${exp_pids[$experiment]}"` waits on that subshell PID, not the python
+PID, so it always sees success and the master log always reports 0
+failures -- confirmed here: master log shows "✓ dynamic_deephit completed
+successfully" and "Failed experiments: 0" even though dynamic_deephit's OWN
+log clearly shows "✗ dynamic_deephit failed with exit code 143". This also
+explains an earlier-noticed quirk (cox/logistic_hazard/rnnsurv's
+completions were absent from the master log's own "✓ ... completed
+successfully" lines during this same run, even though they'd genuinely
+finished) -- the master log's line only appears when the *subshell*
+happens to still be tracked/waited correctly, but its truth value (✓ vs ✗)
+can't be trusted either way. The individual per-experiment logs
+(pkgs/scripts/eval_rep1_stage3_0_four_eight_<experiment>.log) are the only
+reliable source of pass/fail status for this script -- not fixed here (out
+of scope for this session's task), flagging for whoever next touches
+run_rep_stage3_0_four_eight.sh / the shared run_rep.sh pattern it mirrors.
+
+Analysis regenerated (2026-08-29 02:29-02:40 CDT)
+------------------------------------------------------------------------------
+All 11 models present for both scenarios (eight_features ddh is the
+trial-7-of-10 best-so-far model, per the cancellation above). Ran both
+scoped analysis scripts again (same two commands as the original "Analysis
+report" section) — clean, exit 0, no errors on either. Outputs overwritten
+in place: generated_data/rep1/{four,eight}_features_shap_analysis_report.txt,
+{four,eight}_features_all_models_feature_importance.png,
+{four,eight}_features_clinical_validity_report.txt,
+{four,eight}_features_{calibration,decision_curve}_plot.png,
+{c_index,brier,auc}_comparison.png. Discrimination metrics now reflect
+Stage 2.2 Findings #1-#3 (per-patient evaluation for all 11 models; KFRE no
+longer a standout — c_index 0.539/0.539 on four/eight_features, in the same
+range as most other models; Dynamic DeepHit remains the clear outlier at
+0.83/0.87, per open question #4 in stage2_2_debug_report.txt, not yet
+resolved). Next: Stage 3.0.1 debug self-check on this analysis.
+
+================================================================================
+Stage 3.0.1 debug self-check (rep1, four_features + eight_features)
+================================================================================
+Ran 2026-08-29 against the just-regenerated
+generated_data/rep1/{four,eight}_features_clinical_validity_report.txt and
+generated_data/rep1/{four,eight}_features_shap_analysis_report.txt, per
+EXPERIMENT_PLAN_DETAILS.md's Stage 3.0.1 5-question checklist (same protocol
+as Stage 2.2's rep99 check — see stage2_2_debug_report.txt).
+
+1. Are models' performance consistent (no model low on C-index but also low
+   on Brier)? Yes — post Findings #1-#3, Cox's Brier (0.53/0.58) is no
+   longer deceptively low despite its poor C-index (0.31/0.47); consistent
+   with rep99's post-fix pattern.
+2. Models that should perform well but don't? Cox (C-index 0.31 four_features,
+   0.47 eight_features — sub-random on both) and KFRE (0.539/0.539, no
+   longer a standout). This is a WIDER instance of stage2_2_debug_report.txt's
+   already-open Question #3 (previously observed as
+   twenty_features_heterogeneous-specific for Cox/Hazard-Transformer on
+   rep99) — rep1 shows Cox sub-random on four_features/eight_features too,
+   so the issue is not scenario-specific after all. Hazard Transformer
+   itself is NOT degenerate here (c_index 0.64/0.58, both > random) —
+   unlike rep99's twenty_features_heterogeneous case. Not a new bug, not
+   independently root-caused this pass — folding into the existing open
+   Question #3 rather than reopening it as new.
+3. Cohesive story? Yes, same shape as rep99: Dynamic DeepHit leads by a wide
+   margin, KFRE/Cox mediocre-to-poor, the remaining 8 models cluster
+   ~0.5-0.6 c_index. Consistent across reps.
+4. Any model performing too well? Dynamic DeepHit again (0.832/0.866) —
+   same as stage2_2_debug_report.txt's open Question #4, not re-investigated
+   this pass.
+5. Ready for paper? Same caveat as Stage 2.2's answer: materially closer
+   (Findings #1-#3 already reflected in this rep1 regenerated report) but
+   still blocked on open Questions #3/#4 before treating results as final.
+
+Also checked (not a new finding): a mathematically-guaranteed degeneracy in
+Hazard Transformer's calibration/decision-curve table at the exact 730d
+horizon (predicted risk = 1.0 for every patient) — this is inherent to
+`HazardTransformer.predictions()`'s native_prob_fn being evaluated at
+horizon==max_time==730 (cumsum of a softmax-normalized PMF over ALL its
+bins is always 1.0 by construction, for any model weights) — see
+pkgs/models/hazard_transformer.py's predictions() docstring, which already
+explains this and is why the report's own inline "NOTE:" flags it. Already
+self-documented by the code, not a hidden bug; the scalar risk_scores used
+in C-index/AUC/Brier deliberately use a 365d fixed horizon specifically to
+avoid this same degeneracy (see that method's own comment) and are
+unaffected. No action needed.
+
+Also checked: RNN-Surv's `model=None` / `model=0.0` decision-curve entries
+at high pt thresholds (e.g. four_features pt=0.30/0.40/0.50) — confirmed
+via model_net_benefit_curve()'s own guard logic
+(pkgs/data_analysis/clinical_validity_analysis.py) that this is deliberate,
+documented behavior (n_high==0 -> 0.0; KM-estimate undefined among the
+high-risk subset -> None), not a bug.
+
+CONCLUSION: no new blocking issues found. Proceeding to Stage 3.0.2 per the
+user's standing pre-approval ("after 3.0 is done, run -> 3.0.3").

@@ -1,0 +1,17 @@
+Start time: Sat Aug 29 15:17:04 CDT 2026
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   22.0s
+[Parallel(n_jobs=2)]: Done 150 out of 150 | elapsed:  1.6min finished
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_srf_model.dill
+Model file found at /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_srf_model.dill. Loading model...
+X shape: (6521, 40)
+Concordance Index Test: 0.522
+Mean AUC: 0.535
+Integrated Brier Score Test: 0.425
+✓ srf completed successfully
+End time: Sat Aug 29 15:30:47 CDT 2026
