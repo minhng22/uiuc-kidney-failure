@@ -1,0 +1,81 @@
+\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}% Math and Physical Sciences Numbered Reference Style
+
+\usepackage{graphicx}%
+\usepackage{multirow}%
+\usepackage{amsmath,amssymb,amsfonts}%
+\usepackage{amsthm}%
+\usepackage{mathrsfs}%
+\usepackage[title]{appendix}%
+\usepackage{xcolor}%
+\usepackage{textcomp}%
+\usepackage{manyfoot}%
+\usepackage{booktabs}%
+\usepackage{algorithm}%
+\usepackage{algorithmicx}%
+\usepackage{algpseudocode}%
+\usepackage{listings}%
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage[section]{placeins}
+
+\lstset{
+    basicstyle=\ttfamily,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    breaklines=true,
+    showstringspaces=false
+}
+
+\theoremstyle{thmstyleone}%
+\newtheorem{theorem}{Theorem}%
+\newtheorem{proposition}[theorem]{Proposition}%
+
+\theoremstyle{thmstyletwo}%
+\newtheorem{example}{Example}%
+\newtheorem{remark}{Remark}%
+
+\theoremstyle{thmstylethree}%
+\newtheorem{definition}{Definition}%
+
+\raggedbottom
+
+\begin{document}
+
+\title[Article Title]{Feature-Set Scaling for Kidney Failure Prediction: Benchmarking Eleven Survival Models Against the Kidney Failure Risk Equation on MIMIC-IV}
+
+\author*[1]{\fnm{Minh} \sur{Nguyen}}\email{minhn2@illinois.edu}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1]{\fnm{John} \sur{Wu}}\email{johnwu3@illinois.edu}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1]{\fnm{Jimeng} \sur{Sun}}\email{jimeng@illinois.edu}
+
+\affil[1]{University of Illinois, Urbana-Champaign, USA}
+
+\abstract{The Kidney Failure Risk Equation (KFRE) predicts progression to end-stage renal disease (ESRD) from as few as four routinely collected variables, yet modern EHR resources and deep survival architectures raise the question of whether more features and more expressive models meaningfully improve on it. We isolate this question on a shared MIMIC-IV-derived cohort of chronic kidney disease patients by benchmarking eleven survival models — Cox, Weibull AFT, DeepSurv, Dynamic-DeepHit, RNN-Surv, Hazard Transformer, LogisticHazard, gradient-boosted survival analysis, random survival forests, FastSurvivalSVM, and the published closed-form KFRE equation itself — across three nested feature-set regimes reconstructing KFRE's own 4- and 8-variable inputs plus a 20-feature heterogeneous stress test. Building KFRE-comparable cohorts required a new creatinine-anchored, bounded-window row-merge design for combining multiple asynchronously-drawn labs into simultaneous covariate snapshots, which we document with its full clinical and statistical justification. Once every model is evaluated on an identical, per-patient basis — a methodological correction that reverses an earlier, row-level-evaluated result in which KFRE and Cox appeared to lead — KFRE's discrimination is matched by most learned models rather than clearly beaten by them, only one deep sequence model (Dynamic-DeepHit) shows a decisive advantage, and nearly every model exceeds a simple eGFR-threshold referral rule's clinical net benefit. We report this as an interim benchmark: a model-behavior finding (a Cox model performing below chance) and the pending completion of the twenty-feature scenario and additional cohort repetitions are disclosed explicitly as open questions rather than smoothed over.}
+
+\keywords{Survival analysis, chronic kidney disease, Kidney Failure Risk Equation, MIMIC-IV, benchmark}
+
+\maketitle
+
+\input{sections/introduction}
+\input{sections/methods}
+\input{sections/results}
+\input{sections/discussion}
+
+\backmatter
+
+\section*{Declarations}
+\begin{itemize}
+\item Funding: Not applicable.
+\item Conflict of interest: The authors declare no competing interests.
+\item Ethics approval: MIMIC-IV is a de-identified, publicly available critical care database released under a data use agreement; this study involved no additional identifiable patient contact.
+\item Data availability: MIMIC-IV is available via PhysioNet to credentialed users. Extracted cohort definitions and code are made available via the project repository.
+\item Code availability: Benchmark code, extraction pipeline, and trained model artifacts are available in the project repository.
+\item Author contribution: All authors contributed to study design, experimentation, analysis, and manuscript preparation.
+\end{itemize}
+
+\bibliography{sn-bibliography}
+
+\end{document}

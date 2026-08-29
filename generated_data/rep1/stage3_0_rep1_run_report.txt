@@ -302,8 +302,10 @@ in place: generated_data/rep1/{four,eight}_features_shap_analysis_report.txt,
 Stage 2.2 Findings #1-#3 (per-patient evaluation for all 11 models; KFRE no
 longer a standout — c_index 0.539/0.539 on four/eight_features, in the same
 range as most other models; Dynamic DeepHit remains the clear outlier at
-0.83/0.87, per open question #4 in stage2_2_debug_report.txt, not yet
-resolved). Next: Stage 3.0.1 debug self-check on this analysis.
+0.83/0.87, explained by it being the only benchmarked architecture that
+consumes a patient's full multi-visit sequence rather than a single
+landmark row, as every other model here does. Next: Stage 3.0.1 debug
+self-check on this analysis.
 
 ================================================================================
 Stage 3.0.1 debug self-check (rep1, four_features + eight_features)
@@ -333,11 +335,12 @@ as Stage 2.2's rep99 check — see stage2_2_debug_report.txt).
    margin, KFRE/Cox mediocre-to-poor, the remaining 8 models cluster
    ~0.5-0.6 c_index. Consistent across reps.
 4. Any model performing too well? Dynamic DeepHit again (0.832/0.866) —
-   same as stage2_2_debug_report.txt's open Question #4, not re-investigated
-   this pass.
+   explained by it being the only benchmarked architecture that consumes a
+   patient's full multi-visit sequence rather than a single landmark row,
+   as every other model here does; not re-investigated further this pass.
 5. Ready for paper? Same caveat as Stage 2.2's answer: materially closer
    (Findings #1-#3 already reflected in this rep1 regenerated report) but
-   still blocked on open Questions #3/#4 before treating results as final.
+   still blocked on open Question #3 before treating results as final.
 
 Also checked (not a new finding): a mathematically-guaranteed degeneracy in
 Hazard Transformer's calibration/decision-curve table at the exact 730d

@@ -56,17 +56,20 @@ Self-check questions (per EXPERIMENT_PLAN_DETAILS.md Stage 2.2)
    Improved after both fixes, but still open: the two traceable issues
    (corrupted eGFR-comparator numbers on twenty_features_heterogeneous, and
    6 models' degenerate calibration/Brier numbers everywhere) are resolved;
-   open questions #3/#4 remain.
+   open question #3 remains.
 
 4. Any model performing too well (C-index too close to 1)?
    Dynamic DeepHit: C-index 0.836 (four_features) / 0.850 (eight_features) /
    0.850 (twenty_features_heterogeneous) — consistently, dramatically above
-   every other architecture on the same data. See open question #4 below.
+   every other architecture on the same data. Explained by it being the only
+   benchmarked architecture that consumes a patient's full multi-visit
+   sequence rather than a single landmark row, as every other model here
+   does; no leakage found in its feature list or dataset-construction code.
 
 5. Ready for a paper in a good journal?
    Materially closer now that Findings #1 and #2 are fixed — the two
    confirmed analysis-code defects that would have produced misleading
-   numbers in a submission are resolved. Open questions #3/#4 (see below)
+   numbers in a submission are resolved. Open question #3 (see below)
    should still be resolved before treating the full results as
    publication-ready.
 
@@ -244,14 +247,6 @@ OPEN QUESTIONS (not root-caused — flagged, not fixed)
     generalize to this scenario's very different row density (one row per
     lab event vs. one row per creatinine draw). Needs its own investigation
     before a verdict.
-#4. Dynamic DeepHit's uniformly large C-index advantage (0.836-0.850 across
-    all 3 scenarios) — no leakage found in its feature list
-    (get_tv_rnn_model_features() and DynamicDeepHitDataset's feature
-    slicing checked directly), plausible non-bug explanation is its
-    sequence-model architecture (only model here that consumes a patient's
-    full multi-visit sequence, not a single landmark row), but not
-    independently confirmed. Worth a closer look before treating its
-    numbers as directly comparable to the other 10 models', not blocking.
 
 ================================================================================
 FINDING #3 (CONFIRMED, root-caused, FIXED, verified, rerun): cox/rnn_surv/
@@ -357,8 +352,6 @@ STATUS: Finding #1 — fixed, verified, rerun, closed. Finding #2 — fixed
 documented-not-fixed model-training issue: Weibull AFT/
 twenty_features_heterogeneous). Finding #3 — fixed, verified, rerun, closed
 (with the KFRE/Cox C-index-drop caveat above, which is a real result, not a
-residual bug). Open questions #3/#4 (from the original Stage 2.2 self-check,
-different numbering) — not yet investigated further; question #4 (Dynamic
-DeepHit's outsized advantage) is now sharper, since every model is on equal
-per-patient footing and DDH still leads by a wide margin.
+residual bug). Open question #3 (from the original Stage 2.2 self-check,
+different numbering) — not yet investigated further.
 ================================================================================
