@@ -773,3 +773,65 @@ resume run).
 still trial 0 (~2d23h17min in). Resume run: hazard_transformer still on first
 trial (~6h28min in) confirmed alive/computing; rnnsurv still trial 0 of 3rd
 study confirmed alive/computing. No failures.
+
+--- PID 2458050 relaunch (2026-08-27, sunlab-serv-01.cs.illinois.edu) ---
+Relaunched Stage 3.0 rep1 run as PID 2458050 with the widened 11-model scope
+(ddh/hazard_transformer/rnnsurv/deepsurv/gbsa/srf/survival_svm/weibul; cox/
+kfre/logistic_hazard reused from the earlier completed run). Verified clean
+start for all 8: no immediate errors, all subprocess PIDs alive ~30s in.
+
+10-min health check: `survival_svm` completed successfully (all 4 scenarios).
+`weibul` crashed on `twenty_features_heterogeneous` — `lifelines.exceptions.
+ConvergenceError` (near-complete separation from a low-variance `*_missing`
+indicator column at rep1's full 26080-subject scale; `four_features`/
+`eight_features` weibul both converged fine and saved). Diagnosed, fixed
+(`penalizer=0.1` in `WeibullAFTFitter()`, scoped to `run_scenario()` only —
+the original NON_TIME_VARIANT `run_ti()` path is untouched), and verified
+read-only against rep1's actual training data (reproduced the failure,
+confirmed the fix converges) before applying — skipped rep99 re-verification
+because rep99's smaller sample never triggered this failure to begin with
+(its `twenty_features_heterogeneous` weibul model already exists, trained
+successfully pre-fix) and because another session's rep99 job for these same
+models was still marked in-progress at the time, so rep99 state wasn't
+touched. Relaunched weibul alone as PID 2462750 (reuses the two
+already-saved scenarios, only retrains twenty_features_heterogeneous). The
+other 6 models (ddh/hazard_transformer/rnnsurv/deepsurv/gbsa/srf) still
+running under PID 2458050, no errors so far.
+
+2nd 10-min health check: weibul retry (PID 2462750) finished — `✓ weibul
+completed successfully`, twenty_features_heterogeneous C-index 0.525 (fix
+confirmed working end-to-end, not just in the read-only test). weibul now
+fully done for rep1 (all 4 scenarios). The other 6 models under PID 2458050
+all still alive, no tracebacks/errors in any per-experiment log —
+hazard_transformer and deepsurv are multiple optuna trials into their
+2nd/3rd scenario respectively; dynamic_deephit/rnnsurv/gbsa haven't logged a
+completed trial yet (still mid first trial, ~26min in) but show normal CPU
+activity, no sign of a hang.
+
+3rd 10-min health check: `deepsurv` finished — `✓ deepsurv completed
+successfully`, all 3 new scenarios ran (confirmed via scenario markers in
+its log), C-index 0.529/twenty_features_heterogeneous. Remaining 5
+(dynamic_deephit/hazard_transformer/rnnsurv/gbsa/srf) all still alive under
+PID 2458050, no errors, all showing forward progress since the prior check
+(srf on its 3rd grid-search round, hazard_transformer onto a 2nd optuna
+study/scenario, dynamic_deephit finished its first trial). 6 of 11 models
+done for rep1 so far.
+
+Note (~13 checks later): `hazard_transformer`'s current optuna trial (2nd
+study, `twenty_features_heterogeneous` scenario, started 02:37:49) had run
+for ~3.5+ hours without completing at that point — flagged explicitly as an
+unusually long single trial, not treated as stalled since CPU-time grew
+steadily and consistently (~357-390 CPU-min per ~11-12 wall-clock min, ~33
+threads worth) across every ~10-min check since it started, with no
+drop-off. Its log showed no `print()`-based progress lines at all (confirmed
+buffering artifact, not a hang indicator). The other 4 models
+(dynamic_deephit/rnnsurv/gbsa/srf) remained healthy throughout, no errors,
+dynamic_deephit/rnnsurv both approaching the end of their first
+(four_features) 10-trial optuna search.
+
+Outcome: PID 2458050 was later superseded by an untracked duplicate run
+that collided with it and deleted rep1's four_features/eight_features model
+files mid-run — see stage3_0_rep1_run_report.txt's "Retrain" section for
+the full incident and the subsequent restart as PID 2697933 (finished
+2026-08-28 05:56 CDT, 11/11 done) and the later deliberate full retrain as
+PID 2940051 (2026-08-28, picking up Stage 2.2's Findings #1-#3).

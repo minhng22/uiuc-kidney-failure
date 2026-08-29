@@ -474,3 +474,9 @@ Full log analysis (pkgs/scripts/logs/rep99_verify_ddh_fix_20260823_132640.log):
 Next per CLAUDE.md's rule: re-running Stage 2.1 feature-importance analysis
 on rep99 for the 3 scenarios (stale reports/plots cleared first) before
 reporting to the user.
+
+Final tally after all rep99 models deleted and retrained from scratch
+(picks up DDH/HazardTransformer/RNN-Surv/DeepSurv fixes + the 5 newly-added
+models): 12/17 official-driver combos clean, 5 hit the same known
+four_features AUC-censoring-sparsity edge case documented above (models
+still trained/saved fine in all 5 cases, only the AUC metric affected).

@@ -534,10 +534,7 @@ cox/ddh/hazard_transformer/logistic_hazard/rnnsurv — so all 11 are now
 launched the same way, no separate driver script.
 
 **Scenario ordering: `four_features` and
-`eight_features` for all 11 models first, across every stage below —
-`twenty_features_heterogeneous` is deliberately held back until the user
-explicitly approves running it, separately from Stage 3.0's own rep1→3.1
-approval gate.** Concretely:
+`eight_features` for all 11 models ** Concretely:
 1. Launch all 11 models for `four_features`/`eight_features` only.
   - Launch all 11 via [pkgs/scripts/run_rep_stage3_0_four_eight.sh](pkgs/scripts/run_rep_stage3_0_four_eight.sh)
   `<rep_number>` — not `run_rep.sh` directly, since `run_rep.sh` has no
@@ -585,7 +582,7 @@ bad is not a problem. The problem is the model performance hints that there is a
 If there are issues, investigate why. Ask for user agreement on the fix. If user agrees, apply the fix. Then run stage 2.0 -> 3.0.1 again, no need to ask
 permission.
 
-## Stage 3.0.2: twenty_features_heterogeneous on rep 1
+### Stage 3.0.2: twenty_features_heterogeneous on rep 1
 1. After user approved, launch `twenty_features_heterogeneous`. Guide:
   - Launch via [pkgs/scripts/run_rep_stage3_0_twenty.sh](pkgs/scripts/run_rep_stage3_0_twenty.sh)
     `<rep_number>` — mirrors `run_rep_stage3_0_four_eight.sh`'s conventions, calling
@@ -598,7 +595,7 @@ permission.
   to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
   2.1, just rerun with `CKD_REP=1`.
 
-## Stage 3.0.3: Debug
+### Stage 3.0.3: Debug
 
 Look at analysis report in stage 3.0
 Ask your self:

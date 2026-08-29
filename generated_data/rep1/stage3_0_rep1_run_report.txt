@@ -221,3 +221,31 @@ and Stage 3.1:
 Next: Stage 3.0→3.1 approval gate — user needs to review this analysis and
 explicitly approve before rep2-4 (Stage 3.1) or `twenty_features_heterogeneous`
 proceed.
+
+Retrain (2026-08-28, deliberate — picks up Stage 2.2 Findings #1-#3)
+------------------------------------------------------------------------------
+User deliberately deleted all 22 rep1 four_features/eight_features model
+files so this run could be redone under the fixed clinical_validity_analysis.py
+(the analysis report above predates Findings #1-#3 and was stale w.r.t.
+cox/rnn_surv/kfre's per-patient-vs-per-row evaluation fix).
+
+Relaunch: `bash pkgs/scripts/run_rep_stage3_0_four_eight.sh 1`, PID 2940051,
+host sunlab-serv-01.cs.illinois.edu, started 2026-08-28 21:25:49 CDT.
+Master log: pkgs/scripts/eval_all_rep1_stage3_0_four_eight.log; per-experiment
+logs: pkgs/scripts/eval_rep1_stage3_0_four_eight_<experiment>.log.
+
+Progress (checked 2026-08-28 23:56 CDT): 9/11 confirmed done via their own
+per-experiment logs (`✓ ... completed successfully` + real eval metrics) —
+weibul, kfre, hazard_transformer, survival_svm, deepsurv, srf, cox,
+logistic_hazard, rnnsurv. Note: the master log's own summary line doesn't
+reliably capture every completion (cox/logistic_hazard/rnnsurv finished but
+never got a summary line there) — the per-experiment logs are the
+authoritative source, not the master log grep. 2 still running:
+dynamic_deephit (optuna trial 4/10 as of 23:37 CDT) and gbsa (mid-GridSearchCV,
+no per-step logging by design) — both confirmed actively computing via
+CPU-time tracking ~1:1 with wall-clock, not hung.
+
+Next once both finish: rerun the Stage 3.0 scoped analysis scripts (same two
+commands as the "Analysis report" section above) to regenerate the now-stale
+four_features/eight_features report, then the Stage 3.0→3.1 approval gate
+review.
