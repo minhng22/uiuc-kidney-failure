@@ -2,12 +2,12 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
 import os
 from pycox.models import LogisticHazard
 from pycox.preprocessing.label_transforms import LabTransDiscreteTime
 import torchtuples as tt
 from pkgs.experiments.utils import get_device
+from pkgs.models.logistic_hazard import LogisticHazardDataset
 
 from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard_model_path,
                           egfr_components_logistic_hazard_model_path, fivelabms_logistic_hazard_model_path,
@@ -17,7 +17,7 @@ from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard
                           ckd_fifty_features_heterogeneous_train_data_path)
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import ex_optuna, compute_brier_score_from_risk_scores
 
 from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc, concordance_index_censored
@@ -35,119 +35,6 @@ model_saved_path_dict = {
     ExperimentScenario.EIGHT_FEATURES: eight_features_logistic_hazard_model_path,
     ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS: twenty_features_heterogeneous_logistic_hazard_model_path,
 }
-
-class LogisticHazardDataset(Dataset):
-    def __init__(self, df, scenario_name: ExperimentScenario):
-        self.df = df
-        self.subject_groups = list(df.groupby('subject_id'))
-        self.scenario_name = scenario_name
-        self.features = get_tv_rnn_model_features(scenario_name)
-
-        # Cache per-column mean/std instead of recomputing them for every
-        # subject in the loop below — see hazard_transformer.py's
-        # HazardTransformerDataset for the full rationale (multi-hour stall
-        # at full Stage 3 scale).
-        self._mean_cache = {}
-        self._std_cache = {}
-
-    def _mean(self, col):
-        if col not in self._mean_cache:
-            self._mean_cache[col] = self.df[col].mean()
-        return self._mean_cache[col]
-
-    def _std(self, col):
-        if col not in self._std_cache:
-            self._std_cache[col] = self.df[col].std()
-        return self._std_cache[col]
-
-    def __len__(self):
-        return len(self.subject_groups)
-
-    def prepare_data_for_pycox(self):
-        all_features = []
-        all_durations = []
-        all_events = []
-        
-        for _, subject_data in self.subject_groups:
-            last_obs = subject_data.iloc[-1]
-            
-            if self.scenario_name == ExperimentScenario.TIME_VARIANT:
-                features = [(last_obs['egfr'] - self._mean('egfr')) / self._std('egfr')]
-            elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
-                features = [
-                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
-                    last_obs['egfr_missing'],
-                    (last_obs['protein'] - self._mean('protein')) / self._std('protein'),
-                    last_obs['protein_missing'],
-                    (last_obs['albumin'] - self._mean('albumin')) / self._std('albumin'),
-                    last_obs['albumin_missing']
-                ]
-            elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
-                features = [
-                    (last_obs['age'] - self._mean('age')) / self._std('age'),
-                    last_obs['gender'],
-                    (last_obs['serum_creatinine'] - self._mean('serum_creatinine')) / self._std('serum_creatinine')
-                ]
-            elif self.scenario_name == ExperimentScenario.FIVELABMS:
-                features = [
-                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
-                    last_obs['egfr_missing'],
-                    (last_obs['hemoglobin'] - self._mean('hemoglobin')) / self._std('hemoglobin'),
-                    last_obs['hemoglobin_missing'],
-                ]
-            elif self.scenario_name == ExperimentScenario.HETEROGENEOUS_IMPUTE:
-                # Imputed heterogeneous: same features as FIVELABMS but without missingness indicators
-                features = [
-                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
-                    (last_obs['hemoglobin'] - self._mean('hemoglobin')) / self._std('hemoglobin'),
-                ]
-            elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
-                # 50 lab features with missingness indicators
-                lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium',
-                             'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
-                             'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
-                             'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
-                             'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
-                             'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
-                             'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc',
-                             'lymphocytes', 'neutrophils', 'monocytes', 'basophils', 'eosinophils',
-                             'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
-                             'urine_specific_gravity', 'urine_ph', 'ph']
-                features = []
-                for lab_name in lab_names:
-                    features.append((last_obs[lab_name] - self._mean(lab_name)) / (self._std(lab_name) + 1e-8))
-                    features.append(last_obs[f'{lab_name}_missing'])
-            elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
-                features = [
-                    (last_obs['age'] - self._mean('age')) / self._std('age'),
-                    last_obs['gender'],
-                    (last_obs['egfr'] - self._mean('egfr')) / self._std('egfr'),
-                    (last_obs['uacr'] - self._mean('uacr')) / self._std('uacr'),
-                ]
-            elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
-                features = [
-                    (last_obs['age'] - self._mean('age')) / self._std('age'),
-                    last_obs['gender'],
-                ]
-                for lab_name in ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']:
-                    features.append((last_obs[lab_name] - self._mean(lab_name)) / (self._std(lab_name) + 1e-8))
-            elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
-                # top 20 lab features with missingness indicators
-                lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
-                             'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc',
-                             'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
-                features = []
-                for lab_name in lab_names:
-                    features.append((last_obs[lab_name] - self._mean(lab_name)) / (self._std(lab_name) + 1e-8))
-                    features.append(last_obs[f'{lab_name}_missing'])
-            else:
-                raise ValueError(f"Unsupported scenario: {self.scenario_name}")
-            
-            all_features.append(features)
-            all_durations.append(last_obs['duration_in_days'])
-            all_events.append(last_obs['has_esrd'])
-        
-        return np.array(all_features, dtype=np.float32), np.array(all_durations, dtype=np.float32), np.array(all_events, dtype=np.int32)
 
 def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()

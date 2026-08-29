@@ -2,14 +2,13 @@ import math
 import pandas as pd
 from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path, four_features_hazard_transformer_model_path, eight_features_hazard_transformer_model_path, twenty_features_heterogeneous_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_train_data_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
-from pkgs.models.hazard_transformer import HazardTransformer
+from pkgs.models.hazard_transformer import HazardTransformer, HazardTransformerDataset, custom_collate_fn
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 import numpy as np
 import os
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss, compute_brier_score_from_risk_scores
 from pkgs.data_analysis.types import ExperimentScenario
-from torch.nn.utils.rnn import pad_sequence
 from sksurv.metrics import cumulative_dynamic_auc
 from sksurv.util import Surv
 from lifelines.utils import concordance_index
@@ -41,133 +40,6 @@ def _fixed_horizon_bin_idx(num_bins, max_time, device):
     """Same bin index for every patient in the batch -- see EVAL_HORIZON_DAYS."""
     return int(round(min(EVAL_HORIZON_DAYS, max_time) / max_time * (num_bins - 1)))
 
-class HazardTransformerDataset(Dataset):
-    def __init__(self, df, scenario_name: ExperimentScenario):
-        self.df = df
-        self.subject_groups = list(df.groupby('subject_id'))
-
-        self.scenario_name = scenario_name
-        self.features = get_tv_rnn_model_features(scenario_name)
-
-        self.max_seq_length = max(df.groupby('subject_id').size())
-
-        # Cache per-column mean/std instead of recomputing them on every
-        # __getitem__ call. Recomputing over the full df (previously
-        # self.df[col].mean()/.std() inline below) is O(subjects x features x
-        # N) per epoch — invisible at rep99's tiny mini-experiment scale but a
-        # multi-hour stall at full Stage 3 scale (e.g. ~6.5M rows x 20 columns
-        # x 26k subject accesses for TWENTY_FEATURES_HETEROGENEOUS).
-        self._mean_cache = {}
-        self._std_cache = {}
-
-    def _mean(self, col):
-        if col not in self._mean_cache:
-            self._mean_cache[col] = self.df[col].mean()
-        return self._mean_cache[col]
-
-    def _std(self, col):
-        if col not in self._std_cache:
-            self._std_cache[col] = self.df[col].std()
-        return self._std_cache[col]
-
-    def __len__(self):
-        return len(self.subject_groups)
-
-    def __getitem__(self, idx):
-        _, subject_data = self.subject_groups[idx]
-        seq_length = len(subject_data)
-
-        assert isinstance(subject_data, pd.DataFrame), f"subject_data is not a DataFrame: {type(subject_data)}"
-        assert subject_data['duration_in_days'].is_monotonic_increasing, "subject_data is not sorted by time"
-        
-        features = np.zeros((self.max_seq_length, len(self.features)))
-        mask = np.zeros(self.max_seq_length)
-        
-        if self.scenario_name == ExperimentScenario.TIME_VARIANT:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
-        elif self.scenario_name == ExperimentScenario.HETEROGENEOUS:
-            features[:seq_length, 0] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
-            features[:seq_length, 1] = subject_data['egfr_missing'].values
-            features[:seq_length, 2] = (subject_data['protein'].values - self._mean('protein')) / self._std('protein')
-            features[:seq_length, 3] = subject_data['protein_missing'].values
-            features[:seq_length, 4] = (subject_data['albumin'].values - self._mean('albumin')) / self._std('albumin')
-            features[:seq_length, 5] = subject_data['albumin_missing'].values
-        elif self.scenario_name == ExperimentScenario.EGFR_COMPONENTS:
-            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
-            features[:seq_length, 1] = subject_data['gender'].values
-            features[:seq_length, 2] = (subject_data['serum_creatinine'].values - self._mean('serum_creatinine')) / self._std('serum_creatinine')
-        elif self.scenario_name == ExperimentScenario.FIVELABMS:
-            lab_names = ['egfr', 'hemoglobin']
-
-            feature_idx = 0
-            for lab in lab_names:
-                features[:seq_length, feature_idx] = (subject_data[lab].values - self._mean(lab)) / self._std(lab)
-                feature_idx += 1
-                features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
-                feature_idx += 1
-        elif self.scenario_name == ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS:
-            # 50 lab features with missingness indicators (100 features total)
-            lab_names = ['egfr', 'urea_nitrogen', 'hemoglobin', 'serum_albumin', 'potassium',
-                         'sodium', 'bicarbonate', 'phosphate', 'calcium', 'glucose',
-                         'chloride', 'anion_gap', 'hematocrit', 'platelet_count', 'wbc',
-                         'rbc', 'mcv', 'mch', 'mchc', 'rdw', 'magnesium', 'uric_acid',
-                         'bilirubin_total', 'alt', 'ast', 'alkaline_phosphatase', 'ldh',
-                         'iron', 'total_protein', 'cholesterol_total', 'triglycerides',
-                         'inr', 'ptt', 'crp', 'ferritin', 'transferrin', 'tibc',
-                         'lymphocytes', 'neutrophils', 'monocytes', 'basophils', 'eosinophils',
-                         'pt', 'rdw_sd', 'lab_h', 'lab_l', 'lab_i',
-                         'urine_specific_gravity', 'urine_ph', 'ph']
-            feature_idx = 0
-            for lab in lab_names:
-                features[:seq_length, feature_idx] = (subject_data[lab].values - self._mean(lab)) / (self._std(lab) + 1e-8)
-                feature_idx += 1
-                features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
-                feature_idx += 1
-        elif self.scenario_name == ExperimentScenario.FOUR_FEATURES:
-            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
-            features[:seq_length, 1] = subject_data['gender'].values
-            features[:seq_length, 2] = (subject_data['egfr'].values - self._mean('egfr')) / self._std('egfr')
-            features[:seq_length, 3] = (subject_data['uacr'].values - self._mean('uacr')) / self._std('uacr')
-        elif self.scenario_name == ExperimentScenario.EIGHT_FEATURES:
-            features[:seq_length, 0] = (subject_data['age'].values - self._mean('age')) / self._std('age')
-            features[:seq_length, 1] = subject_data['gender'].values
-            eight_feat_names = ['egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
-            for i, lab_name in enumerate(eight_feat_names):
-                features[:seq_length, 2 + i] = (subject_data[lab_name].values - self._mean(lab_name)) / (self._std(lab_name) + 1e-8)
-        elif self.scenario_name == ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS:
-            # top 20 lab features with missingness indicators (40 features total)
-            lab_names = ['egfr', 'potassium', 'urea_nitrogen', 'sodium', 'chloride', 'bicarbonate',
-                         'anion_gap', 'hematocrit', 'platelet_count', 'hemoglobin', 'wbc', 'mchc',
-                         'mch', 'rbc', 'mcv', 'rdw', 'glucose', 'calcium', 'magnesium', 'phosphate']
-            feature_idx = 0
-            for lab in lab_names:
-                features[:seq_length, feature_idx] = (subject_data[lab].values - self._mean(lab)) / (self._std(lab) + 1e-8)
-                feature_idx += 1
-                features[:seq_length, feature_idx] = subject_data[f'{lab}_missing'].values
-                feature_idx += 1
-
-        mask[:seq_length] = 1
-        
-        time_to_event = subject_data['duration_in_days'].iloc[-1]
-        event = np.array([subject_data['has_esrd'].iloc[-1]])
-                
-        return (torch.FloatTensor(features),
-                torch.FloatTensor(mask),
-                torch.LongTensor([time_to_event]),
-                torch.FloatTensor(event),
-                torch.FloatTensor(subject_data['duration_in_days'].values),
-                torch.FloatTensor(subject_data['has_esrd'].values),
-                torch.LongTensor([len(subject_data['duration_in_days'].values)]))
-    
-def custom_collate_fn(batch):
-    features, masks, time_to_events, events, durations, esrds, _ = zip(*batch)
-
-    features = pad_sequence(features, batch_first=True)
-    masks = pad_sequence(masks, batch_first=True)
-    durations = pad_sequence(durations, batch_first=True)
-    esrds = pad_sequence(esrds, batch_first=True)
-
-    return features, masks, torch.stack(time_to_events), torch.stack(events), durations, esrds
 
 def hazard_loss(hazard_preds, delta, time_mask, eps=1e-7):
     p = hazard_preds.clamp(min=eps, max=1-eps)           
@@ -356,7 +228,7 @@ def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataL
         print(f'Integrated Brier Score Test: {brier_score}')
     
     return brier_score
-    
+
 
 def run(scenario_name: ExperimentScenario):
     device = get_device()

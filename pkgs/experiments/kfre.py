@@ -1,30 +1,12 @@
 """Closed-form Kidney Failure Risk Equation (KFRE) - 4-variable and 8-variable.
 
-Not a trained model: risk is computed directly from the published Tangri et al. coefficients, so
-there's no .fit() step and no *_model.pt/.dill artifact. Only the computed per-row risk scores are
-cached (<scenario>_kfre_<years>yr_risk_scores.csv under generated_data/rep<N>/), so repeat
-evaluation runs don't recompute them.
-
-Coefficients, centering constants, and S0 baseline-survival constants are all directly confirmed
-against eAppendix 2 of Tangri N, Grams ME, Levey AS, et al. "Multinational assessment of accuracy
-of equations for predicting risk of kidney failure: a meta-analysis." JAMA. 2016;315(2):164-174 -
-fetched and read directly from the publisher's supplement PDF (not a third-party reimplementation).
-The "Original" (not "Regional Calibrated" or "Pooled") row of that table is used throughout, which
-is also what every clinical KFRE calculator and the CRAN/PyPI `kfre` packages implement - see
-generated_data/rep1/kfre_8variable_coefficients_report.txt for the full citation trail, the
-verbatim equations, and why "Original" (not the North-America-specific "Regional Calibrated" row)
-is the correct choice here.
-
-4-variable equation:
-  L = -0.2201*(age/10 - 7.036) + 0.2467*(male - 0.5642) - 0.5567*(eGFR/5 - 7.222)
-      + 0.4510*(ln(uACR) - 5.137)
-  Risk(t) = 1 - S0(t)^exp(L),  S0(2yr) = 0.9750,  S0(5yr) = 0.9240
-
-8-variable equation:
-  L = -0.1992*(age/10 - 7.036) + 0.1602*(male - 0.5642) - 0.4919*(eGFR/5 - 7.222)
-      + 0.3364*(ln(uACR) - 5.137) - 0.3441*(albumin - 3.997) + 0.2604*(phosphate - 3.916)
-      - 0.07354*(bicarbonate - 25.57) - 0.2228*(calcium - 9.355)
-  Risk(t) = 1 - S0(t)^exp(L),  S0(2yr) = 0.9780,  S0(5yr) = 0.9301
+The equation itself (coefficients, S0 constants, kfre_4var_risk/kfre_8var_risk/compute_risk_scores)
+lives in pkgs/models/kfre.py now -- see that module's docstring for the full citation trail and
+the equations themselves. Not a trained model: risk is computed directly from the published Tangri
+et al. coefficients, so there's no .fit() step and no *_model.pt/.dill artifact. This module is the
+training/eval harness around that equation: caches the computed per-row risk scores
+(<scenario>_kfre_<years>yr_risk_scores.csv under generated_data/rep<N>/, so repeat evaluation runs
+don't recompute them) and reports the same C-index/Brier/AUC metrics as every other model here.
 """
 import os
 
@@ -38,42 +20,7 @@ from pkgs.commons import generate_data_path_latest_rep
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.experiments.utils import round_metric, compute_brier_score_from_risk_scores
-
-# S0(t): Original column, eAppendix 2, Tangri et al. 2016 JAMA - see module docstring.
-S0_4VAR = {2: 0.9750, 5: 0.9240}
-S0_8VAR = {2: 0.9780, 5: 0.9301}
-
-
-def kfre_4var_risk(age, male, egfr, uacr, years=2):
-    log_uacr = np.log(np.maximum(uacr, 1e-6))
-    L = (-0.2201 * (age / 10 - 7.036)
-         + 0.2467 * (male - 0.5642)
-         - 0.5567 * (egfr / 5 - 7.222)
-         + 0.4510 * (log_uacr - 5.137))
-    return 1 - S0_4VAR[years] ** np.exp(L)
-
-
-def kfre_8var_risk(age, male, egfr, uacr, albumin, phosphate, bicarbonate, calcium, years=2):
-    log_uacr = np.log(np.maximum(uacr, 1e-6))
-    L = (-0.1992 * (age / 10 - 7.036)
-         + 0.1602 * (male - 0.5642)
-         - 0.4919 * (egfr / 5 - 7.222)
-         + 0.3364 * (log_uacr - 5.137)
-         - 0.3441 * (albumin - 3.997)
-         + 0.2604 * (phosphate - 3.916)
-         - 0.07354 * (bicarbonate - 25.57)
-         - 0.2228 * (calcium - 9.355))
-    return 1 - S0_8VAR[years] ** np.exp(L)
-
-
-def compute_risk_scores(scenario: ExperimentScenario, df, years=2):
-    assert scenario in [ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES]
-    if scenario == ExperimentScenario.FOUR_FEATURES:
-        return kfre_4var_risk(df['age'].values, df['gender'].values, df['egfr'].values,
-                               df['uacr'].values, years=years)
-    return kfre_8var_risk(df['age'].values, df['gender'].values, df['egfr'].values,
-                           df['uacr'].values, df['serum_albumin'].values, df['phosphate'].values,
-                           df['bicarbonate'].values, df['calcium'].values, years=years)
+from pkgs.models.kfre import compute_risk_scores
 
 
 def get_kfre_risk_scores_path(scenario: ExperimentScenario, years=2):

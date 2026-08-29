@@ -1,0 +1,38 @@
+CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
+================================================================================
+Generated on: 2026-08-28 21:23:44
+Repetition: 1
+Scenario: eight_features
+Competing-risk analysis (death before ESRD) not included — raised and declined
+(2026-08-23); see EXPERIMENT_PLAN_DETAILS.md Stage 2.1 for why.
+================================================================================
+
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Test samples (rows): 1100
+Max test follow-up: 3188.2 days. Horizons used: [730, 1825]
+
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_cox_model.dill
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_ddh_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_hazard_transformer_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_logistic_hazard_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_rnn_surv_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_deepsurv_model.pt
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_gbsa_model.dill
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_srf_model.dill
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_survival_svm_model.dill
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_weibul_model.dill
+Model file not found, skipping: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_kfre_2yr_risk_scores.csv
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+
+=== Horizon: 730 days ===
+Treat-all net benefit: {0.05: 0.2981, 0.1: 0.25911, 0.15: 0.21553, 0.2: 0.1665, 0.25: 0.11093, 0.3: 0.04742, 0.4: -0.11134, 0.5: -0.33361}
+eGFR-threshold referral rule net benefit: {30: 0.07074, 45: 0.01244}
+
+=== Horizon: 1825 days ===
+Treat-all net benefit: {0.05: 0.57584, 0.1: 0.55228, 0.15: 0.52594, 0.2: 0.49631, 0.25: 0.46273, 0.3: 0.42436, 0.4: 0.32842, 0.5: 0.1941}
+eGFR-threshold referral rule net benefit: {30: 0.12845, 45: 0.19538}
+No calibration data available to plot.
+Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_decision_curve_plot.png

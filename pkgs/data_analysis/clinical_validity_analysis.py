@@ -22,18 +22,34 @@ CLAUDE.md's "check a script's entry point" rule warns about. Raised with the
 user and explicitly declined (2026-08-23) rather than worth the extraction
 pipeline change — not planned, see EXPERIMENT_PLAN_DETAILS.md Stage 2.1.
 
-Design choice — one prediction pipeline per model, one shared risk->survival
-conversion for all of them: each model's "risk score" per test-set row is
-extracted using that architecture's OWN already-validated prediction code path
-(same Dataset classes, same forward pass used by that model's C-index/Brier/AUC
-evaluation in pkgs/experiments/*.py), not re-derived from scratch. All 5 models'
-risk scores are then converted to predicted survival probabilities with the
-SAME exponential approximation S(t) = exp(-risk_norm * t/365) already used by
-pkgs/experiments/utils.py's compute_brier_score_from_risk_scores — applied
-uniformly so calibration/DCA numbers are comparable model-to-model within a
-scenario, at the cost of not using e.g. logistic_hazard's own real predicted
-survival curve (pycox's model.predict_surv_df). This mirrors an approximation
-the codebase already relies on elsewhere, rather than introducing a new one.
+Design choice — one prediction pipeline per model, one calibrated risk->survival
+conversion PER MODEL: each model's "risk score" per test-set row is extracted
+using that architecture's OWN already-validated prediction code path (same
+Dataset classes, same forward pass used by that model's C-index/Brier/AUC
+evaluation in pkgs/experiments/*.py), not re-derived from scratch. Whenever a
+model has no native per-horizon output (or the requested horizon falls outside
+what it natively covers), its risk score is converted to a predicted survival
+probability via a per-model Breslow-style baseline cumulative hazard —
+fit_breslow_baseline_hazard() — fit from that SAME model's own risk scores on
+the TRAINING set, then combined as S(t) = exp(-r_shifted * H0(t))
+(calibrated_survival_probs()).
+
+An earlier version used one hardcoded formula, S(t) = exp(-risk_norm * t/365)
+(still what pkgs/experiments/utils.py's compute_brier_score_from_risk_scores
+uses, for the older scenarios' own training/eval scripts — deliberately not
+touched here, out of scope), applied identically to every model regardless of
+its risk score's actual scale. That produced Stage 2.2 Finding #2 (see
+generated_data/rep99/stage2_2_debug_report.txt): different architectures' raw
+risk scores span wildly different magnitudes (a Cox partial hazard vs. an SVM
+decision score vs. a GBSA score), so a fixed conversion collapsed to ~constant
+near-1.0 predicted risk for 6 of 11 models, every scenario — visible as the
+repeated "predicted risk is the same for every patient" report warnings.
+Fitting the baseline per model, from that model's own training data, removes
+the fixed-scale assumption entirely rather than picking a different fixed
+constant — each model's own risk-score distribution determines its baseline,
+so this stays comparable model-to-model (same C-index-style "higher=riskier"
+convention, same fitting procedure) without assuming they share one absolute
+scale.
 """
 import os
 import sys
@@ -57,16 +73,26 @@ from pkgs.commons import (
     twenty_features_heterogeneous_train_data_path, twenty_features_heterogeneous_test_data_path,
 )
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_last_observation_data
-from pkgs.experiments.utils import load_pkl_and_dill_model, get_tv_rnn_model_features
-from pkgs.experiments.hazard_transformer import HazardTransformerDataset, custom_collate_fn
-from pkgs.experiments.logistic_hazard import LogisticHazardDataset
-from pkgs.experiments.dynamic_deephit import DynamicDeepHitDataset
-from pkgs.experiments.kfre import compute_risk_scores as kfre_compute_risk_scores, get_kfre_risk_scores_path
-from torch.utils.data import DataLoader
-from pycox.models import LogisticHazard
-from pycox.preprocessing.label_transforms import LabTransDiscreteTime
-import torch.optim as optim
+from pkgs.experiments.utils import load_pkl_and_dill_model
+from pkgs.experiments.kfre import get_kfre_risk_scores_path
+
+# Every model's own "how to turn raw output into (risk_scores, durations,
+# events, native_prob_fn)" logic -- including fetching its own train/test
+# data and building its own Dataset/DataLoader/tensor -- is a
+# predictions(scenario, split='test') method on that model's own class in
+# pkgs/models/ (deepsurv/dynamicdeephit/hazard_transformer/rnnsurv already
+# had an architecture class there; cox/kfre/logistic_hazard/gbsa/srf/
+# survival_svm/weibul had none, since they're direct calls into
+# lifelines/pycox/sksurv, so a thin wrapper class holding the fitted
+# estimator was added). This module only loads the file and dispatches to
+# the right class -- see ClinicalValidityAnalyzer._get_predictions.
+from pkgs.models.cox import CoxModel
+from pkgs.models.logistic_hazard import LogisticHazardModel
+from pkgs.models.gbsa import GBSAModel
+from pkgs.models.srf import SRFModel
+from pkgs.models.survival_svm import SurvivalSVMModel
+from pkgs.models.weibul import WeibulModel
+from pkgs.models.kfre import KFREModel
 
 # 2-year / 5-year, the horizons KFRE validation studies (Tangri et al. and its
 # external validations — see EXPERIMENT_PLAN_DETAILS.md Stage 2.1 sources) report.
@@ -77,20 +103,99 @@ EGFR_REFERRAL_CUTOFFS = [30, 45]
 DCA_THRESHOLDS = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50]
 
 
-def risk_scores_to_survival_probs(risk_scores, times):
-    """Same transform as pkgs/experiments/utils.py's compute_brier_score_from_risk_scores,
-    factored out so callers can get the (n_samples, n_times) survival-probability
-    matrix itself, not just the final integrated Brier score."""
+def fit_breslow_baseline_hazard(train_risk_scores, train_durations, train_events):
+    """Non-parametric (Breslow) baseline cumulative hazard H0(t), fit from a
+    model's OWN risk scores on the TRAINING set, under the same
+    proportional-hazards convention already used everywhere else in this
+    module ("higher risk_score = proportionally higher hazard" -- the same
+    assumption that lets C-index treat risk_scores as comparable rankings
+    across every model type here). Standard Cox/Breslow estimator:
+    H0(t) = sum over observed event times t_i<=t of
+    d_i / sum_{j in risk set at t_i} r_j, where r_j is subject j's
+    (shifted-positive) risk score and the risk set at t_i is everyone with
+    duration>=t_i.
+
+    Replaces the old fixed `exp(-risk_norm*t/365)` transform (still used by
+    pkgs/experiments/utils.py's compute_brier_score_from_risk_scores for the
+    older scenarios' own training/eval scripts -- deliberately NOT touched
+    here, out of scope), which assumed every model's risk score, once
+    shifted to start at 0.01, IS directly an annual hazard rate. That
+    assumption had no grounding: different architectures' raw risk scores
+    span wildly different magnitudes (a Cox partial hazard vs. an SVM
+    decision score vs. a GBSA score), so the fixed formula saturated to ~0
+    survival (~1.0 event probability) for nearly the whole cohort whenever a
+    model's shifted score happened to be more than a few units -- see Stage
+    2.2 Finding #2, generated_data/rep99/stage2_2_debug_report.txt, for the
+    repeated "predicted risk is the same for every patient" symptom this
+    caused across 6 of 11 models, every scenario. Fitting H0(t) empirically
+    from each model's own training-set risk-score distribution absorbs
+    whatever arbitrary scale/units that model's score is in -- no hardcoded
+    divisor, no assumption about what "1 unit of risk_score" means in
+    calendar time.
+
+    Efficient O(n log n) implementation: sort ascending by duration: the
+    risk set at any time t is exactly the suffix of subjects whose duration
+    >= t in this sorted order, so a single reverse cumulative sum gives
+    every subject's risk-set denominator in one pass, instead of
+    recomputing a boolean-mask sum per event time (O(n * n_events)).
+
+    Returns (train_shift, event_times, H0): `train_shift` is the constant
+    (train_risk_scores.min()) that must be subtracted from ANY risk score --
+    train or test, from this same model -- before combining it with H0;
+    `event_times`/`H0` describe a right-continuous step function (flat
+    between events, H0[i] is the cumulative hazard at event_times[i])."""
+    r = np.asarray(train_risk_scores, dtype=np.float64)
+    train_shift = float(r.min())
+    r = np.clip(r - train_shift, 1e-6, None)
+    d = np.asarray(train_durations, dtype=np.float64)
+    e = np.asarray(train_events).astype(bool)
+
+    order = np.argsort(d)
+    d_sorted, e_sorted, r_sorted = d[order], e[order], r[order]
+    # risk_set_sum[i] = sum(r_sorted[i:]) = total risk score of everyone with
+    # duration >= d_sorted[i] (a suffix sum since d_sorted is ascending).
+    risk_set_sum = np.cumsum(r_sorted[::-1])[::-1]
+
+    event_times = np.unique(d_sorted[e_sorted])
+    H0 = np.empty(len(event_times), dtype=np.float64)
+    cumulative = 0.0
+    for i, t in enumerate(event_times):
+        first_idx = int(np.searchsorted(d_sorted, t, side='left'))
+        events_at_t = int(np.sum((d_sorted == t) & e_sorted))
+        denom = risk_set_sum[first_idx]
+        cumulative += (events_at_t / denom) if denom > 0 else 0.0
+        H0[i] = cumulative
+    return train_shift, event_times, H0
+
+
+def _baseline_cumulative_hazard_at(event_times, H0, query_times):
+    """Right-continuous step-function lookup: H0 at each query time (0 before
+    the first observed event time)."""
+    query_times = np.asarray(query_times, dtype=np.float64)
+    if len(event_times) == 0:
+        return np.zeros_like(query_times)
+    idx = np.searchsorted(event_times, query_times, side='right') - 1
+    return np.where(idx >= 0, H0[np.clip(idx, 0, len(H0) - 1)], 0.0)
+
+
+def calibrated_survival_probs(risk_scores, times, baseline):
+    """S(t) = exp(-r_shifted * H0(t)), using a per-model Breslow baseline
+    hazard (train_shift, event_times, H0) already fit from this SAME model's
+    own training-set risk scores via fit_breslow_baseline_hazard(). Test
+    risk scores below train_shift (the training set's own minimum) are
+    clipped to a small positive floor rather than going negative -- the
+    baseline was only ever estimated for non-negative relative risk."""
+    train_shift, event_times, H0 = baseline
     risk_scores = np.asarray(risk_scores, dtype=np.float64)
-    risk_scores_norm = risk_scores - risk_scores.min() + 0.01
+    r_shifted = np.clip(risk_scores - train_shift, 1e-6, None)
     times = np.asarray(times, dtype=np.float64)
-    survival_probs = np.exp(-np.outer(risk_scores_norm, times) / 365.0)
-    return survival_probs
+    H0_t = _baseline_cumulative_hazard_at(event_times, H0, times)
+    return np.exp(-np.outer(r_shifted, H0_t))
 
 
-def predicted_event_prob_at(risk_scores, horizon_days):
-    """1 - S(horizon) per row, from the shared risk-score->survival-probability transform."""
-    surv = risk_scores_to_survival_probs(risk_scores, [horizon_days])[:, 0]
+def predicted_event_prob_at(risk_scores, horizon_days, baseline):
+    """1 - S(horizon) per row, from the per-model calibrated baseline-hazard transform."""
+    surv = calibrated_survival_probs(risk_scores, [horizon_days], baseline)[:, 0]
     return 1.0 - surv
 
 
@@ -240,7 +345,7 @@ def egfr_threshold_net_benefit(egfr_values, durations, events, horizon_days, egf
     return results
 
 
-def brier_score_up_to(df_train, durations, events, risk_scores, horizon_days):
+def brier_score_up_to(df_train, durations, events, risk_scores, horizon_days, baseline):
     """Integrated Brier score, 0 to horizon_days. Takes `durations`/`events`
     directly (this model's own prediction-row labels) rather than re-deriving
     them from df_test, as an earlier version did via
@@ -268,7 +373,7 @@ def brier_score_up_to(df_train, durations, events, risk_scores, horizon_days):
     range, so the standard treatment is to cut their follow-up there and
     mark them censored at that point, same as any other right-censoring."""
     times = np.linspace(1, horizon_days, 50)
-    survival_probs = risk_scores_to_survival_probs(risk_scores, times)
+    survival_probs = calibrated_survival_probs(risk_scores, times, baseline)
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
 
     durations = np.asarray(durations, dtype=np.float64).copy()
@@ -287,20 +392,21 @@ def brier_score_up_to(df_train, durations, events, risk_scores, horizon_days):
         return None
 
 
-def resolve_predicted_prob(risk_scores, native_prob_fn, horizon_days):
+def resolve_predicted_prob(risk_scores, native_prob_fn, horizon_days, baseline):
     """Predicted probability of event by horizon_days, preferring a model's own
-    native time-indexed prediction (exact, no extrapolation) over the generic
-    risk-score transform (approximate, used as a fallback). Returns
-    (predicted, source) where source is 'native' or 'approximate' — logged by
-    the caller so the report says which one applies to each number."""
+    native time-indexed prediction (exact, no extrapolation) over the
+    per-model calibrated baseline-hazard transform (approximate, used as a
+    fallback). Returns (predicted, source) where source is 'native' or
+    'approximate' — logged by the caller so the report says which one
+    applies to each number."""
     if native_prob_fn is not None:
         native = native_prob_fn(horizon_days)
         if native is not None:
             return native, 'native'
-    return predicted_event_prob_at(risk_scores, horizon_days), 'approximate'
+    return predicted_event_prob_at(risk_scores, horizon_days, baseline), 'approximate'
 
 
-def discrimination_metrics(df_train, risk_scores, durations, events, auc_horizon_days=730):
+def discrimination_metrics(df_train, risk_scores, durations, events, baseline, auc_horizon_days=730):
     """C-index, integrated Brier score (0 to auc_horizon_days), and mean
     time-dependent AUC (0 to auc_horizon_days) — one summary triple per model,
     for the cross-model comparison charts. Sign convention: risk_scores is
@@ -308,7 +414,9 @@ def discrimination_metrics(df_train, risk_scores, durations, events, auc_horizon
     above), so concordance_index needs it negated — lifelines expects a score
     that's higher for LONGER survival (confirmed against this codebase's own
     cox.py, which negates its partial-hazard risk score the same way before
-    calling concordance_index)."""
+    calling concordance_index). `baseline` is this same model's own
+    fit_breslow_baseline_hazard() result (None if fitting it failed — brier
+    then fails too, caught below and recorded in errors like any other)."""
     result = {'c_index': None, 'brier': None, 'auc': None, 'errors': {}}
     try:
         result['c_index'] = round(float(concordance_index(durations, -np.asarray(risk_scores), events)), 4)
@@ -316,7 +424,7 @@ def discrimination_metrics(df_train, risk_scores, durations, events, auc_horizon
         result['errors']['c_index'] = str(e)
 
     try:
-        result['brier'] = brier_score_up_to(df_train, durations, events, risk_scores, auc_horizon_days)
+        result['brier'] = brier_score_up_to(df_train, durations, events, risk_scores, auc_horizon_days, baseline)
     except Exception as e:
         result['errors']['brier'] = str(e)
 
@@ -341,331 +449,32 @@ def discrimination_metrics(df_train, risk_scores, durations, events, auc_horizon
     return result
 
 
-# --- per-model risk-score extraction, reusing each architecture's own eval code path ---
+# Every model's own "how to turn raw output into (risk_scores, durations,
+# events, native_prob_fn)" logic -- including fetching its own train/test
+# data (get_train_test_data()/get_last_observation_data(), whichever shape
+# it needs) and building its own Dataset/DataLoader/tensor -- is now a
+# predictions(scenario, split='test') method on that model's own class in
+# pkgs/models/ (deepsurv/dynamicdeephit/hazard_transformer/rnnsurv each
+# already had an architecture class there -- predictions() was added
+# directly to each, including moving their Dataset classes in from
+# pkgs/experiments/; cox/kfre/logistic_hazard/gbsa/srf/survival_svm/weibul
+# had no architecture class of their own, since they're direct calls into
+# lifelines/pycox/sksurv, so a thin wrapper class was added holding the
+# fitted estimator, same predictions()-method shape). See
+# pkgs/models/cox.py's module docstring for the history of this split
+# (Stage 2.2's refactor) and ClinicalValidityAnalyzer._get_predictions
+# below for the (now purely dispatch, no domain logic) call sites.
 #
-# Each function returns (risk_scores, durations, events, native_prob_fn):
+# Each predictions() returns (risk_scores, durations, events, native_prob_fn):
 #   - risk_scores: a scalar per row/subject, higher = riskier. Used for ranking
-#     metrics (C-index, AUC) and, via the shared exponential transform, as the
-#     FALLBACK way to get a predicted probability at an arbitrary horizon when
-#     no better option exists.
+#     metrics (C-index, AUC) and, via the shared calibrated-baseline-hazard
+#     transform, as the FALLBACK way to get a predicted probability at an
+#     arbitrary horizon when no better option exists.
 #   - native_prob_fn(horizon_days) -> array or None: when the model has a real,
 #     time-indexed prediction that can be read off AT the requested horizon
 #     (not approximated from a generic risk score), this returns it; None means
 #     "no native prediction available at this horizon, use the fallback."
-#     cox has no such thing (see below), so it always returns None.
-
-def cox_predictions(model, df_test):
-    risk_scores = model.predict_partial_hazard(df_test).values.flatten()
-    # A native per-horizon survival probability (S_0(t)^partial_hazard, via
-    # CoxTimeVaryingFitter's baseline cumulative hazard) exists in principle,
-    # but is nontrivial to get right for start/stop interval data — left as
-    # a documented approximation (same one already used for Brier score
-    # elsewhere in this codebase) rather than a real fix.
-    return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, None
-
-
-def hazard_transformer_predictions(model, df_test, scenario):
-    """HazardTransformer discretizes into NUM_TIME_BINS=100 bins spanning
-    exactly [0, self.max_time=730] days (both hardcoded in
-    pkgs/models/hazard_transformer.py's HazardTransformer.__init__) — so
-    cif[:, k] IS the model's genuine predicted P(event by ~k/99*730 days),
-    not an arbitrary score. Read it off directly at any horizon <= 730;
-    beyond that the model has no native prediction at all (it was never
-    trained/evaluated past day 730), so native_prob_fn correctly returns
-    None there and the caller falls back to extrapolation.
-
-    Model output is a per-subject PMF over time bins (softmax-normalized —
-    see HazardTransformer's class docstring), not independent per-bin
-    hazards — an earlier version used per-bin sigmoid hazards with
-    survival = cumprod(1 - hazard), unbounded and prone to collapsing to
-    predicting event probability 1.0 for every subject (see
-    generated_data/rep1/ddh_collapse_fix_report.txt and this model's own
-    class docstring for the confirmed rep99 evidence). With a PMF,
-    cumsum(pmf) IS the CIF directly."""
-    if getattr(model, 'architecture_version', 1) != 2:
-        raise ValueError(
-            "This Hazard Transformer checkpoint uses the obsolete sigmoid head; retrain it before analysis."
-        )
-    dataloader = DataLoader(HazardTransformerDataset(df_test, scenario), shuffle=False,
-                             collate_fn=custom_collate_fn, batch_size=256)
-    all_pmf, all_times, all_events = [], [], []
-    model.eval()
-    with torch.no_grad():
-        for features, mask, time_to_events, event_indicators, _, _ in dataloader:
-            pmf_preds, _, _ = model(features, mask)
-            pmf = pmf_preds[:, 0, :].detach().cpu().numpy()
-            all_pmf.append(pmf)
-            all_times.extend(time_to_events.squeeze().numpy())
-            all_events.extend(event_indicators.squeeze().numpy())
-    pmf_matrix = np.concatenate(all_pmf, axis=0)
-    cif_matrix = np.cumsum(pmf_matrix, axis=1)
-    eval_times = np.linspace(0, 730, cif_matrix.shape[1])
-    # Fixed common horizon (365d) for the scalar risk_scores used in
-    # c-index/AUC/Brier -- NOT each patient's own observed time. That was
-    # tried first (to dodge the final-bin-always-1.0 PMF degeneracy) but
-    # introduced a worse confound: CIF only grows over time, so a patient
-    # followed LONGER (typically lower-risk, especially censored) automatically
-    # lands on a LATER bin with more accumulated risk regardless of true
-    # risk -- confirmed empirically (eight_features/rep99: own-time c-index
-    # 0.148, badly inverted; fixed-horizon c-index 0.477, a real if modest
-    # reading). Same reasoning as pkgs/experiments/hazard_transformer.py's
-    # EVAL_HORIZON_DAYS -- 365 rather than the max_time=730 boundary, which
-    # hits the OTHER degeneracy (last bin's CIF == 1.0 for every softmax PMF).
-    # native_prob_fn below is unaffected by any of this -- it already reads a
-    # fixed, caller-specified horizon per call, same as every other model here.
-    horizon_bin = int(round(min(365.0, float(model.max_time)) / float(model.max_time) * (cif_matrix.shape[1] - 1)))
-    risk_scores = cif_matrix[:, horizon_bin]
-
-    def native_prob_fn(horizon_days):
-        if horizon_days > eval_times[-1]:
-            return None
-        idx = int(np.argmin(np.abs(eval_times - horizon_days)))
-        return cif_matrix[:, idx]
-
-    return risk_scores, np.array(all_times), np.array(all_events), native_prob_fn
-
-
-def logistic_hazard_predictions(net, df_train, df_test, scenario):
-    """pycox's predict_surv_df gives a real survival curve — but its index is
-    just the discrete bin POSITION (0..49 for LabTransDiscreteTime(50)), not a
-    real day value (verified directly: surv.index ranges 0-49 regardless of
-    durations spanning thousands of days). An earlier version of this function
-    compared `horizon_days` (730/1825) against that raw index directly, which
-    can never match — silently always fell back to the generic transform,
-    every scenario, every horizon. logistic_hazard.py's own run() has the same
-    latent issue (its loaded `labtrans` is a fresh, never-fit
-    LabTransDiscreteTime(50), and c_idx/auc/brier_score_evaluation there
-    compare real-day medians against that same raw bin index too — the
-    `labtrans` parameter passed through those functions is never actually used
-    inside them). Fixed here: refit LabTransDiscreteTime(50) on df_train (same
-    training data used originally) to recover each bin's real day value via
-    its `.cuts` array — quantile-based cuts are deterministic given the same
-    input, so this reproduces the exact boundaries training used."""
-    # The .pt file saves the raw MLPVanilla net (see logistic_hazard.py's run()),
-    # not the pycox LogisticHazard wrapper that has predict_surv_df — re-wrap it
-    # the same way run() does before loading it here.
-    model = LogisticHazard(net, optimizer=optim.Adam(net.parameters()))
-    test_dataset = LogisticHazardDataset(df_test, scenario)
-    x_test, durations_test, events_test = test_dataset.prepare_data_for_pycox()
-    x_test = torch.tensor(x_test, dtype=torch.float32)
-    surv = model.predict_surv_df(x_test)  # index = discrete bin position, NOT real days
-
-    labtrans = LabTransDiscreteTime(50)
-    labtrans.fit_transform(df_train['duration_in_days'].values, df_train['has_esrd'].values)
-    bin_real_days = labtrans.cuts  # bin_real_days[i] = real day value of surv.index i
-
-    median_time_idx = np.argmin(np.abs(bin_real_days - np.median(durations_test)))
-    risk_scores = 1 - surv.iloc[median_time_idx].values
-
-    def native_prob_fn(horizon_days):
-        if horizon_days > bin_real_days.max():
-            return None
-        idx = int(np.argmin(np.abs(bin_real_days - horizon_days)))
-        return 1.0 - surv.iloc[idx].values
-
-    return risk_scores, durations_test, events_test, native_prob_fn
-
-
-def dynamic_deephit_predictions(model, df_test, scenario):
-    """Corrected from an earlier version that reused
-    pkgs/experiments/dynamic_deephit.py's brier_score_evaluation()/auc() row
-    extraction as-is: that code paired hazard_preds[j][:p_seq_len] (the first
-    p_seq_len entries of subject j's per-CALENDAR-DAY curve — see
-    pkgs/models/dynamicdeephit.py: self.pred_times = 365*15, one value per
-    literal day 0..5474) with time_to_events[j][:p_seq_len] (that subject's
-    actual, irregularly-spaced LAB-VISIT days). Those two index sets don't
-    correspond — "day 13" was being paired with "this patient's 13th lab
-    visit" (e.g. day 1200), silently mixing calendar-day bins with
-    visit-sequence position for every patient with non-daily visits (i.e.
-    nearly all of them). Fixed here: model output is one curve per SUBJECT
-    with a literal-day index (the model pools each subject's whole sequence
-    via attention before predicting, see DynamicDeepHit.forward()), so it can
-    be read off directly at any day t without needing to align it to that
-    subject's own visit sequence at all.
-
-    Model output is a per-subject PMF over time (softmax-normalized — see
-    DynamicDeepHit's class docstring), not independent per-day hazards: an
-    earlier version of both the model and this function used per-day
-    sigmoid hazards with survival = cumprod(1 - hazard), which had no bound
-    on total predicted probability across time and could saturate to
-    predicting event probability 1.0 for every subject regardless of input
-    features (see generated_data/rep1/ddh_collapse_fix_report.txt). With a
-    PMF, cumsum(pmf) IS the cumulative incidence function (CIF) directly —
-    P(event by day t) = cumsum(pmf)[:, t] — no cumprod-of-survival needed.
-    Operates per-subject (like cox/rnn_surv's row-level predictions, but here
-    one prediction per unique subject, not per df_test row — dynamic_deephit
-    only ever produces one curve per subject regardless of how many lab-event
-    rows they have in df_test)."""
-    dataloader = DataLoader(DynamicDeepHitDataset(df_test, scenario), shuffle=False, batch_size=16)
-    all_pmf, all_durations, all_events = [], [], []
-    model.eval()
-    with torch.no_grad():
-        for features, mask, time_to_event, event_indicator, time_to_events, event_indicators, seq_lens in dataloader:
-            pmf_preds, _ = model(features, mask)
-            pmf_preds = pmf_preds.cpu().detach().numpy()[:, 0, :]  # (batch, pred_times) per subject
-            all_pmf.append(pmf_preds)
-            all_durations.extend(time_to_event.squeeze(-1).cpu().numpy())
-            all_events.extend(event_indicator.squeeze(-1).cpu().numpy())
-
-    pmf_matrix = np.concatenate(all_pmf, axis=0)
-    cif_matrix = np.cumsum(pmf_matrix, axis=1)  # P(event by day t)
-    max_day_idx = cif_matrix.shape[1] - 1
-    risk_scores = cif_matrix[:, min(730, max_day_idx)]
-    durations = np.array(all_durations)
-    events = np.array(all_events)
-
-    def native_prob_fn(horizon_days):
-        idx = int(round(horizon_days))
-        if idx > max_day_idx:
-            return None
-        return cif_matrix[:, max(idx, 0)]
-
-    return risk_scores, durations, events, native_prob_fn
-
-
-def rnn_surv_predictions(model, df_test, scenario):
-    """Return RNN-Surv's PMF-derived risk and native horizon probabilities."""
-    if getattr(model, 'architecture_version', 1) != 2:
-        raise ValueError(
-            "This RNN-Surv checkpoint uses the obsolete sigmoid head; retrain it before analysis."
-        )
-    features = get_tv_rnn_model_features(scenario)
-    X_test = torch.tensor(df_test[features].values, dtype=torch.float32).unsqueeze(1)
-    model.eval()
-    with torch.no_grad():
-        event_pmf, test_risk_scores = model(X_test)
-        test_risk_scores = test_risk_scores.squeeze()
-    risk_scores = test_risk_scores.cpu().numpy()
-    cif = event_pmf[:, -1, :].cumsum(dim=1).cpu().numpy()
-    max_bin = cif.shape[1] - 1
-    max_time = float(getattr(model, 'max_time', 730.0))
-
-    def native_prob_fn(horizon_days):
-        if horizon_days < 0 or horizon_days > max_time:
-            return None
-        bin_idx = int(round(horizon_days / max_time * max_bin))
-        return cif[:, min(max(bin_idx, 0), max_bin)]
-
-    return risk_scores, df_test['duration_in_days'].values, df_test['has_esrd'].values, native_prob_fn
-
-
-# --- deepsurv/gbsa/srf/survival_svm/weibul: one-row-per-patient models ---
-#
-# Unlike cox/ddh/hazard_transformer/logistic_hazard/rnn_surv (which consume
-# the time-varying, many-rows-per-subject train/test data directly), these 5
-# models were trained against get_last_observation_data()'s flattened
-# one-row-per-subject data (see pkgs/experiments/{deepsurv,gbsa,srf,
-# survival_svm,weibul}.py's run_scenario()). The `df_test` parameter these
-# functions receive from analyze_scenario() is the raw time-varying frame,
-# which doesn't match what these models were fit on -- so each of these
-# functions ignores it and re-derives the correct flattened test set itself.
-
-def deepsurv_predictions(model, df_test, scenario):
-    """DeepSurv's raw output IS already "higher=more hazard=shorter
-    survival" by construction (Cox partial-likelihood training, see
-    pkgs/experiments/deepsurv.py's neg_log_partial_likelihood) -- matches
-    this module's uniform "higher=riskier" convention directly, no
-    transform needed."""
-    _, df_test_flat = get_last_observation_data(scenario)
-    features = get_tv_rnn_model_features(scenario)
-    X_test = torch.tensor(df_test_flat[features].values, dtype=torch.float32)
-    model.eval()
-    with torch.no_grad():
-        risk_scores = model(X_test).squeeze().cpu().numpy()
-    return risk_scores, df_test_flat['duration_in_days'].values, df_test_flat['has_esrd'].values, None
-
-
-def _sksurv_tabular_predictions(model, scenario):
-    """Shared extraction for gbsa/srf/survival_svm: all three are sksurv
-    estimators (GradientBoostingSurvivalAnalysis/RandomSurvivalForest/
-    FastSurvivalSVM) whose .predict() already returns "higher=more risk"
-    (sksurv's own convention, e.g. as used directly with sksurv's
-    concordance_index_censored in pkgs/experiments/survival_svm.py, no
-    inversion) -- matches this module's convention directly."""
-    _, df_test_flat = get_last_observation_data(scenario)
-    features = get_tv_rnn_model_features(scenario)
-    X_test = df_test_flat[features].values
-    risk_scores = model.predict(X_test)
-    return risk_scores, df_test_flat['duration_in_days'].values, df_test_flat['has_esrd'].values, None
-
-
-def gbsa_predictions(model, scenario):
-    return _sksurv_tabular_predictions(model, scenario)
-
-
-def srf_predictions(model, scenario):
-    return _sksurv_tabular_predictions(model, scenario)
-
-
-def survival_svm_predictions(model, scenario):
-    return _sksurv_tabular_predictions(model, scenario)
-
-
-def weibul_predictions(model, scenario):
-    """WeibullAFTFitter predicts a median SURVIVAL TIME, not a risk score --
-    "higher=longer survival", the opposite of this module's convention.
-    Negate it (same transform pkgs/experiments/weibul.py's own Brier-score
-    call already uses: `-predicted_survival_times`) to get "higher=riskier"."""
-    _, df_test_flat = get_last_observation_data(scenario)
-    features = get_tv_rnn_model_features(scenario)
-    cols = features + ['duration_in_days', 'has_esrd']
-    df_test_flat = df_test_flat[cols].copy()
-    df_test_flat['duration_in_days'] = df_test_flat['duration_in_days'].replace(0, 1e-5)
-    predicted_survival_times = model.predict_median(df_test_flat)
-    risk_scores = -predicted_survival_times.values if hasattr(predicted_survival_times, 'values') else -np.asarray(predicted_survival_times)
-    return risk_scores, df_test_flat['duration_in_days'].values, df_test_flat['has_esrd'].values, None
-
-
-def kfre_predictions(risk_scores_2yr_path, scenario, df_test):
-    """KFRE (pkgs/experiments/kfre.py) was missing entirely from this module —
-    it's one of the 6 model types Stage 3.0 actually runs/evaluates (see
-    run_rep.sh's EXPERIMENTS list) and is THE clinical benchmark the rest of
-    Stage 2.1's literature review is framed around, so its absence from the
-    calibration/DCA/comparison-chart output was a real gap, not a deliberate
-    omission (found 2026-08-26).
-
-    Unlike every other model here, KFRE's "risk score" IS already a genuine
-    predicted probability of the event by a given number of years (Tangri et
-    al.'s closed-form 1 - S0(t)^exp(L)), not a generic score needing the
-    module's usual exponential-transform approximation — so both the 2yr and
-    5yr horizons (DEFAULT_HORIZONS_DAYS = [730, 1825], the exact years KFRE's
-    S0 constants are defined for) are native, exact model output.
-
-    risk_scores_2yr_path is the cached CSV pkgs/experiments/kfre.py's own
-    run_kfre_model() already writes (<scenario>_kfre_2yr_risk_scores.csv,
-    one row per df_test row, same order — get_train_test_data() for
-    four_features/eight_features is a plain pd.read_csv with no shuffling,
-    confirmed in pkgs/data_analysis/model_data_store.py, so positional
-    alignment with today's df_test is valid). No 5yr cache exists yet
-    (kfre.py's own __main__ only ever computes years=2) — computed here via
-    the same closed-form equation (cheap, no training) and cached the same
-    way kfre.py itself would, so repeat runs don't recompute it.
-
-    KFRE has no published equation for twenty_features_heterogeneous (see
-    kfre.py's own assert) — not called for that scenario; the existing
-    "model file not found, skip" path in _model_paths/analyze_scenario
-    handles that correctly as long as no 'kfre' entry is added for it there.
-    """
-    risk_scores_2yr = pd.read_csv(risk_scores_2yr_path)['risk_score'].values
-
-    scores_5yr_path = get_kfre_risk_scores_path(scenario, years=5)
-    if os.path.exists(scores_5yr_path):
-        risk_scores_5yr = pd.read_csv(scores_5yr_path)['risk_score'].values
-    else:
-        risk_scores_5yr = kfre_compute_risk_scores(scenario, df_test, years=5)
-        pd.DataFrame({
-            'subject_id': df_test['subject_id'].values,
-            'risk_score': risk_scores_5yr,
-        }).to_csv(scores_5yr_path, index=False)
-
-    def native_prob_fn(horizon_days):
-        if round(horizon_days) == 730:
-            return risk_scores_2yr
-        if round(horizon_days) == 1825:
-            return risk_scores_5yr
-        return None
-
-    return risk_scores_2yr, df_test['duration_in_days'].values, df_test['has_esrd'].values, native_prob_fn
+#     cox has no such thing, so it always returns None.
 
 
 class ClinicalValidityAnalyzer:
@@ -715,44 +524,58 @@ class ClinicalValidityAnalyzer:
                 else ExperimentScenario.EIGHT_FEATURES, years=2)
         return paths
 
-    def _get_predictions(self, model_name, model_path, df_train, df_test, scenario):
-        if model_name == 'cox':
+    # model_name -> the pkgs/models/ wrapper class to construct around a
+    # loaded lifelines/sksurv estimator (deepsurv/dynamicdeephit/
+    # hazard_transformer/rnn_surv need no wrapper: torch.load() already
+    # returns an instance of their own class, predictions() is a bound
+    # method on it directly).
+    _SKLEARN_STYLE_MODEL_CLASSES = {
+        'cox': CoxModel, 'gbsa': GBSAModel, 'srf': SRFModel,
+        'survival_svm': SurvivalSVMModel, 'weibul': WeibulModel,
+    }
+
+    def _get_predictions(self, model_name, model_path, scenario, split='test'):
+        """Loads the model file, wraps it in its own class from pkgs/models/
+        where one is needed, and calls that model's own
+        predictions(scenario, split=split). Every model now fetches its own
+        data and does its own forward-pass/predict() interpretation (per
+        Stage 2.2's model-layer refactor -- see pkgs/models/cox.py's module
+        docstring) -- this method is pure dispatch, no domain logic."""
+        if model_name in self._SKLEARN_STYLE_MODEL_CLASSES:
             model = load_pkl_and_dill_model(model_path)
             if model is None:
                 return None
-            return cox_predictions(model, df_test)
+            model_cls = self._SKLEARN_STYLE_MODEL_CLASSES[model_name]
+            return model_cls(model).predictions(scenario, split=split)
 
         if model_name == 'kfre':
-            return kfre_predictions(model_path, scenario, df_test)
+            return KFREModel(scenario).predictions(split=split)
 
-        # gbsa/srf/survival_svm/weibul are dill-pickled sklearn/sksurv/lifelines
-        # estimators, not torch models -- load with the same generic loader
-        # cox.py uses, not torch.load.
-        if model_name in ('gbsa', 'srf', 'survival_svm', 'weibul'):
-            model = load_pkl_and_dill_model(model_path)
-            if model is None:
-                return None
-            if model_name == 'gbsa':
-                return gbsa_predictions(model, scenario)
-            if model_name == 'srf':
-                return srf_predictions(model, scenario)
-            if model_name == 'survival_svm':
-                return survival_svm_predictions(model, scenario)
-            if model_name == 'weibul':
-                return weibul_predictions(model, scenario)
-
-        model = torch.load(model_path, map_location='cpu', weights_only=False)
-        if model_name == 'hazard_transformer':
-            return hazard_transformer_predictions(model, df_test, scenario)
         if model_name == 'logistic_hazard':
-            return logistic_hazard_predictions(model, df_train, df_test, scenario)
-        if model_name == 'ddh':
-            return dynamic_deephit_predictions(model, df_test, scenario)
-        if model_name == 'rnn_surv':
-            return rnn_surv_predictions(model, df_test, scenario)
-        if model_name == 'deepsurv':
-            return deepsurv_predictions(model, df_test, scenario)
+            net = torch.load(model_path, map_location='cpu', weights_only=False)
+            return LogisticHazardModel(net).predictions(scenario, split=split)
+
+        if model_name in ('hazard_transformer', 'ddh', 'rnn_surv', 'deepsurv'):
+            model = torch.load(model_path, map_location='cpu', weights_only=False)
+            return model.predictions(scenario, split=split)
+
         raise ValueError(f"Unknown model_name {model_name}")
+
+    def _get_train_risk_scores(self, model_name, model_path, scenario):
+        """Same dispatch as _get_predictions, but scores the TRAINING set
+        instead of the test set (split='train'). Used only to fit this
+        model's own Breslow baseline hazard (fit_breslow_baseline_hazard)
+        -- never reported as a prediction itself. Reloads the model file
+        rather than threading an already-loaded object through from
+        _get_predictions: these are all small rep99/rep1 checkpoints, so
+        the extra I/O is cheap, and it keeps baseline-fitting fully
+        independent of the reported test predictions (a bug here can't
+        silently corrupt those, or vice versa)."""
+        result = self._get_predictions(model_name, model_path, scenario, split='train')
+        if result is None:
+            raise ValueError(f"No usable model at {model_path}")
+        risk_scores, durations, events, _ = result
+        return risk_scores, durations, events
 
     def analyze_scenario(self, scenario_name, scenario_enum, df_train, df_test):
         self.current_scenario = scenario_name
@@ -795,20 +618,40 @@ class ClinicalValidityAnalyzer:
                 has_egfr = False
 
         # Get every model's predictions once up front — risk_scores/durations/
-        # events don't depend on horizon, only the model does.
+        # events don't depend on horizon, only the model does. Also fit each
+        # model's own Breslow baseline hazard here (from that SAME model's
+        # risk scores on df_train) — used by every "approximate" (no native
+        # per-horizon output) probability/Brier calculation below. Kept in a
+        # separate try/except from the test-side prediction so a
+        # baseline-fitting failure doesn't discard predictions already
+        # obtained; downstream code treats a missing baseline the same as
+        # any other per-model computation error (caught, logged, that one
+        # number reported as unavailable rather than the whole model
+        # dropped).
         predictions = {}
+        baselines = {}
         for model_name, model_path in self._model_paths(scenario_name).items():
             if not os.path.exists(model_path):
                 self.log(f"Model file not found, skipping: {model_path}")
                 continue
             try:
-                preds = self._get_predictions(model_name, model_path, df_train, df_test, scenario_enum)
+                preds = self._get_predictions(model_name, model_path, scenario_enum)
                 if preds is None:
                     self.log(f"No usable model at {model_path}, skipping {model_name}.")
                     continue
                 predictions[model_name] = preds
             except Exception as e:
                 self.log(f"Error getting predictions for {model_name}: {e}")
+                continue
+
+            try:
+                train_risk_scores, train_durations, train_events = self._get_train_risk_scores(
+                    model_name, model_path, scenario_enum)
+                baselines[model_name] = fit_breslow_baseline_hazard(
+                    train_risk_scores, train_durations, train_events)
+            except Exception as e:
+                self.log(f"Error fitting baseline hazard for {model_name}: {e}")
+                baselines[model_name] = None
 
         # Discrimination metrics (C-index / Brier / AUC) — one per model, not
         # per horizon (fixed at the 2yr convention used throughout pkgs/experiments/*.py).
@@ -817,7 +660,7 @@ class ClinicalValidityAnalyzer:
         self.log("\nDiscrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):")
         for model_name, (risk_scores, durations, events, _) in predictions.items():
             try:
-                m = discrimination_metrics(df_train, risk_scores, durations, events)
+                m = discrimination_metrics(df_train, risk_scores, durations, events, baselines.get(model_name))
             except Exception as e:
                 m = {'c_index': None, 'brier': None, 'auc': None}
                 self.log(f"  Error computing discrimination metrics for {model_name}: {e}")
@@ -853,9 +696,10 @@ class ClinicalValidityAnalyzer:
             for model_name, (risk_scores, durations, events, native_prob_fn) in predictions.items():
                 self.log(f"\n--- {self.model_pretty_names[model_name]} ---")
 
-                predicted, source = resolve_predicted_prob(risk_scores, native_prob_fn, horizon)
+                predicted, source = resolve_predicted_prob(
+                    risk_scores, native_prob_fn, horizon, baselines.get(model_name))
                 self.log(f"Predicted-probability source: {source} "
-                         f"({'model output read directly at this horizon' if source == 'native' else 'generic risk-score extrapolation — see module docstring'})")
+                         f"({'model output read directly at this horizon' if source == 'native' else 'per-model calibrated baseline-hazard extrapolation — see module docstring'})")
 
                 predicted = np.asarray(predicted, dtype=np.float64)
                 n_nan = int(np.isnan(predicted).sum())
@@ -895,7 +739,8 @@ class ClinicalValidityAnalyzer:
                     self.log(f"  Error computing calibration table: {e}")
 
                 try:
-                    brier = brier_score_up_to(df_train, durations, events, risk_scores, horizon)
+                    brier = brier_score_up_to(
+                        df_train, durations, events, risk_scores, horizon, baselines.get(model_name))
                     self.log(f"Integrated Brier score (0-{horizon:.0f}d): {brier}")
                 except Exception as e:
                     self.log(f"  Error computing Brier score: {e}")

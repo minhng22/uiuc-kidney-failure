@@ -1,11 +1,10 @@
-Start time: Fri Aug 28 01:16:04 CDT 2026
+Start time: Fri Aug 28 21:25:49 CDT 2026
 Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
 Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
 Number of patients: test 562 and train 2247
 Number of records: test 5511 and train 21318
 get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
-Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_weibul_model.dill
-Loading model from file
+Fitting model:
 Evaluate on test data
 C-index: 0.5523
 Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
@@ -16,12 +15,11 @@ Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_featur
 Number of patients: test 243 and train 970
 Number of records: test 1100 and train 4307
 get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
-Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_weibul_model.dill
-Loading model from file
+Fitting model:
 Evaluate on test data
 C-index: 0.5543
 Integrated Brier Score Test: 0.304
 cumulative hazard shape: (243, 729)
 Mean time-dependent AUC: 0.5987
 ✓ weibul completed successfully
-End time: Fri Aug 28 01:16:12 CDT 2026
+End time: Fri Aug 28 21:25:55 CDT 2026

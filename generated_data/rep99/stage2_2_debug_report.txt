@@ -6,6 +6,14 @@ Scope: self-check of Stage 2.1's rep99 SHAP + clinical-validity analysis
 (generated_data/rep99/<scenario>_clinical_validity_report.txt,
 <scenario>_shap_analysis_report.txt, the PMF-fix rerun on 2026-08-27), per
 EXPERIMENT_PLAN_DETAILS.md's Stage 2.2 checklist.
+
+NOTE: this file was found emptied (0 bytes) by a concurrent process/session
+at 2026-08-28 20:52 CDT, after the original version (Finding #1's writeup)
+had already been recorded — recreated in full below from this session's own
+records, consolidating the original content plus the Finding #1 and Finding
+#2 updates that followed. If another session's edits to this file were lost
+in that overwrite, they are not reflected here — check git history / ask
+that session to re-add anything of theirs.
 ================================================================================
 
 Housekeeping done alongside this check
@@ -31,9 +39,9 @@ Self-check questions (per EXPERIMENT_PLAN_DETAILS.md Stage 2.2)
 
 1. Are models' performance consistent (no model low on C-index but also low
    on Brier)?
-   NO — badly inconsistent in a way that traces to one specific, confirmed
-   bug (finding #1 below) plus one systemic, already-documented limitation
-   (finding #2 below), not to 11 independent architecture problems.
+   Originally NO — traced to Finding #1 (below) and Finding #2 (below), both
+   now fixed. Brier scores for the 6 "approximate" models are now sane and
+   bounded (previously several exceeded the theoretical max of 1.0).
 
 2. Are there models that should perform well but perform poorly?
    Cox (a standard, usually-robust linear baseline) scores C-index 0.337 on
@@ -41,139 +49,183 @@ Self-check questions (per EXPERIMENT_PLAN_DETAILS.md Stage 2.2)
    than its own 0.47-0.51 on four_features/eight_features. Hazard
    Transformer similarly drops to 0.19 (AUC 0.059, i.e. badly inverted) on
    twenty_features_heterogeneous vs. ~0.49-0.55 on the other two scenarios.
-   Flagged as an open question (#3 below) — not yet root-caused.
+   Flagged as open question #3 below — not yet root-caused (unaffected by
+   either fix, since neither touches C-index/AUC).
 
 3. Do the models' performance numbers tell a cohesive story?
-   Not yet, for two traceable reasons: (a) the eGFR-referral-rule
-   comparator's numbers are corrupted for twenty_features_heterogeneous
-   (finding #1), so any four_features/eight_features vs.
-   twenty_features_heterogeneous comparison involving that comparator is
-   not meaningful as-is; (b) 6 of 11 models' calibration/Brier/decision-curve
-   numbers (not their C-index) are degenerate placeholders in every scenario
-   (finding #2), so "more features -> better calibration" can't be read off
-   the current report for those 6 models.
+   Improved after both fixes, but still open: the two traceable issues
+   (corrupted eGFR-comparator numbers on twenty_features_heterogeneous, and
+   6 models' degenerate calibration/Brier numbers everywhere) are resolved;
+   open questions #3/#4 remain.
 
 4. Any model performing too well (C-index too close to 1)?
    Dynamic DeepHit: C-index 0.836 (four_features) / 0.850 (eight_features) /
    0.850 (twenty_features_heterogeneous) — consistently, dramatically above
-   every other architecture on the same data (next-best is KFRE at
-   0.627-0.637 on four/eight; twenty_features_heterogeneous has no KFRE).
-   Not >0.95, but the *gap* to everything else, and its *consistency* across
-   all 3 scenarios regardless of feature count, is the kind of pattern that
-   usually means leakage. Checked `get_tv_rnn_model_features()`
-   (pkgs/experiments/utils.py:212-236) for FOUR_FEATURES/EIGHT_FEATURES/
-   TWENTY_FEATURES_HETEROGENEOUS and DynamicDeepHitDataset's feature slicing
-   (pkgs/experiments/dynamic_deephit.py) — neither includes
-   `duration_in_days`/`stop`/`has_esrd` in the feature list, so no direct
-   label/time leak found there. Left open (#4 below) — the plausible
-   non-bug explanation is that DDH is the only model here that consumes a
-   patient's full multi-visit sequence (not a single landmark row), which is
-   a genuine architectural advantage, not necessarily a bug — but this
-   wasn't independently confirmed, just not disproven either.
+   every other architecture on the same data. See open question #4 below.
 
 5. Ready for a paper in a good journal?
-   Not yet, primarily because of finding #2 (6 of 11 models' calibration/DCA
-   numbers are not real signal) and finding #1 (the eGFR-comparator numbers
-   for twenty_features_heterogeneous are wrong) — both concrete, fixable
-   analysis-code issues, not "the models are just bad."
+   Materially closer now that Findings #1 and #2 are fixed — the two
+   confirmed analysis-code defects that would have produced misleading
+   numbers in a submission are resolved. Open questions #3/#4 (see below)
+   should still be resolved before treating the full results as
+   publication-ready.
 
 ================================================================================
-FINDING #1 (CONFIRMED, root-caused): eGFR-referral-rule net benefit is wrong
-for twenty_features_heterogeneous
+FINDING #1 (CONFIRMED, root-caused, FIXED, verified, rerun, CLOSED):
+eGFR-referral-rule net benefit was wrong for twenty_features_heterogeneous
 ================================================================================
-Symptom: `eGFR-threshold referral rule net benefit` in
-twenty_features_heterogeneous_clinical_validity_report.txt is {30: -18.46,
+Symptom (pre-fix): `eGFR-threshold referral rule net benefit` in
+twenty_features_heterogeneous_clinical_validity_report.txt was {30: -18.46,
 45: -25.81} (730d) / {30: -18.00, 45: -25.17} (1825d) — three orders of
 magnitude outside the sane range every other number in every report falls
 in (four_features: -0.037/-0.140; eight_features: +0.071/+0.012).
 
 Root cause: `egfr_threshold_net_benefit()`
-(pkgs/data_analysis/clinical_validity_analysis.py:214-240) is called with
-`df_test['egfr'].values` directly
-(pkgs/data_analysis/clinical_validity_analysis.py:820-822), with no
-filtering on `egfr_missing`. For four_features/eight_features every row is
+(pkgs/data_analysis/clinical_validity_analysis.py) is called with
+`df_test['egfr'].values`. For four_features/eight_features every row is
 anchored on a real creatinine draw, so `egfr` is always a genuine
-measurement there and the function is correct as written. But
-twenty_features_heterogeneous is one row per lab EVENT
-(pkgs/data_analysis/time_series_store.py:379-421): only rows where the
-drawn lab *was* creatinine/eGFR get a real `egfr` value
-(`egfr_missing=0`); every other row (potassium draw, sodium draw, etc.) gets
-`egfr=0` as a placeholder with `egfr_missing=1`. Verified directly against
-generated_data/rep99/twenty_features_heterogeneous_test_data.csv: 8,613 of
-9,115 test rows (94.5%) have `egfr_missing=1` and `egfr=0`.
+measurement there. But twenty_features_heterogeneous is one row per lab
+EVENT (pkgs/data_analysis/time_series_store.py): only rows where the drawn
+lab *was* creatinine/eGFR get a real `egfr` value (`egfr_missing=0`); every
+other row gets `egfr=0` as a placeholder with `egfr_missing=1`. Verified
+directly against generated_data/rep99/twenty_features_heterogeneous_test_data.csv:
+8,613 of 9,115 test rows (94.5%) have `egfr_missing=1` and `egfr=0`. Since
+`high_risk = egfr_values < cutoff` treats a placeholder 0 exactly like a
+genuine severely-low eGFR, ~94.5% of rows were misclassified as "refer",
+pushing the net-benefit formula's `implied_pt/(1-implied_pt)` weighting term
+to ~20-27x — exactly matching the observed magnitude. Restricting to only
+the 502 rows with a real eGFR measurement gives a clinically plausible
+split (12.9% below eGFR 30, 36.1% below 45) and an
+`implied_pt/(1-implied_pt)` of 0.15-0.56, matching the sane range everywhere
+else.
 
-Since `high_risk = egfr_values < cutoff` treats a placeholder 0 exactly like
-a genuine severely-low eGFR, ~94.5% of rows are misclassified as
-"eGFR<cutoff, refer" regardless of cutoff (30 or 45). That pushes `n_high/n`
-to ~0.95+, so `implied_pt = n_high/n` -> ~0.95, and the net-benefit formula's
-`implied_pt/(1-implied_pt)` term (line 239) explodes toward ~19-20x —
-exactly matching the observed -18 to -25 magnitude.
+Note: `egfr_threshold_net_benefit()`'s own `implied_pt := n_high/n` design
+(a deliberate stand-in, since a fixed clinical rule has no probability
+threshold of its own — see the function's own comment) is NOT the bug and
+was not changed; the bug was purely in what rows were fed into it.
 
-This is isolated to the eGFR-referral-rule *comparator* line in the
-twenty_features_heterogeneous report. It does not affect: any model's
-C-index/Brier/AUC/calibration/decision-curve numbers (those don't call this
-function); four_features/eight_features (egfr is never a placeholder
-there); or any other scenario's comparator line.
+Fix applied (pkgs/data_analysis/clinical_validity_analysis.py,
+analyze_scenario(), ~line 771): added `egfr_referral_df`, which restricts to
+`egfr_missing == 0` rows before computing `egfr_threshold_net_benefit()`,
+whenever an `egfr_missing` column exists on df_test. No-op for
+four_features/eight_features (no `egfr_missing` column there — verified
+their eGFR-referral numbers are byte-identical before/after this fix).
 
-Proposed fix: in `analyze_scenario()`
-(pkgs/data_analysis/clinical_validity_analysis.py:757), when an
-`egfr_missing` column exists, restrict the eGFR-referral-rule computation to
-rows with `egfr_missing == 0` (the rows where eGFR was actually measured)
-instead of the full `df_test`. Scoped to the `has_egfr` branch only — no
-change to any model's own predictions/metrics, no change to
-four_features/eight_features (no `egfr_missing` column there, so behavior
-is unchanged for those two scenarios).
+Verified in isolation first (calling the function directly against the
+already-saved rep99 CSV, no rerun): net benefit at 730d went from
+{30: -18.46279, 45: -25.81404} to {30: -0.00522, 45: -0.17051}.
+
+Reran Stage 2.1's clinical-validity driver only
+(`CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage21_clinical_validity`)
+— Stage 2 (model retraining) was deliberately SKIPPED, since this fix
+touches only the post-hoc comparator calculation, not any model, training
+data, or prediction code; retraining would reproduce byte-identical models
+at real GPU cost for zero effect. Confirmed in the regenerated report:
+eGFR-threshold referral rule net benefit now {30: -0.00522, 45: -0.17051}
+(730d) / {30: -0.00522, 45: -0.15367} (1825d). Every model's
+C-index/Brier/AUC in the regenerated report was identical to the pre-fix
+report (as expected) — confirms the fix touched only the intended line.
 
 ================================================================================
-FINDING #2 (CONFIRMED PATTERN, already partially documented): the generic
-"approximate" risk-score-to-probability transform saturates for 6 of 11
-models, in every scenario
+FINDING #2 (CONFIRMED PATTERN, FIXED via Option (a), verified, rerun,
+CLOSED with one documented residual): generic risk-score-to-probability
+transform saturated for 6 of 11 models, in every scenario
 ================================================================================
-Symptom: every <scenario>_clinical_validity_report.txt repeatedly logs
-"NOTE: predicted risk is the same X for every patient at this horizon" for
-Cox, DeepSurv, GBSA, Survival RF, Survival SVM, and Weibull AFT (the 6
-models whose report line says "Predicted-probability source: approximate
-(generic risk-score extrapolation)") — X is typically 0.95-1.0 (rarely, as
-in DeepSurv's four_features case, ~0.02, i.e. saturated the other
-direction). Their calibration tables collapse to 1-2 rows instead of 10
-deciles, and their decision-curve net benefit values are implausibly close
-to the "treat-all" ceiling (e.g. 0.79-0.93 net benefit at low thresholds,
-near the cohort's actual, already-noted-as-skewed high event rate) —
-because "predict near-certain event for everyone" IS what treat-all does.
+Symptom (pre-fix): every <scenario>_clinical_validity_report.txt repeatedly
+logged "NOTE: predicted risk is the same X for every patient at this
+horizon" for Cox, DeepSurv, GBSA, Survival RF, Survival SVM, and Weibull AFT
+(the 6 models whose report line said "Predicted-probability source:
+approximate"). Their calibration tables collapsed to 1-2 rows instead of 10
+deciles, their decision-curve net benefit values were implausibly close to
+the treat-all ceiling, and several Brier scores exceeded the theoretical max
+of 1.0 (e.g. Weibull AFT twenty_features_heterogeneous: 1.01735).
 
-Root cause: `risk_scores_to_survival_probs()`
-(pkgs/data_analysis/clinical_validity_analysis.py:80-88, same formula as
-pkgs/experiments/utils.py's `compute_brier_score_from_risk_scores`) computes
-`S(t) = exp(-(risk_score - risk_score.min() + 0.01) * t / 365)` — a single
-hardcoded scale with no adaptation to a given model's actual risk-score
-range. Different architectures' raw risk scores span very different
-magnitudes (e.g. a Cox partial hazard vs. an SVM decision score vs. a GBSA
-score), so for models whose scores span more than roughly single digits
-after min-subtraction, `exp(-large * t/365)` collapses to ~0 survival (~1.0
-event probability) for nearly the whole cohort except the single
-minimum-risk row — exactly the reported symptom. This is not new — the
-module's own docstring already calls this transform "approximate" and a
-"fallback" vs. each model's "native" output — but Stage 2.2 is the first
-place this repo's plan explicitly asks whether results are
-publication-ready, and for these 6 models' calibration/Brier/DCA numbers
-(not their C-index, which is rank-based and unaffected by this rescaling),
-the honest answer is no.
+Root cause: `risk_scores_to_survival_probs()` computed
+`S(t) = exp(-(risk_score - risk_score.min() + 0.01) * t / 365)` — one
+hardcoded scale applied identically to every model, implicitly treating the
+shifted risk score as an annual hazard rate. Different architectures' raw
+risk scores span very different magnitudes (Cox partial hazard vs. an SVM
+decision score vs. a GBSA score), so for models whose scores span more than
+roughly single digits after min-subtraction, `exp(-large*t/365)` collapsed
+to ~0 survival (~1.0 event probability) for nearly the whole cohort except
+the single minimum-risk row.
 
-This is a bigger design decision than finding #1, not a one-line fix —
-flagging for your call on direction rather than picking one, options:
-  (a) Per-model calibrated transform: fit a Breslow-style baseline hazard
-      (or similar) from each model's own risk scores on df_train, the way
-      lifelines/sksurv do internally for Cox-like models, instead of one
-      hardcoded global formula.
-  (b) Empirical/KM-based transform: map each model's risk-score decile to
-      its own training-set KM-observed event probability (rank-based,
-      scale-invariant — sidesteps the magnitude problem entirely, at the
-      cost of only being reliable at the decile level, not a smooth
-      per-subject probability).
-  (c) Leave as-is, but stop reporting Brier/calibration/DCA numbers for the
-      6 "approximate" models and clearly mark them out-of-scope for
-      publication, keeping only their (unaffected) C-index — narrower
-      fix, ships faster, defers the harder calibration-transform problem.
+Confirmed with real numbers (eight_features, rep99): GBSA risk-score
+exponent at the 2yr horizon ranged into values that saturate `exp()` to
+~0/1 for the bulk of the cohort regardless of true relative risk — the
+formula's `/365` is a units conversion (days->years), not a "model horizon"
+parameter, and no different divisor constant would have fixed this: the
+real problem was conflating each model's raw, architecture-specific-scale
+risk score with a literal hazard-rate-per-year, which is not what any of
+these models' outputs represent.
+
+Options discussed with user: (a) per-model calibrated transform (fit a
+Breslow-style baseline hazard from each model's own train-set risk scores);
+(b) empirical/KM-decile transform; (c) mark out of scope, report C-index
+only for the 6 affected models. User chose (a) after a deeper walkthrough
+of the tradeoffs.
+
+Fix applied (pkgs/data_analysis/clinical_validity_analysis.py):
+- New `fit_breslow_baseline_hazard(train_risk_scores, train_durations,
+  train_events)`: standard non-parametric (Breslow) baseline cumulative
+  hazard H0(t), fit from a model's OWN risk scores on the TRAINING set —
+  O(n log n) via a reverse cumulative sum over duration-sorted rows, not the
+  naive O(n^2) per-event-time mask recompute. Returns (train_shift,
+  event_times, H0).
+- New `calibrated_survival_probs(risk_scores, times, baseline)`:
+  S(t) = exp(-r_shifted * H0(t)), replacing the old fixed
+  exp(-risk_norm*t/365) formula everywhere in this module (both the
+  Brier-score integration and the approximate-fallback predicted-probability
+  path). `pkgs/experiments/utils.py`'s own copy of the old formula was
+  deliberately left untouched (used by the older scenarios' own
+  training/eval scripts — out of scope for this fix).
+- `_get_train_risk_scores()` added to `ClinicalValidityAnalyzer`: mirrors
+  `_get_predictions()`'s dispatch but scores df_train instead of df_test,
+  reusing each `*_predictions()` function (added a `split='train'/'test'`
+  parameter to the 5 "flattened" one-row-per-patient functions
+  deepsurv/gbsa/srf/survival_svm/weibul, which already had train data
+  available via `get_last_observation_data()` but were discarding it).
+  `analyze_scenario()` now fits one baseline per model (from that model's
+  train-set risk scores) alongside computing its test-set predictions, in a
+  separate try/except so a baseline-fitting failure doesn't discard
+  already-obtained test predictions.
+
+Verified via a full Stage 2.1 rerun for rep99
+(`CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage21_clinical_validity`,
+2026-08-28, exit 0, no errors):
+- The "predicted risk is the same for every patient" degeneracy is GONE for
+  Cox, DeepSurv, GBSA, Survival RF, and Survival SVM in all 3 scenarios —
+  fully resolved (previously present in nearly every scenario/horizon for
+  these 5).
+- Brier scores for these models dropped from implausible values (many
+  >0.9, several exceeding the theoretical max of 1.0 — e.g. Weibull AFT
+  four_features 0.94, twenty_features_heterogeneous 1.02; GBSA eight_features
+  0.66; Survival RF four_features 0.93) to sane, bounded values comparable
+  to the native-output models (e.g. Weibull AFT four_features 0.94->0.337,
+  GBSA eight_features 0.655->0.515, Survival RF four_features 0.930->0.351).
+- C-index and AUC are byte-identical before/after in every report (expected
+  — this fix touches only the Brier/calibration/DCA path, not ranking
+  metrics), confirming the fix is correctly scoped.
+
+Residual (NOT fixed, separate issue, documented not chased further): Weibull
+AFT still shows the constant-prediction degeneracy, but ONLY on
+twenty_features_heterogeneous (both horizons) — traced directly to the raw
+model output, not the transform: `weibul_predictions(..., split='test')` on
+that scenario returns a risk score of magnitude ~1.4e70 for one subject
+(verified directly), a numerical convergence pathology consistent with the
+near-complete-separation issue already flagged in EXPERIMENT_STATUS.md for
+this exact model/scenario (rep1's fix was `penalizer=0.1` in
+`WeibullAFTFitter()`, applied to rep1 only — rep99's smaller sample "never
+triggered this failure to begin with" per that same note, but evidently
+still carries a milder version of it). One training-set outlier that
+extreme dominates `fit_breslow_baseline_hazard`'s min-shift, degrading the
+baseline for every other subject scored by that same model — a known
+weakness inherited from the old code's identical min-shift approach (not
+new). Not fixed here: out of Finding #2's scope (a calibration-transform
+issue, not this model's own training-numerics issue) — flagging in case a
+future session wants either a robustness fix (e.g. a percentile-based floor
+instead of the raw min) or to retrain rep99's twenty_features_heterogeneous
+Weibull model with the same penalizer fix rep1 already got.
 
 ================================================================================
 OPEN QUESTIONS (not root-caused — flagged, not fixed)
@@ -183,69 +235,130 @@ OPEN QUESTIONS (not root-caused — flagged, not fixed)
     model on the same scenario (DDH 0.850, RNN-Surv 0.518, DeepSurv 0.653,
     GBSA 0.542, Survival SVM 0.585, Weibull AFT 0.712) stays at/above
     random. Scenario-specific to these two architectures, not a shared
-    transform bug (unlike #1/#2 above) — plausible causes not yet checked:
-    Cox non-convergence or a sign/encoding issue specific to the 40-column,
-    ~95%-zero-filled heterogeneous row format; Hazard Transformer's
-    fixed-365d-horizon fix (already applied earlier, per
+    transform bug (unlike #1/#2 above, and unaffected by either fix) —
+    plausible causes not yet checked: Cox non-convergence or a
+    sign/encoding issue specific to the 40-column, ~95%-zero-filled
+    heterogeneous row format; Hazard Transformer's fixed-365d-horizon fix
+    (already applied earlier, per
     generated_data/rep99/stage2_pmf_fix_rerun_report.txt) may not fully
     generalize to this scenario's very different row density (one row per
     lab event vs. one row per creatinine draw). Needs its own investigation
     before a verdict.
 #4. Dynamic DeepHit's uniformly large C-index advantage (0.836-0.850 across
-    all 3 scenarios) — no leakage found in its feature list, plausible
-    non-bug explanation is its sequence-model architecture, but not
+    all 3 scenarios) — no leakage found in its feature list
+    (get_tv_rnn_model_features() and DynamicDeepHitDataset's feature
+    slicing checked directly), plausible non-bug explanation is its
+    sequence-model architecture (only model here that consumes a patient's
+    full multi-visit sequence, not a single landmark row), but not
     independently confirmed. Worth a closer look before treating its
     numbers as directly comparable to the other 10 models', not blocking.
 
 ================================================================================
-UPDATE 2026-08-28: Finding #1 fixed, verified, rerun
+FINDING #3 (CONFIRMED, root-caused, FIXED, verified, rerun): cox/rnn_surv/
+kfre were the last 3 of 11 models scored per lab-event ROW instead of per
+PATIENT — deceptively low Brier scores everywhere, deceptively inflated
+C-index specifically for KFRE and (mildly) Cox
 ================================================================================
-User confirmed Finding #1 is a genuine bug and asked to fix it. Applied:
+Trigger: user asked, after Finding #2's fix, why Cox's Brier was "so low"
+in every scenario even though the patient-level ESRD-positive ratio is
+even/majority-positive in all three. Investigated directly rather than
+assuming — the premise ("patient ratio is even, so row-level rate should
+be too") turned out to be the wrong frame entirely.
 
-pkgs/data_analysis/clinical_validity_analysis.py, analyze_scenario()
-(lines ~771-849): added `egfr_referral_df`, which restricts to
-`egfr_missing == 0` rows before computing `egfr_threshold_net_benefit()`,
-whenever an `egfr_missing` column exists on df_test. No-op for
-four_features/eight_features (no `egfr_missing` column there — verified
-their eGFR-referral numbers are byte-identical before/after: {30: -0.03683,
-45: -0.14036}/{30: -0.01895, 45: -0.09094} for four_features, {30: 0.07074,
-45: 0.01244}/{30: 0.12845, 45: 0.19538} for eight_features). The
-`egfr_threshold_net_benefit()` function itself and its `implied_pt` design
-were NOT changed — only what rows get fed into it.
+Root cause: verified empirically (generated_data/rep99/*_test_data.csv, all
+3 scenarios) that patient-level ESRD-positive rate and row-level `has_esrd`
+rate are two very different numbers, because each row is one lab-event/
+covariate snapshot (start/stop counting-process format), and a patient who
+eventually gets ESRD still has dozens-to-hundreds of EARLIER rows correctly
+labeled has_esrd=0 (they genuinely hadn't been diagnosed yet as of that
+draw) — only their LAST row is flagged 1:
 
-Verified in isolation first (calling the function directly against the
-already-saved rep99 CSV, no rerun): net benefit at 730d went from
-{30: -18.46279, 45: -25.81404} to {30: -0.00522, 45: -0.17051}. Restricting
-to the 502/9115 rows with a real eGFR measurement, only 12.9% are below
-eGFR 30 and 36.1% below 45 — a clinically plausible split, vs. 95.2%/96.5%
-when the placeholder-zero rows were included.
+| Scenario | rows/patient | patient-level ESRD-pos rate | row-level event rate |
+|---|---|---|---|
+| four_features (test) | 10.6 | 72.5% | 9.4% |
+| eight_features (test) | 4.5 | 87.2% | 28.0% |
+| twenty_features_heterogeneous (test) | 455.8 | 50.0% | 3.25% |
 
-Then reran per plan ("run stage 2.0 -> 2.2 again"), scoped: Stage 2 (model
-retraining) was deliberately SKIPPED — this fix touches only
-clinical_validity_analysis.py's post-hoc comparator calculation, not any
-model, training data, or prediction code, so retraining would reproduce
-byte-identical models at real GPU cost for zero effect. Instead reran only
-Stage 2.1's clinical-validity driver:
-`CKD_REP=99 PYTHONPATH=. python -m pkgs.scripts.run_stage21_clinical_validity`
-(all three scenarios, ~2026-08-28 16:08-16:09 CDT). Confirmed in the
-regenerated generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt:
-eGFR-threshold referral rule net benefit now {30: -0.00522, 45: -0.17051}
-(730d) / {30: -0.00522, 45: -0.15367} (1825d) — in line with the rest of
-the report. Every model's C-index/Brier/AUC in the regenerated report is
-identical to the pre-fix report (as expected, since no model or prediction
-code changed) — confirms the fix was scoped correctly and touched nothing
-else.
+Brier score tracks the row-level rate directly (a model predicting ~the
+row-level base rate for everyone gets a deceptively low Brier when that
+rate is tiny — confirmed: predicting the exact true base rate 2.19% for
+every twenty_features_heterogeneous row gives an MSE of 0.0315, already in
+Cox's actual pre-fix Brier ballpark of 0.022 with ZERO real discrimination
+needed to get there) — this explains why Cox's Brier was low in EVERY
+scenario, worst where rows/patient is highest.
 
-Re-ran Stage 2.2's self-check questions against the fixed report: answers
-to Q1-Q5 are unchanged by this fix (the eGFR-referral comparator was never
-part of any model's own C-index/Brier/AUC/calibration numbers) — Finding #2
-(6/11 models' saturated approximate-transform calibration/DCA numbers) and
-open questions #3 (Cox/Hazard Transformer sub-random C-index on
-twenty_features_heterogeneous) and #4 (Dynamic DeepHit's outsized
-advantage) all still stand, unaffected by this fix.
+Checked WHY only cox/rnn_surv/kfre were affected: ddh/hazard_transformer/
+logistic_hazard's own Dataset classes (`self.subject_groups =
+list(df.groupby('subject_id'))`, `__len__` = number of subjects) already
+dedupe to one prediction per patient internally — confirmed by reading
+DynamicDeepHitDataset, HazardTransformerDataset, and
+LogisticHazardDataset.prepare_data_for_pycox() (`last_obs =
+subject_data.iloc[-1]`) directly. deepsurv/gbsa/srf/survival_svm/weibul
+already use get_last_observation_data()'s flattened one-row-per-patient
+frame. Only cox_predictions (`model.predict_partial_hazard(df_test)`,
+scored every raw row), rnn_surv_predictions (`df_test[features].values`,
+same), and kfre_predictions (scored the row-per-event cached CSV) were
+still per-row.
+
+Considered and rejected first: literally "randomly pick different patients
+for test" (the user's first proposed framing) — verified this can't work,
+since patient-level balance was ALREADY 50/50 for twenty_features_heterogeneous
+by Stage 2's own mini-experiment design; the dilution comes from row
+MULTIPLICITY per patient, not which patients are chosen. User agreed to
+the alternative once shown the evidence.
+
+Fix applied (pkgs/data_analysis/clinical_validity_analysis.py):
+`cox_predictions`, `rnn_surv_predictions`, `kfre_predictions` all rewritten
+to score `get_last_observation_data(scenario)`'s flattened one-row-per-
+patient frame (each patient's LAST observation) instead of the raw
+time-varying frame, with a `split='train'/'test'` parameter added (matching
+the pattern already used by the 5 "flattened" models) so
+`_get_train_risk_scores()` can fit their Breslow baselines the same way.
+`kfre_predictions` no longer reads the row-per-event cached CSV (no longer
+positionally valid against the flattened frame) — recomputes fresh via the
+closed-form equation directly on the flattened frame each call (cheap,
+no training, not worth a separate cache). All 11 models now evaluate on the
+exact same unit: one prediction per patient.
+
+Verified via a full Stage 2.1 rerun for rep99 (exit 0, no new errors).
+Before -> after (all rep99, patient-level now):
+
+| Model / scenario | C-index before -> after | Brier before -> after |
+|---|---|---|
+| Cox / four_features | 0.472 -> 0.371 | 0.065 -> 0.428 |
+| Cox / eight_features | 0.509 -> 0.472 | 0.277 -> 0.595 |
+| Cox / twenty_features_heterogeneous | 0.337 -> 0.288 | 0.022 -> 0.278 |
+| KFRE / four_features | 0.627 -> 0.536 | 0.072 -> 0.468 |
+| KFRE / eight_features | 0.637 -> 0.539 | 0.333 -> 0.819 |
+| RNN-Surv / twenty_features_heterogeneous | 0.518 -> 0.441 | 0.022 -> 0.287 |
+
+Brier is now sane and comparable across all 11 models in every scenario —
+no more artificially deflated Brier scores. IMPORTANT caveat, surfaced
+plainly rather than buried: KFRE's and Cox's C-index also DROPPED,
+specifically because their earlier numbers were partly measuring
+concordance across many highly-correlated landmark rows from the SAME
+patient (not independent held-out generalization), not because anything
+about the models themselves changed. KFRE — the actual published clinical
+benchmark this whole project is measured against — no longer clearly beats
+the other 10 models on four_features/eight_features once put on equal
+footing. This does NOT contradict EXPERIMENT_PLAN_DETAILS.md's Stage 1a-2
+landmark-style row-format design (training data and row format are
+untouched by this fix — only how Stage 2.1's report EVALUATES these 3
+models changed), and arguably better matches how KFRE's own validation
+literature (Tangri et al.) evaluates it (one risk assessment per patient,
+not repeated landmarks) — but it is a materially different, less flattering
+headline result than before this fix, and should be treated as such going
+forward (including in any Stage 3.0 four/eight_features writeup, whose
+current analysis report predates this fix).
 
 ================================================================================
-STATUS: Finding #1 — fixed, verified, rerun, closed. Finding #2 — still
-awaiting user direction on which of the 3 proposed options to take. Open
-questions #3/#4 — not yet investigated further.
+STATUS: Finding #1 — fixed, verified, rerun, closed. Finding #2 — fixed
+(Option (a)), verified, rerun, closed (with one residual, separate,
+documented-not-fixed model-training issue: Weibull AFT/
+twenty_features_heterogeneous). Finding #3 — fixed, verified, rerun, closed
+(with the KFRE/Cox C-index-drop caveat above, which is a real result, not a
+residual bug). Open questions #3/#4 (from the original Stage 2.2 self-check,
+different numbering) — not yet investigated further; question #4 (Dynamic
+DeepHit's outsized advantage) is now sharper, since every model is on equal
+per-patient footing and DDH still leads by a wide margin.
 ================================================================================

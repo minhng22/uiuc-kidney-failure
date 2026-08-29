@@ -16,11 +16,17 @@ approved). Do not restart another session's row without confirming its host is a
 | 2.1 | Feature-importance analysis + additional analyses (calibration + decision-curve, rep99 sanity check) | **done** — rerun 2026-08-27 against the retrained rep99 models (Stage 2 above); clean, no errors | SHAP reports: [four_features](generated_data/rep99/four_features_shap_analysis_report.txt), [eight_features](generated_data/rep99/eight_features_shap_analysis_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt); clinical-validity reports: [four_features](generated_data/rep99/four_features_clinical_validity_report.txt), [eight_features](generated_data/rep99/eight_features_clinical_validity_report.txt), [twenty_features_heterogeneous](generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt); charts: `<scenario>_calibration_plot.png` / `<scenario>_decision_curve_plot.png` per scenario, plus cross-model `c_index_comparison.png` / `brier_comparison.png` / `auc_comparison.png`, all in `generated_data/rep99/` |
 | 2 | PMF-fix rerun (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
 | 2.1 | PMF-fix rerun analyses (rep99) | done | [report](generated_data/rep99/stage2_pmf_fix_rerun_report.txt) |
-| 2.2 | Debug self-check on Stage 2.1's rep99 analysis | **Finding #1 fixed, verified, rerun (2026-08-28)** — eGFR-referral-rule net benefit bug for twenty_features_heterogeneous; Stage 2.1's clinical-validity report regenerated for rep99 (model retraining skipped — fix doesn't touch models). **Finding #2 still open** (generic risk-score→probability transform saturates for 6/11 models' calibration/Brier/DCA numbers in every scenario) — awaiting user direction on 1 of 3 proposed options. 2 open questions (#3/#4) not yet root-caused | [report](generated_data/rep99/stage2_2_debug_report.txt) |
-| 3.0 | rep1 four_features/eight_features run (all 11 models) — analysis report, then approval gate before 3.1 and separately before `twenty_features_heterogeneous` (per Stage 3.0's scenario-ordering rule) | **run + analysis report both done** 2026-08-28, no errors — but `dynamic_deephit`'s `eight_features` model was clobbered mid-run by a second, unidentified writer (unresolved caveat carries into the analysis too — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt)); **awaiting user review + approval gate** before Stage 3.1 or `twenty_features_heterogeneous` | see Background processes below |
+| 2.2 | Debug self-check on Stage 2.1's rep99 analysis | **Findings #1, #2, #3 all fixed, verified, rerun (2026-08-28), closed** — eGFR-referral-rule net benefit bug for twenty_features_heterogeneous (#1); generic risk-score→probability transform saturating for 6/11 models, replaced with a per-model Breslow-baseline-hazard fit (#2, Option (a)); cox/rnn_surv/kfre were the last 3 of 11 models scored per lab-event row instead of per patient, deceptively deflating their Brier and inflating KFRE's/Cox's C-index — now all 11 models evaluate one prediction per patient (#3). **Material result, not just a bug fix**: KFRE (the published clinical benchmark) no longer clearly beats the other 10 models on four_features/eight_features once evaluated on equal footing — see report for exact before/after numbers. One residual, separate, documented-not-fixed issue: Weibull AFT/twenty_features_heterogeneous still shows constant predictions (known model-convergence issue, not this fix). 2 open questions from the original self-check not yet root-caused | [report](generated_data/rep99/stage2_2_debug_report.txt) |
+| 3.0 | rep1 four_features/eight_features run (all 11 models) — analysis report, then approval gate before 3.1 and separately before `twenty_features_heterogeneous` (per Stage 3.0's scenario-ordering rule) | **run done** 2026-08-28, no errors (`dynamic_deephit`'s `eight_features` model was clobbered mid-run by a second, unidentified writer — see [report](generated_data/rep1/stage3_0_rep1_run_report.txt)); **analysis report is STALE** — it predates Stage 2.2's Finding #3 (2026-08-28), which changed how cox/rnn_surv/kfre are evaluated (per-patient, not per-row) and materially changed their C-index/Brier — must be regenerated with the fixed code before this scenario-ordering gate's review is meaningful; **awaiting user review + approval gate** before Stage 3.1 or `twenty_features_heterogeneous` | see Background processes below |
 | 3.1 | rep2-4 full runs (blocked on 3.0's approval gate) | **not done** — rep2/rep3/rep4 were started (2 sessions) before Stage 3 was split into 3.0/3.1; all stopped/killed by user request before finishing; needs relaunch once 3.0 is approved | see Background processes below |
 
 ## Background processes
+
+### Stage 3.0 rep1 four_features/eight_features retrain — owner: session on sunlab-serv-01.cs.illinois.edu
+
+| PID | Rep | Log | Status |
+|---|---|---|---|
+| 2940051 | 1 | [eval_all_rep1_stage3_0_four_eight.log](pkgs/scripts/eval_all_rep1_stage3_0_four_eight.log) | 9/11 done (weibul/kfre/hazard_transformer/survival_svm/deepsurv/srf/cox/logistic_hazard/rnnsurv) — no errors on any. 2 remaining (dynamic_deephit PID 2940093, gbsa PID 2940142) confirmed still actively computing (99% CPU, ~16min in, not hung) as of 21:41 CDT. |
 
 (Hazard Transformer horizon-fix rerun on rep99, PID 4190139 on
 sunlab-serv-02, confirmed finished 2026-08-27 — log
@@ -143,3 +149,56 @@ analysis-code-only), confirmed the regenerated report and unchanged
 discrimination metrics. Detail in
 [report](generated_data/rep99/stage2_2_debug_report.txt). Finding #2 still
 open, awaiting direction.
+
+Last Updated (Finding #2 fix): 2026-08-28 20:54 CDT
+(sunlab-serv-01.cs.illinois.edu) — implemented Option (a) (per-model
+Breslow-style calibrated baseline-hazard transform, replacing the old fixed
+exp(-risk/365) formula) in clinical_validity_analysis.py, reran Stage 2.1's
+clinical-validity driver for rep99 (model retraining skipped again, same
+reasoning). Confirmed: the constant-prediction degeneracy is gone for 5 of
+the 6 previously-affected models in every scenario, Brier scores now sane
+and bounded, C-index/AUC unchanged. One residual (Weibull AFT on
+twenty_features_heterogeneous, a separate known model-convergence issue)
+documented, not fixed. Detail in
+[report](generated_data/rep99/stage2_2_debug_report.txt). Note:
+generated_data/rep99/stage2_2_debug_report.txt was found emptied by a
+concurrent process partway through this work and was recreated from this
+session's own records — see the note at the top of that file.
+
+Last Updated (Finding #3 fix): 2026-08-28 21:14 CDT
+(sunlab-serv-01.cs.illinois.edu) — cox/rnn_surv/kfre were the last 3 of 11
+models scored per lab-event row instead of per patient (ddh/
+hazard_transformer/logistic_hazard already dedupe to one prediction per
+subject internally; deepsurv/gbsa/srf/survival_svm/weibul already use the
+flattened one-row-per-patient frame). Rewrote cox_predictions/
+rnn_surv_predictions/kfre_predictions to use
+get_last_observation_data()'s flattened frame, same as the other 8 models;
+kfre_predictions now recomputes fresh (closed-form) instead of reading its
+row-per-event cached CSV. Reran Stage 2.1's clinical-validity driver for
+rep99, exit 0, no errors. Confirmed Brier scores for these 3 models are no
+longer deceptively low in any scenario — but KFRE's and Cox's C-index also
+dropped materially (KFRE: 0.627/0.637 -> 0.536/0.539 on four/eight_features)
+since their earlier numbers partly reflected concordance across
+many correlated same-patient rows, not true per-patient discrimination.
+Flagged Stage 3.0's rep1 four/eight_features analysis report (row above) as
+STALE — it predates this fix and needs regenerating before its approval
+gate review is meaningful. Full numbers and the landmark-vs-last-observation
+caveat in [report](generated_data/rep99/stage2_2_debug_report.txt).
+
+Last Updated (Stage 3.0 rep1 four/eight_features RETRAIN): 2026-08-28 21:25
+CDT (sunlab-serv-01.cs.illinois.edu) — attempted to regenerate the stale
+rep1 four/eight_features clinical-validity report above with the fixed
+code; found all 22 rep1 model files (11 models x four_features/
+eight_features) gone from disk. User confirmed this was deliberate
+(deleted on purpose specifically so this retrain would pick up Stage 2.2's
+fixes) — not a 3rd clobbering incident. Relaunched training:
+
+| PID | Rep | Log | Status |
+|---|---|---|---|
+| 2940051 | 1 | [eval_all_rep1_stage3_0_four_eight.log](pkgs/scripts/eval_all_rep1_stage3_0_four_eight.log) | in progress — `bash pkgs/scripts/run_rep_stage3_0_four_eight.sh 1`, all 11 models (cox/dynamic_deephit/hazard_transformer/logistic_hazard/rnnsurv/kfre/deepsurv/gbsa/srf/survival_svm/weibul), four_features/eight_features only, per-experiment logs at `pkgs/scripts/eval_rep1_stage3_0_four_eight_<experiment>.log`. weibul and kfre (closed-form/fast) already finished clean within ~1 min of launch; the rest (several running Optuna searches) still in progress. |
+
+Depends on: nothing else touching rep1's four_features/eight_features
+paths concurrently (checked — no other process running on this host).
+Blocks: Stage 3.0's clinical-validity/SHAP analysis rerun (needs all 11
+models present) and the Stage 3.0→3.1 approval gate. Will auto-check every
+~10 min per CLAUDE.md until done, then rerun the analysis scripts.
