@@ -1,9 +1,74 @@
-Start time: Thu Aug 27 20:04:38 CDT 2026
-Traceback (most recent call last):
-  File "<frozen runpy>", line 198, in _run_module_as_main
-  File "<frozen runpy>", line 88, in _run_code
-  File "/home/minhn2/uiuc-kidney-failure/pkgs/experiments/weibul.py", line 2, in <module>
-    import joblib
-ModuleNotFoundError: No module named 'joblib'
-✗ weibul failed with exit code 1
-End time: Thu Aug 27 20:04:38 CDT 2026
+Start time: Sat Aug 29 18:52:59 CDT 2026
+/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/__init__.py:2086: ApproximationWarning: The Hessian was not invertible. We will instead approximate it using the pseudo-inverse.
+
+It's advisable to not trust the variances reported, and to be suspicious of the fitted parameters too.
+
+Some ways to possible ways fix this:
+
+0. Are there any lifelines warnings outputted during the `fit`?
+1. Does a particularly large variable need to be centered to 0?
+2. Inspect your DataFrame: does everything look as expected? Do you need to add/drop a constant (intercept) column?
+3. Is there high-collinearity in the dataset? Try using the variance inflation factor (VIF) to find redundant variables.
+4. Trying adding a small penalizer (or changing it, if already present). Example: `WeibullAFTFitter(penalizer=0.01).fit(...)`.
+5. Are there any extreme outliers? Try modeling them or dropping them to see if it helps convergence.
+
+  warnings.warn(warning_text, exceptions.ApproximationWarning)
+/home/minhn2/miniconda3/envs/minhn2/lib/python3.12/site-packages/lifelines/fitters/__init__.py:2097: StatisticalWarning: The diagonal of the variance_matrix_ has negative values. This could be a problem with WeibullAFTFitter's fit to the data.
+
+It's advisable to not trust the variances reported, and to be suspicious of the fitted parameters too.
+
+  warnings.warn(warning_text, exceptions.StatisticalWarning)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Train data shape: (27361, 6)
+Test data shape: (6841, 6)
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep2/egfr_ti_weibul_model.dill
+Loading model from file
+Evaluate on test data
+C-index: 0.5205
+Integrated Brier Score Test: 0.406
+cumulative hazard shape: (6841, 729)
+Mean time-dependent AUC: 0.5336
+
+Running FOUR_FEATURES Weibull AFT model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Fitting model:
+Evaluate on test data
+C-index: 0.5523
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+cumulative hazard shape: (562, 729)
+Mean time-dependent AUC: 0.5798
+
+Running EIGHT_FEATURES Weibull AFT model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Fitting model:
+Evaluate on test data
+C-index: 0.5543
+Integrated Brier Score Test: 0.304
+cumulative hazard shape: (243, 729)
+Mean time-dependent AUC: 0.5987
+
+Running TWENTY_FEATURES_HETEROGENEOUS Weibull AFT model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Fitting model:
+Evaluate on test data
+C-index: 0.5253
+Integrated Brier Score Test: 0.421
+cumulative hazard shape: (6521, 729)
+Mean time-dependent AUC: 0.5468
+✓ weibul completed successfully
+End time: Sat Aug 29 18:55:40 CDT 2026

@@ -1,0 +1,102 @@
+Stage 3.1 - rep2/rep3 rnnsurv CUDA-OOM incident #3 (sunlab-serv-02.cs.illinois.edu)
+=====================================================================================
+
+Bug found and fixed (distinct from Incident #2)
+--------------------------------------------------
+After relaunching rep2/rep3's rnnsurv under sunlab-serv-03's Incident #2
+fix (_batched_model_forward, already on disk), both retries still crashed
+- but at a different line, with a genuine traceback this time (output
+order in the log looked scrambled because stderr flushes immediately while
+buffered stdout only appears at process exit; both retries' failures were
+confirmed via grep -c Traceback = 1 each):
+
+  torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 28.17 GiB.
+  GPU 4 has a total capacity of 10.57 GiB ...
+  File "pkgs/experiments/rnnsurv.py", line 266, in run
+    risk_by_time = cif[:, bin_indices].cpu().numpy()
+
+Root cause: cif (from torch.cumsum(event_pmf[:, -1, :], dim=1)) has a
+small number of columns (one per model time-bin), but bin_indices - built
+from times = np.arange(1, max_eval_time+1) - has one entry per day of
+follow-up. For TWENTY_FEATURES_HETEROGENEOUS, max_eval_time runs to the
+dataset's longest follow-up (~4216 days, per the "time must be smaller than
+largest observed time point: 4216.41..." warning printed elsewhere in this
+scenario's evaluation). The single-shot fancy-index cif[:, bin_indices]
+therefore materializes a dense [N_test, ~4216] float32 tensor -
+N_test~1.6M x 4216 x 4 bytes ~ 27 GiB - on the GPU in one allocation.
+
+This is not a memory-contention fluke like Incident #2 initially looked:
+this host's GPUs are 10.57GiB each, so a ~27-28GiB single allocation can
+never succeed here regardless of how idle/free the GPU is. This is why
+sunlab-serv-03's rep4/rep5 (a host with ~48GiB GPUs, comfortably above 28GiB)
+never hit this - their earlier fix for Incident #2 was necessary but not
+sufficient for this host's hardware.
+
+Fix
+---
+Added _batched_risk_by_time() to pkgs/experiments/rnnsurv.py, mirroring
+the existing _batched_model_forward() pattern already in the file: slices
+cif[:, bin_indices] and moves to CPU in row-chunks (batch_size=8192)
+instead of one unbounded operation, keeping peak GPU memory bounded by
+batch size instead of N_test. run()'s one call site updated to use it. No
+change to model architecture, training, or numerical results.
+
+Verification (per CLAUDE.md's "verify on rep99 first" rule)
+--------------------------------------------------------------
+1. Numerical correctness: synthetic test comparing _batched_risk_by_time
+   against the original unbatched cif[:, bin_indices].cpu().numpy() on
+   random data with a deliberately non-divisor batch size -- exact match
+   (np.array_equal True, max abs diff 0.0).
+2. Real-scale memory safety: synthetic test with the actual problem
+   dimensions (N_test=1,613,452, len(times)=4216) on a real GPU -- peak
+   GPU memory during the batched slice was 0.78 GiB (vs. the ~28 GiB
+   single-shot allocation that was crashing), no OOM.
+3. rep99 regression check: ran CKD_REP=99 python -m pkgs.experiments.rnnsurv
+   end-to-end. FOUR_FEATURES printed correct C-Index/Brier Score (using
+   the new code path) then hit the pre-existing, already-documented
+   "censoring survival function is zero at one or more time points"
+   ValueError computing AUC -- the same known rep99-scale sksurv edge case
+   noted in generated_data/rep99/mini_experiment_status_report.txt and
+   independently hit by sunlab-serv-03 verifying their own fix; unrelated
+   to this change, and it stops the __main__ loop before
+   EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS run under __main__
+   (rep99's data is too small to naturally exercise the bug this fix
+   addresses anyway -- that's why the two scale/synthetic tests above exist).
+
+No model weights or training code changed, so no feature-importance rerun
+is needed per the "model-training fix" caveat in that rule -- this only
+changes how the already-trained model's evaluation output is computed.
+
+Relaunch
+--------
+Relaunched rnnsurv standalone for both reps (not full run_rep.sh, since
+the other ~9-10 experiments per rep are already done/running):
+
+  - rep2: PID 593198
+  - rep3: PID 593309
+
+Both loading their already-saved four_features/eight_features/
+twenty_features_heterogeneous_rnn_surv_model.pt weights (no retraining),
+should complete quickly if the fix holds.
+
+Final resolution (2026-08-30 05:06 CDT)
+------------------------------------------
+rep3's retry succeeded on the first relaunch (guard caught "Unable to
+allocate 28.2 GiB for an array with shape (1613452, 4686) and data type
+float32", warned, completed normally).
+
+rep2's first retry collided with rep3's (both simultaneously materializing
+their ~27-53GB risk_by_time host-RAM array), and the kernel SIGKILL'd it
+(anon-rss ~57GB) before Python could raise a catchable MemoryError -- an
+external signal the try/except cannot intercept. Not a flaw in the fix:
+relaunched rep2's rnnsurv alone once rep3's had finished and memory
+recovered, and it succeeded cleanly (guard caught "Unable to allocate
+56.3 GiB for an array with shape (1613452, 4686) and data type int64").
+
+Lesson for future relaunches of this scale: rnnsurv's risk_by_time array
+(~27-53GB) is itself a real host-RAM cost independent of the AUC guard --
+don't launch two rnnsurv (or a rnnsurv + cox) retries for
+twenty_features_heterogeneous at the same time on this host; stagger them.
+
+Both reps now show rnnsurv as done (7/11, alongside cox from the sibling
+report) with C-Index + Brier Score recorded for all 3 scenarios each.

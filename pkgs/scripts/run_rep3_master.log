@@ -1,6 +1,20 @@
 Starting rep3 (CKD_REP=3)...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep3.log
-Start time: Sun Aug 23 13:20:01 CDT 2026
+Start time: Sat Aug 29 18:53:02 CDT 2026
+Running experiments IN PARALLEL; per-experiment logs: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_<experiment>.log
 =========================================
-==================== Running cox for rep3 ====================
-Start time: Sun Aug 23 13:20:01 CDT 2026
+==================== Launched cox for rep3 (PID 532713, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_cox.log) ====================
+==================== Launched dynamic_deephit for rep3 (PID 532717, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_dynamic_deephit.log) ====================
+==================== Launched hazard_transformer for rep3 (PID 532722, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_hazard_transformer.log) ====================
+==================== Launched logistic_hazard for rep3 (PID 532727, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_logistic_hazard.log) ====================
+==================== Launched rnnsurv for rep3 (PID 532733, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_rnnsurv.log) ====================
+==================== Launched kfre for rep3 (PID 532738, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_kfre.log) ====================
+==================== Launched deepsurv for rep3 (PID 532743, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_deepsurv.log) ====================
+==================== Launched gbsa for rep3 (PID 532826, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_gbsa.log) ====================
+==================== Launched srf for rep3 (PID 532834, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_srf.log) ====================
+==================== Launched survival_svm for rep3 (PID 532839, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_survival_svm.log) ====================
+==================== Launched weibul for rep3 (PID 532845, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_weibul.log) ====================
+✓ weibul completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_weibul.log)
+✓ kfre completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep3_kfre.log)
+pkgs/scripts/run_rep.sh: line 77: 532843 Killed                  python -m "pkgs.experiments.${experiment}" >> "$exp_log" 2>&1
+pkgs/scripts/run_rep.sh: line 77: 532721 Killed                  python -m "pkgs.experiments.${experiment}" >> "$exp_log" 2>&1

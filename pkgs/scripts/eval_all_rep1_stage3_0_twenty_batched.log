@@ -13,3 +13,24 @@ Launched deepsurv (PID 3131391, log: /home/minhn2/uiuc-kidney-failure/pkgs/scrip
 Launched dynamic_deephit (PID 3149869, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_dynamic_deephit.log)
 Launched hazard_transformer (PID 3149873, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_hazard_transformer.log)
 Launched srf (PID 3149878, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_srf.log)
+✓ hazard_transformer completed successfully
+✓ srf completed successfully
+✗ dynamic_deephit failed
+--- Batch 2 done ---
+--- Batch 3: rnnsurv gbsa survival_svm ---
+Launched rnnsurv (PID 3475146, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_rnnsurv.log)
+Launched gbsa (PID 3475149, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_gbsa.log)
+Launched survival_svm (PID 3475152, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_survival_svm.log)
+✓ survival_svm completed successfully
+✗ gbsa failed
+✗ rnnsurv failed
+--- Batch 3 done ---
+--- Batch 4: weibul ---
+Launched weibul (PID 3632667, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep1_stage3_0_twenty_weibul.log)
+✓ weibul completed successfully
+--- Batch 4 done ---
+=========================================
+Rep1 (twenty_features_heterogeneous, batched) Summary:
+Failed experiments: 3
+✗ Failed experiments: dynamic_deephit gbsa rnnsurv
+End time: Mon Aug 31 10:35:09 CDT 2026

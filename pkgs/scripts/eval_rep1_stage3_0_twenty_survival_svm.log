@@ -1,3 +1,14 @@
-Start time: Sat Aug 29 02:37:06 CDT 2026
-✗ survival_svm failed with exit code 137
-End time: Sat Aug 29 06:14:51 CDT 2026
+Start time: Sun Aug 30 20:36:31 CDT 2026
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_survival_svm_model.dill
+Filtered out 1087 test samples with duration <= 0
+Concordance Index Test: 0.548
+Integrated Brier Score Test: 0.241
+Risk scores test: (5434,)
+Mean AUC: 0.405
+✓ survival_svm completed successfully
+End time: Sun Aug 30 20:37:09 CDT 2026

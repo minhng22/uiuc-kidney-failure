@@ -1424,3 +1424,81 @@ Standalone search scripts (pkgs/scripts/cox_twenty_subsample_trial.py,
 cox_twenty_subsample_search.sh) and their trial logs/results left in place
 as documented evidence, not deleted -- not wired into the normal training
 path, so they're inert going forward.
+
+================================================================================
+dynamic_deephit killed per user request ("run other models first, come back
+to dynamic_deephit later") -- 2026-08-30 19:39 CDT
+================================================================================
+dynamic_deephit (PID 3149882, batch-2 subshell 3149869) had run ~28h22m on
+trial 0/10 with zero completions (see prior entries for the py-spy-confirmed
+diagnosis: genuinely computing, not deadlocked, but backprop-through-time
+over a 5,644-timestep outlier patient in an RNN-style architecture --
+fundamentally much slower per-step than hazard_transformer's transformer
+architecture hitting the same outlier, which parallelizes over the sequence
+dimension instead of processing it sequentially).
+
+Killed via `kill -TERM 3149882` -- responded within ~3s (exit code 143,
+i.e. SIGTERM), despite having been inside a single .backward() call for
+over a day. Its subshell wrote a clean "✗ dynamic_deephit failed with exit
+code 143" + End-time marker and exited normally, so
+run_rep_stage3_0_twenty_batched.sh's own wait loop for this experiment
+resolved cleanly with no manual intervention needed on the master script
+itself. hazard_transformer (PID 3149883, 7/10 trials done as of this kill)
+completely unaffected -- separate process, separate subshell, not touched.
+
+IMPORTANT: this does NOT immediately unblock Batch 3 (rnnsurv/gbsa/
+survival_svm) -- run_rep_stage3_0_twenty_batched.sh's Batch 2 wait loop
+still needs hazard_transformer to finish (its own remaining ~3 trials) AND
+srf (already done) before writing "Batch 2 done" and launching Batch 3.
+dynamic_deephit is simply no longer a barrier now that it's dead --
+hazard_transformer's own pace is what's left gating Batch 3/4.
+
+Per the user's "come back to dynamic_deephit later" instruction: NOT
+relaunching it now. No model artifact was saved for it (training never
+reached a usable checkpoint for TWENTY_FEATURES_HETEROGENEOUS), so it
+remains an open item to revisit -- either with a sequence-length cap/
+truncation fix (would need rep99 verification before trusting, per repo
+rules) or another approach, whenever the user wants to return to it.
+
+================================================================================
+Batch 3 (rnnsurv/gbsa/survival_svm) launched manually, in parallel with
+Batch 2's still-running hazard_transformer -- 2026-08-30 19:5x CDT
+================================================================================
+Per user request ("continue batch 3. left the current progress running,
+it's fine.") -- rather than waiting for run_rep_stage3_0_twenty_batched.sh's
+own sequential Batch 2 -> Batch 3 gate (which would only launch Batch 3
+once hazard_transformer's own wait resolves, several more hours away),
+launched Batch 3's three models directly and manually, matching the
+launcher's own per-experiment subshell pattern (fresh log via `>`, then
+`python -m pkgs.scripts.run_stage3_0_twenty_features <model>`, ✓/✗ +
+End-time marker on completion), running alongside hazard_transformer
+(untouched, still progressing normally at time of launch) rather than
+waiting on it.
+
+Confirmed ample headroom before launching: 155GB RAM available, GPUs mostly
+idle (6 of 8 with 5-10GB free each).
+
+Launched (host sunlab-serv-01.cs.illinois.edu):
+  rnnsurv: python PID 3466502 (wrapper 3466492), log
+    pkgs/scripts/eval_rep1_stage3_0_twenty_rnnsurv.log
+  gbsa: python PID 3466503 (wrapper 3466493), log
+    pkgs/scripts/eval_rep1_stage3_0_twenty_gbsa.log -- NOTE: this is the
+    same model that OOM'd on the original all-parallel run (Stage 3.0.2's
+    first attempt) -- watch closely.
+  survival_svm: python PID 3466504 (wrapper 3466494), log
+    pkgs/scripts/eval_rep1_stage3_0_twenty_survival_svm.log
+
+These are OUTSIDE run_rep_stage3_0_twenty_batched.sh's own process tree
+(launched as separate top-level background jobs from this session, not
+children of leader PID 3131354) -- the leader script is still alive and
+still legitimately waiting on hazard_transformer for its OWN internal
+Batch-2-done bookkeeping; that's harmless and expected, not a duplicate
+run, since these 3 models were never part of what the leader is currently
+waiting on. Once hazard_transformer finishes on its own, the leader will
+proceed to launch ITS OWN copy of Batch 3 (rnnsurv/gbsa/survival_svm)
+UNLESS these manually-launched ones finish first and this is caught/
+stopped -- WATCH FOR THIS: once these 3 manually-launched processes
+complete, either kill the leader (3131354) before it re-launches Batch 3
+redundantly, or let it proceed (harmless duplicate work, last-writer-wins
+on the same model files) -- flagging for the next check to decide based on
+timing.

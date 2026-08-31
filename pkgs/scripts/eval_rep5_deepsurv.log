@@ -1,0 +1,1212 @@
+Start time: Sat Aug 29 19:21:05 CDT 2026
+Relaunch after CUDA-OOM fix to get_device() (pkgs/experiments/utils.py) — see EXPERIMENT_STATUS.md
+[I 2026-08-29 19:21:29,925] A new study created in memory with name: no-name-a28aeda4-f1ac-4033-a949-df92620194ec
+[I 2026-08-29 19:22:12,268] Trial 0 finished with value: 0.493 and parameters: {'num_layer': 17, 'hidden_dim_0': 42, 'hidden_dim_1': 30, 'hidden_dim_2': 78, 'hidden_dim_3': 74, 'hidden_dim_4': 63, 'hidden_dim_5': 182, 'hidden_dim_6': 215, 'hidden_dim_7': 251, 'hidden_dim_8': 75, 'hidden_dim_9': 94, 'hidden_dim_10': 47, 'hidden_dim_11': 32, 'hidden_dim_12': 141, 'hidden_dim_13': 155, 'hidden_dim_14': 135, 'hidden_dim_15': 168, 'hidden_dim_16': 28, 'learning_rate': 0.00013453189000962718, 'drop_out_rate_0': 0.15120176971137833, 'drop_out_rate_1': 0.4610233834047762, 'drop_out_rate_2': 0.3515132202363359, 'drop_out_rate_3': 0.32254715587376703, 'drop_out_rate_4': 0.3964207195914483, 'drop_out_rate_5': 0.45468560261906044, 'drop_out_rate_6': 0.4587739884415868, 'drop_out_rate_7': 0.41612120421261045, 'drop_out_rate_8': 0.35791253495677056, 'drop_out_rate_9': 0.39937109654461633, 'drop_out_rate_10': 0.42387605203149503, 'drop_out_rate_11': 0.3167977132327062, 'drop_out_rate_12': 0.2955010351321251, 'drop_out_rate_13': 0.1728406934264854, 'drop_out_rate_14': 0.22476034011671514, 'drop_out_rate_15': 0.1944785790699955, 'drop_out_rate_16': 0.2779240111885244}. Best is trial 0 with value: 0.493.
+[I 2026-08-29 19:22:18,368] Trial 1 finished with value: 0.502 and parameters: {'num_layer': 14, 'hidden_dim_0': 245, 'hidden_dim_1': 84, 'hidden_dim_2': 63, 'hidden_dim_3': 97, 'hidden_dim_4': 163, 'hidden_dim_5': 185, 'hidden_dim_6': 76, 'hidden_dim_7': 20, 'hidden_dim_8': 104, 'hidden_dim_9': 222, 'hidden_dim_10': 222, 'hidden_dim_11': 52, 'hidden_dim_12': 121, 'hidden_dim_13': 49, 'learning_rate': 5.053951604233883e-05, 'drop_out_rate_0': 0.1497788525853171, 'drop_out_rate_1': 0.2781955883115293, 'drop_out_rate_2': 0.13844505975609633, 'drop_out_rate_3': 0.2472180909193738, 'drop_out_rate_4': 0.21903678153713568, 'drop_out_rate_5': 0.31724840797558623, 'drop_out_rate_6': 0.2617923937606693, 'drop_out_rate_7': 0.3459422903627157, 'drop_out_rate_8': 0.19578155020384755, 'drop_out_rate_9': 0.19327717953036944, 'drop_out_rate_10': 0.3256639706090876, 'drop_out_rate_11': 0.39782190624333846, 'drop_out_rate_12': 0.4036682462031418, 'drop_out_rate_13': 0.3260707531965089}. Best is trial 1 with value: 0.502.
+[I 2026-08-29 19:22:24,215] Trial 2 finished with value: 0.5 and parameters: {'num_layer': 13, 'hidden_dim_0': 129, 'hidden_dim_1': 226, 'hidden_dim_2': 174, 'hidden_dim_3': 64, 'hidden_dim_4': 248, 'hidden_dim_5': 48, 'hidden_dim_6': 181, 'hidden_dim_7': 217, 'hidden_dim_8': 150, 'hidden_dim_9': 246, 'hidden_dim_10': 91, 'hidden_dim_11': 34, 'hidden_dim_12': 196, 'learning_rate': 0.009703672787976512, 'drop_out_rate_0': 0.4209269221832336, 'drop_out_rate_1': 0.43541937602189507, 'drop_out_rate_2': 0.2049113743330413, 'drop_out_rate_3': 0.15848551804823383, 'drop_out_rate_4': 0.18605478912376988, 'drop_out_rate_5': 0.34331906258902245, 'drop_out_rate_6': 0.4179193651716534, 'drop_out_rate_7': 0.23158794177258485, 'drop_out_rate_8': 0.1589008920485087, 'drop_out_rate_9': 0.3010887122761724, 'drop_out_rate_10': 0.1694763992654586, 'drop_out_rate_11': 0.3933671618844802, 'drop_out_rate_12': 0.3145041253823156}. Best is trial 1 with value: 0.502.
+[I 2026-08-29 19:22:28,313] Trial 3 finished with value: 0.528 and parameters: {'num_layer': 13, 'hidden_dim_0': 165, 'hidden_dim_1': 26, 'hidden_dim_2': 17, 'hidden_dim_3': 217, 'hidden_dim_4': 207, 'hidden_dim_5': 23, 'hidden_dim_6': 65, 'hidden_dim_7': 141, 'hidden_dim_8': 84, 'hidden_dim_9': 135, 'hidden_dim_10': 127, 'hidden_dim_11': 252, 'hidden_dim_12': 216, 'learning_rate': 0.00011626449986228666, 'drop_out_rate_0': 0.12605355828847734, 'drop_out_rate_1': 0.37222807655617307, 'drop_out_rate_2': 0.23553614205229567, 'drop_out_rate_3': 0.29335140764607, 'drop_out_rate_4': 0.20183370367266132, 'drop_out_rate_5': 0.27958061471382556, 'drop_out_rate_6': 0.3030261129831977, 'drop_out_rate_7': 0.4536059403835251, 'drop_out_rate_8': 0.2896624807374717, 'drop_out_rate_9': 0.33100966080601363, 'drop_out_rate_10': 0.15073803921685036, 'drop_out_rate_11': 0.3939841449686796, 'drop_out_rate_12': 0.27353710131577846}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:22:48,818] Trial 4 finished with value: 0.522 and parameters: {'num_layer': 4, 'hidden_dim_0': 75, 'hidden_dim_1': 26, 'hidden_dim_2': 183, 'hidden_dim_3': 162, 'learning_rate': 0.0033261353487461067, 'drop_out_rate_0': 0.16542115940105007, 'drop_out_rate_1': 0.38308040423508904, 'drop_out_rate_2': 0.26687548113773474, 'drop_out_rate_3': 0.13311184654395883}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:23:01,164] Trial 5 finished with value: 0.526 and parameters: {'num_layer': 6, 'hidden_dim_0': 93, 'hidden_dim_1': 246, 'hidden_dim_2': 251, 'hidden_dim_3': 48, 'hidden_dim_4': 176, 'hidden_dim_5': 255, 'learning_rate': 0.0004529050405056398, 'drop_out_rate_0': 0.11654856389434448, 'drop_out_rate_1': 0.23083125587623746, 'drop_out_rate_2': 0.49617663996516004, 'drop_out_rate_3': 0.112047394299975, 'drop_out_rate_4': 0.23573693918176009, 'drop_out_rate_5': 0.2726966022115892}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:23:28,598] Trial 6 finished with value: 0.506 and parameters: {'num_layer': 4, 'hidden_dim_0': 35, 'hidden_dim_1': 180, 'hidden_dim_2': 243, 'hidden_dim_3': 180, 'learning_rate': 0.004819045619426342, 'drop_out_rate_0': 0.356185237372565, 'drop_out_rate_1': 0.2900618241023615, 'drop_out_rate_2': 0.30348064003867453, 'drop_out_rate_3': 0.39947716481233775}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:23:46,337] Trial 7 finished with value: 0.5 and parameters: {'num_layer': 6, 'hidden_dim_0': 20, 'hidden_dim_1': 196, 'hidden_dim_2': 151, 'hidden_dim_3': 101, 'hidden_dim_4': 39, 'hidden_dim_5': 60, 'learning_rate': 0.0010536915972071013, 'drop_out_rate_0': 0.300185799607563, 'drop_out_rate_1': 0.28413041965638813, 'drop_out_rate_2': 0.19901287620856423, 'drop_out_rate_3': 0.13075152633055287, 'drop_out_rate_4': 0.4462684553311116, 'drop_out_rate_5': 0.2212923541237502}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:23:50,454] Trial 8 finished with value: 0.507 and parameters: {'num_layer': 11, 'hidden_dim_0': 236, 'hidden_dim_1': 59, 'hidden_dim_2': 86, 'hidden_dim_3': 173, 'hidden_dim_4': 248, 'hidden_dim_5': 196, 'hidden_dim_6': 225, 'hidden_dim_7': 161, 'hidden_dim_8': 74, 'hidden_dim_9': 238, 'hidden_dim_10': 117, 'learning_rate': 2.0471872977668457e-05, 'drop_out_rate_0': 0.4714760415071083, 'drop_out_rate_1': 0.3377606892209778, 'drop_out_rate_2': 0.14857209566379176, 'drop_out_rate_3': 0.34805678561564646, 'drop_out_rate_4': 0.18807278683317624, 'drop_out_rate_5': 0.39808021758497425, 'drop_out_rate_6': 0.2686766781933174, 'drop_out_rate_7': 0.1728785887122768, 'drop_out_rate_8': 0.2346010527858088, 'drop_out_rate_9': 0.1600076743733143, 'drop_out_rate_10': 0.29309655416520863}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:23:55,846] Trial 9 finished with value: 0.499 and parameters: {'num_layer': 17, 'hidden_dim_0': 92, 'hidden_dim_1': 28, 'hidden_dim_2': 99, 'hidden_dim_3': 219, 'hidden_dim_4': 179, 'hidden_dim_5': 78, 'hidden_dim_6': 30, 'hidden_dim_7': 229, 'hidden_dim_8': 192, 'hidden_dim_9': 101, 'hidden_dim_10': 127, 'hidden_dim_11': 95, 'hidden_dim_12': 217, 'hidden_dim_13': 190, 'hidden_dim_14': 85, 'hidden_dim_15': 193, 'hidden_dim_16': 131, 'learning_rate': 0.0005813656976549105, 'drop_out_rate_0': 0.12446156201054648, 'drop_out_rate_1': 0.47341525836766396, 'drop_out_rate_2': 0.16942584895892865, 'drop_out_rate_3': 0.2710758469304183, 'drop_out_rate_4': 0.34670708613371365, 'drop_out_rate_5': 0.24239472387538205, 'drop_out_rate_6': 0.39488455021361435, 'drop_out_rate_7': 0.19172759675996096, 'drop_out_rate_8': 0.11303215603122552, 'drop_out_rate_9': 0.11851864170876683, 'drop_out_rate_10': 0.16050044979879488, 'drop_out_rate_11': 0.1714004628978253, 'drop_out_rate_12': 0.23752029696722016, 'drop_out_rate_13': 0.3881049130984561, 'drop_out_rate_14': 0.14852494283413598, 'drop_out_rate_15': 0.20044074926245437, 'drop_out_rate_16': 0.3352980951675466}. Best is trial 3 with value: 0.528.
+[I 2026-08-29 19:24:36,329] A new study created in memory with name: no-name-6461a46b-6c60-4f5e-80e2-ac89e3615a39
+[I 2026-08-29 19:28:37,581] Trial 0 finished with value: 0.502 and parameters: {'num_layer': 12, 'hidden_dim_0': 126, 'hidden_dim_1': 67, 'hidden_dim_2': 72, 'hidden_dim_3': 238, 'hidden_dim_4': 205, 'hidden_dim_5': 149, 'hidden_dim_6': 128, 'hidden_dim_7': 110, 'hidden_dim_8': 153, 'hidden_dim_9': 20, 'hidden_dim_10': 234, 'hidden_dim_11': 239, 'learning_rate': 0.001670851465149799, 'drop_out_rate_0': 0.2496759224668162, 'drop_out_rate_1': 0.32197201757834654, 'drop_out_rate_2': 0.29785112596294955, 'drop_out_rate_3': 0.3770632453007291, 'drop_out_rate_4': 0.4276550839253638, 'drop_out_rate_5': 0.36583570989436887, 'drop_out_rate_6': 0.24717836999158865, 'drop_out_rate_7': 0.4031670511888621, 'drop_out_rate_8': 0.36852780227468385, 'drop_out_rate_9': 0.20482558336407247, 'drop_out_rate_10': 0.18806474540749438, 'drop_out_rate_11': 0.4396294932698709}. Best is trial 0 with value: 0.502.
+[I 2026-08-29 19:35:20,705] Trial 1 finished with value: 0.526 and parameters: {'num_layer': 10, 'hidden_dim_0': 38, 'hidden_dim_1': 81, 'hidden_dim_2': 68, 'hidden_dim_3': 166, 'hidden_dim_4': 56, 'hidden_dim_5': 182, 'hidden_dim_6': 159, 'hidden_dim_7': 218, 'hidden_dim_8': 134, 'hidden_dim_9': 39, 'learning_rate': 0.0005550695622895679, 'drop_out_rate_0': 0.20286152270548816, 'drop_out_rate_1': 0.2754700554620136, 'drop_out_rate_2': 0.28555293943571236, 'drop_out_rate_3': 0.46945075985056894, 'drop_out_rate_4': 0.2799595594835791, 'drop_out_rate_5': 0.17570045383552643, 'drop_out_rate_6': 0.4135964735863572, 'drop_out_rate_7': 0.2334583730862478, 'drop_out_rate_8': 0.2731947004291063, 'drop_out_rate_9': 0.21113761787200433}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 19:37:15,741] Trial 2 finished with value: 0.517 and parameters: {'num_layer': 15, 'hidden_dim_0': 203, 'hidden_dim_1': 247, 'hidden_dim_2': 74, 'hidden_dim_3': 62, 'hidden_dim_4': 28, 'hidden_dim_5': 146, 'hidden_dim_6': 239, 'hidden_dim_7': 114, 'hidden_dim_8': 34, 'hidden_dim_9': 254, 'hidden_dim_10': 118, 'hidden_dim_11': 171, 'hidden_dim_12': 238, 'hidden_dim_13': 118, 'hidden_dim_14': 40, 'learning_rate': 0.0002933397705431932, 'drop_out_rate_0': 0.1646645713610454, 'drop_out_rate_1': 0.3898743965553907, 'drop_out_rate_2': 0.36776373075325974, 'drop_out_rate_3': 0.18341190648923225, 'drop_out_rate_4': 0.15050914101907995, 'drop_out_rate_5': 0.1693675193326506, 'drop_out_rate_6': 0.147957528850076, 'drop_out_rate_7': 0.3616670672661584, 'drop_out_rate_8': 0.15683874659940633, 'drop_out_rate_9': 0.41913174970057965, 'drop_out_rate_10': 0.3451843553018894, 'drop_out_rate_11': 0.4216484645657199, 'drop_out_rate_12': 0.1562103809120489, 'drop_out_rate_13': 0.4449539324346721, 'drop_out_rate_14': 0.3975935239325866}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 19:38:39,502] Trial 3 finished with value: 0.502 and parameters: {'num_layer': 18, 'hidden_dim_0': 239, 'hidden_dim_1': 91, 'hidden_dim_2': 118, 'hidden_dim_3': 136, 'hidden_dim_4': 110, 'hidden_dim_5': 249, 'hidden_dim_6': 17, 'hidden_dim_7': 29, 'hidden_dim_8': 40, 'hidden_dim_9': 53, 'hidden_dim_10': 146, 'hidden_dim_11': 37, 'hidden_dim_12': 187, 'hidden_dim_13': 169, 'hidden_dim_14': 243, 'hidden_dim_15': 196, 'hidden_dim_16': 117, 'hidden_dim_17': 110, 'learning_rate': 1.0028682738189214e-05, 'drop_out_rate_0': 0.11020971456136769, 'drop_out_rate_1': 0.2879358077547241, 'drop_out_rate_2': 0.3168764013833708, 'drop_out_rate_3': 0.11820407806896852, 'drop_out_rate_4': 0.2970600264856206, 'drop_out_rate_5': 0.14867971039834252, 'drop_out_rate_6': 0.31970979894233886, 'drop_out_rate_7': 0.4716147858692892, 'drop_out_rate_8': 0.3940054260276876, 'drop_out_rate_9': 0.34503374578889323, 'drop_out_rate_10': 0.13358519466754065, 'drop_out_rate_11': 0.4836808145220983, 'drop_out_rate_12': 0.2589918937843758, 'drop_out_rate_13': 0.20564633856201442, 'drop_out_rate_14': 0.4782647035983273, 'drop_out_rate_15': 0.2919339353579809, 'drop_out_rate_16': 0.4539687112673426, 'drop_out_rate_17': 0.3206146238012678}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 19:41:19,557] Trial 4 finished with value: 0.494 and parameters: {'num_layer': 20, 'hidden_dim_0': 254, 'hidden_dim_1': 144, 'hidden_dim_2': 48, 'hidden_dim_3': 232, 'hidden_dim_4': 58, 'hidden_dim_5': 107, 'hidden_dim_6': 73, 'hidden_dim_7': 220, 'hidden_dim_8': 152, 'hidden_dim_9': 185, 'hidden_dim_10': 153, 'hidden_dim_11': 159, 'hidden_dim_12': 198, 'hidden_dim_13': 196, 'hidden_dim_14': 62, 'hidden_dim_15': 65, 'hidden_dim_16': 103, 'hidden_dim_17': 31, 'hidden_dim_18': 72, 'hidden_dim_19': 241, 'learning_rate': 0.002907067117670276, 'drop_out_rate_0': 0.28194554692648227, 'drop_out_rate_1': 0.26222258939299753, 'drop_out_rate_2': 0.1339186543472931, 'drop_out_rate_3': 0.1295872458393794, 'drop_out_rate_4': 0.17454263677084264, 'drop_out_rate_5': 0.27703933298828687, 'drop_out_rate_6': 0.19950833316213595, 'drop_out_rate_7': 0.13423116945027525, 'drop_out_rate_8': 0.23293210912351686, 'drop_out_rate_9': 0.3469410831720551, 'drop_out_rate_10': 0.3576327104160001, 'drop_out_rate_11': 0.25609715898054597, 'drop_out_rate_12': 0.16444300797207104, 'drop_out_rate_13': 0.27702502472056423, 'drop_out_rate_14': 0.37228915664973783, 'drop_out_rate_15': 0.34451544295459346, 'drop_out_rate_16': 0.4276918111880249, 'drop_out_rate_17': 0.33448364041660883, 'drop_out_rate_18': 0.3283565715532504, 'drop_out_rate_19': 0.10106615244388517}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 19:45:49,263] Trial 5 finished with value: 0.525 and parameters: {'num_layer': 6, 'hidden_dim_0': 216, 'hidden_dim_1': 203, 'hidden_dim_2': 54, 'hidden_dim_3': 89, 'hidden_dim_4': 243, 'hidden_dim_5': 137, 'learning_rate': 0.0003149174199892089, 'drop_out_rate_0': 0.31201465915520205, 'drop_out_rate_1': 0.41829393016137517, 'drop_out_rate_2': 0.48943607505536435, 'drop_out_rate_3': 0.13992289136115, 'drop_out_rate_4': 0.3718285501251678, 'drop_out_rate_5': 0.11185333007089598}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 19:55:20,517] Trial 6 finished with value: 0.519 and parameters: {'num_layer': 4, 'hidden_dim_0': 229, 'hidden_dim_1': 102, 'hidden_dim_2': 239, 'hidden_dim_3': 213, 'learning_rate': 3.413230475285682e-05, 'drop_out_rate_0': 0.4712237499998203, 'drop_out_rate_1': 0.4167706250760409, 'drop_out_rate_2': 0.4587456520365911, 'drop_out_rate_3': 0.40740916215047396}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 19:56:32,662] Trial 7 finished with value: 0.491 and parameters: {'num_layer': 18, 'hidden_dim_0': 181, 'hidden_dim_1': 77, 'hidden_dim_2': 131, 'hidden_dim_3': 102, 'hidden_dim_4': 178, 'hidden_dim_5': 71, 'hidden_dim_6': 162, 'hidden_dim_7': 162, 'hidden_dim_8': 236, 'hidden_dim_9': 116, 'hidden_dim_10': 100, 'hidden_dim_11': 66, 'hidden_dim_12': 42, 'hidden_dim_13': 216, 'hidden_dim_14': 44, 'hidden_dim_15': 103, 'hidden_dim_16': 246, 'hidden_dim_17': 187, 'learning_rate': 5.665112267847942e-05, 'drop_out_rate_0': 0.487296652026066, 'drop_out_rate_1': 0.49585957384372625, 'drop_out_rate_2': 0.4463050386166376, 'drop_out_rate_3': 0.20042376930240016, 'drop_out_rate_4': 0.1865019497026754, 'drop_out_rate_5': 0.2721268363599313, 'drop_out_rate_6': 0.3562914467233963, 'drop_out_rate_7': 0.16532754709253605, 'drop_out_rate_8': 0.25116435960484185, 'drop_out_rate_9': 0.13250814808115963, 'drop_out_rate_10': 0.3034647822879427, 'drop_out_rate_11': 0.4910369442302893, 'drop_out_rate_12': 0.32142127034692125, 'drop_out_rate_13': 0.3497532106429968, 'drop_out_rate_14': 0.38378661510419454, 'drop_out_rate_15': 0.25028746788603384, 'drop_out_rate_16': 0.3252694048755327, 'drop_out_rate_17': 0.47475854374668347}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 20:05:14,059] Trial 8 finished with value: 0.525 and parameters: {'num_layer': 2, 'hidden_dim_0': 220, 'hidden_dim_1': 133, 'learning_rate': 0.00011296525279631174, 'drop_out_rate_0': 0.3156628846540029, 'drop_out_rate_1': 0.49128306742415184}. Best is trial 1 with value: 0.526.
+[I 2026-08-29 20:07:21,585] Trial 9 finished with value: 0.523 and parameters: {'num_layer': 18, 'hidden_dim_0': 163, 'hidden_dim_1': 182, 'hidden_dim_2': 190, 'hidden_dim_3': 105, 'hidden_dim_4': 240, 'hidden_dim_5': 220, 'hidden_dim_6': 145, 'hidden_dim_7': 87, 'hidden_dim_8': 237, 'hidden_dim_9': 83, 'hidden_dim_10': 63, 'hidden_dim_11': 59, 'hidden_dim_12': 138, 'hidden_dim_13': 133, 'hidden_dim_14': 151, 'hidden_dim_15': 212, 'hidden_dim_16': 197, 'hidden_dim_17': 159, 'learning_rate': 0.000340402618311232, 'drop_out_rate_0': 0.26766536345787995, 'drop_out_rate_1': 0.15268332742401838, 'drop_out_rate_2': 0.29901046319980273, 'drop_out_rate_3': 0.18348720638499214, 'drop_out_rate_4': 0.3121212899980442, 'drop_out_rate_5': 0.45143050068247714, 'drop_out_rate_6': 0.14938629633489697, 'drop_out_rate_7': 0.18913209286584587, 'drop_out_rate_8': 0.22644708247546486, 'drop_out_rate_9': 0.403209490178968, 'drop_out_rate_10': 0.2747412187724312, 'drop_out_rate_11': 0.29452377520962125, 'drop_out_rate_12': 0.3518772706472333, 'drop_out_rate_13': 0.3310614517629885, 'drop_out_rate_14': 0.154951061200284, 'drop_out_rate_15': 0.4934596416790088, 'drop_out_rate_16': 0.21325597637547902, 'drop_out_rate_17': 0.3620216997303859}. Best is trial 1 with value: 0.526.
+Using GPU: cuda:6 (utilization=10%, free_mem=44905MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Loading from saved weights
+C-Index on Test Data: 0.478
+Integrated Brier Score Test: 0.55
+Risk scores shape: (6841,)
+First 10 risk scores: [2.025356  2.0668397 2.0475247 2.043951  2.0384996 2.0575402 2.0864706
+ 2.0454817 2.0536973 2.0822566]
+y_train shape: (27361,)
+y_test shape: (6841,)
+Mean AUC: 0.465
+
+Running FOUR_FEATURES DeepSurv model evaluation...
+Using GPU: cuda:6 (utilization=6%, free_mem=43901MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Loading from saved weights
+C-Index on Test Data: 0.551
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Mean AUC: 0.562
+
+Running EIGHT_FEATURES DeepSurv model evaluation...
+Using GPU: cuda:6 (utilization=7%, free_mem=43901MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Running Optuna hyperparameter optimization
+Using GPU: cuda:6 (utilization=7%, free_mem=43901MiB)
+Epoch 1/50
+Average Loss: 936.3453674316406
+Epoch 2/50
+Average Loss: 936.7590484619141
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 937.3831024169922
+Patience Counter: 2
+Epoch 4/50
+Average Loss: 936.1458435058594
+Epoch 5/50
+Average Loss: 936.4461517333984
+Patience Counter: 1
+Epoch 6/50
+Average Loss: 937.0531158447266
+Patience Counter: 2
+Epoch 7/50
+Average Loss: 937.4054260253906
+Patience Counter: 3
+Epoch 8/50
+Average Loss: 937.1888275146484
+Patience Counter: 4
+Epoch 9/50
+Average Loss: 937.0414886474609
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.493
+No existing model found, saving current model with C-index: 0.4930
+Using GPU: cuda:5 (utilization=36%, free_mem=40913MiB)
+Epoch 1/50
+Average Loss: 937.1178894042969
+Epoch 2/50
+Average Loss: 936.1593933105469
+Epoch 3/50
+Average Loss: 936.3810272216797
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 937.0102386474609
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 936.7767944335938
+Patience Counter: 3
+Epoch 6/50
+Average Loss: 936.0586395263672
+Epoch 7/50
+Average Loss: 936.9882354736328
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 937.3927612304688
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 937.3800811767578
+Patience Counter: 3
+Epoch 10/50
+Average Loss: 936.3329010009766
+Patience Counter: 4
+Epoch 11/50
+Average Loss: 936.2492370605469
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.502
+C-Index Data: 0.493
+Current trial C-index: 0.5020, Previously saved model C-index: 0.4930
+Current model performs better, saving it...
+Using GPU: cuda:5 (utilization=26%, free_mem=40472MiB)
+Epoch 1/50
+Average Loss: 944.5342407226562
+Epoch 2/50
+Average Loss: 937.0547332763672
+Epoch 3/50
+Average Loss: 937.6003570556641
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 937.7085266113281
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 935.1986541748047
+Epoch 6/50
+Average Loss: 936.6316528320312
+Patience Counter: 1
+Epoch 7/50
+Average Loss: 937.5436859130859
+Patience Counter: 2
+Epoch 8/50
+Average Loss: 938.1699523925781
+Patience Counter: 3
+Epoch 9/50
+Average Loss: 936.7427368164062
+Patience Counter: 4
+Epoch 10/50
+Average Loss: 937.8242645263672
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.5
+C-Index Data: 0.502
+Current trial C-index: 0.5000, Previously saved model C-index: 0.5020
+Using GPU: cuda:5 (utilization=18%, free_mem=40470MiB)
+Epoch 1/50
+Average Loss: 936.7952117919922
+Epoch 2/50
+Average Loss: 937.500732421875
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 936.175048828125
+Epoch 4/50
+Average Loss: 936.9952545166016
+Patience Counter: 1
+Epoch 5/50
+Average Loss: 937.0796661376953
+Patience Counter: 2
+Epoch 6/50
+Average Loss: 936.5722961425781
+Patience Counter: 3
+Epoch 7/50
+Average Loss: 937.0224456787109
+Patience Counter: 4
+Epoch 8/50
+Average Loss: 936.8667449951172
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.528
+C-Index Data: 0.502
+Current trial C-index: 0.5280, Previously saved model C-index: 0.5020
+Current model performs better, saving it...
+Using GPU: cuda:6 (utilization=43%, free_mem=43871MiB)
+Epoch 1/50
+Average Loss: 10597.487548828125
+Epoch 2/50
+Average Loss: 5446.9200439453125
+Epoch 3/50
+Average Loss: 5239.1314697265625
+Epoch 4/50
+Average Loss: 3944.4388427734375
+Epoch 5/50
+Average Loss: 2404.8587341308594
+Epoch 6/50
+Average Loss: 1910.1086120605469
+Epoch 7/50
+Average Loss: 1800.92578125
+Epoch 8/50
+Average Loss: 1796.1058959960938
+Epoch 9/50
+Average Loss: 1717.6614685058594
+Epoch 10/50
+Average Loss: 1332.4226837158203
+Epoch 11/50
+Average Loss: 1094.5310821533203
+Epoch 12/50
+Average Loss: 1013.4434051513672
+Epoch 13/50
+Average Loss: 993.3919525146484
+Epoch 14/50
+Average Loss: 961.5488433837891
+Epoch 15/50
+Average Loss: 964.662353515625
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 947.7344360351562
+Epoch 17/50
+Average Loss: 941.3578948974609
+Epoch 18/50
+Average Loss: 941.4202728271484
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 942.9293212890625
+Patience Counter: 2
+Epoch 20/50
+Average Loss: 938.8234405517578
+Epoch 21/50
+Average Loss: 951.8921203613281
+Patience Counter: 1
+Epoch 22/50
+Average Loss: 942.7526550292969
+Patience Counter: 2
+Epoch 23/50
+Average Loss: 937.1155090332031
+Epoch 24/50
+Average Loss: 941.7172088623047
+Patience Counter: 1
+Epoch 25/50
+Average Loss: 937.5946960449219
+Patience Counter: 2
+Epoch 26/50
+Average Loss: 938.7471008300781
+Patience Counter: 3
+Epoch 27/50
+Average Loss: 936.9437255859375
+Epoch 28/50
+Average Loss: 940.4685821533203
+Patience Counter: 1
+Epoch 29/50
+Average Loss: 938.6754608154297
+Patience Counter: 2
+Epoch 30/50
+Average Loss: 936.898681640625
+Epoch 31/50
+Average Loss: 936.0840606689453
+Epoch 32/50
+Average Loss: 945.1734771728516
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 939.2542572021484
+Patience Counter: 2
+Epoch 34/50
+Average Loss: 938.4240264892578
+Patience Counter: 3
+Epoch 35/50
+Average Loss: 936.7520904541016
+Patience Counter: 4
+Epoch 36/50
+Average Loss: 939.2150421142578
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.522
+C-Index Data: 0.528
+Current trial C-index: 0.5220, Previously saved model C-index: 0.5280
+Using GPU: cuda:5 (utilization=36%, free_mem=40302MiB)
+Epoch 1/50
+Average Loss: 3365.302978515625
+Epoch 2/50
+Average Loss: 1997.858383178711
+Epoch 3/50
+Average Loss: 1266.4259033203125
+Epoch 4/50
+Average Loss: 1329.6798400878906
+Patience Counter: 1
+Epoch 5/50
+Average Loss: 1231.0703887939453
+Epoch 6/50
+Average Loss: 1122.7162170410156
+Epoch 7/50
+Average Loss: 1133.6090850830078
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 1178.095230102539
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 990.1234893798828
+Epoch 10/50
+Average Loss: 1012.0296478271484
+Patience Counter: 1
+Epoch 11/50
+Average Loss: 1025.8957214355469
+Patience Counter: 2
+Epoch 12/50
+Average Loss: 1001.0016326904297
+Patience Counter: 3
+Epoch 13/50
+Average Loss: 1021.1773376464844
+Patience Counter: 4
+Epoch 14/50
+Average Loss: 984.2919006347656
+Epoch 15/50
+Average Loss: 986.0205383300781
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 975.1668853759766
+Epoch 17/50
+Average Loss: 989.5577392578125
+Patience Counter: 1
+Epoch 18/50
+Average Loss: 966.017333984375
+Epoch 19/50
+Average Loss: 962.9162445068359
+Epoch 20/50
+Average Loss: 1057.8409576416016
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 1006.0941314697266
+Patience Counter: 2
+Epoch 22/50
+Average Loss: 967.8873138427734
+Patience Counter: 3
+Epoch 23/50
+Average Loss: 987.9431915283203
+Patience Counter: 4
+Epoch 24/50
+Average Loss: 998.8588562011719
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.526
+C-Index Data: 0.528
+Current trial C-index: 0.5260, Previously saved model C-index: 0.5280
+Using GPU: cuda:5 (utilization=22%, free_mem=40302MiB)
+Epoch 1/50
+Average Loss: 57693.361572265625
+Epoch 2/50
+Average Loss: 9730.22705078125
+Epoch 3/50
+Average Loss: 15275.962158203125
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 10905.407958984375
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 9153.098388671875
+Epoch 6/50
+Average Loss: 4915.381286621094
+Epoch 7/50
+Average Loss: 2871.0704345703125
+Epoch 8/50
+Average Loss: 3008.0724487304688
+Patience Counter: 1
+Epoch 9/50
+Average Loss: 4517.527069091797
+Patience Counter: 2
+Epoch 10/50
+Average Loss: 3497.630584716797
+Patience Counter: 3
+Epoch 11/50
+Average Loss: 2155.2948303222656
+Epoch 12/50
+Average Loss: 1989.6912536621094
+Epoch 13/50
+Average Loss: 3459.1856994628906
+Patience Counter: 1
+Epoch 14/50
+Average Loss: 1691.8531799316406
+Epoch 15/50
+Average Loss: 1864.7247619628906
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 1331.8077850341797
+Epoch 17/50
+Average Loss: 1179.1058959960938
+Epoch 18/50
+Average Loss: 1162.2211303710938
+Epoch 19/50
+Average Loss: 1026.2745208740234
+Epoch 20/50
+Average Loss: 986.7329864501953
+Epoch 21/50
+Average Loss: 1009.727294921875
+Patience Counter: 1
+Epoch 22/50
+Average Loss: 965.2748565673828
+Epoch 23/50
+Average Loss: 953.154052734375
+Epoch 24/50
+Average Loss: 948.8111114501953
+Epoch 25/50
+Average Loss: 956.7340393066406
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 943.3607635498047
+Epoch 27/50
+Average Loss: 948.5400238037109
+Patience Counter: 1
+Epoch 28/50
+Average Loss: 946.6528167724609
+Patience Counter: 2
+Epoch 29/50
+Average Loss: 946.1177368164062
+Patience Counter: 3
+Epoch 30/50
+Average Loss: 950.0224151611328
+Patience Counter: 4
+Epoch 31/50
+Average Loss: 942.92138671875
+Epoch 32/50
+Average Loss: 941.8717041015625
+Epoch 33/50
+Average Loss: 942.9098663330078
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 941.6500701904297
+Epoch 35/50
+Average Loss: 944.8456878662109
+Patience Counter: 1
+Epoch 36/50
+Average Loss: 943.2509155273438
+Patience Counter: 2
+Epoch 37/50
+Average Loss: 947.1331634521484
+Patience Counter: 3
+Epoch 38/50
+Average Loss: 941.9783325195312
+Patience Counter: 4
+Epoch 39/50
+Average Loss: 938.8984222412109
+Epoch 40/50
+Average Loss: 947.8765716552734
+Patience Counter: 1
+Epoch 41/50
+Average Loss: 936.8404998779297
+Epoch 42/50
+Average Loss: 938.2113952636719
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 945.4847106933594
+Patience Counter: 2
+Epoch 44/50
+Average Loss: 937.0705108642578
+Patience Counter: 3
+Epoch 45/50
+Average Loss: 938.2663421630859
+Patience Counter: 4
+Epoch 46/50
+Average Loss: 943.4400329589844
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.506
+C-Index Data: 0.528
+Current trial C-index: 0.5060, Previously saved model C-index: 0.5280
+Using GPU: cuda:6 (utilization=9%, free_mem=43711MiB)
+Epoch 1/50
+Average Loss: 2515.727081298828
+Epoch 2/50
+Average Loss: 1102.7802276611328
+Epoch 3/50
+Average Loss: 1038.808334350586
+Epoch 4/50
+Average Loss: 1000.8685913085938
+Epoch 5/50
+Average Loss: 1164.5206756591797
+Patience Counter: 1
+Epoch 6/50
+Average Loss: 987.5845947265625
+Epoch 7/50
+Average Loss: 1135.723388671875
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 990.9265441894531
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 1006.2865753173828
+Patience Counter: 3
+Epoch 10/50
+Average Loss: 977.5352935791016
+Epoch 11/50
+Average Loss: 965.2950592041016
+Epoch 12/50
+Average Loss: 961.0637359619141
+Epoch 13/50
+Average Loss: 957.6596221923828
+Epoch 14/50
+Average Loss: 949.0325164794922
+Epoch 15/50
+Average Loss: 970.3858642578125
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 944.046142578125
+Epoch 17/50
+Average Loss: 943.8405303955078
+Epoch 18/50
+Average Loss: 941.8864135742188
+Epoch 19/50
+Average Loss: 939.0375213623047
+Epoch 20/50
+Average Loss: 941.59423828125
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 938.1384124755859
+Epoch 22/50
+Average Loss: 937.0774688720703
+Epoch 23/50
+Average Loss: 939.7561187744141
+Patience Counter: 1
+Epoch 24/50
+Average Loss: 938.8670043945312
+Patience Counter: 2
+Epoch 25/50
+Average Loss: 936.9163818359375
+Epoch 26/50
+Average Loss: 938.58447265625
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 937.8295440673828
+Patience Counter: 2
+Epoch 28/50
+Average Loss: 939.7535400390625
+Patience Counter: 3
+Epoch 29/50
+Average Loss: 936.7043914794922
+Epoch 30/50
+Average Loss: 941.8258819580078
+Patience Counter: 1
+Epoch 31/50
+Average Loss: 938.5396423339844
+Patience Counter: 2
+Epoch 32/50
+Average Loss: 940.4915466308594
+Patience Counter: 3
+Epoch 33/50
+Average Loss: 938.3971710205078
+Patience Counter: 4
+Epoch 34/50
+Average Loss: 937.7584228515625
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.5
+C-Index Data: 0.528
+Current trial C-index: 0.5000, Previously saved model C-index: 0.5280
+Using GPU: cuda:6 (utilization=46%, free_mem=43711MiB)
+Epoch 1/50
+Average Loss: 937.2785034179688
+Epoch 2/50
+Average Loss: 937.4666900634766
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 942.2476501464844
+Patience Counter: 2
+Epoch 4/50
+Average Loss: 939.1575622558594
+Patience Counter: 3
+Epoch 5/50
+Average Loss: 939.1918182373047
+Patience Counter: 4
+Epoch 6/50
+Average Loss: 938.0091552734375
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.507
+C-Index Data: 0.528
+Current trial C-index: 0.5070, Previously saved model C-index: 0.5280
+Using GPU: cuda:5 (utilization=18%, free_mem=40284MiB)
+Epoch 1/50
+Average Loss: 936.7341766357422
+Epoch 2/50
+Average Loss: 936.1904296875
+Epoch 3/50
+Average Loss: 937.3490447998047
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 936.2502136230469
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 936.6690826416016
+Patience Counter: 3
+Epoch 6/50
+Average Loss: 936.6163787841797
+Patience Counter: 4
+Epoch 7/50
+Average Loss: 938.7580261230469
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.499
+C-Index Data: 0.528
+Current trial C-index: 0.4990, Previously saved model C-index: 0.5280
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layer': 13, 'hidden_dim_0': 165, 'hidden_dim_1': 26, 'hidden_dim_2': 17, 'hidden_dim_3': 217, 'hidden_dim_4': 207, 'hidden_dim_5': 23, 'hidden_dim_6': 65, 'hidden_dim_7': 141, 'hidden_dim_8': 84, 'hidden_dim_9': 135, 'hidden_dim_10': 127, 'hidden_dim_11': 252, 'hidden_dim_12': 216, 'learning_rate': 0.00011626449986228666, 'drop_out_rate_0': 0.12605355828847734, 'drop_out_rate_1': 0.37222807655617307, 'drop_out_rate_2': 0.23553614205229567, 'drop_out_rate_3': 0.29335140764607, 'drop_out_rate_4': 0.20183370367266132, 'drop_out_rate_5': 0.27958061471382556, 'drop_out_rate_6': 0.3030261129831977, 'drop_out_rate_7': 0.4536059403835251, 'drop_out_rate_8': 0.2896624807374717, 'drop_out_rate_9': 0.33100966080601363, 'drop_out_rate_10': 0.15073803921685036, 'drop_out_rate_11': 0.3939841449686796, 'drop_out_rate_12': 0.27353710131577846}
+C-Index on Test Data: 0.498
+Integrated Brier Score Test: 0.771
+Mean AUC: 0.501
+
+Running TWENTY_FEATURES_HETEROGENEOUS DeepSurv model evaluation...
+Using GPU: cuda:6 (utilization=14%, free_mem=43707MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Running Optuna hyperparameter optimization
+Using GPU: cuda:5 (utilization=50%, free_mem=40280MiB)
+Epoch 1/50
+Average Loss: 1073.9832255045574
+Epoch 2/50
+Average Loss: 1073.8473732144225
+Epoch 3/50
+Average Loss: 1073.780969357958
+Epoch 4/50
+Average Loss: 1073.7226029938342
+Epoch 5/50
+Average Loss: 1073.638131534352
+Epoch 6/50
+Average Loss: 1073.638043571921
+Epoch 7/50
+Average Loss: 1073.7570776845894
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 1073.5776026108686
+Epoch 9/50
+Average Loss: 1073.7877699908088
+Patience Counter: 1
+Epoch 10/50
+Average Loss: 1073.734614353554
+Patience Counter: 2
+Epoch 11/50
+Average Loss: 1073.7746719659544
+Patience Counter: 3
+Epoch 12/50
+Average Loss: 1073.7008170333563
+Patience Counter: 4
+Epoch 13/50
+Average Loss: 1073.7682961856617
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.502
+No existing model found, saving current model with C-index: 0.5020
+Using GPU: cuda:6 (utilization=64%, free_mem=43707MiB)
+Epoch 1/50
+Average Loss: 1073.716350480622
+Epoch 2/50
+Average Loss: 1073.7458370433135
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 1073.8121720856311
+Patience Counter: 2
+Epoch 4/50
+Average Loss: 1073.872948141659
+Patience Counter: 3
+Epoch 5/50
+Average Loss: 1073.6673416436888
+Epoch 6/50
+Average Loss: 1073.510648839614
+Epoch 7/50
+Average Loss: 1073.207763671875
+Epoch 8/50
+Average Loss: 1073.2017576928233
+Epoch 9/50
+Average Loss: 1073.116735720167
+Epoch 10/50
+Average Loss: 1072.9653170716529
+Epoch 11/50
+Average Loss: 1072.911783255783
+Epoch 12/50
+Average Loss: 1072.81006936466
+Epoch 13/50
+Average Loss: 1072.788772283816
+Epoch 14/50
+Average Loss: 1072.7391028310738
+Epoch 15/50
+Average Loss: 1072.938502293007
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 1072.5783942727483
+Epoch 17/50
+Average Loss: 1072.6916575712316
+Patience Counter: 1
+Epoch 18/50
+Average Loss: 1072.6983265596277
+Patience Counter: 2
+Epoch 19/50
+Average Loss: 1072.519962684781
+Epoch 20/50
+Average Loss: 1072.8247124167049
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 1072.5544984106923
+Patience Counter: 2
+Epoch 22/50
+Average Loss: 1072.5415846880744
+Patience Counter: 3
+Epoch 23/50
+Average Loss: 1072.47121294807
+Epoch 24/50
+Average Loss: 1072.2098143334483
+Epoch 25/50
+Average Loss: 1072.6854660931756
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 1072.2504434024586
+Patience Counter: 2
+Epoch 27/50
+Average Loss: 1072.5424655091529
+Patience Counter: 3
+Epoch 28/50
+Average Loss: 1072.429801791322
+Patience Counter: 4
+Epoch 29/50
+Average Loss: 1072.452984379787
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.526
+C-Index Data: 0.502
+Current trial C-index: 0.5260, Previously saved model C-index: 0.5020
+Current model performs better, saving it...
+Using GPU: cuda:6 (utilization=15%, free_mem=43557MiB)
+Epoch 1/50
+Average Loss: 1073.785204120711
+Epoch 2/50
+Average Loss: 1073.6652873918122
+Epoch 3/50
+Average Loss: 1073.7401781269148
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 1073.6811116536458
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 1073.6928268133424
+Patience Counter: 3
+Epoch 6/50
+Average Loss: 1073.5854791379443
+Epoch 7/50
+Average Loss: 1073.7738611557904
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 1073.7410074869792
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 1073.7532737582337
+Patience Counter: 3
+Epoch 10/50
+Average Loss: 1073.7213410022212
+Patience Counter: 4
+Epoch 11/50
+Average Loss: 1073.6823533002068
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.517
+C-Index Data: 0.526
+Current trial C-index: 0.5170, Previously saved model C-index: 0.5260
+Using GPU: cuda:6 (utilization=40%, free_mem=43505MiB)
+Epoch 1/50
+Average Loss: 1073.7871692133886
+Epoch 2/50
+Average Loss: 1073.7739419376148
+Epoch 3/50
+Average Loss: 1073.6380824668734
+Epoch 4/50
+Average Loss: 1073.8413427016314
+Patience Counter: 1
+Epoch 5/50
+Average Loss: 1073.7865468941484
+Patience Counter: 2
+Epoch 6/50
+Average Loss: 1073.8135675168505
+Patience Counter: 3
+Epoch 7/50
+Average Loss: 1073.8435351801854
+Patience Counter: 4
+Epoch 8/50
+Average Loss: 1073.7858659332874
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.502
+C-Index Data: 0.526
+Current trial C-index: 0.5020, Previously saved model C-index: 0.5260
+Using GPU: cuda:5 (utilization=22%, free_mem=40198MiB)
+Epoch 1/50
+Average Loss: 1073.7768620509728
+Epoch 2/50
+Average Loss: 1073.9618147307751
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 1073.706164191751
+Epoch 4/50
+Average Loss: 1073.8064204197303
+Patience Counter: 1
+Epoch 5/50
+Average Loss: 1073.8300087124694
+Patience Counter: 2
+Epoch 6/50
+Average Loss: 1073.6965768851485
+Epoch 7/50
+Average Loss: 1077.467540067785
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 1073.8342787798713
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 1073.7983589920343
+Patience Counter: 3
+Epoch 10/50
+Average Loss: 1073.6728790881587
+Epoch 11/50
+Average Loss: 1073.7132418763404
+Patience Counter: 1
+Epoch 12/50
+Average Loss: 1073.8287156048943
+Patience Counter: 2
+Epoch 13/50
+Average Loss: 1073.711939793007
+Patience Counter: 3
+Epoch 14/50
+Average Loss: 1073.880553600835
+Patience Counter: 4
+Epoch 15/50
+Average Loss: 1073.8597304400275
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.494
+C-Index Data: 0.526
+Current trial C-index: 0.4940, Previously saved model C-index: 0.5260
+Using GPU: cuda:6 (utilization=29%, free_mem=43505MiB)
+Epoch 1/50
+Average Loss: 1073.9814303529029
+Epoch 2/50
+Average Loss: 1073.966266706878
+Epoch 3/50
+Average Loss: 1073.8959218941484
+Epoch 4/50
+Average Loss: 1073.6738113702513
+Epoch 5/50
+Average Loss: 1073.4393873027727
+Epoch 6/50
+Average Loss: 1073.4313091203278
+Epoch 7/50
+Average Loss: 1073.1928806678923
+Epoch 8/50
+Average Loss: 1072.9538412655102
+Epoch 9/50
+Average Loss: 1073.0173794615503
+Patience Counter: 1
+Epoch 10/50
+Average Loss: 1072.9101897594976
+Epoch 11/50
+Average Loss: 1072.5883783078662
+Epoch 12/50
+Average Loss: 1072.7006345262714
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 1072.7702523025812
+Patience Counter: 2
+Epoch 14/50
+Average Loss: 1072.7050775266162
+Patience Counter: 3
+Epoch 15/50
+Average Loss: 1072.4255083869484
+Epoch 16/50
+Average Loss: 1072.5996099733838
+Patience Counter: 1
+Epoch 17/50
+Average Loss: 1072.4758605957031
+Patience Counter: 2
+Epoch 18/50
+Average Loss: 1072.4829179352405
+Patience Counter: 3
+Epoch 19/50
+Average Loss: 1072.3541947907092
+Epoch 20/50
+Average Loss: 1072.418856751685
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 1072.1770815381817
+Epoch 22/50
+Average Loss: 1072.329704135072
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 1072.3488799450445
+Patience Counter: 2
+Epoch 24/50
+Average Loss: 1072.4271120557598
+Patience Counter: 3
+Epoch 25/50
+Average Loss: 1072.340607287837
+Patience Counter: 4
+Epoch 26/50
+Average Loss: 1072.4672354903876
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.525
+C-Index Data: 0.526
+Current trial C-index: 0.5250, Previously saved model C-index: 0.5260
+Using GPU: cuda:5 (utilization=7%, free_mem=40529MiB)
+Epoch 1/50
+Average Loss: 1159.793016620711
+Epoch 2/50
+Average Loss: 1120.7506103515625
+Epoch 3/50
+Average Loss: 1112.1689566817938
+Epoch 4/50
+Average Loss: 1110.2047675637639
+Epoch 5/50
+Average Loss: 1102.032107484107
+Epoch 6/50
+Average Loss: 1100.5237875545727
+Epoch 7/50
+Average Loss: 1094.4547759411382
+Epoch 8/50
+Average Loss: 1092.5940815046722
+Epoch 9/50
+Average Loss: 1090.8887472713695
+Epoch 10/50
+Average Loss: 1095.0617424460017
+Patience Counter: 1
+Epoch 11/50
+Average Loss: 1086.310692282284
+Epoch 12/50
+Average Loss: 1085.91944436466
+Epoch 13/50
+Average Loss: 1085.978874056947
+Patience Counter: 1
+Epoch 14/50
+Average Loss: 1084.335500679764
+Epoch 15/50
+Average Loss: 1083.303736668007
+Epoch 16/50
+Average Loss: 1081.199462890625
+Epoch 17/50
+Average Loss: 1081.5139106301701
+Patience Counter: 1
+Epoch 18/50
+Average Loss: 1081.4257884306066
+Patience Counter: 2
+Epoch 19/50
+Average Loss: 1080.7602580949372
+Epoch 20/50
+Average Loss: 1080.7387844908471
+Epoch 21/50
+Average Loss: 1078.8489792767693
+Epoch 22/50
+Average Loss: 1078.91642073089
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 1078.931838091682
+Patience Counter: 2
+Epoch 24/50
+Average Loss: 1077.7236178529029
+Epoch 25/50
+Average Loss: 1078.2459309895833
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 1078.0108116000306
+Patience Counter: 2
+Epoch 27/50
+Average Loss: 1077.4709466672412
+Epoch 28/50
+Average Loss: 1077.9127424651501
+Patience Counter: 1
+Epoch 29/50
+Average Loss: 1077.2605836157704
+Epoch 30/50
+Average Loss: 1076.50734576057
+Epoch 31/50
+Average Loss: 1077.038750143612
+Patience Counter: 1
+Epoch 32/50
+Average Loss: 1076.3872543035768
+Epoch 33/50
+Average Loss: 1076.2590720980775
+Epoch 34/50
+Average Loss: 1076.5297929352405
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 1076.092176848767
+Epoch 36/50
+Average Loss: 1076.15191710229
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 1075.8697934618183
+Epoch 38/50
+Average Loss: 1075.6331894818475
+Epoch 39/50
+Average Loss: 1075.7633990119484
+Patience Counter: 1
+Epoch 40/50
+Average Loss: 1075.61517274146
+Epoch 41/50
+Average Loss: 1075.1648158653109
+Epoch 42/50
+Average Loss: 1075.2069995356542
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 1074.83301858341
+Epoch 44/50
+Average Loss: 1074.933874990426
+Patience Counter: 1
+Epoch 45/50
+Average Loss: 1075.343620150697
+Patience Counter: 2
+Epoch 46/50
+Average Loss: 1074.8049980612361
+Epoch 47/50
+Average Loss: 1074.8609451593138
+Patience Counter: 1
+Epoch 48/50
+Average Loss: 1074.9969584147136
+Patience Counter: 2
+Epoch 49/50
+Average Loss: 1074.7581846947764
+Epoch 50/50
+Average Loss: 1074.7499018650428
+C-Index Data: 0.519
+C-Index Data: 0.526
+Current trial C-index: 0.5190, Previously saved model C-index: 0.5260
+Using GPU: cuda:6 (utilization=9%, free_mem=43862MiB)
+Epoch 1/50
+Average Loss: 1073.6605338302313
+Epoch 2/50
+Average Loss: 1073.70554486443
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 1073.7097347483916
+Patience Counter: 2
+Epoch 4/50
+Average Loss: 1073.7949715408624
+Patience Counter: 3
+Epoch 5/50
+Average Loss: 1073.6866078096277
+Patience Counter: 4
+Epoch 6/50
+Average Loss: 1073.739943560432
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.491
+C-Index Data: 0.526
+Current trial C-index: 0.4910, Previously saved model C-index: 0.5260
+Using GPU: cuda:6 (utilization=7%, free_mem=43858MiB)
+Epoch 1/50
+Average Loss: 1575.1631469726562
+Epoch 2/50
+Average Loss: 1316.936965044807
+Epoch 3/50
+Average Loss: 1247.1470432655485
+Epoch 4/50
+Average Loss: 1232.478734035118
+Epoch 5/50
+Average Loss: 1178.7849516027113
+Epoch 6/50
+Average Loss: 1155.0372631596583
+Epoch 7/50
+Average Loss: 1131.7667451746324
+Epoch 8/50
+Average Loss: 1118.5649467917049
+Epoch 9/50
+Average Loss: 1111.0247539445465
+Epoch 10/50
+Average Loss: 1100.1994557100184
+Epoch 11/50
+Average Loss: 1096.0001166848576
+Epoch 12/50
+Average Loss: 1091.4565100576363
+Epoch 13/50
+Average Loss: 1086.8665831322764
+Epoch 14/50
+Average Loss: 1084.4815757601868
+Epoch 15/50
+Average Loss: 1082.8171823538985
+Epoch 16/50
+Average Loss: 1081.2148581112133
+Epoch 17/50
+Average Loss: 1080.7842664531634
+Epoch 18/50
+Average Loss: 1080.3936055501301
+Epoch 19/50
+Average Loss: 1078.8144399605546
+Epoch 20/50
+Average Loss: 1078.2111098345588
+Epoch 21/50
+Average Loss: 1077.337672813266
+Epoch 22/50
+Average Loss: 1076.56452552945
+Epoch 23/50
+Average Loss: 1076.4728208055683
+Epoch 24/50
+Average Loss: 1075.9607693541284
+Epoch 25/50
+Average Loss: 1075.2587196499694
+Epoch 26/50
+Average Loss: 1075.2629370595894
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 1075.1435475068934
+Epoch 28/50
+Average Loss: 1074.5434444651885
+Epoch 29/50
+Average Loss: 1074.5327220243566
+Epoch 30/50
+Average Loss: 1074.2753619025734
+Epoch 31/50
+Average Loss: 1074.4350753484987
+Patience Counter: 1
+Epoch 32/50
+Average Loss: 1073.5370244044884
+Epoch 33/50
+Average Loss: 1073.9077399758733
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 1073.6272798426012
+Patience Counter: 2
+Epoch 35/50
+Average Loss: 1073.2643851485907
+Epoch 36/50
+Average Loss: 1073.4978356454887
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 1073.327760584214
+Patience Counter: 2
+Epoch 38/50
+Average Loss: 1073.5144515692018
+Patience Counter: 3
+Epoch 39/50
+Average Loss: 1073.1972410912608
+Epoch 40/50
+Average Loss: 1073.2354939778645
+Patience Counter: 1
+Epoch 41/50
+Average Loss: 1073.0597863290825
+Epoch 42/50
+Average Loss: 1072.716578464882
+Epoch 43/50
+Average Loss: 1072.93757240445
+Patience Counter: 1
+Epoch 44/50
+Average Loss: 1072.9513142903645
+Patience Counter: 2
+Epoch 45/50
+Average Loss: 1073.0152192957262
+Patience Counter: 3
+Epoch 46/50
+Average Loss: 1072.6579494102327
+Epoch 47/50
+Average Loss: 1072.713301116345
+Patience Counter: 1
+Epoch 48/50
+Average Loss: 1072.6537086636413
+Epoch 49/50
+Average Loss: 1073.1515772202436
+Patience Counter: 1
+Epoch 50/50
+Average Loss: 1072.918400184781
+Patience Counter: 2
+C-Index Data: 0.525
+C-Index Data: 0.526
+Current trial C-index: 0.5250, Previously saved model C-index: 0.5260
+Using GPU: cuda:5 (utilization=11%, free_mem=40529MiB)
+Epoch 1/50
+Average Loss: 1073.9237281948913
+Epoch 2/50
+Average Loss: 1073.7165826535693
+Epoch 3/50
+Average Loss: 1073.7878483790978
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 1073.6573737649358
+Epoch 5/50
+Average Loss: 1073.7990453383502
+Patience Counter: 1
+Epoch 6/50
+Average Loss: 1073.744098738128
+Patience Counter: 2
+Epoch 7/50
+Average Loss: 1073.6274318321077
+Epoch 8/50
+Average Loss: 1073.6855480717677
+Patience Counter: 1
+Epoch 9/50
+Average Loss: 1073.6699829101562
+Patience Counter: 2
+Epoch 10/50
+Average Loss: 1073.747029024012
+Patience Counter: 3
+Epoch 11/50
+Average Loss: 1073.825065463197
+Patience Counter: 4
+Epoch 12/50
+Average Loss: 1073.7234892003676
+Patience Counter: 5
+Early stopping triggered
+C-Index Data: 0.523
+C-Index Data: 0.526
+Current trial C-index: 0.5230, Previously saved model C-index: 0.5260
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layer': 10, 'hidden_dim_0': 38, 'hidden_dim_1': 81, 'hidden_dim_2': 68, 'hidden_dim_3': 166, 'hidden_dim_4': 56, 'hidden_dim_5': 182, 'hidden_dim_6': 159, 'hidden_dim_7': 218, 'hidden_dim_8': 134, 'hidden_dim_9': 39, 'learning_rate': 0.0005550695622895679, 'drop_out_rate_0': 0.20286152270548816, 'drop_out_rate_1': 0.2754700554620136, 'drop_out_rate_2': 0.28555293943571236, 'drop_out_rate_3': 0.46945075985056894, 'drop_out_rate_4': 0.2799595594835791, 'drop_out_rate_5': 0.17570045383552643, 'drop_out_rate_6': 0.4135964735863572, 'drop_out_rate_7': 0.2334583730862478, 'drop_out_rate_8': 0.2731947004291063, 'drop_out_rate_9': 0.21113761787200433}
+C-Index on Test Data: 0.535
+Integrated Brier Score Test: 0.255
+Mean AUC: 0.539
+✓ deepsurv completed successfully
+End time: Sat Aug 29 20:07:23 CDT 2026

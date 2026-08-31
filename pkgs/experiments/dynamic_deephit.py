@@ -349,20 +349,6 @@ def run(scenario_name: ExperimentScenario):
     brier_score_evaluation(model, test_dataset, df, device)
 
 if __name__ == '__main__':
-    #run(ExperimentScenario.TIME_VARIANT)
-    #run(ExperimentScenario.HETEROGENEOUS)
-    #run(ExperimentScenario.EGFR_COMPONENTS)
-    #run(ExperimentScenario.FIVELABMS)
-    # Guard: skip if this rep's CKD_FIFTY_FEATURES_HETEROGENEOUS train data
-    # doesn't exist yet (e.g. mid schema-migration, or a mini-experiment rep
-    # that deliberately didn't build it) — otherwise get_train_test_data()
-    # silently falls through to a full raw MIMIC extraction from
-    # labevents.csv instead of erroring. See CLAUDE.md "Check a script's
-    # actual entry point before running it as an experiment".
-    if os.path.exists(ckd_fifty_features_heterogeneous_train_data_path):
-        run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
-    else:
-        print(f"Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
     # Per-scenario isolation: an uncaught exception in one scenario used to
     # abort the whole script, silently skipping every scenario after it
     # (observed at full Stage 3 scale: a four_features failure meant

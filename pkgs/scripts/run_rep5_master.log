@@ -1,31 +1,22 @@
 Starting rep5 (CKD_REP=5)...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep5.log
-Start time: Mon Aug 17 18:55:10 CDT 2026
+Start time: Sat Aug 29 19:02:23 CDT 2026
+Running experiments IN PARALLEL; per-experiment logs: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_<experiment>.log
 =========================================
-==================== Running cox for rep5 ====================
-Start time: Mon Aug 17 18:55:10 CDT 2026
-pkgs/scripts/run_rep.sh: line 57: 1776284 Terminated              python -m "pkgs.experiments.${experiment}" >> "$LOG_FILE" 2>&1
-✗ cox failed with exit code 143
-End time: Thu Aug 20 17:52:03 CDT 2026
-
-==================== Running dynamic_deephit for rep5 ====================
-Start time: Thu Aug 20 17:52:03 CDT 2026
-✗ dynamic_deephit failed with exit code 1
-End time: Thu Aug 20 18:09:40 CDT 2026
-
-==================== Running hazard_transformer for rep5 ====================
-Start time: Thu Aug 20 18:09:40 CDT 2026
-pkgs/scripts/run_rep.sh: line 57: 2386742 Bus error               (core dumped) python -m "pkgs.experiments.${experiment}" >> "$LOG_FILE" 2>&1
-✗ hazard_transformer failed with exit code 135
-End time: Sat Aug 22 16:38:39 CDT 2026
-
-==================== Running logistic_hazard for rep5 ====================
-Start time: Sat Aug 22 16:38:39 CDT 2026
-✗ logistic_hazard failed with exit code 1
-End time: Sat Aug 22 16:42:57 CDT 2026
-
-==================== Running rnnsurv for rep5 ====================
-Start time: Sat Aug 22 16:42:57 CDT 2026
-✗ rnnsurv failed with exit code 1
-End time: Sat Aug 22 16:45:07 CDT 2026
-
+==================== Launched cox for rep5 (PID 333529, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_cox.log) ====================
+==================== Launched dynamic_deephit for rep5 (PID 333533, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_dynamic_deephit.log) ====================
+==================== Launched hazard_transformer for rep5 (PID 333538, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_hazard_transformer.log) ====================
+==================== Launched logistic_hazard for rep5 (PID 333607, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_logistic_hazard.log) ====================
+==================== Launched rnnsurv for rep5 (PID 333611, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_rnnsurv.log) ====================
+==================== Launched kfre for rep5 (PID 333617, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_kfre.log) ====================
+==================== Launched deepsurv for rep5 (PID 333622, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_deepsurv.log) ====================
+==================== Launched gbsa for rep5 (PID 333627, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_gbsa.log) ====================
+==================== Launched srf for rep5 (PID 333632, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_srf.log) ====================
+==================== Launched survival_svm for rep5 (PID 333636, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_survival_svm.log) ====================
+==================== Launched weibul for rep5 (PID 333642, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_weibul.log) ====================
+✓ weibul completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_weibul.log)
+✓ kfre completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_kfre.log)
+✓ hazard_transformer completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_hazard_transformer.log)
+✓ survival_svm completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_survival_svm.log)
+✓ deepsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_deepsurv.log)
+✓ srf completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep5_srf.log)

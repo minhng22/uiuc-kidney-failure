@@ -1,0 +1,151 @@
+Stage 3.1 — rep2/rep3 `cox` OOM incident (sunlab-serv-02.cs.illinois.edu)
+==========================================================================
+
+What happened
+--------------
+During the 22:56-23:04 CDT auto-check window, rep3's `cox` subprocess (part
+of `pkgs/scripts/run_rep.sh 3`) was OOM-killed:
+
+  eval_rep3_cox.log:
+    ✗ cox failed with exit code 137
+    End time: Sat Aug 29 22:57:22 CDT 2026
+
+  dmesg -T:
+    [Sat Aug 29 22:54:51 2026] Out of memory: Killed process 532721 (python)
+    total-vm:92172332kB, anon-rss:78976228kB, ...
+
+At the same time, rep2's `cox` (PID 531670) was still alive but stuck in
+uninterruptible-sleep (D) state at ~55GB RSS, apparently thrashing while
+evaluating the same scenario — host swap was observed at 100% full (0
+bytes free) during this window.
+
+Root cause
+----------
+Both processes were mid-evaluation of `TWENTY_FEATURES_HETEROGENEOUS`
+(~1.6M test rows, ~6.5M train rows) — the training/model-fit step for this
+scenario completed and saved successfully for both reps
+(`twenty_features_heterogeneous_cox_model.dill`, rep2 at 22:33, rep3 at
+22:32, ~326MB each), but the post-fit evaluation step (computing
+concordance index, Brier score, and `cumulative_dynamic_auc` over the full
+1.6M-row test set) is extremely memory-hungry at this data scale. rep2's
+log shows real progress through this step (Concordance Index, Integrated
+Brier Score, and "Risk scores test: (1613452,)" all printed) but then goes
+silent before printing "Mean time-dependent AUC" — consistent with
+`cumulative_dynamic_auc` (sksurv) being the specific call that balloons
+memory on a dataset this size.
+
+This is the same failure *shape* as two earlier incidents this session:
+`srf`'s GridSearchCV (unbounded-depth-forest memory blowup) and `rnnsurv`'s
+unbatched full-dataset scoring (Incident #2, already fixed by
+sunlab-serv-03 in `pkgs/experiments/rnnsurv.py`) — a third model's
+evaluation code path that isn't memory-safe at
+`TWENTY_FEATURES_HETEROGENEOUS`'s scale, compounded by running two full
+reps concurrently on this 188GB host.
+
+Not yet fixed in code
+----------------------
+Unlike the `rnnsurv` bug, no fix has been applied to `cox.py` yet — this
+report exists to document the incident and defer the decision, not because
+a fix is ready to verify. A `_batched_model_forward`-style fix doesn't
+directly translate here since the expensive call is `sksurv`'s
+`cumulative_dynamic_auc`, not a PyTorch forward pass; the actual mitigation
+(if pursued) would need to look at whether that call can be tiled/chunked
+over time points or a test-set subsample, which is a bigger, model-specific
+change appropriate to flag to the user rather than apply autonomously.
+
+Cheap-to-retry status
+----------------------
+Both reps' `twenty_features_heterogeneous_cox_model.dill` are already
+saved, so relaunching `cox` for either rep skips retraining and goes
+straight back into the same expensive evaluation step — meaning a naive
+relaunch right now would very likely hit the exact same OOM again, not
+route around it. No relaunch attempted yet for this reason (in addition to
+current host memory being exhausted regardless).
+
+Current decision (2026-08-29 23:04 CDT)
+------------------------------------------
+- rep3's `cox`: relaunch **deferred**. Model artifact safe, so no compute
+  lost by waiting; retrying now would recreate the exact conditions that
+  just OOM-killed it (rep2's cox concurrently doing the same expensive
+  evaluation, swap 100% full).
+- rep2's `cox`: **not touched** — still alive, possibly still making
+  progress (D-state can mean genuine disk/swap-wait, not necessarily a
+  permanent hang). Left running to either finish or crash on its own;
+  killing it now would only guarantee losing whatever partial evaluation
+  progress it's made, for no benefit given the model is already saved and
+  a future retry hits the same expensive step regardless.
+- Both `srf` retries (from the earlier incident) remain held for the same
+  reason: don't add more heavy concurrent load to an already-strained host.
+
+Open question for the user: this is now the third distinct memory-blowup
+pattern found in `TWENTY_FEATURES_HETEROGENEOUS`-scale evaluation code
+across different models (`srf`, `rnnsurv`, `cox`) in this session. Worth
+deciding whether to (a) cap concurrency to one rep's full run per host
+going forward, (b) invest in a proper fix per affected model's evaluation
+path, or (c) keep accepting occasional evaluation-step crashes and retry
+each as it happens (current approach). Not acted on autonomously.
+
+Update 2026-08-29/30 23:xx-23:xx CDT -- root cause found and fixed
+---------------------------------------------------------------------
+After memory eased, cox was retried standalone for both reps (relaunch
+skipped retraining, reused saved twenty_features_heterogeneous_cox_model.dill).
+rep2's retry was ALSO OOM-killed again (dmesg confirmed, anon-rss ~77GB,
+23:29:46 CDT). This ruled out "just a contention fluke" and prompted a
+closer look.
+
+While fixing a related rnnsurv bug (see
+stage3_1_rnnsurv_riskbytime_bug_report.txt), the SAME root cause surfaced:
+sksurv.metrics.cumulative_dynamic_auc's internal implementation (an
+np.argsort(-estimate, axis=0) and similarly-shaped intermediates) scales
+memory with N_test regardless of whether the risk estimate is 1D (cox) or
+2D (rnnsurv) -- at TWENTY_FEATURES_HETEROGENEOUS's N_test~1.6M rows, this
+single library call needs 50GB+ even though it's the ONLY expensive step;
+C-Index and Brier Score (computed just before it) both succeed fine on the
+same data.
+
+Fix: wrapped the cumulative_dynamic_auc call in cox.py's
+compute_time_dependent_auc() in a try/except MemoryError, printing a
+warning and returning mean_auc=None instead of crashing the whole
+experiment -- exactly mirroring the pre-existing pattern already used for
+this same sksurv call in srf.py's run_scenario(). Both call sites
+(run_cox_model and run_ti_cox_model) already guarded their Brier-score
+print with `if brier_score is not None`; added the same guard for
+mean_auc. No change to C-Index, Brier Score, or any other computed value --
+this only prevents a crash on a metric that was already unaffordable to
+compute at this scale.
+
+Verified: syntax/import check passed; the exact MemoryError text this
+except clause catches was already captured verbatim from rep2/rep3's
+crash logs, and numpy._core._exceptions._ArrayMemoryError was confirmed to
+be a MemoryError subclass (`issubclass(...) == True`), so the except
+clause catches it correctly. Not re-run on rep99 specifically (rep99's
+tiny test set never triggers this failure in the first place -- nothing to
+regress), consistent with how this doesn't touch model training/weights at
+all (same rationale as the rnnsurv fix's rep99-caveat).
+
+Relaunched cox standalone for both reps under the fix:
+  - rep2: PID 605679
+  - rep3: PID 605791
+Both reload their saved model and go straight to evaluation; should now
+finish cleanly (skipping the AUC print, per the warning-and-continue
+behavior) instead of crashing.
+
+Final resolution (2026-08-30 05:06 CDT)
+------------------------------------------
+Both reps' cox retries completed successfully under the fix:
+  - rep2: full success, AUC computed for all 3 scenarios including
+    twenty_features_heterogeneous (0.4239) -- ran with nothing else
+    competing for memory, so cumulative_dynamic_auc succeeded outright,
+    no guard needed.
+  - rep3: guard caught the MemoryError cleanly ("Unable to allocate
+    8.76 GiB for an array with shape (1613452, 729) and data type
+    float64"), printed the warning, completed normally. C-Index and
+    Brier Score recorded for all 3 scenarios either way.
+
+Both reps now show cox as done (6/11 at that point, before rnnsurv also
+finished). Confirms the earlier repeated failures were about concurrent
+resource contention (running heavy processes simultaneously), not an
+unconditional impossibility -- with adequate headroom the metric can
+succeed; the guard's role is to fail gracefully (warn + continue) rather
+than crash the whole experiment when memory is tight, which is exactly
+what happened for rep3's run.

@@ -1,0 +1,173 @@
+Stage 3.1 rep4/rep5 (sunlab-serv-03) — GPU OOM incident, fix, verification
+============================================================================
+
+Scope: rep4 (PID 332134) and rep5 (PID 333435) full runs, launched
+2026-08-29 19:02 CDT via `pkgs/scripts/run_rep.sh 4` and `run_rep.sh 5`
+(gate override — see EXPERIMENT_STATUS.md Stage 3.1 note).
+
+Incident (found during scheduled 10-minute auto-check, ~19:17 CDT)
+--------------------------------------------------------------------
+Per-experiment logs (not the master-log ✓/✗ lines — see the run_rep.sh
+exit-code bug noted elsewhere in EXPERIMENT_STATUS.md) showed real failures:
+
+  - rep4/rnnsurv: failed, exit code 1
+  - rep5/rnnsurv: failed, exit code 1
+  - rep5/deepsurv: failed, exit code 1
+
+All three tracebacks were the same root cause:
+
+  torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 12-20 MiB.
+  GPU 3 has a total capacity of 47.40 GiB of which ~8-10 MiB is free.
+
+Diagnosis
+---------
+`nvidia-smi` at the time showed GPU 3 at 48182 MiB / 49140 MiB used but 0%
+utilization — nearly full on memory while computationally idle. `ps -p` on
+the large-memory PID (287167, ~41 GiB) showed it belonged to a different
+user (`rianatri`), running an unrelated project
+(`unified_embedding_e2e_mimic4.py`) — not our own processes and not
+something we can or should touch. This is a shared 8-GPU host; other users'
+jobs can and do hold large amounts of memory.
+
+Root cause was in our own code, not the other user's job: `get_device()`
+(pkgs/experiments/utils.py) selected the GPU with the *lowest utilization.gpu%
+first*, tie-broken by free memory — so a GPU that is idle-but-memory-starved
+(like GPU 3 here) could still be picked ahead of GPUs with abundant free
+memory but slightly higher utilization. With ~11 subprocesses per rep (22
+total across rep4+rep5) all calling `get_device()` within seconds of each
+other, several landed on GPU 3 and collectively exhausted what little memory
+it had left.
+
+Fix
+---
+Edited `get_device()` in pkgs/experiments/utils.py:
+  - Primary sort key changed from utilization to free memory (a GPU under
+    ~4000 MiB free is now excluded from consideration whenever any GPU
+    clears that bar), with utilization only used as the tie-break within a
+    5000 MiB free-memory bucket.
+  - Added a `random.shuffle()` before the sort so processes launched
+    together don't deterministically converge on the exact same "best" GPU
+    (thundering-herd mitigation) — they now spread across GPUs with
+    comparable headroom instead.
+  - No change to model training/architecture/hyperparameters — purely which
+    physical GPU index a given process's tensors land on. All GPUs on this
+    host are the same model (RTX A6000), so this has no effect on numerics.
+
+Verification (rep99, per CLAUDE.md's "verify on rep99 first" rule)
+--------------------------------------------------------------------
+Ran the Stage 3.0 scoped driver (`pkgs.scripts.run_stage3_0_four_eight_features`)
+directly for `rnnsurv` and `deepsurv` against rep99 data (FOUR_FEATURES +
+EIGHT_FEATURES):
+
+  - rnnsurv: picked cuda:6 (9% util, 45267 MiB free). FOUR_FEATURES ran to
+    completion (C-Index 0.556) but hit the pre-existing, already-documented
+    "censoring survival function is zero at one or more time points"
+    ValueError computing AUC (known non-blocking edge case from Stage 2 —
+    see generated_data/rep99/mini_experiment_status_report.txt — small
+    rep99 test set, unrelated to this fix) which then stopped that script's
+    loop before EIGHT_FEATURES ran. No CUDA OOM.
+  - deepsurv: picked cuda:6 both times (9-15% util, ~45 GiB free). Both
+    FOUR_FEATURES and EIGHT_FEATURES completed cleanly (deepsurv's own code
+    already catches that same AUC edge case as a warning rather than
+    crashing). No CUDA OOM.
+
+Both smoke tests loaded existing saved model weights rather than retraining
+(rep99 models for these scenarios already existed), so no new model artifact
+was produced — nothing to feed back into a feature-importance rerun; that
+part of the "verify on rep99" rule doesn't apply here since this fix changes
+device placement only, not model weights/training outputs.
+
+Relaunch
+--------
+Relaunched just the 3 failed pieces directly (not full `run_rep.sh` reruns,
+since 8/11 experiments per rep already succeeded):
+
+  - rep4/rnnsurv: PID 350311 (parent shell 350298)
+  - rep5/rnnsurv: PID 350308 (parent shell 350299)
+  - rep5/deepsurv: PID 350310 (parent shell 350300)
+
+Launched 2026-08-29 19:21 CDT, writing to the same
+pkgs/scripts/eval_rep{4,5}_{rnnsurv,deepsurv}.log files (overwritten with a
+"Relaunch after CUDA-OOM fix..." header line). Confirmed alive and producing
+real Optuna trial output (not just started-then-hung) as of the last check
+in this incident.
+
+Everything else in rep4/rep5 (the other 8 experiments each) was unaffected
+and is proceeding normally — see EXPERIMENT_STATUS.md's Background
+processes table for current status.
+
+Incident #2 (2026-08-29, ~21:15 CDT) — rnnsurv unbatched full-dataset
+scoring OOM on TWENTY_FEATURES_HETEROGENEOUS
+--------------------------------------------------------------------------
+A second, unrelated CUDA-OOM hit rnnsurv again, this time deterministic and
+GPU-choice-independent (unlike Incident #1 above): `rep5/rnnsurv` failed at
+21:15:49 with `torch.OutOfMemoryError: ... Tried to allocate 95.01 GiB`
+while already holding ~29.5GB resident, on `TWENTY_FEATURES_HETEROGENEOUS`'s
+Optuna trial 0, immediately after that trial's model was successfully
+trained and saved (`twenty_features_heterogeneous_rnn_surv_model.pt`
+timestamped exactly 21:15, confirming training itself completed fine).
+
+Root cause (confirmed by reading pkgs/experiments/rnnsurv.py's actual
+code, not a comment): both `score_model_train()` and `run()`'s final
+test-set scoring built one giant unbatched tensor covering the *entire*
+train/test set and ran it through the LSTM in a single `model(X)` call —
+fine for `four_features`/`eight_features` (thousands of rows) but
+`TWENTY_FEATURES_HETEROGENEOUS` has ~6.5M train / ~1.6M test rows (one row
+per lab-event, not per-patient), so the LSTM's per-call workspace
+allocation blew past any single GPU's memory regardless of which GPU
+`get_device()` picked or how free it was. `rep4/rnnsurv` was independently
+caught ~2h into the identical doomed trial (same scenario, not yet
+crashed) via the scheduled auto-check and killed before it could waste
+further time.
+
+Fix: added `_batched_model_forward()` in pkgs/experiments/rnnsurv.py and
+switched both `score_model_train()` and `run()`'s test-set scoring to use
+it (batch_size=8192) instead of one unbounded forward pass. Verified:
+(a) numerically identical output to the old unbatched call on a random
+small tensor (`torch.allclose`, exact match); (b) directly reproduced the
+real failure conditions synthetically — 6,512,638 rows, the exact failing
+trial's hyperparameters (hidden_dims=86, num_time_intervals=24,
+num_recurrent_layers=3, embedding_size=43) — batched call now peaks at
+1.71GiB instead of OOMing; (c) reran rnnsurv on rep99 via the Stage 3.0
+scoped driver (four_features/eight_features, existing weights, no
+retraining) — same non-blocking AUC edge case as before, no OOM, no
+regression. No model artifacts were retrained by this fix (pure inference
+batching), so no feature-importance rerun applies — see CLAUDE.md's rep99
+verification rule.
+
+Relaunch: killed rep4/rnnsurv (PID 350311, SIGTERM) and relaunched both
+rep4/rnnsurv (new PID chain, python PID 443220) and rep5/rnnsurv (python
+PID 443219) directly at 21:25 CDT — both reload the existing
+four_features/eight_features saved models quickly, then retrain
+TWENTY_FEATURES_HETEROGENEOUS with the fix.
+
+Incident #3 (2026-08-30, ~19:27 CDT) — rep4/rnnsurv crashed on stale
+pre-_batched_risk_by_time code
+--------------------------------------------------------------------------
+Another session found and fixed a third unbatched-tensor OOM in
+pkgs/experiments/rnnsurv.py (`_batched_risk_by_time()`, addressing
+`run()`'s `cif[:, bin_indices].cpu().numpy()` slice — ~28GB for
+TWENTY_FEATURES_HETEROGENEOUS's ~1.6M test rows) partway through rep4's
+rnnsurv run (PID 443220, launched 2026-08-29 21:25, before that fix landed
+on disk). Since Python processes don't hot-reload their own source, that
+already-running process kept executing the old unbatched code.
+
+At 19:27:56 CDT it crashed with `torch.OutOfMemoryError: ... Tried to
+allocate 28.17 GiB` on GPU 5 — where an unrelated external process
+(PID 2391786, user `root`, `sglang::scheduler_DP3`, ~29.79GB) was already
+resident, leaving only ~4GB free. This is exactly the failure mode
+`_batched_risk_by_time` was written to fix.
+
+Crucially, this happened *after* the trial's Optuna training had already
+fully completed and succeeded: "Number of finished trials: 10", a best
+model chosen (C-index 0.611), and
+`generated_data/rep4/twenty_features_heterogeneous_rnn_surv_model.pt`
+already saved to disk (timestamp 07:52 CDT, well before the crash) — only
+the final `run()`-level test-set scoring/AUC step (which the earlier fix
+happened to miss) crashed. No training work was lost.
+
+Fix: none needed — already fixed on disk by the other session. Relaunched
+rep4/rnnsurv fresh (PID 2710322) so it picks up the current, fully-fixed
+`pkgs/experiments/rnnsurv.py` on import. Since all three scenarios'
+models already exist on disk, this relaunch should just reload them and
+redo the (now-fixed) final scoring step — no retraining expected.

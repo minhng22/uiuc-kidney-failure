@@ -386,17 +386,33 @@ def load_pkl_and_dill_model(model_path):
 
 def get_device():
     """
-    Picks the GPU with the most available compute headroom: lowest current
-    utilization.gpu%, tie-broken by most free memory. Queried fresh via
-    `nvidia-smi` on every call (no caching), so concurrent processes each get
-    a reasonably load-balanced pick rather than colliding on a single fixed
-    or randomly-chosen GPU. GPU 0 is excluded, matching this function's prior
+    Picks a GPU with enough free memory headroom to avoid CUDA OOM, tie-broken
+    by lowest current utilization.gpu%. Queried fresh via `nvidia-smi` on
+    every call (no caching), so concurrent processes each get a reasonably
+    load-balanced pick rather than colliding on a single fixed or
+    randomly-chosen GPU. GPU 0 is excluded, matching this function's prior
     behavior (random.randint(1, 7)). Falls back to a random GPU in 1-7 if
     nvidia-smi is unavailable or its output can't be parsed, and to CPU if
     CUDA itself isn't available.
+
+    Free memory is the primary sort key (not utilization) because a GPU can
+    sit at 0% utilization while another tenant's process holds most of its
+    memory allocated-but-idle (observed: rep4/rep5's rnnsurv and rep5's
+    deepsurv CUDA-OOM'd on cuda:3, which had 0% utilization but only ~1GB
+    free out of 49GB due to an unrelated user's job — see
+    EXPERIMENT_STATUS.md Stage 3.1 rep4/rep5 notes). Candidates under
+    MIN_FREE_MEM_MIB are dropped entirely when any GPU clears that bar, so a
+    "just idle enough" but memory-starved GPU is never preferred over one
+    with real headroom. Ties within TIE_BUCKET_MIB of each other are shuffled
+    before the tie-break so concurrent processes launched together (e.g.
+    `run_rep.sh`'s ~11 subprocesses) don't all deterministically pick the
+    exact same "best" GPU and collide there a moment later.
     """
     import random
     import subprocess
+
+    MIN_FREE_MEM_MIB = 4000  # skip GPUs with less headroom than this, if any GPU has more
+    TIE_BUCKET_MIB = 5000  # candidates within this many MiB of each other are shuffled, not deterministically ordered
 
     if not torch.cuda.is_available():
         print("CUDA not available, using CPU")
@@ -414,13 +430,18 @@ def get_device():
             if idx == 0:
                 continue  # GPU 0 excluded, matching prior random.randint(1, 7) behavior
             free_mem = mem_total - mem_used
-            candidates.append((util, -free_mem, idx))
+            candidates.append((free_mem, util, idx))
         if not candidates:
             raise RuntimeError("no candidate GPUs found in nvidia-smi output (all filtered out)")
-        candidates.sort()
-        best_util, neg_free_mem, best_idx = candidates[0]
+
+        safe_candidates = [c for c in candidates if c[0] >= MIN_FREE_MEM_MIB]
+        pool = safe_candidates if safe_candidates else candidates
+
+        random.shuffle(pool)  # break thundering-herd ties before the stable sort below
+        pool.sort(key=lambda c: (-c[0] // TIE_BUCKET_MIB, c[1]))  # bucket by free_mem (coarse), then lowest utilization within bucket
+        best_free_mem, best_util, best_idx = pool[0]
         device = torch.device(f"cuda:{best_idx}")
-        print(f"Using GPU: {device} (utilization={best_util}%, free_mem={-neg_free_mem}MiB)")
+        print(f"Using GPU: {device} (utilization={best_util}%, free_mem={best_free_mem}MiB)")
         return device
     except Exception as e:
         print(f"Warning: nvidia-smi-based GPU selection failed ({e}); falling back to random GPU 1-7")

@@ -222,20 +222,6 @@ def run(scenario_name: ExperimentScenario):
     brier_score_evaluation(model, labtrans, test_dataset, df, device)
 
 if __name__ == '__main__':
-    # run(ExperimentScenario.TIME_VARIANT)
-    # run(ExperimentScenario.HETEROGENEOUS)
-    # run(ExperimentScenario.EGFR_COMPONENTS)
-    # run(ExperimentScenario.HETEROGENEOUS_IMPUTE)
-    # Guard: skip if this rep's CKD_FIFTY_FEATURES_HETEROGENEOUS train data
-    # doesn't exist yet (e.g. mid schema-migration, or a mini-experiment rep
-    # that deliberately didn't build it) — otherwise get_train_test_data()
-    # silently falls through to a full raw MIMIC extraction from
-    # labevents.csv instead of erroring. See CLAUDE.md "Check a script's
-    # actual entry point before running it as an experiment".
-    if os.path.exists(ckd_fifty_features_heterogeneous_train_data_path):
-        run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
-    else:
-        print(f"Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
     run(ExperimentScenario.FOUR_FEATURES)
     run(ExperimentScenario.EIGHT_FEATURES)
     run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)

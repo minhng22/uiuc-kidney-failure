@@ -609,21 +609,21 @@ bad is not a problem. The problem is the model performance hints that there is a
 If there are issues, investigate why. Ask for user agreement on the fix. If user agrees, apply the fix. Then run stage 2.0 -> 3.0.3 again, no need to ask
 permission.
 
-## Stage 3.1: Full experiment runs (rep2 → rep4)
-Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4 instead of rep1 alone — requires Stage
+## Stage 3.1: Full experiment runs (rep2 → rep5)
+Same as Stage 3.0 above, except scoped to `N` in 2, 3, 4, 5 instead of rep1 alone — requires Stage
 3.0's approval gate to have passed first. Same model scope as Stage 3.0: all 11 models via
 `run_rep.sh`. Different scenario-ordering rule fromt Stage 3.0: four_features/
 eight_features/twenty_features_heterogeneous for all 11 models first then analysis
 
 - Launch full runs via the **same** [pkgs/scripts/run_rep.sh](pkgs/scripts/run_rep.sh) (no new
-  script) for `N` in 2, 3, 4 — each in the background, each PID/log recorded in
+  script) for `N` in 2, 3, 4, 5 — each in the background, each PID/log recorded in
   `EXPERIMENT_STATUS.md`.
 - **Max 2 reps launched per session.** When told to run this stage, launch at most 2 reps that
   are not already running and have not already completed/ran — not all 3 at once. (E.g. "run
-  stage 3.1" → launch rep2 and rep3 only, leave rep4 for a later session/turn.) This applies per
+  stage 3.1" → launch rep2 and rep3 only, leave rep4+5 for a later session/turn.) This applies per
   session/turn, not as a one-time-ever cap — once rep2/rep3 finish (or in a later session), the
   next "run stage 3.1" (or "run the rest") picks up the next ≤2 reps not yet running/done (e.g.
-  rep4 alone), and so on until rep2-4 are all covered.
+  rep4 alone), and so on until rep2-5 are all covered.
 - **While reps are running, document exactly which ones in `EXPERIMENT_STATUS.md`** — not just a
   generic "in progress": the Stage 3.1 status row and/or its Background processes section must
   name the specific rep numbers currently launched this session (e.g. "rep2, rep3 running"),

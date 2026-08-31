@@ -18,7 +18,21 @@ def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_t
     risk_scores_test = model.predict_partial_hazard(data_test).values.flatten()
 
     print(f"Risk scores test: {risk_scores_test.shape}")
-    auc_values, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
+    # sksurv's cumulative_dynamic_auc internally does an O(N_test x
+    # len(times)) argsort (and similarly-shaped intermediates) regardless of
+    # whether the risk estimate itself is 1D -- for TWENTY_FEATURES_
+    # HETEROGENEOUS (N_test ~1.6M) this reliably exhausts host memory
+    # (observed: numpy MemoryError allocating 50GB+) even though C-Index
+    # and Brier Score above succeed fine. Same class of failure
+    # independently hit in rnnsurv.py's TWENTY_FEATURES_HETEROGENEOUS eval
+    # -- see EXPERIMENT_STATUS.md Stage 3.1 rep2/rep3 notes. Mirrors the
+    # existing try/except around this same sksurv call already in srf.py's
+    # run_scenario().
+    try:
+        auc_values, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
+    except MemoryError as e:
+        print(f"Warning: could not compute AUC: {e}")
+        auc_values, mean_auc = None, None
     return auc_values, mean_auc
 
 def run_cox_model(scenario: ExperimentScenario):
@@ -55,7 +69,8 @@ def run_cox_model(scenario: ExperimentScenario):
     times = np.arange(1, 730, 1)
 
     _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
-    print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+    if mean_auc is not None:
+        print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 def get_model_path(scenario: ExperimentScenario):
     assert scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT,
@@ -107,7 +122,8 @@ def run_ti_cox_model():
     times = np.arange(1, 730, 1)
     _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
 
-    print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+    if mean_auc is not None:
+        print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 def run_all():
     print("\nRunning non-time-variant Cox model evaluation...")
@@ -139,18 +155,6 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
-    # Guard: CKD_FIFTY_FEATURES_HETEROGENEOUS's train data may not exist yet for
-    # the current CKD_REP (e.g. mid schema-migration, or a rep99-style
-    # mini-experiment that deliberately didn't build it). Without this check,
-    # get_train_test_data() would silently fall through to a full raw MIMIC
-    # extraction from labevents.csv instead of erroring — an expensive,
-    # unrelated side effect. See CLAUDE.md "Check a script's actual entry
-    # point before running it as an experiment".
-    if os.path.exists(ckd_fifty_features_heterogeneous_train_data_path):
-        print("\nRunning CKD_FIFTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...")
-        run_cox_model(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
-    else:
-        print(f"\nSkipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
     print("\nRunning FOUR_FEATURES Cox model evaluation with time-dependent AUC...")
     run_cox_model(ExperimentScenario.FOUR_FEATURES)
     print("\nRunning EIGHT_FEATURES Cox model evaluation with time-dependent AUC...")

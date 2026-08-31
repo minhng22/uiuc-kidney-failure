@@ -1,0 +1,42 @@
+Start time: Sat Aug 29 19:02:20 CDT 2026
+
+Running FOUR_FEATURES Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Fitting model:
+
+Evaluate on test data
+Concordance Index Test: 0.534
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Risk scores test: (5511,)
+Mean time-dependent AUC: 0.4817
+
+Running EIGHT_FEATURES Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Fitting model:
+
+Evaluate on test data
+Concordance Index Test: 0.533
+Integrated Brier Score Test: 0.448
+Risk scores test: (1100,)
+Mean time-dependent AUC: 0.4964
+
+Running TWENTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep4/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Fitting model:
+
+Evaluate on test data
+Concordance Index Test: 0.44
+Integrated Brier Score Test: 0.872
+Risk scores test: (1613452,)
+Mean time-dependent AUC: 0.4239
+✓ cox completed successfully
+End time: Sat Aug 29 22:30:46 CDT 2026

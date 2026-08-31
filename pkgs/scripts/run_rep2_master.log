@@ -1,33 +1,23 @@
 Starting rep2 (CKD_REP=2)...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep2.log
-Start time: Thu Aug 27 20:04:38 CDT 2026
+Start time: Sat Aug 29 18:52:59 CDT 2026
 Running experiments IN PARALLEL; per-experiment logs: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_<experiment>.log
 =========================================
-==================== Launched cox for rep2 (PID 12168, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_cox.log) ====================
-==================== Launched dynamic_deephit for rep2 (PID 12172, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_dynamic_deephit.log) ====================
-==================== Launched hazard_transformer for rep2 (PID 12176, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_hazard_transformer.log) ====================
-==================== Launched logistic_hazard for rep2 (PID 12184, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_logistic_hazard.log) ====================
-==================== Launched rnnsurv for rep2 (PID 12189, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_rnnsurv.log) ====================
-==================== Launched kfre for rep2 (PID 12196, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_kfre.log) ====================
-==================== Launched deepsurv for rep2 (PID 12203, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_deepsurv.log) ====================
-==================== Launched gbsa for rep2 (PID 12209, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_gbsa.log) ====================
-==================== Launched srf for rep2 (PID 12219, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_srf.log) ====================
-==================== Launched survival_svm for rep2 (PID 12224, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_survival_svm.log) ====================
-==================== Launched weibul for rep2 (PID 12229, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_weibul.log) ====================
+==================== Launched cox for rep2 (PID 531662, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_cox.log) ====================
+==================== Launched dynamic_deephit for rep2 (PID 531666, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_dynamic_deephit.log) ====================
+==================== Launched hazard_transformer for rep2 (PID 531671, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_hazard_transformer.log) ====================
+==================== Launched logistic_hazard for rep2 (PID 531676, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_logistic_hazard.log) ====================
+==================== Launched rnnsurv for rep2 (PID 531681, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_rnnsurv.log) ====================
+==================== Launched kfre for rep2 (PID 531686, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_kfre.log) ====================
+==================== Launched deepsurv for rep2 (PID 531691, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_deepsurv.log) ====================
+==================== Launched gbsa for rep2 (PID 531696, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_gbsa.log) ====================
+==================== Launched srf for rep2 (PID 531701, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_srf.log) ====================
+==================== Launched survival_svm for rep2 (PID 531707, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_survival_svm.log) ====================
+==================== Launched weibul for rep2 (PID 531712, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_weibul.log) ====================
 ✓ weibul completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_weibul.log)
 ✓ kfre completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_kfre.log)
+pkgs/scripts/run_rep.sh: line 77: 531711 Killed                  python -m "pkgs.experiments.${experiment}" >> "$exp_log" 2>&1
 ✓ hazard_transformer completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_hazard_transformer.log)
 ✓ survival_svm completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_survival_svm.log)
 ✓ deepsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_deepsurv.log)
 ✓ srf completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_srf.log)
-✓ gbsa completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_gbsa.log)
-✓ dynamic_deephit completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_dynamic_deephit.log)
-✓ logistic_hazard completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_logistic_hazard.log)
-✓ rnnsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_rnnsurv.log)
-✓ cox completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep2_cox.log)
-=========================================
-Rep2 Summary:
-Total experiments run: 11
-Failed experiments: 0
-✓ All experiments completed successfully!
-End time: Thu Aug 27 20:04:38 CDT 2026

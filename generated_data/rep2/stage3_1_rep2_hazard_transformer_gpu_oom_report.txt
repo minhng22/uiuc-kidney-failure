@@ -1,0 +1,57 @@
+Stage 3.1 — rep2 `hazard_transformer` CUDA-OOM incident (sunlab-serv-02.cs.illinois.edu)
+=========================================================================================
+
+Found during the 19:38 CDT auto-check. rep2's `hazard_transformer` failed
+(exit code 1) at 19:32:19 CDT with:
+
+  torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 200.00 MiB.
+  GPU 5 has a total capacity of 10.57 GiB of which 178.00 MiB is free.
+  (7 other processes — rep2's own rnnsurv/deepsurv and rep3's
+  hazard_transformer/deepsurv/rnnsurv/logistic_hazard x2 — already resident
+  on GPU 5, all landed there by the same `get_device()` call within seconds
+  of each other at process launch, 18:52-18:53 CDT)
+
+Root cause: identical class of bug already diagnosed and fixed by the
+sunlab-serv-03 session for rep4/rep5 — see
+generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt. `get_device()`
+in pkgs/experiments/utils.py previously chose the GPU with lowest
+utilization.gpu% first (tie-broken by free memory), so an idle-but-
+memory-starved GPU could still be picked ahead of one with real headroom;
+with ~11 subprocesses per rep launched together across two concurrent reps
+on this host, several converged on the same GPU (5) and exhausted it.
+
+This is NOT a case of the fix being missing or wrong: `pkgs/experiments/
+utils.py`'s `get_device()` on disk already had sunlab-serv-03's fix (free-
+memory-first selection, 4000MiB floor, shuffled tie-break) by the time this
+check ran — confirmed by reading the function directly. The failure happened
+because rep2's `hazard_transformer` process was launched at 18:52:59, before
+that fix landed (~19:20 CDT per the rep4/rep5 report) — a long-running
+Python process keeps whatever `get_device()` code was already imported into
+memory at start, so it kept using the old logic until it crashed on its
+first TWENTY_FEATURES_HETEROGENEOUS trial (FOUR_FEATURES/EIGHT_FEATURES had
+already trained successfully earlier under the same stale code, evidently
+without colliding that time).
+
+No further code change needed here — the already-verified fix (rep99-tested
+by sunlab-serv-03) will apply automatically to any freshly launched process.
+
+Fix applied: relaunched only `hazard_transformer` for rep2 (not the full
+`run_rep.sh 2` — the other 10 experiments are already running/done and must
+not be restarted):
+
+  CKD_REP=2 PYTHONPATH=. python -m pkgs.experiments.hazard_transformer
+  (PID 544737, sunlab-serv-02, launched 2026-08-29 19:39 CDT)
+
+`generated_data/rep2/four_features_hazard_transformer_model.pt` and
+`eight_features_hazard_transformer_model.pt` already existed from the
+earlier (pre-crash) run, so the relaunch's `os.path.exists(...)` +
+architecture-version check skips retraining those two and goes straight to
+TWENTY_FEATURES_HETEROGENEOUS — confirmed via the relaunch's log showing a
+fresh Optuna study starting immediately with no FOUR/EIGHT_FEATURES retrain
+output, and the process is producing real CPU load (82-85%) rather than
+hanging.
+
+No rep99 re-verification needed for this incident specifically since no
+model/training code changed here (the fix and its rep99 verification are
+sunlab-serv-03's, already recorded in their report) — this rep2 relaunch is
+just a retry under already-fixed, already-verified code.

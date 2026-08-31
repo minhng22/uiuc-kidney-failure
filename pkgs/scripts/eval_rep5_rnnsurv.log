@@ -1,0 +1,31 @@
+Start time: Sat Aug 29 21:25:00 CDT 2026
+Relaunch after fixing rnnsurv.py's unbatched full-dataset scoring OOM (score_model_train / run()'s test-set scoring) — see EXPERIMENT_STATUS.md / generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt
+Using GPU: cuda:5 (utilization=0%, free_mem=42046MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Loading from saved weights
+C-Index on Test Data: 0.689
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Mean time-dependent AUC: 0.6866
+Using GPU: cuda:5 (utilization=0%, free_mem=41049MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Loading from saved weights
+C-Index on Test Data: 0.672
+Integrated Brier Score Test: 0.182
+Mean time-dependent AUC: 0.6814
+Using GPU: cuda:5 (utilization=0%, free_mem=41043MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep5/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Loading from saved weights
+C-Index on Test Data: 0.603
+Integrated Brier Score Test: 0.159
+Mean time-dependent AUC: 0.5850
+✓ rnnsurv completed successfully
+End time: Sat Aug 29 22:03:05 CDT 2026

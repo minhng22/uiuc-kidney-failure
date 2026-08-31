@@ -1,16 +1,22 @@
 Starting rep4 (CKD_REP=4)...
 Log file: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_all_rep4.log
-Start time: Sat Aug 22 17:23:16 CDT 2026
+Start time: Sat Aug 29 19:02:20 CDT 2026
+Running experiments IN PARALLEL; per-experiment logs: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_<experiment>.log
 =========================================
-==================== Running cox for rep4 ====================
-Start time: Sat Aug 22 17:23:16 CDT 2026
-✓ cox completed successfully
-End time: Sat Aug 22 18:32:15 CDT 2026
-
-==================== Running dynamic_deephit for rep4 ====================
-Start time: Sat Aug 22 18:32:15 CDT 2026
-✗ dynamic_deephit failed with exit code 1
-End time: Sat Aug 22 20:38:40 CDT 2026
-
-==================== Running hazard_transformer for rep4 ====================
-Start time: Sat Aug 22 20:38:40 CDT 2026
+==================== Launched cox for rep4 (PID 332161, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_cox.log) ====================
+==================== Launched dynamic_deephit for rep4 (PID 332166, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_dynamic_deephit.log) ====================
+==================== Launched hazard_transformer for rep4 (PID 332171, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_hazard_transformer.log) ====================
+==================== Launched logistic_hazard for rep4 (PID 332176, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_logistic_hazard.log) ====================
+==================== Launched rnnsurv for rep4 (PID 332182, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_rnnsurv.log) ====================
+==================== Launched kfre for rep4 (PID 332188, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_kfre.log) ====================
+==================== Launched deepsurv for rep4 (PID 332195, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_deepsurv.log) ====================
+==================== Launched gbsa for rep4 (PID 332200, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_gbsa.log) ====================
+==================== Launched srf for rep4 (PID 332219, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_srf.log) ====================
+==================== Launched survival_svm for rep4 (PID 332224, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_survival_svm.log) ====================
+==================== Launched weibul for rep4 (PID 332229, log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_weibul.log) ====================
+✓ weibul completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_weibul.log)
+✓ kfre completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_kfre.log)
+✓ hazard_transformer completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_hazard_transformer.log)
+✓ survival_svm completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_survival_svm.log)
+✓ deepsurv completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_deepsurv.log)
+✓ srf completed successfully (log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/eval_rep4_srf.log)

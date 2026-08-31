@@ -179,12 +179,55 @@ def objective(trial, scenario_name: ExperimentScenario):
     trial.set_user_attr(key="model", value=model)
     return c_index
 
+def _batched_model_forward(model: RNNSurv, X, batch_size=8192):
+    """Runs model(X) in chunks instead of one unbounded forward pass.
+
+    `df`/`df_test` here are per-lab-event rows, not per-patient -- for
+    TWENTY_FEATURES_HETEROGENEOUS that's up to ~6.5M train / ~1.6M test rows
+    (vs. thousands for four/eight_features). A single-shot forward pass over
+    all of them at once (the code this replaces) makes the LSTM allocate
+    workspace proportional to the whole batch and reliably CUDA-OOMs
+    regardless of which GPU is picked or how much free memory it has
+    (observed: ~29GB already resident, then a 95GB single allocation
+    request against a 47GB GPU) -- see EXPERIMENT_STATUS.md Stage 3.1
+    rep4/rep5 notes. Batching keeps peak memory bounded by batch_size
+    instead of dataset size; numerically identical to the unbatched call.
+    """
+    event_pmf_chunks = []
+    risk_chunks = []
+    with torch.no_grad():
+        for start in range(0, X.size(0), batch_size):
+            pmf_chunk, risk_chunk = model(X[start:start + batch_size])
+            event_pmf_chunks.append(pmf_chunk)
+            risk_chunks.append(risk_chunk)
+    return torch.cat(event_pmf_chunks, dim=0), torch.cat(risk_chunks, dim=0)
+
+def _batched_risk_by_time(cif: torch.Tensor, bin_indices: torch.Tensor, batch_size=8192):
+    """Computes cif[:, bin_indices].cpu().numpy() in row-chunks instead of
+    one unbounded fancy-index + transfer.
+
+    `cif` is [N_test, num_bins] on GPU; for TWENTY_FEATURES_HETEROGENEOUS,
+    N_test is ~1.6M rows and `bin_indices` can span the full ~4200-day
+    follow-up range, so the single-shot slice materializes a dense
+    [N_test, len(times)] float32 tensor -- ~28GB observed, which exceeds
+    this host's 10.57GB-per-GPU capacity outright (not a contention issue:
+    it can never fit, regardless of how idle/free the GPU is). See
+    EXPERIMENT_STATUS.md Stage 3.1 rep2/rep3 rnnsurv notes. Batching over
+    N_test keeps peak GPU memory bounded by batch_size instead of dataset
+    size; numerically identical to the unbatched call.
+    """
+    chunks = []
+    with torch.no_grad():
+        for start in range(0, cif.size(0), batch_size):
+            chunks.append(cif[start:start + batch_size][:, bin_indices].cpu().numpy())
+    return np.concatenate(chunks, axis=0)
+
+
 def score_model_train(model: RNNSurv, df, features, device):
     X_test = torch.tensor(df[features].values, dtype=torch.float32).unsqueeze(1).to(device)
     model.eval()
-    with torch.no_grad():
-        _, test_risk_scores = model(X_test)
-        test_risk_scores = test_risk_scores.squeeze()
+    _, test_risk_scores = _batched_model_forward(model, X_test)
+    test_risk_scores = test_risk_scores.squeeze()
 
     c_index = round_metric(concordance_index(df['duration_in_days'], -test_risk_scores.cpu().numpy(), df['has_esrd']))
     print("C-Index on Test Data:", c_index)
@@ -219,9 +262,8 @@ def run(scenario_name: ExperimentScenario):
 
     X_test = torch.tensor(df_test[get_tv_rnn_model_features(scenario_name)].values, dtype=torch.float32).unsqueeze(1).to(device)
     model.eval()
-    with torch.no_grad():
-        event_pmf, test_risk_scores = model(X_test)
-        test_risk_scores = test_risk_scores.squeeze()
+    event_pmf, test_risk_scores = _batched_model_forward(model, X_test)
+    test_risk_scores = test_risk_scores.squeeze()
 
     c_index = round_metric(concordance_index(df_test['duration_in_days'], -test_risk_scores.cpu().numpy(), df_test['has_esrd']))
     print("C-Index on Test Data:", c_index)
@@ -241,7 +283,7 @@ def run(scenario_name: ExperimentScenario):
          * (cif.size(1) - 1)).round().long(),
         min=0, max=cif.size(1) - 1,
     )
-    risk_by_time = cif[:, bin_indices].cpu().numpy()
+    risk_by_time = _batched_risk_by_time(cif, bin_indices)
     survival_by_time = 1.0 - risk_by_time
 
     brier_score = compute_brier_score_from_survival_probs(
@@ -252,25 +294,27 @@ def run(scenario_name: ExperimentScenario):
 
     y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
     y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_by_time, times)
+    # sksurv's cumulative_dynamic_auc internally does an O(N_test x
+    # len(times)) argsort (and similarly-shaped intermediates) over the
+    # full risk_by_time matrix -- for TWENTY_FEATURES_HETEROGENEOUS
+    # (N_test ~1.6M, len(times) up to ~4700 days) this reliably exhausts
+    # host memory (observed: numpy MemoryError allocating 28-56GB) even
+    # though C-Index and Brier Score above succeed fine (those don't need
+    # the full [N_test, len(times)] matrix). Same class of failure
+    # independently hit in cox.py's TWENTY_FEATURES_HETEROGENEOUS eval --
+    # see EXPERIMENT_STATUS.md Stage 3.1 rep2/rep3 notes. Mirrors the
+    # existing try/except around this same sksurv call already in
+    # srf.py's run_scenario().
+    try:
+        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_by_time, times)
+    except MemoryError as e:
+        print(f"Warning: could not compute AUC: {e}")
+        mean_auc = None
 
-    print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+    if mean_auc is not None:
+        print(f"Mean time-dependent AUC: {mean_auc:.4f}")
 
 if __name__ == '__main__':
-    # run(ExperimentScenario.TIME_VARIANT)
-    # run(ExperimentScenario.HETEROGENEOUS)
-    # run(ExperimentScenario.EGFR_COMPONENTS)
-    # run(ExperimentScenario.FIVELABMS)
-    # Guard: skip if this rep's CKD_FIFTY_FEATURES_HETEROGENEOUS train data
-    # doesn't exist yet (e.g. mid schema-migration, or a mini-experiment rep
-    # that deliberately didn't build it) — otherwise get_train_test_data()
-    # silently falls through to a full raw MIMIC extraction from
-    # labevents.csv instead of erroring. See CLAUDE.md "Check a script's
-    # actual entry point before running it as an experiment".
-    if os.path.exists(ckd_fifty_features_heterogeneous_train_data_path):
-        run(ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS)
-    else:
-        print(f"Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at {ckd_fifty_features_heterogeneous_train_data_path}")
     run(ExperimentScenario.FOUR_FEATURES)
     run(ExperimentScenario.EIGHT_FEATURES)
     run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)

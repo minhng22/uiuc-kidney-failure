@@ -1,0 +1,68 @@
+Start time: Sat Aug 29 18:53:02 CDT 2026
+
+Running non-time-variant Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_ti_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_ti_test_data.csv
+Number of patients: test 6841 and train 27361
+Number of records: test 6841 and train 27361
+Train data path N/A
+Test data path N/A
+Number of patients: test 6841 and train 27361
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep3/egfr_ti_survival_svm_model.dill
+Evaluate on test data
+Filtered out 636 test samples with duration <= 0
+Risk scores shape: (6205,)
+First 10 risk scores: [-2.41578636e-07 -1.84338514e-06 -3.26445202e-06 -4.06995009e-06
+ -5.26354331e-06 -6.61413361e-06 -6.85622523e-06 -7.87828905e-06
+ -9.22286254e-06 -9.69025909e-06]
+Concordance Index Test: 0.507
+Integrated Brier Score Test: 0.255
+Risk scores test: (6205,)
+Mean AUC: 0.490
+
+Time-variant scenarios not supported for Survival SVM
+Skipping TIME_VARIANT, HETEROGENEOUS, and EGFR_COMPONENTS scenarios
+
+Running FOUR_FEATURES Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 21318 rows/2247 subjects -> 2247 rows; test 5511 rows/562 subjects -> 562 rows
+Filtered out 527 training samples with duration <= 0
+Fitting Survival SVM model with 4 features: ['age', 'gender', 'egfr', 'uacr']
+Filtered out 128 test samples with duration <= 0
+Concordance Index Test: 0.553
+Warning: Could not compute Brier score: time must be smaller than largest observed time point: 4216.413194444444
+Risk scores test: (434,)
+Mean AUC: 0.404
+
+Running EIGHT_FEATURES Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 4307 rows/970 subjects -> 970 rows; test 1100 rows/243 subjects -> 243 rows
+Filtered out 344 training samples with duration <= 0
+Fitting Survival SVM model with 8 features: ['age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin']
+Filtered out 79 test samples with duration <= 0
+Concordance Index Test: 0.566
+Integrated Brier Score Test: 0.262
+Risk scores test: (164,)
+Mean AUC: 0.384
+
+Running TWENTY_FEATURES_HETEROGENEOUS Survival SVM model evaluation...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+Filtered out 4561 training samples with duration <= 0
+Fitting Survival SVM model with 40 features: ['egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'wbc', 'wbc_missing', 'mchc', 'mchc_missing', 'mch', 'mch_missing', 'rbc', 'rbc_missing', 'mcv', 'mcv_missing', 'rdw', 'rdw_missing', 'glucose', 'glucose_missing', 'calcium', 'calcium_missing', 'magnesium', 'magnesium_missing', 'phosphate', 'phosphate_missing']
+Filtered out 1087 test samples with duration <= 0
+Concordance Index Test: 0.548
+Integrated Brier Score Test: 0.241
+Risk scores test: (5434,)
+Mean AUC: 0.405
+✓ survival_svm completed successfully
+End time: Sat Aug 29 18:59:57 CDT 2026
