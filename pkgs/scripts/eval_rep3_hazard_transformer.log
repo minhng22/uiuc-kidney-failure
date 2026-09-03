@@ -26,3 +26,2575 @@ Start time: Sat Aug 29 18:53:02 CDT 2026
 [I 2026-08-30 08:37:46,728] Trial 1 finished with value: 0.50086023751386 and parameters: {'num_layers': 4, 'learning_rate': 0.0054395673638797555, 'drop_out_rate': 0.18841034320565428, 'n_head': 7, 'nhead_factor': 8}. Best is trial 0 with value: 0.6472687207354382.
 [I 2026-08-30 15:52:11,900] Trial 2 finished with value: 0.749760365713596 and parameters: {'num_layers': 2, 'learning_rate': 0.0006479069868412296, 'drop_out_rate': 0.47244671913175895, 'n_head': 4, 'nhead_factor': 14}. Best is trial 2 with value: 0.749760365713596.
 [I 2026-08-31 08:29:47,961] Trial 3 finished with value: 0.7604863614466825 and parameters: {'num_layers': 2, 'learning_rate': 2.867558997571177e-05, 'drop_out_rate': 0.15205659356059426, 'n_head': 6, 'nhead_factor': 11}. Best is trial 3 with value: 0.7604863614466825.
+[I 2026-09-01 02:48:56,766] Trial 4 finished with value: 0.5289126788078703 and parameters: {'num_layers': 2, 'learning_rate': 2.5695215454621507e-05, 'drop_out_rate': 0.4803880885275452, 'n_head': 1, 'nhead_factor': 12}. Best is trial 3 with value: 0.7604863614466825.
+[I 2026-09-01 10:10:48,711] Trial 5 finished with value: 0.4967849898473166 and parameters: {'num_layers': 4, 'learning_rate': 0.0020995375291448398, 'drop_out_rate': 0.40230889872496245, 'n_head': 5, 'nhead_factor': 3}. Best is trial 3 with value: 0.7604863614466825.
+[I 2026-09-01 15:02:50,880] Trial 6 finished with value: 0.4586505525933595 and parameters: {'num_layers': 5, 'learning_rate': 0.0005460571255888651, 'drop_out_rate': 0.24190732869634413, 'n_head': 8, 'nhead_factor': 16}. Best is trial 3 with value: 0.7604863614466825.
+[I 2026-09-01 16:57:49,254] Trial 7 finished with value: 0.5000138043105019 and parameters: {'num_layers': 5, 'learning_rate': 0.0030551348141212146, 'drop_out_rate': 0.25293967350617763, 'n_head': 7, 'nhead_factor': 9}. Best is trial 3 with value: 0.7604863614466825.
+[I 2026-09-01 22:25:13,670] Trial 8 finished with value: 0.5212700491165697 and parameters: {'num_layers': 3, 'learning_rate': 0.0007861692965419405, 'drop_out_rate': 0.42293747216519395, 'n_head': 8, 'nhead_factor': 16}. Best is trial 3 with value: 0.7604863614466825.
+[I 2026-09-02 00:36:12,966] Trial 9 finished with value: 0.5102207754855179 and parameters: {'num_layers': 5, 'learning_rate': 0.0026346338123693276, 'drop_out_rate': 0.2620701957045902, 'n_head': 3, 'nhead_factor': 15}. Best is trial 3 with value: 0.7604863614466825.
+Skipping CKD_FIFTY_FEATURES_HETEROGENEOUS: no train data at /home/minhn2/uiuc-kidney-failure/generated_data/rep3/ckd_fifty_features_heterogeneous_train_data.csv
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Running Optuna hyperparameter optimization
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Running trial 0 for ExperimentScenario.FOUR_FEATURES on device cuda:3
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 4.875938521491157
+Epoch 2/50
+Average Loss: 4.483590337965223
+Epoch 3/50
+Average Loss: 4.2240809599558515
+Epoch 4/50
+Average Loss: 4.1165834003024635
+Epoch 5/50
+Average Loss: 4.052985005908543
+Epoch 6/50
+Average Loss: 4.03322156270345
+Epoch 7/50
+Average Loss: 4.028579764895969
+Epoch 8/50
+Average Loss: 4.008944087558323
+Epoch 9/50
+Average Loss: 4.011254893408881
+Patience Counter: 1
+Epoch 10/50
+Average Loss: 4.003572569953071
+Epoch 11/50
+Average Loss: 3.9918888674841986
+Epoch 12/50
+Average Loss: 4.011275847752889
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 3.997894181145562
+Patience Counter: 2
+Epoch 14/50
+Average Loss: 3.9954005082448325
+Patience Counter: 3
+Epoch 15/50
+Average Loss: 3.9844819174872503
+Epoch 16/50
+Average Loss: 3.9788825776841907
+Epoch 17/50
+Average Loss: 3.983362250857883
+Patience Counter: 1
+Epoch 18/50
+Average Loss: 3.9688220818837485
+Epoch 19/50
+Average Loss: 3.979576031366984
+Patience Counter: 1
+Epoch 20/50
+Average Loss: 3.9780164029863148
+Patience Counter: 2
+Epoch 21/50
+Average Loss: 3.9650251865386963
+Epoch 22/50
+Average Loss: 3.9628232055240207
+Epoch 23/50
+Average Loss: 3.959322690963745
+Epoch 24/50
+Average Loss: 3.9582720862494574
+Epoch 25/50
+Average Loss: 3.9469089772966175
+Epoch 26/50
+Average Loss: 3.943966786066691
+Epoch 27/50
+Average Loss: 3.9348519113328724
+Epoch 28/50
+Average Loss: 3.92319557401869
+Epoch 29/50
+Average Loss: 3.9080142974853516
+Epoch 30/50
+Average Loss: 3.9142997794681125
+Patience Counter: 1
+Epoch 31/50
+Average Loss: 3.8953638871510825
+Epoch 32/50
+Average Loss: 3.8743102285597057
+Epoch 33/50
+Average Loss: 3.854890743891398
+Epoch 34/50
+Average Loss: 3.8408309353722467
+Epoch 35/50
+Average Loss: 3.834563891092936
+Epoch 36/50
+Average Loss: 3.8269200325012207
+Epoch 37/50
+Average Loss: 3.8312079111735025
+Patience Counter: 1
+Epoch 38/50
+Average Loss: 3.8060286309983997
+Epoch 39/50
+Average Loss: 3.8139389091067843
+Patience Counter: 1
+Epoch 40/50
+Average Loss: 3.813083940082126
+Patience Counter: 2
+Epoch 41/50
+Average Loss: 3.785828325483534
+Epoch 42/50
+Average Loss: 3.769998894797431
+Epoch 43/50
+Average Loss: 3.764160739050971
+Epoch 44/50
+Average Loss: 3.758597347471449
+Epoch 45/50
+Average Loss: 3.7232383357153997
+Epoch 46/50
+Average Loss: 3.7098940478430853
+Epoch 47/50
+Average Loss: 3.711740149392022
+Patience Counter: 1
+Epoch 48/50
+Average Loss: 3.707876284917196
+Epoch 49/50
+Average Loss: 3.6920201778411865
+Epoch 50/50
+Average Loss: 3.727290815777249
+Patience Counter: 1
+C-index: 0.6349
+Using GPU: cuda:4 (utilization=0%, free_mem=9998MiB)
+Running trial 1 for ExperimentScenario.FOUR_FEATURES on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 4.815456867218018
+Epoch 2/50
+Average Loss: 4.3368368943532305
+Epoch 3/50
+Average Loss: 4.209831502702501
+Epoch 4/50
+Average Loss: 4.147866461012098
+Epoch 5/50
+Average Loss: 4.120461146036784
+Epoch 6/50
+Average Loss: 4.072702725728353
+Epoch 7/50
+Average Loss: 4.042844745847914
+Epoch 8/50
+Average Loss: 4.036006900999281
+Epoch 9/50
+Average Loss: 4.0141622225443525
+Epoch 10/50
+Average Loss: 4.010838084750706
+Epoch 11/50
+Average Loss: 4.000651862886217
+Epoch 12/50
+Average Loss: 4.011183155907525
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 4.004634671741062
+Patience Counter: 2
+Epoch 14/50
+Average Loss: 4.00758515463935
+Patience Counter: 3
+Epoch 15/50
+Average Loss: 4.006731960508558
+Patience Counter: 4
+Epoch 16/50
+Average Loss: 4.019264221191406
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5818
+Using GPU: cuda:7 (utilization=0%, free_mem=8910MiB)
+Running trial 2 for ExperimentScenario.FOUR_FEATURES on device cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 5.142606364356147
+Epoch 2/50
+Average Loss: 5.040792094336616
+Epoch 3/50
+Average Loss: 4.889456378089057
+Epoch 4/50
+Average Loss: 4.706957128312853
+Epoch 5/50
+Average Loss: 4.536106480492486
+Epoch 6/50
+Average Loss: 4.385064760843913
+Epoch 7/50
+Average Loss: 4.266645166609022
+Epoch 8/50
+Average Loss: 4.2180741628011065
+Epoch 9/50
+Average Loss: 4.142979462941487
+Epoch 10/50
+Average Loss: 4.113781134287517
+Epoch 11/50
+Average Loss: 4.089260419209798
+Epoch 12/50
+Average Loss: 4.072454849878947
+Epoch 13/50
+Average Loss: 4.062528000937568
+Epoch 14/50
+Average Loss: 4.060969087812635
+Epoch 15/50
+Average Loss: 4.03948097758823
+Epoch 16/50
+Average Loss: 4.03234150674608
+Epoch 17/50
+Average Loss: 4.025153425004747
+Epoch 18/50
+Average Loss: 4.028230746587117
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 4.016709407170613
+Epoch 20/50
+Average Loss: 4.003877692752415
+Epoch 21/50
+Average Loss: 4.026752127541436
+Patience Counter: 1
+Epoch 22/50
+Average Loss: 4.010823064380222
+Patience Counter: 2
+Epoch 23/50
+Average Loss: 4.014244847827488
+Patience Counter: 3
+Epoch 24/50
+Average Loss: 4.022956000434028
+Patience Counter: 4
+Epoch 25/50
+Average Loss: 4.019579675462511
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5859
+Using GPU: cuda:4 (utilization=0%, free_mem=6300MiB)
+Running trial 3 for ExperimentScenario.FOUR_FEATURES on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 4.851441224416097
+Epoch 2/50
+Average Loss: 4.48695166905721
+Epoch 3/50
+Average Loss: 4.385864045884874
+Epoch 4/50
+Average Loss: 4.355729050106472
+Epoch 5/50
+Average Loss: 4.28309784995185
+Epoch 6/50
+Average Loss: 4.2035848829481335
+Epoch 7/50
+Average Loss: 4.131301217608982
+Epoch 8/50
+Average Loss: 4.07111734814114
+Epoch 9/50
+Average Loss: 4.048696809344822
+Epoch 10/50
+Average Loss: 4.0371031231350365
+Epoch 11/50
+Average Loss: 4.0338643656836615
+Epoch 12/50
+Average Loss: 4.011963261498345
+Epoch 13/50
+Average Loss: 4.022942145665486
+Patience Counter: 1
+Epoch 14/50
+Average Loss: 4.025135729047987
+Patience Counter: 2
+Epoch 15/50
+Average Loss: 4.017451021406385
+Patience Counter: 3
+Epoch 16/50
+Average Loss: 4.013087034225464
+Patience Counter: 4
+Epoch 17/50
+Average Loss: 4.026586479610867
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4547
+Using GPU: cuda:5 (utilization=0%, free_mem=8982MiB)
+Running trial 4 for ExperimentScenario.FOUR_FEATURES on device cuda:5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 5.081549538506402
+Epoch 2/50
+Average Loss: 4.89457819196913
+Epoch 3/50
+Average Loss: 4.812992413838704
+Epoch 4/50
+Average Loss: 4.7350279490153
+Epoch 5/50
+Average Loss: 4.668427096472846
+Epoch 6/50
+Average Loss: 4.637256357404921
+Epoch 7/50
+Average Loss: 4.673215495215522
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 4.73144170973036
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 4.4561692873636884
+Epoch 10/50
+Average Loss: 4.317761765586005
+Epoch 11/50
+Average Loss: 4.210582335789998
+Epoch 12/50
+Average Loss: 4.101166592703925
+Epoch 13/50
+Average Loss: 4.049539354112413
+Epoch 14/50
+Average Loss: 4.01905435985989
+Epoch 15/50
+Average Loss: 4.010064151551989
+Epoch 16/50
+Average Loss: 4.00539395544264
+Epoch 17/50
+Average Loss: 3.9968137741088867
+Epoch 18/50
+Average Loss: 3.998095883263482
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 4.02267509036594
+Patience Counter: 2
+Epoch 20/50
+Average Loss: 4.012450165218777
+Patience Counter: 3
+Epoch 21/50
+Average Loss: 4.005989736980862
+Patience Counter: 4
+Epoch 22/50
+Average Loss: 4.017906718783909
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4517
+Using GPU: cuda:7 (utilization=0%, free_mem=4548MiB)
+Running trial 5 for ExperimentScenario.FOUR_FEATURES on device cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 4.92867989010281
+Epoch 2/50
+Average Loss: 4.762379328409831
+Epoch 3/50
+Average Loss: 4.6341848903232155
+Epoch 4/50
+Average Loss: 4.488133006625706
+Epoch 5/50
+Average Loss: 4.362785339355469
+Epoch 6/50
+Average Loss: 4.174331188201904
+Epoch 7/50
+Average Loss: 4.1380893389383955
+Epoch 8/50
+Average Loss: 4.0658949216206866
+Epoch 9/50
+Average Loss: 4.02482369210985
+Epoch 10/50
+Average Loss: 4.029711855782403
+Patience Counter: 1
+Epoch 11/50
+Average Loss: 4.024147245619032
+Epoch 12/50
+Average Loss: 4.022210147645739
+Epoch 13/50
+Average Loss: 4.020800590515137
+Epoch 14/50
+Average Loss: 4.03049455748664
+Patience Counter: 1
+Epoch 15/50
+Average Loss: 4.021948258082072
+Patience Counter: 2
+Epoch 16/50
+Average Loss: 4.0398933092753095
+Patience Counter: 3
+Epoch 17/50
+Average Loss: 4.015376912222968
+Epoch 18/50
+Average Loss: 4.0236220889621315
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 4.024140622880724
+Patience Counter: 2
+Epoch 20/50
+Average Loss: 4.016227987077501
+Patience Counter: 3
+Epoch 21/50
+Average Loss: 4.006831407546997
+Epoch 22/50
+Average Loss: 3.994034316804674
+Epoch 23/50
+Average Loss: 3.991826295852661
+Epoch 24/50
+Average Loss: 3.981152746412489
+Epoch 25/50
+Average Loss: 3.9823303487565784
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 3.966258075502184
+Epoch 27/50
+Average Loss: 3.9781903425852456
+Patience Counter: 1
+Epoch 28/50
+Average Loss: 3.974197917514377
+Patience Counter: 2
+Epoch 29/50
+Average Loss: 3.974953942828708
+Patience Counter: 3
+Epoch 30/50
+Average Loss: 3.9787600305345325
+Patience Counter: 4
+Epoch 31/50
+Average Loss: 3.969457361433241
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.6332
+Using GPU: cuda:1 (utilization=0%, free_mem=5932MiB)
+Running trial 6 for ExperimentScenario.FOUR_FEATURES on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 5.146878507402208
+Epoch 2/50
+Average Loss: 5.097901768154568
+Epoch 3/50
+Average Loss: 5.064037164052327
+Epoch 4/50
+Average Loss: 5.036219067043728
+Epoch 5/50
+Average Loss: 5.0036773681640625
+Epoch 6/50
+Average Loss: 4.969208982255724
+Epoch 7/50
+Average Loss: 4.924191845787896
+Epoch 8/50
+Average Loss: 4.880294693840875
+Epoch 9/50
+Average Loss: 4.815652423434788
+Epoch 10/50
+Average Loss: 4.771567079755995
+Epoch 11/50
+Average Loss: 4.708181593153212
+Epoch 12/50
+Average Loss: 4.646512614356147
+Epoch 13/50
+Average Loss: 4.586737897660997
+Epoch 14/50
+Average Loss: 4.488022274441189
+Epoch 15/50
+Average Loss: 4.4493219587537975
+Epoch 16/50
+Average Loss: 4.413456492953831
+Epoch 17/50
+Average Loss: 4.318021986219618
+Epoch 18/50
+Average Loss: 4.256095515357123
+Epoch 19/50
+Average Loss: 4.236843797895643
+Epoch 20/50
+Average Loss: 4.213772826724583
+Epoch 21/50
+Average Loss: 4.177891863716973
+Epoch 22/50
+Average Loss: 4.184893978966607
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 4.1700693766276045
+Epoch 24/50
+Average Loss: 4.151632123523289
+Epoch 25/50
+Average Loss: 4.4686521954006615
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 4.774011982811822
+Patience Counter: 2
+Epoch 27/50
+Average Loss: 4.524646070268419
+Patience Counter: 3
+Epoch 28/50
+Average Loss: 4.205959796905518
+Patience Counter: 4
+Epoch 29/50
+Average Loss: 4.151279422971937
+Epoch 30/50
+Average Loss: 4.14168185657925
+Epoch 31/50
+Average Loss: 4.154425435596043
+Patience Counter: 1
+Epoch 32/50
+Average Loss: 4.117249276902941
+Epoch 33/50
+Average Loss: 4.1574371125963
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 4.142959541744656
+Patience Counter: 2
+Epoch 35/50
+Average Loss: 4.102293570836385
+Epoch 36/50
+Average Loss: 4.1176674365997314
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 4.149252706103855
+Patience Counter: 2
+Epoch 38/50
+Average Loss: 4.112008465660943
+Patience Counter: 3
+Epoch 39/50
+Average Loss: 4.089868254131741
+Epoch 40/50
+Average Loss: 4.072176615397136
+Epoch 41/50
+Average Loss: 4.106036451127794
+Patience Counter: 1
+Epoch 42/50
+Average Loss: 4.104090452194214
+Patience Counter: 2
+Epoch 43/50
+Average Loss: 4.091700050565931
+Patience Counter: 3
+Epoch 44/50
+Average Loss: 4.0837489234076605
+Patience Counter: 4
+Epoch 45/50
+Average Loss: 4.092170741822985
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4580
+Using GPU: cuda:2 (utilization=0%, free_mem=6182MiB)
+Running trial 7 for ExperimentScenario.FOUR_FEATURES on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 5.134882079230414
+Epoch 2/50
+Average Loss: 5.059240765041775
+Epoch 3/50
+Average Loss: 5.009078237745497
+Epoch 4/50
+Average Loss: 4.978585455152723
+Epoch 5/50
+Average Loss: 4.95546277364095
+Epoch 6/50
+Average Loss: 4.936755392286512
+Epoch 7/50
+Average Loss: 4.922099325391981
+Epoch 8/50
+Average Loss: 4.929783662160237
+Patience Counter: 1
+Epoch 9/50
+Average Loss: 4.905163447062175
+Epoch 10/50
+Average Loss: 4.864747153388129
+Epoch 11/50
+Average Loss: 4.849601321750217
+Epoch 12/50
+Average Loss: 4.840511586931017
+Epoch 13/50
+Average Loss: 4.814920001559788
+Epoch 14/50
+Average Loss: 4.818607277340359
+Patience Counter: 1
+Epoch 15/50
+Average Loss: 4.811112244923909
+Epoch 16/50
+Average Loss: 4.792746914757623
+Epoch 17/50
+Average Loss: 4.754645029703776
+Epoch 18/50
+Average Loss: 4.753672228919135
+Epoch 19/50
+Average Loss: 4.728093730078803
+Epoch 20/50
+Average Loss: 4.715737660725911
+Epoch 21/50
+Average Loss: 4.696041425069173
+Epoch 22/50
+Average Loss: 4.667859024471706
+Epoch 23/50
+Average Loss: 4.656650490230984
+Epoch 24/50
+Average Loss: 4.652414904700385
+Epoch 25/50
+Average Loss: 4.639910909864637
+Epoch 26/50
+Average Loss: 4.597841103871663
+Epoch 27/50
+Average Loss: 4.594245062934028
+Epoch 28/50
+Average Loss: 4.586409992641872
+Epoch 29/50
+Average Loss: 4.560268084208171
+Epoch 30/50
+Average Loss: 4.533928235371907
+Epoch 31/50
+Average Loss: 4.522419240739611
+Epoch 32/50
+Average Loss: 4.524710708194309
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 4.5073879559834795
+Epoch 34/50
+Average Loss: 4.492308510674371
+Epoch 35/50
+Average Loss: 4.472916762034099
+Epoch 36/50
+Average Loss: 4.467328972286648
+Epoch 37/50
+Average Loss: 4.427086459265815
+Epoch 38/50
+Average Loss: 4.438654634687635
+Patience Counter: 1
+Epoch 39/50
+Average Loss: 4.413814385732015
+Epoch 40/50
+Average Loss: 4.409240669674343
+Epoch 41/50
+Average Loss: 4.3960053655836315
+Epoch 42/50
+Average Loss: 4.372256384955512
+Epoch 43/50
+Average Loss: 4.3510649469163685
+Epoch 44/50
+Average Loss: 4.340754270553589
+Epoch 45/50
+Average Loss: 4.328683323330349
+Epoch 46/50
+Average Loss: 4.320359230041504
+Epoch 47/50
+Average Loss: 4.288871420754327
+Epoch 48/50
+Average Loss: 4.275573280122545
+Epoch 49/50
+Average Loss: 4.2651711569892035
+Epoch 50/50
+Average Loss: 4.260888285107082
+C-index: 0.5196
+Using GPU: cuda:7 (utilization=0%, free_mem=1672MiB)
+Running trial 8 for ExperimentScenario.FOUR_FEATURES on device cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 4.910722414652507
+Epoch 2/50
+Average Loss: 4.378991603851318
+Epoch 3/50
+Average Loss: 4.152631918589274
+Epoch 4/50
+Average Loss: 4.057968642976549
+Epoch 5/50
+Average Loss: 4.015083021587795
+Epoch 6/50
+Average Loss: 4.010938405990601
+Epoch 7/50
+Average Loss: 3.9928718937767878
+Epoch 8/50
+Average Loss: 4.010673416985406
+Patience Counter: 1
+Epoch 9/50
+Average Loss: 4.010310702853733
+Patience Counter: 2
+Epoch 10/50
+Average Loss: 3.9957126246558294
+Patience Counter: 3
+Epoch 11/50
+Average Loss: 3.9831601778666177
+Epoch 12/50
+Average Loss: 3.9930713971455893
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 3.972877264022827
+Epoch 14/50
+Average Loss: 3.9791595935821533
+Patience Counter: 1
+Epoch 15/50
+Average Loss: 3.9660488499535456
+Epoch 16/50
+Average Loss: 3.960272471110026
+Epoch 17/50
+Average Loss: 3.9604473643832736
+Patience Counter: 1
+Epoch 18/50
+Average Loss: 3.9464166164398193
+Epoch 19/50
+Average Loss: 3.941970613267687
+Epoch 20/50
+Average Loss: 3.9335658285352917
+Epoch 21/50
+Average Loss: 3.8725962109035916
+Epoch 22/50
+Average Loss: 3.8390482001834445
+Epoch 23/50
+Average Loss: 3.807345231374105
+Epoch 24/50
+Average Loss: 3.7479177051120334
+Epoch 25/50
+Average Loss: 3.7226080894470215
+Epoch 26/50
+Average Loss: 3.7035978635152182
+Epoch 27/50
+Average Loss: 3.725474198659261
+Patience Counter: 1
+Epoch 28/50
+Average Loss: 3.7185042169358997
+Patience Counter: 2
+Epoch 29/50
+Average Loss: 3.688722742928399
+Epoch 30/50
+Average Loss: 3.677492539087931
+Epoch 31/50
+Average Loss: 3.6506791379716663
+Epoch 32/50
+Average Loss: 3.6748474968804254
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 3.633420017030504
+Epoch 34/50
+Average Loss: 3.641431066724989
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 3.628003650241428
+Epoch 36/50
+Average Loss: 3.64615699979994
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 3.6363068686591253
+Patience Counter: 2
+Epoch 38/50
+Average Loss: 3.6028581725226507
+Epoch 39/50
+Average Loss: 3.56760835647583
+Epoch 40/50
+Average Loss: 3.567750506930881
+Patience Counter: 1
+Epoch 41/50
+Average Loss: 3.6392605304718018
+Patience Counter: 2
+Epoch 42/50
+Average Loss: 3.5786561965942383
+Patience Counter: 3
+Epoch 43/50
+Average Loss: 3.5890801747639975
+Patience Counter: 4
+Epoch 44/50
+Average Loss: 3.558850235409207
+Epoch 45/50
+Average Loss: 3.600469642215305
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 3.550997151268853
+Epoch 47/50
+Average Loss: 3.534583648045858
+Epoch 48/50
+Average Loss: 3.551049974229601
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 3.5657230218251548
+Patience Counter: 2
+Epoch 50/50
+Average Loss: 3.5573636955685086
+Patience Counter: 3
+C-index: 0.6360
+Using GPU: cuda:2 (utilization=0%, free_mem=3336MiB)
+Running trial 9 for ExperimentScenario.FOUR_FEATURES on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+Number of patients: test 562 and train 2247
+Number of records: test 5511 and train 21318
+Epoch 1/50
+Average Loss: 5.1918289926317005
+Epoch 2/50
+Average Loss: 5.144719017876519
+Epoch 3/50
+Average Loss: 5.092117097642687
+Epoch 4/50
+Average Loss: 5.037557072109646
+Epoch 5/50
+Average Loss: 5.009387440151638
+Epoch 6/50
+Average Loss: 4.96002541648017
+Epoch 7/50
+Average Loss: 4.923687405056423
+Epoch 8/50
+Average Loss: 4.895741091834174
+Epoch 9/50
+Average Loss: 4.857556131150988
+Epoch 10/50
+Average Loss: 4.833892398410374
+Epoch 11/50
+Average Loss: 4.801861763000488
+Epoch 12/50
+Average Loss: 4.775904867384169
+Epoch 13/50
+Average Loss: 4.763546996646458
+Epoch 14/50
+Average Loss: 4.716159767574734
+Epoch 15/50
+Average Loss: 4.707791063520643
+Epoch 16/50
+Average Loss: 4.665974564022488
+Epoch 17/50
+Average Loss: 4.6628181139628095
+Epoch 18/50
+Average Loss: 4.636331452263726
+Epoch 19/50
+Average Loss: 4.624728520711263
+Epoch 20/50
+Average Loss: 4.6084986792670355
+Epoch 21/50
+Average Loss: 4.593300766415066
+Epoch 22/50
+Average Loss: 4.591935475667317
+Epoch 23/50
+Average Loss: 4.571537759568956
+Epoch 24/50
+Average Loss: 4.575506422254774
+Patience Counter: 1
+Epoch 25/50
+Average Loss: 4.563385804494222
+Epoch 26/50
+Average Loss: 4.5544394916958275
+Epoch 27/50
+Average Loss: 4.555873923831516
+Patience Counter: 1
+Epoch 28/50
+Average Loss: 4.540245374043782
+Epoch 29/50
+Average Loss: 4.546075344085693
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 4.535363515218099
+Epoch 31/50
+Average Loss: 4.520272731781006
+Epoch 32/50
+Average Loss: 4.523416360219319
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 4.5240409639146595
+Patience Counter: 2
+Epoch 34/50
+Average Loss: 4.514924155341254
+Epoch 35/50
+Average Loss: 4.5119954744974775
+Epoch 36/50
+Average Loss: 4.513366646236843
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 4.506578763326009
+Epoch 38/50
+Average Loss: 4.49033768971761
+Epoch 39/50
+Average Loss: 4.506200604968601
+Patience Counter: 1
+Epoch 40/50
+Average Loss: 4.478181150224474
+Epoch 41/50
+Average Loss: 4.473949962192112
+Epoch 42/50
+Average Loss: 4.475477801428901
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 4.467014524671766
+Epoch 44/50
+Average Loss: 4.4665087593926325
+Epoch 45/50
+Average Loss: 4.458117643992106
+Epoch 46/50
+Average Loss: 4.458343982696533
+Patience Counter: 1
+Epoch 47/50
+Average Loss: 4.448233869340685
+Epoch 48/50
+Average Loss: 4.453354782528347
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 4.456452422671848
+Patience Counter: 2
+Epoch 50/50
+Average Loss: 4.432769563462999
+C-index: 0.3957
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layers': 2, 'learning_rate': 0.00026078310296525915, 'drop_out_rate': 0.20692458895016805, 'n_head': 4, 'nhead_factor': 16}
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=4, out_features=64, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=32, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=32, out_features=64, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-1): 2 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=64, out_features=64, bias=True)
+        )
+        (linear1): Linear(in_features=64, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.20692458895016805, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=64, bias=True)
+        (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.20692458895016805, inplace=False)
+        (dropout2): Dropout(p=0.20692458895016805, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=64, out_features=32, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=32, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.6373
+Mean time-dependent AUC: 0.70
+Warning: Could not compute Brier Score: time must be smaller than largest observed time point: 4216.413194444444
+Using GPU: cuda:2 (utilization=0%, free_mem=3336MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Running Optuna hyperparameter optimization
+Using GPU: cuda:1 (utilization=0%, free_mem=3666MiB)
+Running trial 0 for ExperimentScenario.EIGHT_FEATURES on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.242479562759399
+Epoch 2/50
+Average Loss: 4.2343690395355225
+Epoch 3/50
+Average Loss: 4.171951770782471
+Epoch 4/50
+Average Loss: 4.229470729827881
+Patience Counter: 1
+Epoch 5/50
+Average Loss: 4.235033750534058
+Patience Counter: 2
+Epoch 6/50
+Average Loss: 4.246093511581421
+Patience Counter: 3
+Epoch 7/50
+Average Loss: 4.21984738111496
+Patience Counter: 4
+Epoch 8/50
+Average Loss: 4.2427098751068115
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4970
+Using GPU: cuda:2 (utilization=0%, free_mem=3336MiB)
+Running trial 1 for ExperimentScenario.EIGHT_FEATURES on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.228218674659729
+Epoch 2/50
+Average Loss: 4.171296119689941
+Epoch 3/50
+Average Loss: 4.1082568764686584
+Epoch 4/50
+Average Loss: 4.021612048149109
+Epoch 5/50
+Average Loss: 3.949571669101715
+Epoch 6/50
+Average Loss: 3.8868061304092407
+Epoch 7/50
+Average Loss: 3.8598338961601257
+Epoch 8/50
+Average Loss: 3.8555668592453003
+Epoch 9/50
+Average Loss: 3.8391992449760437
+Epoch 10/50
+Average Loss: 3.8376917243003845
+Epoch 11/50
+Average Loss: 3.8274824023246765
+Epoch 12/50
+Average Loss: 3.8197510838508606
+Epoch 13/50
+Average Loss: 3.818392276763916
+Epoch 14/50
+Average Loss: 3.827424108982086
+Patience Counter: 1
+Epoch 15/50
+Average Loss: 3.8157957792282104
+Epoch 16/50
+Average Loss: 3.821308672428131
+Patience Counter: 1
+Epoch 17/50
+Average Loss: 3.8053576946258545
+Epoch 18/50
+Average Loss: 3.806303083896637
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 3.8069584369659424
+Patience Counter: 2
+Epoch 20/50
+Average Loss: 3.800621211528778
+Epoch 21/50
+Average Loss: 3.7917409539222717
+Epoch 22/50
+Average Loss: 3.800357162952423
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 3.7899094820022583
+Epoch 24/50
+Average Loss: 3.794662058353424
+Patience Counter: 1
+Epoch 25/50
+Average Loss: 3.8119125366210938
+Patience Counter: 2
+Epoch 26/50
+Average Loss: 3.784166395664215
+Epoch 27/50
+Average Loss: 3.7774474024772644
+Epoch 28/50
+Average Loss: 3.7755972146987915
+Epoch 29/50
+Average Loss: 3.7839027643203735
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 3.775800943374634
+Patience Counter: 2
+Epoch 31/50
+Average Loss: 3.771839141845703
+Epoch 32/50
+Average Loss: 3.755669951438904
+Epoch 33/50
+Average Loss: 3.768459439277649
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 3.7601091265678406
+Patience Counter: 2
+Epoch 35/50
+Average Loss: 3.7739838361740112
+Patience Counter: 3
+Epoch 36/50
+Average Loss: 3.7724477648735046
+Patience Counter: 4
+Epoch 37/50
+Average Loss: 3.753270387649536
+Epoch 38/50
+Average Loss: 3.767480492591858
+Patience Counter: 1
+Epoch 39/50
+Average Loss: 3.757990002632141
+Patience Counter: 2
+Epoch 40/50
+Average Loss: 3.7471386790275574
+Epoch 41/50
+Average Loss: 3.737473726272583
+Epoch 42/50
+Average Loss: 3.7459564208984375
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 3.7499877214431763
+Patience Counter: 2
+Epoch 44/50
+Average Loss: 3.7464253306388855
+Patience Counter: 3
+Epoch 45/50
+Average Loss: 3.740031123161316
+Patience Counter: 4
+Epoch 46/50
+Average Loss: 3.734366238117218
+Epoch 47/50
+Average Loss: 3.727438807487488
+Epoch 48/50
+Average Loss: 3.7278233766555786
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 3.7206634283065796
+Epoch 50/50
+Average Loss: 3.712612807750702
+C-index: 0.4932
+Using GPU: cuda:7 (utilization=0%, free_mem=1272MiB)
+Running trial 2 for ExperimentScenario.EIGHT_FEATURES on device cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.195855498313904
+Epoch 2/50
+Average Loss: 4.163518309593201
+Epoch 3/50
+Average Loss: 4.127276420593262
+Epoch 4/50
+Average Loss: 4.098132610321045
+Epoch 5/50
+Average Loss: 4.062816143035889
+Epoch 6/50
+Average Loss: 4.037861704826355
+Epoch 7/50
+Average Loss: 4.000137209892273
+Epoch 8/50
+Average Loss: 3.9350683093070984
+Epoch 9/50
+Average Loss: 3.8905783891677856
+Epoch 10/50
+Average Loss: 3.8455710411071777
+Epoch 11/50
+Average Loss: 3.8143840432167053
+Epoch 12/50
+Average Loss: 3.7697339057922363
+Epoch 13/50
+Average Loss: 3.728449523448944
+Epoch 14/50
+Average Loss: 3.6639034152030945
+Epoch 15/50
+Average Loss: 3.6121071577072144
+Epoch 16/50
+Average Loss: 3.581914007663727
+Epoch 17/50
+Average Loss: 3.537608027458191
+Epoch 18/50
+Average Loss: 3.49215430021286
+Epoch 19/50
+Average Loss: 3.4569356441497803
+Epoch 20/50
+Average Loss: 3.418516755104065
+Epoch 21/50
+Average Loss: 3.36438649892807
+Epoch 22/50
+Average Loss: 3.324800431728363
+Epoch 23/50
+Average Loss: 3.2778729796409607
+Epoch 24/50
+Average Loss: 3.218548536300659
+Epoch 25/50
+Average Loss: 3.1906973123550415
+Epoch 26/50
+Average Loss: 3.139789879322052
+Epoch 27/50
+Average Loss: 3.10521537065506
+Epoch 28/50
+Average Loss: 3.0972368717193604
+Epoch 29/50
+Average Loss: 3.043236553668976
+Epoch 30/50
+Average Loss: 3.030711591243744
+Epoch 31/50
+Average Loss: 2.9966732263565063
+Epoch 32/50
+Average Loss: 2.9923607110977173
+Epoch 33/50
+Average Loss: 2.9637052416801453
+Epoch 34/50
+Average Loss: 2.94661808013916
+Epoch 35/50
+Average Loss: 2.938219726085663
+Epoch 36/50
+Average Loss: 2.930693507194519
+Epoch 37/50
+Average Loss: 2.9143477082252502
+Epoch 38/50
+Average Loss: 2.883078634738922
+Epoch 39/50
+Average Loss: 2.878144860267639
+Epoch 40/50
+Average Loss: 2.869060516357422
+Epoch 41/50
+Average Loss: 2.8545247316360474
+Epoch 42/50
+Average Loss: 2.8514057993888855
+Epoch 43/50
+Average Loss: 2.8398571610450745
+Epoch 44/50
+Average Loss: 2.828419864177704
+Epoch 45/50
+Average Loss: 2.8344058990478516
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 2.8162580728530884
+Epoch 47/50
+Average Loss: 2.8069300651550293
+Epoch 48/50
+Average Loss: 2.814854681491852
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 2.7983434796333313
+Epoch 50/50
+Average Loss: 2.7727993726730347
+C-index: 0.4967
+Using GPU: cuda:2 (utilization=0%, free_mem=2914MiB)
+Running trial 3 for ExperimentScenario.EIGHT_FEATURES on device cuda:2
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.109012842178345
+Epoch 2/50
+Average Loss: 3.740947961807251
+Epoch 3/50
+Average Loss: 3.324619472026825
+Epoch 4/50
+Average Loss: 3.0431952476501465
+Epoch 5/50
+Average Loss: 2.861069440841675
+Epoch 6/50
+Average Loss: 2.7305818796157837
+Epoch 7/50
+Average Loss: 2.6588924527168274
+Epoch 8/50
+Average Loss: 2.592094659805298
+Epoch 9/50
+Average Loss: 2.5470022559165955
+Epoch 10/50
+Average Loss: 2.4991732239723206
+Epoch 11/50
+Average Loss: 2.4560304284095764
+Epoch 12/50
+Average Loss: 2.4118319749832153
+Epoch 13/50
+Average Loss: 2.368072032928467
+Epoch 14/50
+Average Loss: 2.3239702582359314
+Epoch 15/50
+Average Loss: 2.3023964762687683
+Epoch 16/50
+Average Loss: 2.2452206313610077
+Epoch 17/50
+Average Loss: 2.215307831764221
+Epoch 18/50
+Average Loss: 2.1929692029953003
+Epoch 19/50
+Average Loss: 2.1508044600486755
+Epoch 20/50
+Average Loss: 2.1326249837875366
+Epoch 21/50
+Average Loss: 2.091580957174301
+Epoch 22/50
+Average Loss: 2.0725640654563904
+Epoch 23/50
+Average Loss: 2.052330434322357
+Epoch 24/50
+Average Loss: 2.021991491317749
+Epoch 25/50
+Average Loss: 2.0319736897945404
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 1.9866019487380981
+Epoch 27/50
+Average Loss: 2.004905939102173
+Patience Counter: 1
+Epoch 28/50
+Average Loss: 1.9737432897090912
+Epoch 29/50
+Average Loss: 1.9549913704395294
+Epoch 30/50
+Average Loss: 1.9626247584819794
+Patience Counter: 1
+Epoch 31/50
+Average Loss: 1.9387162327766418
+Epoch 32/50
+Average Loss: 1.9468091130256653
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 1.923491507768631
+Epoch 34/50
+Average Loss: 1.9238859713077545
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 1.924081265926361
+Patience Counter: 2
+Epoch 36/50
+Average Loss: 1.9225416481494904
+Epoch 37/50
+Average Loss: 1.9040858149528503
+Epoch 38/50
+Average Loss: 1.9321506321430206
+Patience Counter: 1
+Epoch 39/50
+Average Loss: 1.9227858781814575
+Patience Counter: 2
+Epoch 40/50
+Average Loss: 1.9229437410831451
+Patience Counter: 3
+Epoch 41/50
+Average Loss: 1.9066495895385742
+Patience Counter: 4
+Epoch 42/50
+Average Loss: 1.919191598892212
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5554
+Using GPU: cuda:1 (utilization=0%, free_mem=1616MiB)
+Running trial 4 for ExperimentScenario.EIGHT_FEATURES on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 3.9235950708389282
+Epoch 2/50
+Average Loss: 3.5925004482269287
+Epoch 3/50
+Average Loss: 3.478996694087982
+Epoch 4/50
+Average Loss: 3.3971924781799316
+Epoch 5/50
+Average Loss: 3.294647455215454
+Epoch 6/50
+Average Loss: 3.2048131823539734
+Epoch 7/50
+Average Loss: 3.1021726727485657
+Epoch 8/50
+Average Loss: 2.9956331849098206
+Epoch 9/50
+Average Loss: 2.8731117248535156
+Epoch 10/50
+Average Loss: 2.7663663029670715
+Epoch 11/50
+Average Loss: 2.635319232940674
+Epoch 12/50
+Average Loss: 2.517988383769989
+Epoch 13/50
+Average Loss: 2.407240927219391
+Epoch 14/50
+Average Loss: 2.2829662561416626
+Epoch 15/50
+Average Loss: 2.1922272443771362
+Epoch 16/50
+Average Loss: 2.105076402425766
+Epoch 17/50
+Average Loss: 2.0376894176006317
+Epoch 18/50
+Average Loss: 1.9776417016983032
+Epoch 19/50
+Average Loss: 1.9544203877449036
+Epoch 20/50
+Average Loss: 1.9184557497501373
+Epoch 21/50
+Average Loss: 1.9172335863113403
+Epoch 22/50
+Average Loss: 1.8977840542793274
+Epoch 23/50
+Average Loss: 1.9198125898838043
+Patience Counter: 1
+Epoch 24/50
+Average Loss: 1.92740997672081
+Patience Counter: 2
+Epoch 25/50
+Average Loss: 1.923867404460907
+Patience Counter: 3
+Epoch 26/50
+Average Loss: 1.9295221865177155
+Patience Counter: 4
+Epoch 27/50
+Average Loss: 1.9168652892112732
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4230
+Using GPU: cuda:4 (utilization=0%, free_mem=5302MiB)
+Running trial 5 for ExperimentScenario.EIGHT_FEATURES on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.245504558086395
+Epoch 2/50
+Average Loss: 4.214365124702454
+Epoch 3/50
+Average Loss: 4.224732756614685
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 4.232126235961914
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 4.221912264823914
+Patience Counter: 3
+Epoch 6/50
+Average Loss: 4.2154176235198975
+Patience Counter: 4
+Epoch 7/50
+Average Loss: 4.2075419425964355
+Epoch 8/50
+Average Loss: 4.172613263130188
+Epoch 9/50
+Average Loss: 4.1458752155303955
+Epoch 10/50
+Average Loss: 4.010949671268463
+Epoch 11/50
+Average Loss: 3.8366869688034058
+Epoch 12/50
+Average Loss: 3.7843291759490967
+Epoch 13/50
+Average Loss: 3.760429322719574
+Epoch 14/50
+Average Loss: 3.7230101227760315
+Epoch 15/50
+Average Loss: 3.699548661708832
+Epoch 16/50
+Average Loss: 3.6946399211883545
+Epoch 17/50
+Average Loss: 3.667080342769623
+Epoch 18/50
+Average Loss: 3.6402519941329956
+Epoch 19/50
+Average Loss: 3.612594783306122
+Epoch 20/50
+Average Loss: 3.5851946473121643
+Epoch 21/50
+Average Loss: 3.5469313859939575
+Epoch 22/50
+Average Loss: 3.520120620727539
+Epoch 23/50
+Average Loss: 3.509646713733673
+Epoch 24/50
+Average Loss: 3.4806572794914246
+Epoch 25/50
+Average Loss: 3.4410330653190613
+Epoch 26/50
+Average Loss: 3.412028729915619
+Epoch 27/50
+Average Loss: 3.404612183570862
+Epoch 28/50
+Average Loss: 3.3672751784324646
+Epoch 29/50
+Average Loss: 3.333104968070984
+Epoch 30/50
+Average Loss: 3.2964674830436707
+Epoch 31/50
+Average Loss: 3.266914129257202
+Epoch 32/50
+Average Loss: 3.24106627702713
+Epoch 33/50
+Average Loss: 3.2000043988227844
+Epoch 34/50
+Average Loss: 3.1717719435691833
+Epoch 35/50
+Average Loss: 3.125372588634491
+Epoch 36/50
+Average Loss: 3.122899651527405
+Epoch 37/50
+Average Loss: 3.1083675622940063
+Epoch 38/50
+Average Loss: 3.0659170150756836
+Epoch 39/50
+Average Loss: 3.0364015698432922
+Epoch 40/50
+Average Loss: 2.973211169242859
+Epoch 41/50
+Average Loss: 2.93074494600296
+Epoch 42/50
+Average Loss: 2.8912845849990845
+Epoch 43/50
+Average Loss: 2.8819015622138977
+Epoch 44/50
+Average Loss: 2.8709315061569214
+Epoch 45/50
+Average Loss: 2.8277249336242676
+Epoch 46/50
+Average Loss: 2.7918883562088013
+Epoch 47/50
+Average Loss: 2.8016542196273804
+Patience Counter: 1
+Epoch 48/50
+Average Loss: 2.722668468952179
+Epoch 49/50
+Average Loss: 2.7329500317573547
+Patience Counter: 1
+Epoch 50/50
+Average Loss: 2.6573540568351746
+C-index: 0.5713
+Using GPU: cuda:1 (utilization=0%, free_mem=1616MiB)
+Running trial 6 for ExperimentScenario.EIGHT_FEATURES on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.1652991771698
+Epoch 2/50
+Average Loss: 4.144186854362488
+Epoch 3/50
+Average Loss: 4.127795577049255
+Epoch 4/50
+Average Loss: 4.126983404159546
+Epoch 5/50
+Average Loss: 4.094430923461914
+Epoch 6/50
+Average Loss: 4.078591883182526
+Epoch 7/50
+Average Loss: 4.050544023513794
+Epoch 8/50
+Average Loss: 4.050521790981293
+Epoch 9/50
+Average Loss: 4.043901145458221
+Epoch 10/50
+Average Loss: 4.003685653209686
+Epoch 11/50
+Average Loss: 3.9863454699516296
+Epoch 12/50
+Average Loss: 3.9824283123016357
+Epoch 13/50
+Average Loss: 3.948689103126526
+Epoch 14/50
+Average Loss: 3.9396879076957703
+Epoch 15/50
+Average Loss: 3.9166828393936157
+Epoch 16/50
+Average Loss: 3.8884726762771606
+Epoch 17/50
+Average Loss: 3.876091480255127
+Epoch 18/50
+Average Loss: 3.8550273180007935
+Epoch 19/50
+Average Loss: 3.850869655609131
+Epoch 20/50
+Average Loss: 3.833801746368408
+Epoch 21/50
+Average Loss: 3.8106263875961304
+Epoch 22/50
+Average Loss: 3.779182732105255
+Epoch 23/50
+Average Loss: 3.7777058482170105
+Epoch 24/50
+Average Loss: 3.748653829097748
+Epoch 25/50
+Average Loss: 3.713490903377533
+Epoch 26/50
+Average Loss: 3.692244231700897
+Epoch 27/50
+Average Loss: 3.6910924911499023
+Epoch 28/50
+Average Loss: 3.651429235935211
+Epoch 29/50
+Average Loss: 3.6567651629447937
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 3.609103560447693
+Epoch 31/50
+Average Loss: 3.5909761786460876
+Epoch 32/50
+Average Loss: 3.590840995311737
+Epoch 33/50
+Average Loss: 3.5737545490264893
+Epoch 34/50
+Average Loss: 3.549639642238617
+Epoch 35/50
+Average Loss: 3.4919075965881348
+Epoch 36/50
+Average Loss: 3.5023648142814636
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 3.456058442592621
+Epoch 38/50
+Average Loss: 3.435741901397705
+Epoch 39/50
+Average Loss: 3.422636866569519
+Epoch 40/50
+Average Loss: 3.399386942386627
+Epoch 41/50
+Average Loss: 3.3611928820610046
+Epoch 42/50
+Average Loss: 3.353647530078888
+Epoch 43/50
+Average Loss: 3.3475990891456604
+Epoch 44/50
+Average Loss: 3.3190964460372925
+Epoch 45/50
+Average Loss: 3.292838215827942
+Epoch 46/50
+Average Loss: 3.2615755200386047
+Epoch 47/50
+Average Loss: 3.256160855293274
+Epoch 48/50
+Average Loss: 3.2500070929527283
+Epoch 49/50
+Average Loss: 3.2377253770828247
+Epoch 50/50
+Average Loss: 3.2126294374465942
+C-index: 0.5589
+Using GPU: cuda:4 (utilization=0%, free_mem=5288MiB)
+Running trial 7 for ExperimentScenario.EIGHT_FEATURES on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.194104552268982
+Epoch 2/50
+Average Loss: 4.00792533159256
+Epoch 3/50
+Average Loss: 3.86063289642334
+Epoch 4/50
+Average Loss: 3.678701877593994
+Epoch 5/50
+Average Loss: 3.5088833570480347
+Epoch 6/50
+Average Loss: 3.3821690678596497
+Epoch 7/50
+Average Loss: 3.297594368457794
+Epoch 8/50
+Average Loss: 3.2454174160957336
+Epoch 9/50
+Average Loss: 3.1887794733047485
+Epoch 10/50
+Average Loss: 3.157335877418518
+Epoch 11/50
+Average Loss: 3.1199700832366943
+Epoch 12/50
+Average Loss: 3.0932068824768066
+Epoch 13/50
+Average Loss: 3.071234405040741
+Epoch 14/50
+Average Loss: 3.0419726967811584
+Epoch 15/50
+Average Loss: 3.019618034362793
+Epoch 16/50
+Average Loss: 3.0037858486175537
+Epoch 17/50
+Average Loss: 2.96804541349411
+Epoch 18/50
+Average Loss: 2.949090898036957
+Epoch 19/50
+Average Loss: 2.917657256126404
+Epoch 20/50
+Average Loss: 2.895462453365326
+Epoch 21/50
+Average Loss: 2.868036150932312
+Epoch 22/50
+Average Loss: 2.8280742168426514
+Epoch 23/50
+Average Loss: 2.7942142486572266
+Epoch 24/50
+Average Loss: 2.781170666217804
+Epoch 25/50
+Average Loss: 2.7405129075050354
+Epoch 26/50
+Average Loss: 2.7058265209198
+Epoch 27/50
+Average Loss: 2.6899274587631226
+Epoch 28/50
+Average Loss: 2.659000515937805
+Epoch 29/50
+Average Loss: 2.6192084550857544
+Epoch 30/50
+Average Loss: 2.6108149886131287
+Epoch 31/50
+Average Loss: 2.5715529322624207
+Epoch 32/50
+Average Loss: 2.54644513130188
+Epoch 33/50
+Average Loss: 2.5115445852279663
+Epoch 34/50
+Average Loss: 2.487553119659424
+Epoch 35/50
+Average Loss: 2.4663060903549194
+Epoch 36/50
+Average Loss: 2.4479000568389893
+Epoch 37/50
+Average Loss: 2.421415627002716
+Epoch 38/50
+Average Loss: 2.385940432548523
+Epoch 39/50
+Average Loss: 2.3835708498954773
+Epoch 40/50
+Average Loss: 2.342118740081787
+Epoch 41/50
+Average Loss: 2.3305845260620117
+Epoch 42/50
+Average Loss: 2.3117451667785645
+Epoch 43/50
+Average Loss: 2.273081958293915
+Epoch 44/50
+Average Loss: 2.273749351501465
+Patience Counter: 1
+Epoch 45/50
+Average Loss: 2.237809717655182
+Epoch 46/50
+Average Loss: 2.209088981151581
+Epoch 47/50
+Average Loss: 2.1940428018569946
+Epoch 48/50
+Average Loss: 2.1858266592025757
+Epoch 49/50
+Average Loss: 2.1640619039535522
+Epoch 50/50
+Average Loss: 2.131880223751068
+C-index: 0.5001
+Using GPU: cuda:1 (utilization=0%, free_mem=1616MiB)
+Running trial 8 for ExperimentScenario.EIGHT_FEATURES on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 4.267423391342163
+Epoch 2/50
+Average Loss: 4.119196057319641
+Epoch 3/50
+Average Loss: 3.9832529425621033
+Epoch 4/50
+Average Loss: 3.88121235370636
+Epoch 5/50
+Average Loss: 3.7642163038253784
+Epoch 6/50
+Average Loss: 3.6501137018203735
+Epoch 7/50
+Average Loss: 3.5972253680229187
+Epoch 8/50
+Average Loss: 3.5408686995506287
+Epoch 9/50
+Average Loss: 3.488353192806244
+Epoch 10/50
+Average Loss: 3.4699336886405945
+Epoch 11/50
+Average Loss: 3.4552139043807983
+Epoch 12/50
+Average Loss: 3.4439623951911926
+Epoch 13/50
+Average Loss: 3.4300957322120667
+Epoch 14/50
+Average Loss: 3.4211748242378235
+Epoch 15/50
+Average Loss: 3.4116551280021667
+Epoch 16/50
+Average Loss: 3.415208399295807
+Patience Counter: 1
+Epoch 17/50
+Average Loss: 3.401382863521576
+Epoch 18/50
+Average Loss: 3.401387631893158
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 3.3793814182281494
+Epoch 20/50
+Average Loss: 3.386730670928955
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 3.377266228199005
+Epoch 22/50
+Average Loss: 3.3723037242889404
+Epoch 23/50
+Average Loss: 3.3801228404045105
+Patience Counter: 1
+Epoch 24/50
+Average Loss: 3.3535967469215393
+Epoch 25/50
+Average Loss: 3.3507911562919617
+Epoch 26/50
+Average Loss: 3.3537670969963074
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 3.339753568172455
+Epoch 28/50
+Average Loss: 3.325168251991272
+Epoch 29/50
+Average Loss: 3.3254299759864807
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 3.3338786959648132
+Patience Counter: 2
+Epoch 31/50
+Average Loss: 3.324295699596405
+Epoch 32/50
+Average Loss: 3.3270351886749268
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 3.320580303668976
+Epoch 34/50
+Average Loss: 3.307569682598114
+Epoch 35/50
+Average Loss: 3.289099156856537
+Epoch 36/50
+Average Loss: 3.2905369997024536
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 3.283310353755951
+Epoch 38/50
+Average Loss: 3.275021016597748
+Epoch 39/50
+Average Loss: 3.282242715358734
+Patience Counter: 1
+Epoch 40/50
+Average Loss: 3.280520260334015
+Patience Counter: 2
+Epoch 41/50
+Average Loss: 3.253705620765686
+Epoch 42/50
+Average Loss: 3.270775616168976
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 3.254448115825653
+Patience Counter: 2
+Epoch 44/50
+Average Loss: 3.2287994027137756
+Epoch 45/50
+Average Loss: 3.236987590789795
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 3.2285068035125732
+Epoch 47/50
+Average Loss: 3.2210819125175476
+Epoch 48/50
+Average Loss: 3.2186809182167053
+Epoch 49/50
+Average Loss: 3.208915889263153
+Epoch 50/50
+Average Loss: 3.194586217403412
+C-index: 0.5807
+Using GPU: cuda:4 (utilization=0%, free_mem=3764MiB)
+Running trial 9 for ExperimentScenario.EIGHT_FEATURES on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+Number of patients: test 243 and train 970
+Number of records: test 1100 and train 4307
+Epoch 1/50
+Average Loss: 3.782198190689087
+Epoch 2/50
+Average Loss: 2.692924916744232
+Epoch 3/50
+Average Loss: 2.272775173187256
+Epoch 4/50
+Average Loss: 2.0122904777526855
+Epoch 5/50
+Average Loss: 1.940569519996643
+Epoch 6/50
+Average Loss: 1.9781864285469055
+Patience Counter: 1
+Epoch 7/50
+Average Loss: 1.9587928652763367
+Patience Counter: 2
+Epoch 8/50
+Average Loss: 1.9391531348228455
+Epoch 9/50
+Average Loss: 1.9419989585876465
+Patience Counter: 1
+Epoch 10/50
+Average Loss: 1.9471555352210999
+Patience Counter: 2
+Epoch 11/50
+Average Loss: 1.927969217300415
+Epoch 12/50
+Average Loss: 1.920669823884964
+Epoch 13/50
+Average Loss: 1.930050551891327
+Patience Counter: 1
+Epoch 14/50
+Average Loss: 1.9194191992282867
+Epoch 15/50
+Average Loss: 1.9071810841560364
+Epoch 16/50
+Average Loss: 1.915203481912613
+Patience Counter: 1
+Epoch 17/50
+Average Loss: 1.9212845861911774
+Patience Counter: 2
+Epoch 18/50
+Average Loss: 1.9249355792999268
+Patience Counter: 3
+Epoch 19/50
+Average Loss: 1.92228564620018
+Patience Counter: 4
+Epoch 20/50
+Average Loss: 1.9201898574829102
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5361
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layers': 4, 'learning_rate': 8.995183651518876e-05, 'drop_out_rate': 0.1393243896289696, 'n_head': 3, 'nhead_factor': 4}
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=8, out_features=12, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=6, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=6, out_features=12, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-3): 4 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=12, out_features=12, bias=True)
+        )
+        (linear1): Linear(in_features=12, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.1393243896289696, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=12, bias=True)
+        (norm1): LayerNorm((12,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((12,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1393243896289696, inplace=False)
+        (dropout2): Dropout(p=0.1393243896289696, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=12, out_features=6, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=6, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.6102
+Mean time-dependent AUC: 0.63
+Integrated Brier Score Test: 0.963
+Using GPU: cuda:4 (utilization=0%, free_mem=3764MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Running Optuna hyperparameter optimization
+Using GPU: cuda:1 (utilization=0%, free_mem=1590MiB)
+Running trial 0 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 4.182163500318341
+Epoch 2/50
+Average Loss: 3.8435961382061827
+Epoch 3/50
+Average Loss: 3.7833432894127044
+Epoch 4/50
+Average Loss: 3.783610563652188
+Patience Counter: 1
+Epoch 5/50
+Average Loss: 3.7799962759017944
+Epoch 6/50
+Average Loss: 3.7745783726374307
+Epoch 7/50
+Average Loss: 3.7733696091408824
+Epoch 8/50
+Average Loss: 3.7624029645732806
+Epoch 9/50
+Average Loss: 3.7053221464157104
+Epoch 10/50
+Average Loss: 3.3863277528800215
+Epoch 11/50
+Average Loss: 3.191699843780667
+Epoch 12/50
+Average Loss: 3.1495094836926927
+Epoch 13/50
+Average Loss: 3.1256758886225082
+Epoch 14/50
+Average Loss: 3.116654529291041
+Epoch 15/50
+Average Loss: 3.162551195013757
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 3.284999866111606
+Patience Counter: 2
+Epoch 17/50
+Average Loss: 3.276598939708635
+Patience Counter: 3
+Epoch 18/50
+Average Loss: 3.2767277722265207
+Patience Counter: 4
+Epoch 19/50
+Average Loss: 3.273855536591773
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.6473
+Using GPU: cuda:5 (utilization=0%, free_mem=7626MiB)
+Running trial 1 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 4.441821879031611
+Epoch 2/50
+Average Loss: 4.761550590103748
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 4.760482236450794
+Patience Counter: 2
+Epoch 4/50
+Average Loss: 4.7635618471631815
+Patience Counter: 3
+Epoch 5/50
+Average Loss: 4.766104679481656
+Patience Counter: 4
+Epoch 6/50
+Average Loss: 4.765531268774295
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5009
+Using GPU: cuda:6 (utilization=0%, free_mem=6884MiB)
+Running trial 2 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:6
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 3.8303450883603563
+Epoch 2/50
+Average Loss: 3.7821435320611094
+Epoch 3/50
+Average Loss: 3.776738122397778
+Epoch 4/50
+Average Loss: 3.7762570427913293
+Epoch 5/50
+Average Loss: 3.762372089367287
+Epoch 6/50
+Average Loss: 3.7047232506321928
+Epoch 7/50
+Average Loss: 3.681658663001715
+Epoch 8/50
+Average Loss: 3.668387053059597
+Epoch 9/50
+Average Loss: 3.652195591552585
+Epoch 10/50
+Average Loss: 3.627839268422594
+Epoch 11/50
+Average Loss: 3.590172618043189
+Epoch 12/50
+Average Loss: 3.549774074086956
+Epoch 13/50
+Average Loss: 3.4829883668936934
+Epoch 14/50
+Average Loss: 3.2046778692918667
+Epoch 15/50
+Average Loss: 3.104541960884543
+Epoch 16/50
+Average Loss: 3.0683307437335743
+Epoch 17/50
+Average Loss: 3.0120369523179296
+Epoch 18/50
+Average Loss: 2.9942817430870208
+Epoch 19/50
+Average Loss: 2.925506778791839
+Epoch 20/50
+Average Loss: 2.917418585104101
+Epoch 21/50
+Average Loss: 2.882096521994647
+Epoch 22/50
+Average Loss: 3.0597333837957943
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 3.142666122492622
+Patience Counter: 2
+Epoch 24/50
+Average Loss: 3.1840609802919277
+Patience Counter: 3
+Epoch 25/50
+Average Loss: 3.0986364822761687
+Patience Counter: 4
+Epoch 26/50
+Average Loss: 3.1880303784912707
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.7498
+Using GPU: cuda:1 (utilization=0%, free_mem=6770MiB)
+Running trial 3 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 4.20834938918843
+Epoch 2/50
+Average Loss: 3.832378247204949
+Epoch 3/50
+Average Loss: 3.7728663753060734
+Epoch 4/50
+Average Loss: 3.7305869541916192
+Epoch 5/50
+Average Loss: 3.7046559558195225
+Epoch 6/50
+Average Loss: 3.66256589048049
+Epoch 7/50
+Average Loss: 3.5539156619240257
+Epoch 8/50
+Average Loss: 3.4554623038161036
+Epoch 9/50
+Average Loss: 3.3985909340428373
+Epoch 10/50
+Average Loss: 3.350881204885595
+Epoch 11/50
+Average Loss: 3.312535720712998
+Epoch 12/50
+Average Loss: 3.273875774121752
+Epoch 13/50
+Average Loss: 3.244006453775892
+Epoch 14/50
+Average Loss: 3.231154112254872
+Epoch 15/50
+Average Loss: 3.2087151653626385
+Epoch 16/50
+Average Loss: 3.201817706519482
+Epoch 17/50
+Average Loss: 3.193473168447906
+Epoch 18/50
+Average Loss: 3.1844545275557277
+Epoch 19/50
+Average Loss: 3.170549944335339
+Epoch 20/50
+Average Loss: 3.1556938465903785
+Epoch 21/50
+Average Loss: 3.1561816463283465
+Patience Counter: 1
+Epoch 22/50
+Average Loss: 3.1474712572845758
+Epoch 23/50
+Average Loss: 3.1399435436024383
+Epoch 24/50
+Average Loss: 3.13881487939872
+Epoch 25/50
+Average Loss: 3.1268214945699655
+Epoch 26/50
+Average Loss: 3.127848695306217
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 3.120336006669437
+Epoch 28/50
+Average Loss: 3.1227756037431607
+Patience Counter: 1
+Epoch 29/50
+Average Loss: 3.1158712868596994
+Epoch 30/50
+Average Loss: 3.114451146593281
+Epoch 31/50
+Average Loss: 3.1084539002063227
+Epoch 32/50
+Average Loss: 3.1013367199430277
+Epoch 33/50
+Average Loss: 3.1061802635005877
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 3.093711081673117
+Epoch 35/50
+Average Loss: 3.098727555835948
+Patience Counter: 1
+Epoch 36/50
+Average Loss: 3.0906971365797755
+Epoch 37/50
+Average Loss: 3.0929857305451933
+Patience Counter: 1
+Epoch 38/50
+Average Loss: 3.093639242882822
+Patience Counter: 2
+Epoch 39/50
+Average Loss: 3.0857745105145025
+Epoch 40/50
+Average Loss: 3.081686854362488
+Epoch 41/50
+Average Loss: 3.076143465790094
+Epoch 42/50
+Average Loss: 3.0764992260465434
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 3.069843229125528
+Epoch 44/50
+Average Loss: 3.0645340564204195
+Epoch 45/50
+Average Loss: 3.07233920284346
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 3.0723094402575026
+Patience Counter: 2
+Epoch 47/50
+Average Loss: 3.0658463029300465
+Patience Counter: 3
+Epoch 48/50
+Average Loss: 3.0642062495736515
+Epoch 49/50
+Average Loss: 3.0558169495825673
+Epoch 50/50
+Average Loss: 3.0562688275879504
+Patience Counter: 1
+C-index: 0.7605
+Using GPU: cuda:4 (utilization=0%, free_mem=5534MiB)
+Running trial 4 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 4.711182360555611
+Epoch 2/50
+Average Loss: 4.642691032559264
+Epoch 3/50
+Average Loss: 4.586257149191463
+Epoch 4/50
+Average Loss: 4.542988683663163
+Epoch 5/50
+Average Loss: 4.507183743458168
+Epoch 6/50
+Average Loss: 4.474478913288491
+Epoch 7/50
+Average Loss: 4.44578602734734
+Epoch 8/50
+Average Loss: 4.4144033684450035
+Epoch 9/50
+Average Loss: 4.387969956678503
+Epoch 10/50
+Average Loss: 4.357122996274163
+Epoch 11/50
+Average Loss: 4.329410665175494
+Epoch 12/50
+Average Loss: 4.303215662638347
+Epoch 13/50
+Average Loss: 4.2776712623297
+Epoch 14/50
+Average Loss: 4.250302223598256
+Epoch 15/50
+Average Loss: 4.223946178660674
+Epoch 16/50
+Average Loss: 4.198019621418972
+Epoch 17/50
+Average Loss: 4.171760682966195
+Epoch 18/50
+Average Loss: 4.145392396870782
+Epoch 19/50
+Average Loss: 4.117856740951538
+Epoch 20/50
+Average Loss: 4.093087605401581
+Epoch 21/50
+Average Loss: 4.065813485313864
+Epoch 22/50
+Average Loss: 4.03989849838556
+Epoch 23/50
+Average Loss: 4.015132170097501
+Epoch 24/50
+Average Loss: 3.9909140526079665
+Epoch 25/50
+Average Loss: 3.9674787591485416
+Epoch 26/50
+Average Loss: 3.9452335881251916
+Epoch 27/50
+Average Loss: 3.923759607707753
+Epoch 28/50
+Average Loss: 3.905162904776779
+Epoch 29/50
+Average Loss: 3.886806284680086
+Epoch 30/50
+Average Loss: 3.8688159409691307
+Epoch 31/50
+Average Loss: 3.8542745674357697
+Epoch 32/50
+Average Loss: 3.843857924143473
+Epoch 33/50
+Average Loss: 3.830635243771123
+Epoch 34/50
+Average Loss: 3.821281040416044
+Epoch 35/50
+Average Loss: 3.8125013790878595
+Epoch 36/50
+Average Loss: 3.8055930161008646
+Epoch 37/50
+Average Loss: 3.801521420478821
+Epoch 38/50
+Average Loss: 3.7987442694458307
+Epoch 39/50
+Average Loss: 3.7949830924763397
+Epoch 40/50
+Average Loss: 3.7910725602916644
+Epoch 41/50
+Average Loss: 3.7898652062696567
+Epoch 42/50
+Average Loss: 3.7871254752664005
+Epoch 43/50
+Average Loss: 3.7860991837931612
+Epoch 44/50
+Average Loss: 3.7854192560794306
+Epoch 45/50
+Average Loss: 3.7856136092952655
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 3.7847258413539215
+Epoch 47/50
+Average Loss: 3.784593663963617
+Epoch 48/50
+Average Loss: 3.7856529764100615
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 3.7837581167034076
+Epoch 50/50
+Average Loss: 3.783796562868006
+Patience Counter: 1
+C-index: 0.5289
+Using GPU: cuda:4 (utilization=0%, free_mem=3988MiB)
+Running trial 5 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 3.918850543452244
+Epoch 2/50
+Average Loss: 3.8738604830760583
+Epoch 3/50
+Average Loss: 3.798082601790335
+Epoch 4/50
+Average Loss: 3.788046158996283
+Epoch 5/50
+Average Loss: 3.788383970073625
+Patience Counter: 1
+Epoch 6/50
+Average Loss: 3.790498268370535
+Patience Counter: 2
+Epoch 7/50
+Average Loss: 3.789195675475925
+Patience Counter: 3
+Epoch 8/50
+Average Loss: 3.7872506333332434
+Epoch 9/50
+Average Loss: 3.7857928089067046
+Epoch 10/50
+Average Loss: 3.787446608730391
+Patience Counter: 1
+Epoch 11/50
+Average Loss: 3.787214428770776
+Patience Counter: 2
+Epoch 12/50
+Average Loss: 3.7890781865400425
+Patience Counter: 3
+Epoch 13/50
+Average Loss: 3.7867776856702915
+Patience Counter: 4
+Epoch 14/50
+Average Loss: 3.7857388187857235
+Epoch 15/50
+Average Loss: 3.7858233545340743
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 3.785073623937719
+Epoch 17/50
+Average Loss: 3.7845976189071058
+Epoch 18/50
+Average Loss: 3.7852794118956026
+Patience Counter: 1
+Epoch 19/50
+Average Loss: 3.78473363904392
+Patience Counter: 2
+Epoch 20/50
+Average Loss: 3.785158157348633
+Patience Counter: 3
+Epoch 21/50
+Average Loss: 3.7839972972869873
+Epoch 22/50
+Average Loss: 3.7846287769429825
+Patience Counter: 1
+Epoch 23/50
+Average Loss: 3.784725210245918
+Patience Counter: 2
+Epoch 24/50
+Average Loss: 4.26193604516048
+Patience Counter: 3
+Epoch 25/50
+Average Loss: 4.765920367895388
+Patience Counter: 4
+Epoch 26/50
+Average Loss: 4.765722386977252
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4968
+Using GPU: cuda:4 (utilization=0%, free_mem=3988MiB)
+Running trial 6 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:4
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 3.809291446910185
+Epoch 2/50
+Average Loss: 3.7395035145329496
+Epoch 3/50
+Average Loss: 3.7200881242752075
+Epoch 4/50
+Average Loss: 3.604437844426024
+Epoch 5/50
+Average Loss: 3.568453870567621
+Epoch 6/50
+Average Loss: 3.5405568094814526
+Epoch 7/50
+Average Loss: 3.5062421022676955
+Epoch 8/50
+Average Loss: 3.534853692148246
+Patience Counter: 1
+Epoch 9/50
+Average Loss: 3.4982316938101077
+Epoch 10/50
+Average Loss: 3.4809094316819134
+Epoch 11/50
+Average Loss: 3.480423742649602
+Epoch 12/50
+Average Loss: 3.7852157214108635
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 3.785906242389305
+Patience Counter: 2
+Epoch 14/50
+Average Loss: 3.784515518768161
+Patience Counter: 3
+Epoch 15/50
+Average Loss: 3.7852716142056035
+Patience Counter: 4
+Epoch 16/50
+Average Loss: 3.7852075006447587
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4587
+Using GPU: cuda:6 (utilization=0%, free_mem=3794MiB)
+Running trial 7 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:6
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 4.7327175444247676
+Epoch 2/50
+Average Loss: 4.767002596574671
+Patience Counter: 1
+Epoch 3/50
+Average Loss: 4.7659919869666005
+Patience Counter: 2
+Epoch 4/50
+Average Loss: 4.7654656849655455
+Patience Counter: 3
+Epoch 5/50
+Average Loss: 4.765302513159957
+Patience Counter: 4
+Epoch 6/50
+Average Loss: 4.765878359476726
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5000
+Using GPU: cuda:7 (utilization=0%, free_mem=3556MiB)
+Running trial 8 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 3.8310300252016853
+Epoch 2/50
+Average Loss: 3.765816564653434
+Epoch 3/50
+Average Loss: 3.6746740434684004
+Epoch 4/50
+Average Loss: 3.638410444353141
+Epoch 5/50
+Average Loss: 3.619868668855405
+Epoch 6/50
+Average Loss: 3.6054395507363712
+Epoch 7/50
+Average Loss: 3.59198648555606
+Epoch 8/50
+Average Loss: 3.589030335931217
+Epoch 9/50
+Average Loss: 3.5699649090860404
+Epoch 10/50
+Average Loss: 3.566857616106669
+Epoch 11/50
+Average Loss: 3.562042614992927
+Epoch 12/50
+Average Loss: 3.55223084898556
+Epoch 13/50
+Average Loss: 3.548080519133923
+Epoch 14/50
+Average Loss: 3.542620574726778
+Epoch 15/50
+Average Loss: 3.595620823841469
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 3.5890547551360785
+Patience Counter: 2
+Epoch 17/50
+Average Loss: 3.7065654876185397
+Patience Counter: 3
+Epoch 18/50
+Average Loss: 3.7273583575791003
+Patience Counter: 4
+Epoch 19/50
+Average Loss: 3.6709753532035676
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5213
+Using GPU: cuda:7 (utilization=0%, free_mem=3378MiB)
+Running trial 9 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:7
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Epoch 1/50
+Average Loss: 3.8846832513809204
+Epoch 2/50
+Average Loss: 3.785440917108573
+Epoch 3/50
+Average Loss: 3.7861902620278154
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 3.7862604692870496
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 3.7862935112971887
+Patience Counter: 3
+Epoch 6/50
+Average Loss: 3.7868937978557513
+Patience Counter: 4
+Epoch 7/50
+Average Loss: 3.786589917014627
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5102
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layers': 2, 'learning_rate': 2.867558997571177e-05, 'drop_out_rate': 0.15205659356059426, 'n_head': 6, 'nhead_factor': 11}
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=40, out_features=66, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=33, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=33, out_features=66, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-1): 2 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=66, out_features=66, bias=True)
+        )
+        (linear1): Linear(in_features=66, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.15205659356059426, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=66, bias=True)
+        (norm1): LayerNorm((66,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((66,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.15205659356059426, inplace=False)
+        (dropout2): Dropout(p=0.15205659356059426, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=66, out_features=33, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=33, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.7561
+Mean time-dependent AUC: 0.85
+Integrated Brier Score Test: 0.592
+✓ hazard_transformer completed successfully
+End time: Wed Sep  2 00:54:01 CDT 2026

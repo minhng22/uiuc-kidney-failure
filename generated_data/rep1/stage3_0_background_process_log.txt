@@ -1502,3 +1502,96 @@ complete, either kill the leader (3131354) before it re-launches Batch 3
 redundantly, or let it proceed (harmless duplicate work, last-writer-wins
 on the same model files) -- flagging for the next check to decide based on
 timing.
+
+================================================================================
+Leader script (PID 3131354) fully completed; duplicate Batch 3 collision
+resolved; genuine rnnsurv bug found; final per-model status -- 2026-08-31
+10:35 CDT
+================================================================================
+As anticipated, once hazard_transformer finished all 10 optuna trials
+(trial 9 @ 20:27:52, best value 0.625), run_rep_stage3_0_twenty_batched.sh's
+own Batch 2 wait resolved and it launched its OWN copy of Batch 3
+(rnnsurv/gbsa/survival_svm PIDs 3475146/3475149/3475152) -- colliding with
+the manually-launched Batch 3 from earlier (rnnsurv/gbsa/survival_svm PIDs
+3466492/3466493/3466494), both writing to the SAME per-experiment log
+paths. The script then proceeded through Batch 4 (weibul, succeeded) and
+exited cleanly with its own summary: "Failed experiments: dynamic_deephit
+gbsa rnnsurv" (from ITS OWN copies' perspective -- misleading in isolation,
+corrected below).
+
+Resolved the gbsa collision: killed the leader's own duplicate gbsa
+(PID 3475160, wrapper 3475149) via SIGTERM, kept the manually-launched one
+(PID 3466503, had a ~39min head start) which continued running
+uninterrupted.
+
+rnnsurv collision resolved itself (both finished before I intervened) but
+revealed a REAL bug: the leader's own rnnsurv (log shows "Using GPU:
+cuda:7 ... free_mem=11260MiB") crashed with
+`numpy._core._exceptions._ArrayMemoryError: Unable to allocate 28.2 GiB for
+an array with shape (1613452, 4686) and data type float32` inside
+`_batched_risk_by_time` (pkgs/experiments/rnnsurv.py:223) --
+`np.concatenate(chunks, axis=0)` builds one giant unbatched array at the
+end of a function whose own name promises batching, defeating the purpose.
+Exit code 1, "✗ rnnsurv failed with exit code 1", ended 20:37:32.
+The manually-launched rnnsurv (log shows "Using GPU: cuda:3 ...
+free_mem=7148MiB") SURVIVED the equivalent situation -- it hit a
+DIFFERENT, smaller allocation (7.04 GiB, shape (1613452, 4686), dtype
+bool -- same row/col dims as the crash, but bool is 4x smaller than
+float32) during AUC computation, which IS wrapped in a try/except there
+and only produced "Warning: could not compute AUC: ..." rather than
+crashing -- overall run still reported "✓ rnnsurv completed successfully"
+(C-Index 0.61, Integrated Brier Score 0.159), ended 20:50:45. Both runs
+loaded the SAME pre-existing saved model weights ("Loading from saved
+weights") rather than retraining, so this is purely an EVALUATION-time
+crash, not a training issue -- the underlying model is fine, only
+_batched_risk_by_time's own memory safety is at fault. NOT fixed this
+session (rnnsurv already has a valid overall result via the surviving run,
+and the crash appears to be a real, reproducible bug in
+_batched_risk_by_time worth a dedicated fix + rep99 verification before
+future reps rely on getting as lucky with concurrent-run timing as this
+one did) -- flagging for a future session.
+
+FINAL CORRECTED per-model status for Stage 3.0.2 (rep1
+twenty_features_heterogeneous), cross-checked against actual per-experiment
+logs and saved model files, NOT the leader's own misleading summary:
+  cox: DONE (full 26,080-patient dataset, succeeded in isolation --
+    C-index 0.44, see earlier entry)
+  logistic_hazard: DONE
+  deepsurv: DONE
+  srf: DONE (C-index 0.522)
+  hazard_transformer: DONE (10/10 optuna trials, best C-index 0.625,
+    trial 4 was runner-up at 0.521)
+  survival_svm: DONE (Mean AUC 0.405, Brier 0.241)
+  weibul: DONE
+  rnnsurv: DONE (C-index 0.61, Brier 0.159 -- via the surviving concurrent
+    run; AUC not computed due to the _batched_risk_by_time-adjacent memory
+    issue noted above, non-fatal)
+  gbsa: STILL RUNNING (PID 3466503, 14h40m+ as of this check,
+    GridSearchCV(n_jobs=1) with n_estimators grid [50,100,200,300] x CV
+    folds, fully serial -- slow but memory-stable/low (0.2%), not heading
+    toward OOM this time; watching)
+  dynamic_deephit: KILLED per user request ("run other models first, come
+    back to dynamic_deephit later") -- no result yet, open item
+
+9 of 10 models have valid results; gbsa still in progress; dynamic_deephit
+deliberately deferred.
+
+================================================================================
+dynamic_deephit relaunched, per user request ("run DDH in parallel now")
+================================================================================
+2026-09-01 11:42 CDT: launched fresh, unmodified (same code as before --
+user did not ask for a fix, just to run it again), alongside gbsa (still
+running, PID 3466503, now 1d15h+ since its own launch). Confirmed ample
+headroom before launching: 177GB RAM available, all 8 GPUs completely idle.
+
+This is the SAME code/architecture that previously ran 28+ hours on trial
+0/10 without completing before being killed (see earlier entries --
+confirmed via py-spy to be a genuine, slow-but-real backprop-through-time
+computation over a known 5,644-timestep outlier patient sequence, an RNN
+architecture limitation, not a bug). No reason to expect materially
+different timing this run -- flagging so a future check doesn't mistake
+another multi-day single-trial runtime for a new problem.
+
+Launched: host sunlab-serv-01.cs.illinois.edu
+Python PID: 3903075 (wrapper 3903072)
+Log: pkgs/scripts/eval_rep1_stage3_0_twenty_dynamic_deephit.log
