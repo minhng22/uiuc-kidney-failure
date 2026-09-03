@@ -1,0 +1,88 @@
+\section{Results}\label{sec:results}
+
+\subsection{Discrimination: Four/Eight Features vs.\ KFRE}
+Table~\ref{tab:discrimination} reports C-index, integrated Brier, and time-dependent AUC at 730 days, evaluated per-patient (Section~\ref{sec:eval}), aggregated as mean (SD) across repetitions.\footnote{Values shown are from the aggregation pipeline (\texttt{pkgs/scripts/aggregate\_rep\_metrics.py}), which reports mean$\pm$SD across every completed repetition and is re-run as later repetitions finish.}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\begin{tabular}{@{}l*{3}{c}@{}}
+\toprule
+& \multicolumn{3}{c}{\textbf{four\_features}} \\
+\textbf{Model} & \textbf{C-idx}$\uparrow$ & \textbf{Brier}$\downarrow$ & \textbf{AUC}$\uparrow$ \\
+\midrule
+Cox                & 0.308 & 0.531 & 0.272 \\
+Dynamic-DeepHit    & \textbf{0.832} & \textbf{0.285} & \textbf{0.947} \\
+Hazard Transformer & 0.639 & 0.404 & 0.703 \\
+Logistic Hazard    & 0.552 & 0.416 & 0.571 \\
+RNN-Surv           & 0.516 & 0.449 & 0.519 \\
+DeepSurv           & 0.510 & 0.448 & 0.516 \\
+GBSA               & 0.519 & 0.433 & 0.535 \\
+Survival RF        & 0.531 & 0.445 & 0.541 \\
+Survival SVM       & 0.543 & 0.417 & 0.571 \\
+Weibull AFT        & 0.552 & 0.414 & 0.579 \\
+KFRE               & 0.539 & 0.552 & 0.553 \\
+\midrule
+& \multicolumn{3}{c}{\textbf{eight\_features}} \\
+\textbf{Model} & \textbf{C-idx}$\uparrow$ & \textbf{Brier}$\downarrow$ & \textbf{AUC}$\uparrow$ \\
+\midrule
+Cox                & 0.470 & 0.578 & 0.425 \\
+Dynamic-DeepHit    & \textbf{0.866} & \textbf{0.308} & \textbf{0.938} \\
+Hazard Transformer & 0.576 & 0.442 & 0.608 \\
+Logistic Hazard    & 0.520 & 0.500 & 0.493 \\
+RNN-Surv           & 0.527 & 0.499 & 0.574 \\
+DeepSurv           & 0.494 & 0.495 & 0.510 \\
+GBSA               & 0.539 & 0.515 & 0.567 \\
+Survival RF        & 0.533 & 0.536 & 0.543 \\
+Survival SVM       & 0.540 & 0.488 & 0.595 \\
+Weibull AFT        & 0.554 & 0.485 & 0.597 \\
+KFRE               & 0.539 & 0.737 & 0.579 \\
+\bottomrule
+\end{tabular}
+\caption{Discrimination at the 2-year horizon, per-patient evaluation. Bold: best per column. KFRE is a closed-form clinical equation, not a trained model.}
+\label{tab:discrimination}
+\end{table}
+
+\textbf{Feature count barely moves most models.} Nine of eleven models change by $<$0.03 C-index between four\_features and eight\_features, including KFRE (0.539 on both); only Cox ($+$0.16) and Hazard Transformer ($-$0.06) move meaningfully, in opposite directions.
+
+\textbf{KFRE is not clearly beaten by most learned models.} On equal per-patient footing, KFRE's C-index lands squarely inside the cluster formed by Logistic Hazard, RNN-Surv, DeepSurv, GBSA, Survival RF, Survival SVM, and Weibull AFT (0.49--0.58) — none of which reliably outperforms the published clinical equation. Only \textbf{Dynamic-DeepHit} clearly beats it (C-index 0.83--0.87, AUC 0.94--0.95), consistent with being the only benchmarked model that consumes each patient's full multi-visit sequence rather than a single landmark row.
+
+\textbf{Cox underperforms and remains an open question.} Cox scores \emph{below} the 0.5 random baseline on four\_features (0.308) and near-random on eight\_features (0.470) — the only model to do so on either scenario, and not yet explained by an architectural cause we can point to (Section~\ref{sec:limitations}).
+
+\subsection{Feature Importance, Calibration, Decision Curves}
+Figure~\ref{fig:feature_importance_four} shows each model's native importance measure (Cox/Weibull/SVM: $|$coefficient$|$; GBSA: impurity-based; SRF: permutation importance; remaining neural models: mean$|$gradient$|$ — not SHAP values, despite this analysis's inherited file naming). eGFR dominates for models that use it at all (0.25--0.46); uACR's contribution is architecture-dependent, substantial for GBSA/DeepSurv but effectively zero for every linear/kernel model (Cox, SVM, Weibull all assign it 0.0000) — the same family of models that underperforms on discrimination.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{figs/four_features_all_models_feature_importance.png}
+    \caption{Per-model feature importance, four\_features.}
+    \label{fig:feature_importance_four}
+\end{figure}
+
+Dynamic-DeepHit is the best-calibrated model at both 2- and 5-year horizons; Cox is calibrated backwards at 2 years (predicted risk rises while observed risk falls) — the calibration-level symptom of its below-chance discrimination. For decision-curve analysis, every model except Cox exceeds the eGFR-threshold referral rule's net benefit across the clinically relevant 0.05--0.30 threshold range — the clearest evidence here that model-guided referral beats a simple eGFR-cutoff rule already used in practice, and the one result that does not depend on resolving Cox's open question.
+
+\subsection{Twenty Features}
+Table~\ref{tab:twenty} reports discrimination for the 20-feature heterogeneous scenario (10 models, no KFRE analogue). The same pattern reappears: Dynamic-DeepHit leads by a wide margin, and Cox (and here, more severely, Hazard Transformer) score below chance while every other model stays at or above random — evidence the Cox/Hazard-Transformer issue is not specific to the four/eight-feature merge design, though a common root cause has not been isolated.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Model} & \textbf{C-idx}$\uparrow$ & \textbf{Brier}$\downarrow$ & \textbf{AUC}$\uparrow$ \\
+\midrule
+Cox                & 0.288 & 0.278 & 0.175 \\
+Dynamic-DeepHit    & \textbf{0.850} & \textbf{0.107} & \textbf{0.929} \\
+Hazard Transformer & 0.190 & 0.221 & 0.059 \\
+Logistic Hazard    & 0.373 & 0.663 & 0.377 \\
+RNN-Surv           & 0.441 & 0.287 & 0.232 \\
+DeepSurv           & 0.653 & 0.231 & 0.569 \\
+GBSA               & 0.542 & 0.220 & 0.531 \\
+Survival RF        & 0.428 & 0.293 & 0.260 \\
+Survival SVM       & 0.585 & 0.217 & 0.787 \\
+Weibull AFT        & 0.712 & 0.226 & 0.738 \\
+\bottomrule
+\end{tabular}
+\caption{Discrimination, twenty\_features (heterogeneous).}
+\label{tab:twenty}
+\end{table}

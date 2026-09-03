@@ -1,0 +1,51 @@
+\documentclass[pmlr,twocolumn,10pt]{jmlr} % ML4H 2026 Proceedings track (PMLR/JMLR W&CP style)
+
+\usepackage{caption}
+% Packages auto-loaded by jmlr: amsmath, amssymb, natbib, graphicx, url, algorithm2e
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{siunitx}
+
+% Required for line numbers during review; remove \linenumbers before camera-ready.
+\usepackage[switch]{lineno}
+
+\jmlrvolume{XXX} % PMLR volume number, assigned upon acceptance
+\jmlryear{2026}
+\jmlrworkshop{Machine Learning for Health (ML4H) 2026}
+
+\title[Feature-Set Scaling for Kidney Failure Prediction]{Feature-Set Scaling for Kidney Failure Prediction: Benchmarking Survival Models Against the Kidney Failure Risk Equation on MIMIC-IV}
+
+% Anonymized for double-blind review per ML4H 2026 policy.
+\author{Anonymous Author(s)}
+
+\linenumbers % Activate line numbering for review; remove for camera-ready.
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+The Kidney Failure Risk Equation (KFRE) predicts progression to end-stage renal disease (ESRD) from as few as four routinely collected variables, yet modern EHR resources and deep survival architectures raise the question of whether more features and more expressive models meaningfully improve on it. We isolate this question on a shared MIMIC-IV-derived cohort of chronic kidney disease patients by benchmarking ten survival models plus the published closed-form KFRE equation itself across three nested feature-set regimes reconstructing KFRE's own 4- and 8-variable inputs plus a 20-feature heterogeneous stress test. Building KFRE-comparable cohorts required a new creatinine-anchored, bounded-window row-merge design for combining multiple asynchronously-drawn labs into simultaneous covariate snapshots. Once every model is evaluated on an identical, per-patient basis — a methodological correction that reverses an earlier, row-level-evaluated result in which KFRE and Cox appeared to lead — KFRE's discrimination is matched by most learned models rather than clearly beaten by them, only one deep sequence model (Dynamic-DeepHit) shows a decisive advantage, and nearly every model exceeds a simple eGFR-threshold referral rule's clinical net benefit. We report a Cox model performing below chance as an investigated, disclosed open question rather than smoothing it over.
+\end{abstract}
+
+\begin{keywords}
+Survival analysis, chronic kidney disease, Kidney Failure Risk Equation, MIMIC-IV, benchmark
+\end{keywords}
+
+\paragraph*{Data and Code Availability}
+This work uses MIMIC-IV \citep{johnson2023mimic_ehr}, available via PhysioNet to credentialed users under its data use agreement. Anonymized code implementing the cohort extraction, models, and analyses is provided as supplementary material for review; a public repository will be released upon publication.
+
+\paragraph*{Institutional Review Board (IRB)}
+No IRB approval was required. MIMIC-IV is a de-identified, publicly available critical care database released under a data use agreement; this study involved no additional identifiable patient contact.
+
+\input{sections/ml4h_introduction}
+\input{sections/ml4h_methods}
+\input{sections/ml4h_results}
+\input{sections/ml4h_discussion}
+
+\bibliography{sn-bibliography}
+
+\input{sections/ml4h_appendix}
+
+\end{document}

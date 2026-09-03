@@ -1,0 +1,47 @@
+\section{Methods}\label{sec:methods}
+
+\textbf{Problem formulation.} We frame progression to ESRD as right-censored time-to-event estimation. Each covariate row $\boldsymbol{x}_i\in\mathbb{R}^d$ is paired with a duration $t_i\in\mathbb{R}^+$ and event indicator $e_i\in\{0,1\}$. Patient histories are stored in a counting-process (\texttt{start}, \texttt{stop}) format, supporting both single-landmark models (Cox, KFRE) and sequence models consuming a patient's full row history (Dynamic-DeepHit, RNN-Surv).
+
+\subsection{Cohort} \label{sec:cohort}
+The source population is 34{,}332 MIMIC-IV patients meeting a CKD stage 3--5 or ESRD diagnosis-code criterion (57.2\% male, mean age 67.8, SD 16.1).
+
+\textbf{Four/eight\_features (KFRE-comparable).} KFRE's inputs come from separate, asynchronously-ordered labs (creatinine, urine albumin/creatinine, and for the 8-variable form, a chemistry panel), so producing real, simultaneous, non-missing rows required a merge design (full derivation and literature citations in Appendix~\ref{app:cohort}): each row anchors on one creatinine draw (eGFR computed at that instant via CKD-EPI 2021); calcium/phosphate/bicarbonate/albumin are matched to the nearest value within $\pm$24h (following APACHE II's precedent for a concurrent chemistry-panel snapshot); uACR is matched to the nearest value across the patient's whole history (loosened from a same-admission bound after that bound caused 96.5\% cohort attrition with outcome-rate skew); rows missing a required lab are dropped, not imputed. This keeps four\_features/eight\_features complete-case and time-varying (one row per qualifying creatinine draw), matching KFRE's own eligibility criteria.
+
+\textbf{Twenty\_features (heterogeneous).} We select the 20 most frequently measured labs for this cohort, each represented as a (value, missingness-flag) pair (40 columns), one row per lab event, no cross-lab merge — testing whether feature count alone, at realistic EHR sparsity, adds discriminative power.
+
+Table~\ref{tab:cohort_flow} reports each scenario's final cohort. eight\_features' 1{,}213 patients/1{,}032 events is the smallest cohort here but exceeds 9 of the 15 published cohorts (263--12{,}955 patients) the 8-variable KFRE was externally validated on \citep{tangri2016multinational}, with events-per-variable $\approx$129 — 13$\times$ the classical EPV$\ge$10 adequacy floor \citep{peduzzi1996epv}.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& \textbf{Source} & \textbf{four} & \textbf{eight} & \textbf{twenty} \\
+\midrule
+Patients & 34,332 & 2,809 & 1,213 & 32,601 \\
+Records & 74,197 & 26,829 & 5,407 & 8.13M \\
+\% male & 57.2 & 58.3 & 60.4 & 57.1 \\
+Age, yrs (SD) & 67.8 (16.1) & 63.9 (15.1) & 62.1 (15.4) & 67.8 (16.1) \\
+ESRD, \% & 91.9 & 83.5 & 85.1 & 91.5 \\
+Train/test pts & --- & 2247/562 & 970/243 & 26080/6521 \\
+\bottomrule
+\end{tabular}
+\caption{Cohort flow: source population vs.\ each scenario's final cohort.}
+\label{tab:cohort_flow}
+\end{table}
+
+\subsection{KFRE Baseline} \label{sec:kfre}
+For four/eight\_features we add KFRE as a non-trained benchmark: $\mathrm{Risk}(t)=1-S_0(t)^{\exp(L)}$, North-American $S_0$(2yr)$=0.9750$ \citep{tangri2016multinational}, with
+\begin{align}
+L_4 &= -0.2201(\tfrac{\text{age}}{10}{-}7.036) + 0.2467(\text{male}{-}0.5642) \nonumber \\
+&\ \ -0.5567(\tfrac{\text{eGFR}}{5}{-}7.222) + 0.4510(\ln(\text{uACR}){-}5.137)
+\end{align}
+for the 4-variable form and an analogous 8-term $L_8$ (adding albumin, phosphate, bicarbonate, calcium terms) for the 8-variable form \citep{tangri2011predicting} (full coefficients in Appendix~\ref{app:kfre}).
+
+\subsection{Benchmarked Models} \label{sec:models}
+We benchmark 10 learned models per scenario, plus KFRE on four/eight\_features only (11 total there): \textbf{Cox} (\texttt{lifelines}' \texttt{CoxTimeVaryingFitter}, fit directly on the counting-process rows) and \textbf{Weibull AFT} \citep{cox1972regression,anderson1991nonproportional_weibull,davidson2019lifelines}; the deep sequence models \textbf{DeepSurv} \citep{katzman2018deepsurv}, \textbf{Dynamic-DeepHit} \citep{lee2020dynamicdeephit,lee2018deephit}, \textbf{RNN-Surv} (LSTM-based) \citep{giunchiglia2018rnn_surv}, \textbf{LogisticHazard} (\texttt{pycox}'s off-the-shelf discrete-time hazard model), and \textbf{Hazard Transformer} \citep{hazard_transformer,vaswani2017attention}; and the ensembles \textbf{GBSA} \citep{chen2013gradient_GBSA}, \textbf{Random Survival Forest} \citep{pickett2021random_survival_forests,ishwaran2008random}, and \textbf{FastSurvivalSVM}, via \texttt{scikit-survival} \citep{polsterl2020sksurv}. Every architecture's exact structural form, loss, and tuned hyperparameter range — verified directly against the model implementations, not restated from a fixed reference configuration — is given in Appendix~\ref{app:models}; neural models are tuned via 10-trial Bayesian search (Optuna) per scenario, GBSA/SRF via grid search, and FastSurvivalSVM/Cox/Weibull AFT use fixed hyperparameters.
+
+\subsection{Evaluation} \label{sec:eval}
+We report Harrell's C-index, integrated Brier score, and mean time-dependent AUC at the 730-day (2-year) horizon. \textbf{Per-patient evaluation.} Three of the eleven models (Cox, RNN-Surv, KFRE) initially scored every raw time-varying row independently while the remaining models internally deduplicate to one prediction per patient; since a patient's rows are highly correlated, row-level scoring both deflates Brier score and inflates C-index for those three models. All results here score every model identically on one prediction per patient (each patient's final observation at test time) — a correction that reverses an earlier row-level-evaluated pass in which KFRE and Cox appeared to outperform most learned models.
+
+We additionally report calibration (predicted risk per decile vs.\ Kaplan-Meier-observed risk, at 2- and 5-year horizons) and decision-curve/net-benefit analysis \citep{vickers2006decisioncurve} against treat-all, treat-none, and a non-model eGFR-threshold referral rule (eGFR$<$30 or $<$45). A competing-risks analysis (death before ESRD) was not included, as it would require re-deriving each subject's absolute calendar anchor, not retained by the exported train/test files (Section~\ref{sec:limitations}).
