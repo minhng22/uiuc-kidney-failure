@@ -122,6 +122,18 @@ every 10 minutes for as long as that operation is expected to run:
 - Each check must re-verify directly (`ps -p <pid>` on the host that owns
   it, log tail, `nvidia-smi` if GPU-bound) — never just repeat a previous
   claim without re-checking.
+- **Each check must also append a live-status snapshot to that experiment's
+  own `pkgs/scripts/eval_rep<N>_<name>.log`** for any process still running,
+  not just report status in chat. These logs are Python's own buffered
+  stdout, which can go stale for hours/days at a time (nothing flushes
+  until the buffer fills or the process exits) — so pull real numbers
+  straight out of the running process with `py-spy dump --pid <pid>
+  --locals` (safe, doesn't pause/kill it) and append a clearly-marked block
+  (e.g. `===== LIVE STATUS SNAPSHOT (<timestamp>, via py-spy --pid <pid>
+  --locals) =====` ... `===== END SNAPSHOT =====`) via `>>` to the log —
+  epoch/trial/boosting-stage counters, loss values, whatever locals are
+  in-frame. Compare against the previous snapshot so the block says whether
+  it actually advanced, not just that the process is alive.
 - Each check updates the experiment plan doc per the rule above (your own
   rows/sections, with hostname), bumping "Last Updated" — and only messages
   the user when something actually changed (stage completed, process died,

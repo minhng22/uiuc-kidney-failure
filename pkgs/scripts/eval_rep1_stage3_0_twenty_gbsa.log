@@ -1,3 +1,13 @@
 Start time: Sun Aug 30 20:36:31 CDT 2026
 ✗ gbsa failed with exit code 143
 End time: Mon Aug 31 10:34:13 CDT 2026
+===== LIVE STATUS SNAPSHOT (2026-09-03 10:22 CDT, via py-spy --pid 3466503 --locals) =====
+GridSearchCV progress: candidate 62/192 (32.3%), CV split 2/5 for this candidate
+Current candidate params: learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=200
+Boosting stage in progress: i=124 (of n_estimators=200 for this candidate)
+Most recent completed fit: test_score=0.4823, fit_time=1283.6s (~21.4min)
+Elapsed since launch: ~3d14h22m. Rate: ~62 candidates / 86.4h = ~1.39h/candidate.
+Estimated remaining: ~130 candidates * 1.39h/candidate = ~180.7h (~7.5 more days) at this rate --
+first live measurement of actual throughput; previously only knew "still running, memory stable."
+n_jobs=1 (fully serial), no prior snapshot to compare against (this is the first one taken).
+===== END SNAPSHOT =====

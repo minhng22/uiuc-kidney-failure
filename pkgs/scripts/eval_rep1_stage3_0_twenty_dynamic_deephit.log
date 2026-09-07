@@ -1,2 +1,23 @@
 Start time: Tue Sep  1 11:42:19 CDT 2026
 [I 2026-09-01 11:42:46,553] A new study created in memory with name: no-name-26de9e1c-be0f-4e4c-afa1-77ead67f5c09
+===== LIVE STATUS SNAPSHOT (2026-09-03 10:26 CDT, via py-spy --pid 3903075 --locals) =====
+CORRECTION to prior status: this is NOT stuck on a single backward() call --
+it has been progressing through real training epochs the whole time, just
+invisible because objective()'s own print() calls never flushed to this
+log (stdout block-buffering) and the "Trial X finished" line only appears
+on trial completion.
+Trial 0, epoch 12/50, batch i=956 in this epoch's DataLoader loop.
+Hyperparameters this trial: num_layers=4, hidden_dims=[79,87,24,81],
+  learning_rate=0.003993, drop_out_lstm=0.1163, drop_out_cause=0.1163,
+  llh_loss=0.5077, ranking_loss=0.4923
+avg_loss (this epoch so far) = 3.0654986059738816
+best_loss so far = 3.0654986059738816 (== avg_loss -- this epoch is
+  currently the best, or ties it)
+patience_counter = 0 (of patience=5) -- not yet degrading
+Elapsed since launch (2026-09-01 11:42:19): ~1d22h44m (~46.7h) for 12
+  epochs => ~3.9h/epoch. At this rate, if it runs the full 50 epochs with
+  no early stop, trial 0 alone could take up to ~195h (~8.1 days); early
+  stopping (patience=5) could end it sooner if avg_loss stops improving.
+  No prior snapshot to compare against (first one taken).
+===== END SNAPSHOT =====
+[I 2026-09-05 21:33:32,260] Trial 0 finished with value: 0.0017982549800037689 and parameters: {'num_layer': 4, 'hidden_dim_0': 79, 'hidden_dim_1': 87, 'hidden_dim_2': 24, 'hidden_dim_3': 81, 'learning_rate': 0.003992926872036887, 'drop_out_rate': 0.11625523825466391, 'llh_loss': 0.5077468866428584}. Best is trial 0 with value: 0.0017982549800037689.

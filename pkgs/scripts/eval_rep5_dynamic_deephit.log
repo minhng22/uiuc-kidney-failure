@@ -8695,3 +8695,30 @@ res shape: torch.Size([16, 1, 5475])
   saved_model = torch.load(saved_path, map_location=device)
 [I 2026-08-30 02:39:07,412] Trial 9 finished with value: 0.5782445973681033 and parameters: {'num_layer': 2, 'hidden_dim_0': 108, 'hidden_dim_1': 125, 'learning_rate': 0.00014980425101852052, 'drop_out_rate': 0.10158755281058013, 'llh_loss': 0.956065351734998}. Best is trial 0 with value: 0.7717855849329953.
 [I 2026-08-30 02:39:27,532] A new study created in memory with name: no-name-93763b90-62b7-4ad0-994e-b4975562aa9c
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 09:57:58 CDT 2026, via py-spy --pid 333542 --locals; NOT this process's own buffered stdout, which hasn't flushed since 2026-08-30 02:39 =====
+Trial 0 of the TWENTY_FEATURES_HETEROGENEOUS study (no model saved yet).
+epoch: 28 / 50
+best_loss: 1.3376265655265995
+patience_counter: 0 (still improving, not near early-stop)
+hyperparams this trial: num_layers=4, hidden_dims=[105, 120, 84, 92], learning_rate=7.3184e-04
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:00:08 CDT 2026, via py-spy --pid 333542 --locals) =====
+Still trial 0 of TWENTY_FEATURES_HETEROGENEOUS (no model saved yet).
+epoch: 28 / 50 (unchanged since last snapshot), batch i=1086 (was 1067) -- mid-epoch progress confirmed, epoch just hasn't rolled over yet
+best_loss: 1.3376265655265995
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:06:59 CDT 2026, via py-spy --pid 333542 --locals) =====
+Still trial 0 of TWENTY_FEATURES_HETEROGENEOUS (no model saved yet).
+epoch: 28 / 50 (unchanged), batch i=1144 (was 1086) -- mid-epoch progress
+best_loss: 1.3376265655265995
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:16:45 CDT 2026, via py-spy --pid 333542 --locals) =====
+Still trial 0 of TWENTY_FEATURES_HETEROGENEOUS (no model saved yet).
+epoch: 28 / 50 (unchanged), batch i=1227 (was 1144) -- mid-epoch progress
+best_loss: 1.3376265655265995
+===== END SNAPSHOT =====
+[I 2026-09-06 08:54:20,018] Trial 0 finished with value: 0.6158745638428627 and parameters: {'num_layer': 4, 'hidden_dim_0': 105, 'hidden_dim_1': 120, 'hidden_dim_2': 84, 'hidden_dim_3': 92, 'learning_rate': 0.0007318420397083387, 'drop_out_rate': 0.3901074472020126, 'llh_loss': 0.12290822520472447}. Best is trial 0 with value: 0.6158745638428627.

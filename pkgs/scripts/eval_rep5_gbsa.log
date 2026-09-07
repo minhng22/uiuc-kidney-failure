@@ -1,1 +1,17 @@
 Start time: Sat Aug 29 19:02:23 CDT 2026
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 09:57:58 CDT 2026, via py-spy --pid 333643 --locals; this experiment prints nothing until the whole fit finishes =====
+Currently inside GradientBoostingSurvivalAnalysis.fit() -> _fit_stages, boosting stage i=244, INSIDE a GridSearchCV _fit_and_score call (cross-validation, not the final fit), n_samples=20864.
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:00:08 CDT 2026, via py-spy --pid 333643 --locals) =====
+GradientBoostingSurvivalAnalysis, boosting stage i=264 (was 244 last snapshot) -- advancing. Still inside a GridSearchCV _fit_and_score fold, not the final fit.
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:06:59 CDT 2026, via py-spy --pid 333643 --locals) =====
+GradientBoostingSurvivalAnalysis, boosting stage i=24 (was 264 last snapshot) -- lower than before, consistent with GridSearchCV moving to a new fold/hyperparameter combo's fit (stage counter resets per fit, not a regression).
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:16:45 CDT 2026, via py-spy --pid 333643 --locals) =====
+GradientBoostingSurvivalAnalysis, boosting stage i=108 (was 24) -- advancing.
+===== END SNAPSHOT =====

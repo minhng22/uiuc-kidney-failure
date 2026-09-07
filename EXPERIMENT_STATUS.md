@@ -72,13 +72,10 @@ propagation before relying on its master-log ✓/✗ lines again.
 | Stage 3.1 rep4 full run (11 models, four/eight/twenty scenarios via `pkgs/scripts/run_rep.sh 4`) | 332134 | sunlab-serv-03.cs.illinois.edu | [master log](pkgs/scripts/run_rep4_master.log), per-exp `pkgs/scripts/eval_rep4_<name>.log` | **9/11 done** (kfre, survival_svm, weibul, deepsurv, logistic_hazard, cox, srf, hazard_transformer, rnnsurv — relaunch succeeded, C-index 0.611, confirming Incident #3 fix works); dynamic_deephit, gbsa still actively computing — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) |
 | Stage 3.1 rep5 full run (11 models, four/eight/twenty scenarios via `pkgs/scripts/run_rep.sh 5`) | 333435 | sunlab-serv-03.cs.illinois.edu | [master log](pkgs/scripts/run_rep5_master.log), per-exp `pkgs/scripts/eval_rep5_<name>.log` | **9/11 done** (kfre, survival_svm, weibul, deepsurv, rnnsurv, logistic_hazard, cox, srf, hazard_transformer); dynamic_deephit, gbsa still actively computing — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) |
 
-Last Updated: 2026-09-03 09:44 CDT (sunlab-serv-02.cs.illinois.edu, rep2/rep3
-rows only — rep2's srf notably alive ~10h (RSS only ~6GB, likely benefiting
-from hazard_transformer having freed memory), left running untouched;
-rep3's srf OOM-killed again (~85.7GB) and relaunched (PID 1595639); both
-still 8/11; dynamic_deephit/gbsa confirmed alive on both reps; rep4/rep5
-rows are sunlab-serv-03's own, 3.0.2 row/timestamp is sunlab-serv-01's own,
-both left as-is).
+Last Updated: 2026-09-03 10:24 CDT (sunlab-serv-02.cs.illinois.edu, rep2/rep3
+rows only — no change since 10:14 check, both still 8/11, no new failures,
+both srf processes alive; rep4/rep5 rows are sunlab-serv-03's own (10:16
+CDT), 3.0.2 row/timestamp is sunlab-serv-01's own, both left as-is).
 Full
 history for this stage (launches, incidents, health checks) is in
 [stage3_0_rep1_run_report.txt](generated_data/rep1/stage3_0_rep1_run_report.txt)

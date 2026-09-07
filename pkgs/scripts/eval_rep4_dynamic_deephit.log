@@ -8796,3 +8796,30 @@ attention_weights shape: torch.Size([16, 174, 1])
   saved_model = torch.load(saved_path, map_location=device)
 [I 2026-08-30 03:09:25,499] Trial 9 finished with value: 0.08442794478651053 and parameters: {'num_layer': 1, 'hidden_dim_0': 28, 'learning_rate': 0.001128821706578759, 'drop_out_rate': 0.41950637676427915, 'llh_loss': 0.4975683454178974}. Best is trial 6 with value: 0.7940158557688438.
 [I 2026-08-30 03:09:44,900] A new study created in memory with name: no-name-3d786daa-a601-4b39-b54e-c82f0addd319
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 09:57:58 CDT 2026, via py-spy --pid 332175 --locals; NOT this process's own buffered stdout, which hasn't flushed since 2026-08-30 03:09 =====
+Trial 0 of the TWENTY_FEATURES_HETEROGENEOUS study (no model saved yet).
+epoch: 28 / 50
+best_loss: 2.5020057179445137
+patience_counter: 0 (still improving, not near early-stop)
+hyperparams this trial: num_layers=2, hidden_dims=[36, 55], learning_rate=5.8577e-05
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:00:08 CDT 2026, via py-spy --pid 332175 --locals) =====
+Still trial 0 of TWENTY_FEATURES_HETEROGENEOUS (no model saved yet).
+epoch: 28 / 50 (unchanged since last snapshot), batch i=1209 (was 1189) -- mid-epoch progress confirmed, epoch just hasn't rolled over yet
+best_loss: 2.5020057179445137
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:06:59 CDT 2026, via py-spy --pid 332175 --locals) =====
+Still trial 0 of TWENTY_FEATURES_HETEROGENEOUS (no model saved yet).
+epoch: 28 / 50 (unchanged), batch i=1268 (was 1209) -- mid-epoch progress
+best_loss: 2.5020057179445137
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (Thu Sep  3 10:16:45 CDT 2026, via py-spy --pid 332175 --locals) =====
+Still trial 0 of TWENTY_FEATURES_HETEROGENEOUS (no model saved yet).
+epoch: 28 / 50 (unchanged), batch i=1351 (was 1268) -- mid-epoch progress
+best_loss: 2.5020057179445137
+===== END SNAPSHOT =====
+[I 2026-09-06 12:04:24,334] Trial 0 finished with value: 0.649000020430308 and parameters: {'num_layer': 2, 'hidden_dim_0': 36, 'hidden_dim_1': 55, 'learning_rate': 5.8576616176796066e-05, 'drop_out_rate': 0.2748650906563591, 'llh_loss': 0.46626371551542}. Best is trial 0 with value: 0.649000020430308.
