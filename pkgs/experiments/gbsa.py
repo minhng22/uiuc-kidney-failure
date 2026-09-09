@@ -210,7 +210,6 @@ def joblib_to_dill():
             dill.dump(model, f, protocol=4)
 
 if __name__ == '__main__':
-    run_gbsa()
     print("\nRunning FOUR_FEATURES GBSA model evaluation...")
     run_scenario(ExperimentScenario.FOUR_FEATURES)
     print("\nRunning EIGHT_FEATURES GBSA model evaluation...")
