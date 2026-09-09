@@ -169,7 +169,6 @@ def run_scenario(scenario: ExperimentScenario):
 
 
 if __name__ == '__main__':
-    run_survival_rf()
     print("\nRunning FOUR_FEATURES Survival RF model evaluation...")
     run_scenario(ExperimentScenario.FOUR_FEATURES)
     print("\nRunning EIGHT_FEATURES Survival RF model evaluation...")
