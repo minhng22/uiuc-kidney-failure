@@ -64,53 +64,8 @@ propagation before relying on its master-log ✓/✗ lines again.
 
 ## Background processes
 
-| What | PID | Host | Log | Status |
-|---|---|---|---|---|
-| Stage 3.0.2 rep1 twenty_features_heterogeneous (10 models) | -- (leader 3131354 exited) | sunlab-serv-01.cs.illinois.edu | [log](generated_data/rep1/stage3_0_background_process_log.txt) | 8/10 done; gbsa running (PID 3466503, GridSearchCV 159/192 candidates, ~2 more days); dynamic_deephit running (PID 3903075, optuna trial 2/10, ~2-4+ more weeks at current per-trial pace) -- both confirmed advancing via py-spy snapshots, see log |
-| Stage 3.1 rep2 full run (11 models, four/eight/twenty scenarios) | 531632 | sunlab-serv-02.cs.illinois.edu | [master log](pkgs/scripts/run_rep2_master.log), per-exp `pkgs/scripts/eval_rep2_<name>.log` | **8/11 done**; srf now running via scoped driver [pkgs/scripts/run_srf_scoped.py](pkgs/scripts/run_srf_scoped.py) (skips out-of-scope `run_survival_rf()`, runs only four/eight/twenty_features_heterogeneous), PID 3224900 — see [report](generated_data/rep2/stage3_1_srf_oom_report.txt); cox/rnnsurv resolved earlier — see [rnnsurv report](generated_data/rep2/stage3_1_rnnsurv_riskbytime_bug_report.txt) and [cox report](generated_data/rep2/stage3_1_cox_oom_report.txt); dynamic_deephit, gbsa confirmed still alive/training (17+ day CPU-time each), no new failures |
-| Stage 3.1 rep3 full run (11 models, four/eight/twenty scenarios) | 532683 | sunlab-serv-02.cs.illinois.edu | [master log](pkgs/scripts/run_rep3_master.log), per-exp `pkgs/scripts/eval_rep3_<name>.log` | **8/11 done**; srf now running via scoped driver (same as rep2, see its cell), PID 3224901; same cox/rnnsurv incident as rep2, resolved — see rep2's row + reports; dynamic_deephit, gbsa confirmed still alive/training, no new failures |
-| Stage 3.1 rep4 full run (11 models, four/eight/twenty scenarios via `pkgs/scripts/run_rep.sh 4`) | 332134 | sunlab-serv-03.cs.illinois.edu | [master log](pkgs/scripts/run_rep4_master.log), per-exp `pkgs/scripts/eval_rep4_<name>.log` | **9/11 done** (kfre, survival_svm, weibul, deepsurv, logistic_hazard, cox, srf, hazard_transformer, rnnsurv — relaunch succeeded, C-index 0.611, confirming Incident #3 fix works); dynamic_deephit, gbsa still actively computing — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) |
-| Stage 3.1 rep5 full run (11 models, four/eight/twenty scenarios via `pkgs/scripts/run_rep.sh 5`) | 333435 | sunlab-serv-03.cs.illinois.edu | [master log](pkgs/scripts/run_rep5_master.log), per-exp `pkgs/scripts/eval_rep5_<name>.log` | **9/11 done** (kfre, survival_svm, weibul, deepsurv, rnnsurv, logistic_hazard, cox, srf, hazard_transformer); dynamic_deephit, gbsa still actively computing — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) |
+DON'T UPDATE THIS SECTION!!!
+To find background processes, run:
 
-Last Updated: 2026-09-09 04:18 CDT (sunlab-serv-03.cs.illinois.edu, rep4/rep5 rows only — no new failures, still 9/11 both. dynamic_deephit:
-Trial 1 of TWENTY_FEATURES_HETEROGENEOUS genuinely advancing (epoch 18/50
-rep4, 19/50 rep5, both up from 5-6 on Sep 7 — real progress, not stalled;
-Trial 0 remains saved from Sep 6). gbsa: still mid-GridSearchCV on both,
-no model saved yet, boosting-stage counters confirmed moving. Fresh py-spy
-snapshots appended to eval_rep{4,5}_{dynamic_deephit,gbsa}.log; rep2/rep3
-rows updated 2026-09-09 06:20 CDT by sunlab-serv-02 — see their own
-timestamp note below; 3.0.2 row/timestamp is sunlab-serv-01's own, both
-left as-is).
+ps -u minhn2 -o pid,ppid,etime,%cpu,%mem,cmd --sort=-etime | grep -iE "uiuc-kidney-failure|pkgs\.(scripts|experiments|models)" | grep -v "vscode-server\|grep\|claude"
 
-Last Updated (rep2/rep3, sunlab-serv-02.cs.illinois.edu): 2026-09-09 08:05
-CDT — CORRECTION to the 06:20 update: fixing the hardcoded-path bug and
-relaunching srf's full `__main__` (which runs `run_survival_rf()`, the
-legacy NON_TIME_VARIANT/egfr_ti scenario, first) was itself a mistake --
-that scenario is not in Stage 3.1's scope (four/eight/twenty_features_
-heterogeneous only, per EXPERIMENT_PLAN_DETAILS.md) and is why srf never
-even reached the in-scope scenarios in 27+ attempts. User caught this.
-Killed the two relaunched processes; wrote a scoped driver
-(pkgs/scripts/run_srf_scoped.py, per CLAUDE.md's "check a script's actual
-entry point" rule, same pattern as run_stage3_extra_models_rep99.py) that
-calls srf.run_scenario() directly for four/eight/twenty_features_
-heterogeneous only, skipping run_survival_rf() entirely. Relaunched under
-this driver: rep2 PID 3224900, rep3 PID 3224901, no duplicates -- both
-already well into four_features within seconds (previously never got
-there at all). The commons.py path fix itself is kept (still correct
-hygiene, matches every other path in the file) but is no longer exercised
-by this scoped launch. Also worth flagging again: rep4/rep5 on
-sunlab-serv-03 likely have a contaminated egfr_ti srf result from the same
-shared hardcoded path (see 06:20 note above) -- not this driver's concern
-since egfr_ti isn't run here, but still an open item for that session/the
-user to resolve if that scenario is ever needed.
-
-3.0.2 row last updated: 2026-09-09 05:27 CDT (sunlab-serv-01.cs.illinois.edu)
-— gbsa candidate 159/192 (up from 126), dynamic_deephit trial 2/10 (trial 1
-finished, up from trial 1/epoch 8) — both confirmed advancing via py-spy
---locals snapshots (not just ps liveness), appended to their own logs.
-Full
-history for this stage (launches, incidents, health checks) is in
-[stage3_0_rep1_run_report.txt](generated_data/rep1/stage3_0_rep1_run_report.txt)
-and [stage3_0_background_process_log.txt](generated_data/rep1/stage3_0_background_process_log.txt);
-Stage 2.2's Findings #1-#3 are in
-[stage2_2_debug_report.txt](generated_data/rep99/stage2_2_debug_report.txt).
