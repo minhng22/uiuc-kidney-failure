@@ -38,3 +38,17 @@ faster (patience=5 gives some hope of that, as trial 1 already shows).
 /home/minhn2/uiuc-kidney-failure/pkgs/experiments/dynamic_deephit.py:104: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
   saved_model = torch.load(saved_path, map_location=device)
 [I 2026-09-08 07:20:21,564] Trial 1 finished with value: 0.0028661916885181294 and parameters: {'num_layer': 3, 'hidden_dim_0': 104, 'hidden_dim_1': 111, 'hidden_dim_2': 97, 'learning_rate': 4.532283296982872e-05, 'drop_out_rate': 0.41921910212971225, 'llh_loss': 0.9839737276911242}. Best is trial 1 with value: 0.0028661916885181294.
+===== LIVE STATUS SNAPSHOT (2026-09-09 05:27 CDT, via py-spy --pid 3903075 --locals) =====
+Compared to prior snapshot (2026-09-07 05:07, trial 1/epoch 8, patience 2/5):
+ADVANCED -- Trial 1 FINISHED at 2026-09-08 07:20:21 (value 0.00287, now
+  best) after ~2d9h47m -- faster than trial 0's ~4.4 days (early stopping
+  likely kicked in, given patience_counter was already 2/5 at last check).
+Now on Trial 2: num_layers=3, hidden_dims=[69,21,77], learning_rate=1.36e-4,
+  drop_out=0.3038, llh_loss=0.672, ranking_loss=0.328
+  epoch=6/50, patience_counter=0/5 (best_loss=avg_loss=3.3158 -- fresh,
+  currently the best, no degradation yet)
+2 of 10 trials complete. Elapsed since relaunch: ~7d17h45m total.
+Trial durations so far: trial0=4.4d, trial1=2.4d. If remaining 8 trials
+average similarly (~2-4.5 days each), full 10-trial search could still
+take another 2-4+ weeks.
+===== END SNAPSHOT =====

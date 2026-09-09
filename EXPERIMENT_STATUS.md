@@ -66,19 +66,39 @@ propagation before relying on its master-log ✓/✗ lines again.
 
 | What | PID | Host | Log | Status |
 |---|---|---|---|---|
-| Stage 3.0.2 rep1 twenty_features_heterogeneous (10 models) | -- (leader 3131354 exited) | sunlab-serv-01.cs.illinois.edu | [log](generated_data/rep1/stage3_0_background_process_log.txt) | 9/10 done (cox/logistic_hazard/deepsurv/srf/hazard_transformer/survival_svm/weibul/rnnsurv all valid); gbsa still running (PID 3466503, 1d15h+, slow but memory-stable); dynamic_deephit relaunched per user request (PID 3903075), running in parallel -- same code, expect similarly long runtime (28h+ last attempt), see log; a real rnnsurv eval-time bug found (_batched_risk_by_time unbatched concat) -- not fixed, has a valid result via a lucky concurrent run, see log |
-| Stage 3.1 rep2 full run (11 models, four/eight/twenty scenarios) | 531632 | sunlab-serv-02.cs.illinois.edu | [master log](pkgs/scripts/run_rep2_master.log), per-exp `pkgs/scripts/eval_rep2_<name>.log` | **8/11 done** (hazard_transformer finished successfully — C-index 0.7519, AUC 0.85, Brier 0.462); srf OOM-killed again at anon-rss ~168.7GB (biggest yet, 05:40) — relaunched, PID 2636532, 24+ prior attempts all crashed before ever reaching the four/eight/twenty scenarios — see [report](generated_data/rep2/stage3_1_srf_oom_report.txt); cox/rnnsurv resolved earlier — see [rnnsurv report](generated_data/rep2/stage3_1_rnnsurv_riskbytime_bug_report.txt) and [cox report](generated_data/rep2/stage3_1_cox_oom_report.txt); dynamic_deephit, gbsa confirmed still alive/training (17+ day CPU-time each), no new failures |
-| Stage 3.1 rep3 full run (11 models, four/eight/twenty scenarios) | 532683 | sunlab-serv-02.cs.illinois.edu | [master log](pkgs/scripts/run_rep3_master.log), per-exp `pkgs/scripts/eval_rep3_<name>.log` | **8/11 done** (hazard_transformer, cox, rnnsurv, kfre, survival_svm, weibul, deepsurv, logistic_hazard); srf OOM-killed again at anon-rss ~97.98GB (10:04) — relaunched, PID 2710401, 26+ prior attempts, zero successes — see [report](generated_data/rep2/stage3_1_srf_oom_report.txt); same cox/rnnsurv incident as rep2, resolved — see rep2's row + reports; dynamic_deephit, gbsa confirmed still alive/training, no new failures |
+| Stage 3.0.2 rep1 twenty_features_heterogeneous (10 models) | -- (leader 3131354 exited) | sunlab-serv-01.cs.illinois.edu | [log](generated_data/rep1/stage3_0_background_process_log.txt) | 8/10 done; gbsa running (PID 3466503, GridSearchCV 159/192 candidates, ~2 more days); dynamic_deephit running (PID 3903075, optuna trial 2/10, ~2-4+ more weeks at current per-trial pace) -- both confirmed advancing via py-spy snapshots, see log |
+| Stage 3.1 rep2 full run (11 models, four/eight/twenty scenarios) | 531632 | sunlab-serv-02.cs.illinois.edu | [master log](pkgs/scripts/run_rep2_master.log), per-exp `pkgs/scripts/eval_rep2_<name>.log` | **8/11 done** (hazard_transformer finished successfully — C-index 0.7519, AUC 0.85, Brier 0.462); srf **real root cause found**: not OOM, a hardcoded rep4 path bug in `pkgs/commons.py` — GridSearchCV finally completed but crashed saving to a nonexistent path; fixed + verified, relaunched PID 3203701 — see [report](generated_data/rep2/stage3_1_srf_oom_report.txt); cox/rnnsurv resolved earlier — see [rnnsurv report](generated_data/rep2/stage3_1_rnnsurv_riskbytime_bug_report.txt) and [cox report](generated_data/rep2/stage3_1_cox_oom_report.txt); dynamic_deephit, gbsa confirmed still alive/training (17+ day CPU-time each), no new failures |
+| Stage 3.1 rep3 full run (11 models, four/eight/twenty scenarios) | 532683 | sunlab-serv-02.cs.illinois.edu | [master log](pkgs/scripts/run_rep3_master.log), per-exp `pkgs/scripts/eval_rep3_<name>.log` | **8/11 done** (hazard_transformer, cox, rnnsurv, kfre, survival_svm, weibul, deepsurv, logistic_hazard); srf hardcoded-path bug fixed (same as rep2, see its cell) + verified, relaunched PID 3203702; same cox/rnnsurv incident as rep2, resolved — see rep2's row + reports; dynamic_deephit, gbsa confirmed still alive/training, no new failures |
 | Stage 3.1 rep4 full run (11 models, four/eight/twenty scenarios via `pkgs/scripts/run_rep.sh 4`) | 332134 | sunlab-serv-03.cs.illinois.edu | [master log](pkgs/scripts/run_rep4_master.log), per-exp `pkgs/scripts/eval_rep4_<name>.log` | **9/11 done** (kfre, survival_svm, weibul, deepsurv, logistic_hazard, cox, srf, hazard_transformer, rnnsurv — relaunch succeeded, C-index 0.611, confirming Incident #3 fix works); dynamic_deephit, gbsa still actively computing — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) |
 | Stage 3.1 rep5 full run (11 models, four/eight/twenty scenarios via `pkgs/scripts/run_rep.sh 5`) | 333435 | sunlab-serv-03.cs.illinois.edu | [master log](pkgs/scripts/run_rep5_master.log), per-exp `pkgs/scripts/eval_rep5_<name>.log` | **9/11 done** (kfre, survival_svm, weibul, deepsurv, rnnsurv, logistic_hazard, cox, srf, hazard_transformer); dynamic_deephit, gbsa still actively computing — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) |
 
-Last Updated: 2026-09-07 12:44 CDT (sunlab-serv-02.cs.illinois.edu, rep2/rep3
-rows only — rep2's srf (PID 2636532) still alive since 06:45 (~6h, longest
-attempt yet, left alone); rep3's srf OOM-killed again (~97.98GB, 10:04),
-relaunched (PID 2710401), no duplicates; both still 8/11, no other new
-failures, dynamic_deephit/gbsa confirmed still alive; rep4/rep5 rows are
-sunlab-serv-03's own (05:13 CDT), 3.0.2 row/timestamp is sunlab-serv-01's
-own, both left as-is).
+Last Updated: 2026-09-09 04:18 CDT (sunlab-serv-03.cs.illinois.edu, rep4/rep5 rows only — no new failures, still 9/11 both. dynamic_deephit:
+Trial 1 of TWENTY_FEATURES_HETEROGENEOUS genuinely advancing (epoch 18/50
+rep4, 19/50 rep5, both up from 5-6 on Sep 7 — real progress, not stalled;
+Trial 0 remains saved from Sep 6). gbsa: still mid-GridSearchCV on both,
+no model saved yet, boosting-stage counters confirmed moving. Fresh py-spy
+snapshots appended to eval_rep{4,5}_{dynamic_deephit,gbsa}.log; rep2/rep3
+rows updated 2026-09-09 06:20 CDT by sunlab-serv-02 — see their own
+timestamp note below; 3.0.2 row/timestamp is sunlab-serv-01's own, both
+left as-is).
+
+Last Updated (rep2/rep3, sunlab-serv-02.cs.illinois.edu): 2026-09-09 06:20
+CDT — MAJOR FINDING: srf's repeated failures were never purely OOM; rep2's
+09-07 06:45 attempt actually finished GridSearchCV for the first time
+(27+ attempts) then crashed on a hardcoded rep4 path in pkgs/commons.py
+(`egfr_ti_srf_model_path`), which doesn't exist on this host. Fixed (now
+rep-scoped like every other path in the file), verified by direct
+write-test (rep99 not re-run — no NON_TIME_VARIANT data there, avoids the
+documented raw-extraction fallback landmine). Also found this same bug
+likely contaminated rep4/rep5's egfr_ti srf result on sunlab-serv-03 (one
+loaded the other's model) — flagged to user, not touched (their rows).
+Relaunched rep2 (PID 3203701) and rep3 (PID 3203702) srf under the fix, no
+duplicates. Both still 8/11, dynamic_deephit/gbsa confirmed alive.
+
+3.0.2 row last updated: 2026-09-09 05:27 CDT (sunlab-serv-01.cs.illinois.edu)
+— gbsa candidate 159/192 (up from 126), dynamic_deephit trial 2/10 (trial 1
+finished, up from trial 1/epoch 8) — both confirmed advancing via py-spy
+--locals snapshots (not just ps liveness), appended to their own logs.
 Full
 history for this stage (launches, incidents, health checks) is in
 [stage3_0_rep1_run_report.txt](generated_data/rep1/stage3_0_rep1_run_report.txt)

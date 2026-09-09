@@ -6,3 +6,12 @@ Structure:
     - Documentations of design and trade off decisions
 - EXPERIMENT_PLAN: High level experiment plan
 - EXPERIMENT_STATUS: status of experiment
+
+## Checking on background experiment processes
+
+Long-running experiments (`pkgs/scripts/run_rep.sh`, standalone reruns of a
+single model, etc.) are launched detached in the background.
+
+```
+ps -o pid,etime,cmd -p $(pgrep -d, -f "run_rep.sh|pkgs.experiments")
+```

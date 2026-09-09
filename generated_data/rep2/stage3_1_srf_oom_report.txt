@@ -165,3 +165,83 @@ srf retry, run `ps aux | grep experiments.srf` first and check whether
 PID 763722 (or its eventual successor, whichever this repo's
 EXPERIMENT_STATUS.md rep2 row currently names) is already running -- don't
 launch a second one on top of it.
+
+Update 2026-09-09 06:15-06:40 CDT -- REAL ROOT CAUSE FOUND: hardcoded path bug (not OOM)
+---------------------------------------------------------------------------------------------
+During the routine 3-hour check, found srf was dead for both rep2 and rep3
+with NO recent relaunch (~2-day cron gap, same known scheduling-reliability
+issue documented earlier in this report).
+
+BIG NEWS: rep2's srf attempt launched 2026-09-07 06:45 CDT (PID 2636532) did
+NOT OOM this time -- dmesg confirms no kill event for that PID, and its
+memory snapshots (158GB -> 144GB -> 38GB across three dmesg process-list
+captures) show RSS shrinking, consistent with GridSearchCV actually
+finishing and releasing worker memory. Its log confirms this directly: for
+the first time in 27+ combined attempts across both reps, `run_survival_rf()`
+completed its full 180-fit GridSearchCV and printed "Best parameters found:
+{'max_depth': None, 'min_samples_split': 2, 'n_estimators': 50}".
+
+It then crashed immediately after, with a real (non-OOM) traceback:
+
+  File "pkgs/experiments/srf.py", line 76, in run_survival_rf
+    with open(egfr_ti_srf_model_path, 'wb') as f:
+  FileNotFoundError: [Errno 2] No such file or directory:
+  '/srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill'
+
+Root cause: pkgs/commons.py line 164 --
+
+  egfr_ti_srf_model_path = f'/srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill'
+
+-- was HARDCODED to a literal rep4 path outside the project's generated_data
+tree entirely, unlike every other model path in the file (all ~40 others
+correctly use f'{generate_data_path_latest_rep}/...', which is derived from
+CKD_REP). This directory doesn't exist on sunlab-serv-02 at all (confirmed:
+`ls /srv/local/data/minhn2/` -> No such file or directory), so any rep run
+from this host that got far enough to reach the save step would hit this
+FileNotFoundError. All 27+ prior attempts across rep2/rep3 never reached
+this point because they OOM-killed first -- this bug has been silently
+hidden behind the OOM crashes the entire time.
+
+Worse: this same hardcoded path is also the *read* path
+(`load_pkl_and_dill_model(egfr_ti_srf_model_path)` at the top of
+run_survival_rf()) -- meaning on sunlab-serv-03, where /srv/local/data/minhn2/
+does exist, EVERY rep's srf run (rep4 and rep5 both) reads/writes the SAME
+file regardless of CKD_REP. Confirmed via eval_rep4_srf.log and
+eval_rep5_srf.log: both show, right after starting seconds apart (19:02:20
+and 19:02:23 CDT resp.) "Model file found at
+/srv/local/data/minhn2/rep4/egfr_ti_srf_model.dill. Loading model..." --
+one of rep4/rep5 trained the shared file first and the other loaded it
+instead of training its own. Their FOUR_FEATURES/EIGHT_FEATURES/
+TWENTY_FEATURES_HETEROGENEOUS srf results are unaffected (those use
+correctly rep-scoped paths in commons.py); only the NON_TIME_VARIANT
+(egfr_ti) srf result is contaminated -- one rep's "done" egfr_ti srf number
+is actually a copy of the other rep's model, not independently trained.
+Flagged to the user; not corrected here since rep4/rep5 rows/artifacts are
+sunlab-serv-03's to own and re-run.
+
+Fix applied (pkgs/commons.py, shared code)
+--------------------------------------------
+  egfr_ti_srf_model_path = f'{generate_data_path_latest_rep}/egfr_ti_srf_model.dill'
+
+Matches the exact convention used by every other path in the file.
+
+Verification: this is a pure path-string change with zero model/training
+logic touched, so a full rep99 GridSearchCV re-run was deliberately NOT
+done -- rep99 has no NON_TIME_VARIANT (egfr_ti) train/test data on disk,
+and calling get_train_test_data(NON_TIME_VARIANT) there risks the exact
+silent-fallback-to-full-raw-MIMIC-extraction landmine already documented
+elsewhere in this repo's CLAUDE.md (a ~2-hour unrelated job that looks like
+healthy CPU activity). Instead, verified directly and cheaply:
+  - `CKD_REP=99 python3 -c "from pkgs.commons import
+    egfr_ti_srf_model_path; ..."` confirms the path now resolves to
+    generated_data/rep99/egfr_ti_srf_model.dill (parent dir exists).
+  - Performed the exact same open(path, 'wb') write srf.py does, read it
+    back, then deleted it -- write succeeds, proving the FileNotFoundError
+    is resolved.
+  - Confirmed the path now correctly resolves per-rep for rep1/2/3/4/5/99
+    (each maps to its own generated_data/repN/ directory, no collisions).
+
+Relaunched rep2 and rep3's srf standalone under the fix (fresh run --
+GridSearchCV restarts from scratch either way since no model was ever
+successfully saved for either rep). See EXPERIMENT_STATUS.md for current
+PIDs.
