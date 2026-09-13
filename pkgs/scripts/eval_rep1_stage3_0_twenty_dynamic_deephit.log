@@ -61,3 +61,14 @@ Now on Trial 2: num_layers=3, learning_rate=1.36e-4, epoch=13/50,
 2/10 trials complete so far (Trial 0: 4.4 days, Trial 1: 2.4 days).
 Elapsed since relaunch: ~8d22h3m.
 ===== END SNAPSHOT =====
+===== LIVE STATUS SNAPSHOT (2026-09-13 08:39 CDT, via py-spy --pid 3903075 --locals) =====
+Compared to prior snapshot (2026-09-10 09:45, trial 2/epoch 13, avg_loss=3.245):
+ADVANCED -- still trial 2 (same num_layers=3, learning_rate=1.36e-4),
+now epoch 33/50, avg_loss=3.143 (improved from 3.245), best_loss=3.143
+(== avg_loss, patience_counter=0/5 -- still improving every epoch, no
+early-stop risk right now).
+20 epochs in ~2d22h54m (since last snapshot) => ~3.5h/epoch, consistent
+with earlier trials' pace. At 33/50 epochs, could finish this trial within
+~2.5 more days if it runs to the full 50 without early stopping.
+2/10 optuna trials complete so far.
+Elapsed since relaunch: ~11d20h57m.

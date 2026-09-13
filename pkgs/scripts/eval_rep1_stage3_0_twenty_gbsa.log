@@ -33,3 +33,980 @@ Compared to prior snapshot (2026-09-09 05:27, candidate 159/192): ADVANCED
 Estimated remaining: 13 candidates * 1.415h/candidate = ~18.4h (< 1 more day)
 Elapsed since launch: ~10d13h48m.
 ===== END SNAPSHOT =====
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 6512638 rows/26080 subjects -> 26080 rows; test 1613452 rows/6521 subjects -> 6521 rows
+No existing model found. Starting hyperparameter tuning...
+X shape: (26080, 40)
+Starting hyperparameter tuning...
+Fitting 5 folds for each of 192 candidates, totalling 960 fits
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=50; total time= 6.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time=11.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time= 9.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=200; total time=19.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=200; total time=19.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=200; total time=19.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=29.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=29.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=50; total time= 4.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=100; total time= 9.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=200; total time=19.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=200; total time=19.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=200; total time=19.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=300; total time=29.5min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=5, n_estimators=300; total time=29.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=50; total time= 4.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=100; total time= 9.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=100; total time= 9.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=200; total time=19.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=200; total time=19.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=200; total time=19.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=300; total time=29.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=10, n_estimators=300; total time=29.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=50; total time= 4.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=100; total time= 9.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=100; total time= 9.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=200; total time=19.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=200; total time=19.7min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=200; total time=19.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=300; total time=29.9min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.0min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=15, n_estimators=300; total time=29.7min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.5min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=300; total time=31.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=10, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=50; total time= 4.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.5min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=300; total time=32.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=300; total time=32.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=2, n_estimators=300; total time=31.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=5, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=300; total time=32.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=10, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.01, max_depth=10, min_samples_split=15, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=300; total time=31.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=2, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=300; total time=31.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=300; total time=31.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=5, n_estimators=300; total time=31.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=300; total time=32.0min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=10, n_estimators=300; total time=31.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.5min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=300; total time=31.9min
+[CV] END learning_rate=0.01, max_depth=15, min_samples_split=15, n_estimators=300; total time=31.9min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=32.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=5, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=10, n_estimators=300; total time=32.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.5min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.5min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=33.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=300; total time=32.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=5, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=100; total time=11.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=100; total time=11.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=100; total time=11.6min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=200; total time=22.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=200; total time=22.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=200; total time=21.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=200; total time=23.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=200; total time=23.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=300; total time=33.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=300; total time=33.5min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=300; total time=32.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=300; total time=34.3min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=10, n_estimators=300; total time=34.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.6min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=100; total time=11.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=100; total time=11.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=100; total time=11.5min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=100; total time=12.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=100; total time=12.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=200; total time=23.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=200; total time=23.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=200; total time=21.9min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=200; total time=23.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=200; total time=22.6min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=300; total time=33.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=300; total time=34.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=300; total time=32.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=300; total time=32.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=10, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=200; total time=24.0min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=200; total time=23.9min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=200; total time=23.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=300; total time=32.4min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=300; total time=35.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=300; total time=32.6min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=300; total time=32.5min
+[CV] END learning_rate=0.1, max_depth=10, min_samples_split=15, n_estimators=300; total time=31.0min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.0min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.5min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=300; total time=29.8min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.5min
+[CV] END learning_rate=0.1, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=300; total time=31.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=300; total time=31.0min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=300; total time=32.1min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=2, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=300; total time=32.0min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=5, n_estimators=300; total time=31.7min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=300; total time=31.1min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=300; total time=32.1min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=10, n_estimators=300; total time=32.0min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.3min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.6min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=200; total time=21.4min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=300; total time=31.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.0min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.5min
+[CV] END learning_rate=0.2, max_depth=3, min_samples_split=15, n_estimators=300; total time=32.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=2, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.5min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=200; total time=21.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.0min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=300; total time=31.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=5, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=200; total time=21.0min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=200; total time=20.9min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=300; total time=30.0min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=300; total time=31.2min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=10, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=100; total time=10.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.7min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=200; total time=21.2min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=200; total time=20.8min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=300; total time=31.4min
+[CV] END learning_rate=0.2, max_depth=5, min_samples_split=15, n_estimators=300; total time=30.9min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=300; total time=29.9min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=2, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.5min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=300; total time=29.9min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=5, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=10, n_estimators=300; total time=30.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=200; total time=20.4min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=200; total time=19.9min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=300; total time=30.5min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=300; total time=29.8min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=10, min_samples_split=15, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=50; total time= 5.4min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.6min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=200; total time=21.5min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.8min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.6min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=2, n_estimators=300; total time=30.7min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=300; total time=29.9min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=5, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.0min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=100; total time=10.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.0min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=200; total time=19.8min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=200; total time=20.5min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=300; total time=29.7min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=10, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.0min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=50; total time= 5.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=100; total time= 9.9min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=100; total time=10.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=200; total time=19.8min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=200; total time=20.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.2min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.3min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.1min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.4min
+[CV] END learning_rate=0.2, max_depth=15, min_samples_split=15, n_estimators=300; total time=30.4min
+Best parameters found:
+{'learning_rate': 0.2, 'max_depth': 15, 'min_samples_split': 2, 'n_estimators': 300}
+X shape: (6521, 40)
+Concordance Index Test: 0.521
+Mean AUC: 0.529
+Integrated Brier Score Test: 0.361
+✓ gbsa completed successfully
+End time: Fri Sep 11 03:12:40 CDT 2026
