@@ -416,7 +416,8 @@ on beyond feature importance; two of the recurring set were added here alongside
 the SHAP analysis above, implemented in
 [pkgs/data_analysis/clinical_validity_analysis.py](pkgs/data_analysis/clinical_validity_analysis.py)
 and run via
-[pkgs/scripts/run_stage21_clinical_validity.py](pkgs/scripts/run_stage21_clinical_validity.py):
+[pkgs/scripts/run_experiments.py](pkgs/scripts/run_experiments.py)
+(`analyze --reps 99 --analyses clinical_validity`):
 
 1. **Calibration analysis** (predicted vs. observed risk by decile, at the 2-year/
    5-year horizons KFRE studies report, plus Brier score) — the standard companion
@@ -542,7 +543,8 @@ launched the same way, no separate driver script.
   also train `twenty_features_heterogeneous`. This wrapper follows the same
   conventions as `run_rep.sh` (background/setsid, one subprocess per
   experiment, per-experiment logs, PID file) but calls
-  [pkgs/scripts/run_stage3_0_four_eight_features.py](pkgs/scripts/run_stage3_0_four_eight_features.py)
+  [pkgs/scripts/run_experiments.py](pkgs/scripts/run_experiments.py)
+  with `train --scenarios four_features eight_features --models <model>`
   per model, which calls each model's underlying run function directly for
   `FOUR_FEATURES`/`EIGHT_FEATURES` only, bypassing `__main__` entirely.
   Reuse this same script pair for Stage 3.1's reps too.
@@ -552,13 +554,8 @@ launched the same way, no separate driver script.
   log tail) and the plan doc updated until rep1 finishes or fails-and-is-relaunched.
 2. Once those finish, produce the analysis report, Stage 2.1-style(SHAP-style feature importance + the three additional
   analyses — calibration, decision-curve, etc.), for `four_features`/`eight_features` only. Guide:
-  - Use the scoped variants:
-    [pkgs/scripts/run_stage3_0_four_eight_feature_importance.py](pkgs/scripts/run_stage3_0_four_eight_feature_importance.py)
-    and
-    [pkgs/scripts/run_stage3_0_four_eight_clinical_validity.py](pkgs/scripts/run_stage3_0_four_eight_clinical_validity.py)
-    — same analyzer classes, any `CKD_REP`, four_features/eight_features only.
-  - `CKD_REP=1 PYTHONPATH=. python -m pkgs.scripts.run_stage3_0_four_eight_feature_importance`
-    then `CKD_REP=1 PYTHONPATH=. python -m pkgs.scripts.run_stage3_0_four_eight_clinical_validity`.
+  - Use the parameterized runner with both analyses:
+    `python -m pkgs.scripts.run_experiments analyze --reps 1 --scenarios four_features eight_features`.
 3. **Do not launch `twenty_features_heterogeneous` for any model until the
    user has reviewed that four/eight_features analysis and separately
    approved running it** — in addition to (not a replacement for) Stage
@@ -586,14 +583,14 @@ permission.
 1. After user approved, launch `twenty_features_heterogeneous`. Guide:
   - Launch via [pkgs/scripts/run_rep_stage3_0_twenty.sh](pkgs/scripts/run_rep_stage3_0_twenty.sh)
     `<rep_number>` — mirrors `run_rep_stage3_0_four_eight.sh`'s conventions, calling
-    [pkgs/scripts/run_stage3_0_twenty_features.py](pkgs/scripts/run_stage3_0_twenty_features.py)
+    [pkgs/scripts/run_experiments.py](pkgs/scripts/run_experiments.py)
+    with `train --scenarios twenty_features_heterogeneous --models <model>`
     per model for `TWENTY_FEATURES_HETEROGENEOUS` only. 10 models, not 11 —
     `kfre` is excluded (no published equation for this scenario).
 1. **When `four_features` + `eight_features` + `twenty_features_heterogeneous` finish for all models, produce the analysis
   report again**: repeat Stage 2.1's analysis (SHAP-style feature importance + the three additional
   analyses — calibration, decision-curve, etc.) pointed at rep1's models instead of rep99, scoped
-  to `four_features`/`eight_features` only — no new stage, same code/output convention as Stage
-  2.1, just rerun with `CKD_REP=1`.
+  to `four_features`/`eight_features`/ `twenty_features_heterogeneous`
 
 ### Stage 3.0.3: Debug
 
@@ -632,7 +629,17 @@ eight_features/twenty_features_heterogeneous for all 11 models first then analys
   auto-check rules above.
 - Per the repo's 10-minute auto-check rule, status will be re-verified periodically (`ps -p <pid>`,
   log tail) and the plan doc updated until the launched reps finish or fail-and-are-relaunched.
-- **After each rep finish**: repeat Stage 2.1's analysis (SHAP
-  + the three additional analyses) for that rep
+- **After each rep finish**: repeat Stage 2.1's analysis (SHAP + the three additional analyses) for that rep
+  using `python -m pkgs.scripts.run_experiments analyze --reps <N>`.
+  Use `--reps all` for reps 1-5, or explicit numbers including 99; `--scenarios`,
+  `--models`, and `--analyses` select subsets. Defaults cover both analyses and
+  all three scenarios. Subset runs overwrite the same report/chart paths.
 
-## Open questions before implementation starts
+Analysis batch — last updated 2026-09-14 05:35:43 CDT: rep99 verified; reps 1-5
+running sequentially, both analyses/all three scenarios. Host
+`sunlab-serv-02.cs.illinois.edu`, sandbox PID `2` (namespace-local), execution
+session `23945`. Started 05:33:22 CDT with
+`python -u -m pkgs.scripts.run_experiments analyze --reps all --log-dir pkgs/scripts/logs`.
+Logs: `pkgs/scripts/logs/rep<N>_<analysis>_20260914_053322_522304.log`.
+Depends on existing trained models/data; writes rep-specific reports/charts.
+Details/status: [run report](generated_data/analysis_run_report.txt).

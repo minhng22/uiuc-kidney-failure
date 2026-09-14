@@ -7,6 +7,7 @@ approved). Do not restart another session's row without confirming its host is a
 
 | Stage | Task | Status | Notes |
 |---|---|---|---|
+| Analysis rerun | Parameterized runner; reps 1-5, all three scenarios | rep99 verified; production analyses running | [report](generated_data/analysis_run_report.txt) |
 | 1a | Task A: determine 20 lab features | done | [report](generated_data/rep1/twenty_features_lab_analysis_report.txt) |
 | 1a | Task B: locate Tangri et al. 8-variable KFRE coefficients | done | [report](generated_data/rep1/kfre_8variable_coefficients_report.txt) |
 | 1b | Code changes (types/commons/time_series_store/model_data_store/experiments/kfre) | done | [report](generated_data/rep1/stage1b_implementation_report.txt) |
@@ -68,4 +69,3 @@ DON'T UPDATE THIS SECTION!!!
 To find background processes, run:
 
 ps -u minhn2 -o pid,ppid,etime,%cpu,%mem,cmd --sort=-etime | grep -iE "uiuc-kidney-failure|pkgs\.(scripts|experiments|models)" | grep -v "vscode-server\|grep\|claude"
-

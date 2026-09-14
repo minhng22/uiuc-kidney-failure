@@ -217,7 +217,7 @@ full-scale rep:
   or equivalent — not a full rep1-5 run) and confirm the bug no longer
   reproduces there.
 - Then re-run feature-importance analysis on rep99 for the affected
-  scenario(s) (`pkgs/scripts/run_stage21_feature_importance.py` or
+  scenario(s) (`python -m pkgs.scripts.run_experiments analyze --reps 99 --analyses feature_importance` or
   equivalent), since a model-training fix can change which model artifacts
   exist/are valid for that analysis to consume.
 - Only after both of those pass, consider the fix verified — report the bug,

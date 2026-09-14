@@ -2,7 +2,7 @@
 
 # Stage 3.0 scoped launcher: runs 10 models (all but `kfre`, which has no
 # published equation for this scenario) for TWENTY_FEATURES_HETEROGENEOUS
-# only, via pkgs/scripts/run_stage3_0_twenty_features.py. Only run this
+# only, via pkgs/scripts/run_experiments.py train --scenarios. Only run this
 # after the user has explicitly approved twenty_features_heterogeneous per
 # EXPERIMENT_PLAN_DETAILS.md's Stage 3.0 scenario-ordering rule.
 #
@@ -61,7 +61,7 @@ for experiment in "${EXPERIMENTS[@]}"; do
 
     (
         echo "Start time: $(date)" > "$exp_log"
-        if python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1; then
+        if python -m pkgs.scripts.run_experiments train --reps "$REP_NUM" --models "${experiment}" --scenarios twenty_features_heterogeneous >> "$exp_log" 2>&1; then
             echo "✓ $experiment completed successfully" >> "$exp_log"
         else
             echo "✗ $experiment failed with exit code $?" >> "$exp_log"

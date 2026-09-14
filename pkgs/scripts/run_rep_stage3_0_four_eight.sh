@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Stage 3.0 scoped launcher: runs all 11 models for FOUR_FEATURES/
-# EIGHT_FEATURES only, via pkgs/scripts/run_stage3_0_four_eight_features.py
+# EIGHT_FEATURES only, via pkgs/scripts/run_experiments.py train --scenarios
 # (which calls each model's run function(s) directly instead of its
 # `__main__`, since 10 of the 11 modules' `__main__` blocks unconditionally
 # also train TWENTY_FEATURES_HETEROGENEOUS). Per
@@ -65,7 +65,7 @@ for experiment in "${EXPERIMENTS[@]}"; do
 
     (
         echo "Start time: $(date)" > "$exp_log"
-        if python -m pkgs.scripts.run_stage3_0_four_eight_features "${experiment}" >> "$exp_log" 2>&1; then
+        if python -m pkgs.scripts.run_experiments train --reps "$REP_NUM" --models "${experiment}" --scenarios four_features eight_features >> "$exp_log" 2>&1; then
             echo "✓ $experiment completed successfully" >> "$exp_log"
         else
             echo "✗ $experiment failed with exit code $?" >> "$exp_log"

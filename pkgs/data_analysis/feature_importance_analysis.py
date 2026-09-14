@@ -1,3 +1,51 @@
+"""Feature-importance analysis and per-scenario comparison plots.
+
+How to run
+----------
+From the repository root, activate the project Python environment and use
+the parameterized runner for the four/eight/twenty-feature scenarios::
+
+    # Feature importance for rep1, all three scenarios and applicable models:
+    python -m pkgs.scripts.run_experiments analyze --reps 1 --analyses feature_importance
+
+    # Production reps 1-5, with separate timestamped logs per repetition:
+    python -m pkgs.scripts.run_experiments analyze --reps all --analyses feature_importance --log-dir pkgs/scripts/logs
+
+    # Select repetitions, scenarios, and models:
+    python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses feature_importance --scenarios four_features eight_features --models cox srf
+
+    # Twenty-feature analysis on the mini-experiment repetition:
+    python -m pkgs.scripts.run_experiments analyze --reps 99 --analyses feature_importance --scenarios twenty_features_heterogeneous
+
+    # Run both clinical validity and feature importance:
+    python -m pkgs.scripts.run_experiments analyze --reps all
+
+Options and prerequisites:
+- --reps accepts positive repetition numbers; "all" means 1-5, excluding 99.
+  When omitted, it uses CKD_REP or defaults to 1. Each rep/analysis runs in a
+  separate process so imported data paths stay scoped to that repetition.
+- --scenarios defaults to four_features, eight_features, and
+  twenty_features_heterogeneous. --models defaults to all ten supported models.
+  KFRE has no feature-importance analysis. CLI model names include
+  dynamic_deephit and rnnsurv (ddh and rnn_surv internally).
+- Existing <scenario>_train_data.csv / <scenario>_test_data.csv and trained
+  model artifacts must be under generated_data/rep<N>/. Missing model files
+  are logged and skipped; inspect the reports for incomplete results.
+- Add --dry-run to preview commands without executing them. Running this
+  module directly invokes its legacy egfr_components/fivelabms entry point;
+  use the runner above for the four/eight/twenty-feature experiments.
+
+Outputs under generated_data/rep<N>/:
+- <scenario>_shap_analysis_report.txt
+- <scenario>_all_models_feature_importance.png
+
+Despite the historical "shap" filenames, methods are model-specific:
+coefficient magnitudes, tree importance, permutation importance, and neural
+attribution. Reruns overwrite the report/chart names, including subset runs;
+rerun all desired models for a complete comparison. --log-dir preserves
+separate timestamped execution logs.
+"""
+
 import os
 import sys
 import numpy as np
@@ -333,6 +381,8 @@ class FeatureImportanceAnalyzer:
         }
         
         for model_name, model_path in model_paths.items():
+            if model_name not in self.models:
+                continue
             if os.path.exists(model_path):
                 self.log(f"\nAnalyzing {model_name.upper()} model...")
                 try:

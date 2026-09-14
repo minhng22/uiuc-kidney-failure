@@ -1,6 +1,48 @@
 """
 Stage 2.1 additional analyses: calibration and decision-curve analysis (DCA).
 
+How to run
+----------
+From the repository root, activate the project Python environment and use
+the parameterized runner (this module defines the analyzer, not a CLI)::
+
+    # Clinical validity for rep1, all three scenarios and applicable models:
+    python -m pkgs.scripts.run_experiments analyze --reps 1 --analyses clinical_validity
+
+    # Production reps 1-5, with separate timestamped logs per repetition:
+    python -m pkgs.scripts.run_experiments analyze --reps all --analyses clinical_validity --log-dir pkgs/scripts/logs
+
+    # Select repetitions, scenarios, and models:
+    python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses clinical_validity --scenarios four_features eight_features --models cox dynamic_deephit
+
+    # Twenty-feature analysis on the mini-experiment repetition:
+    python -m pkgs.scripts.run_experiments analyze --reps 99 --analyses clinical_validity --scenarios twenty_features_heterogeneous
+
+    # Run both clinical validity and feature importance:
+    python -m pkgs.scripts.run_experiments analyze --reps all
+
+Options and prerequisites:
+- --reps accepts positive repetition numbers; "all" means 1-5, excluding 99.
+  When omitted, it uses CKD_REP or defaults to 1. Each rep/analysis runs in a
+  separate process so imported data paths stay scoped to that repetition.
+- --scenarios defaults to four_features, eight_features, and
+  twenty_features_heterogeneous. --models defaults to all applicable models;
+  KFRE is available only for four_features/eight_features. CLI model names
+  include dynamic_deephit and rnnsurv (displayed as ddh and rnn_surv internally).
+- Existing <scenario>_train_data.csv / <scenario>_test_data.csv and trained
+  model artifacts must be under generated_data/rep<N>/. Missing model files
+  are logged and skipped; inspect the reports for incomplete results.
+- Add --dry-run to preview commands without executing them.
+
+Outputs under generated_data/rep<N>/:
+- <scenario>_clinical_validity_report.txt
+- <scenario>_calibration_plot.png and <scenario>_decision_curve_plot.png
+- c_index_comparison.png, brier_comparison.png, and auc_comparison.png
+
+Reruns overwrite these report/chart names. Comparison charts cover only the
+scenarios/models selected in that run; rerun the full selection for a complete
+comparison. --log-dir preserves separate timestamped execution logs.
+
 See EXPERIMENT_PLAN_DETAILS.md Stage 2.1 "additional analyses" section for the
 literature this is based on (KFRE external-validation studies, CKD deep-learning
 papers). Feature importance (feature_importance_analysis.py) says which inputs a
@@ -522,7 +564,7 @@ class ClinicalValidityAnalyzer:
             paths['kfre'] = get_kfre_risk_scores_path(
                 ExperimentScenario.FOUR_FEATURES if scenario_name == 'four_features'
                 else ExperimentScenario.EIGHT_FEATURES, years=2)
-        return paths
+        return {model: path for model, path in paths.items() if model in self.models}
 
     # model_name -> the pkgs/models/ wrapper class to construct around a
     # loaded lifelines/sksurv estimator (deepsurv/dynamicdeephit/

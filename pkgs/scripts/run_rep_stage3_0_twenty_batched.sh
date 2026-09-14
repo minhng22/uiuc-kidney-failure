@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Stage 3.0.2 remediation driver: same 10 models / same
-# pkgs.scripts.run_stage3_0_twenty_features entry point as
+# pkgs.scripts.run_experiments train --scenarios entry point as
 # run_rep_stage3_0_twenty.sh, but launched in small BATCHES (parallel
 # within a batch, sequential across batches) instead of all 10 at once.
 #
@@ -76,7 +76,7 @@ for batch_name in BATCH_1 BATCH_2 BATCH_3 BATCH_4; do
         exp_log="${SCRIPT_DIR}/eval_rep${REP_NUM}_stage3_0_twenty_${experiment}.log"
         (
             echo "Start time: $(date)" > "$exp_log"
-            python -m pkgs.scripts.run_stage3_0_twenty_features "${experiment}" >> "$exp_log" 2>&1
+            python -m pkgs.scripts.run_experiments train --reps "$REP_NUM" --models "${experiment}" --scenarios twenty_features_heterogeneous >> "$exp_log" 2>&1
             exit_code=$?
             if [ $exit_code -eq 0 ]; then
                 echo "✓ $experiment completed successfully" >> "$exp_log"
