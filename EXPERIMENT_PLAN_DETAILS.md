@@ -635,11 +635,11 @@ eight_features/twenty_features_heterogeneous for all 11 models first then analys
   `--models`, and `--analyses` select subsets. Defaults cover both analyses and
   all three scenarios. Subset runs overwrite the same report/chart paths.
 
-Analysis batch — last updated 2026-09-14 05:35:43 CDT: rep99 verified; reps 1-5
-running sequentially, both analyses/all three scenarios. Host
-`sunlab-serv-02.cs.illinois.edu`, sandbox PID `2` (namespace-local), execution
-session `23945`. Started 05:33:22 CDT with
-`python -u -m pkgs.scripts.run_experiments analyze --reps all --log-dir pkgs/scripts/logs`.
-Logs: `pkgs/scripts/logs/rep<N>_<analysis>_20260914_053322_522304.log`.
-Depends on existing trained models/data; writes rep-specific reports/charts.
-Details/status: [run report](generated_data/analysis_run_report.txt).
+## Note:
+
+- To run tests: 
+```
+nohup python -u -m pkgs.scripts.run_experiments analyze --reps 1 2 --analyses clinical_validity feature_importance --parallel-reps > generated_data/run_experiments_rep_1_2.log 2>&1 < /dev/null &
+```
+
+This runs the analyses sequentially. For each analyses, it runs the reps in parallel.
