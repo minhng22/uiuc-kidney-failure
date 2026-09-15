@@ -6,8 +6,11 @@ From the repository root, activate the project Python environment. Choose
 "analyze" for existing trained models or "train" to invoke model training/
 evaluation (each model's existing function controls reuse of saved models)::
 
-    # Both analyses, all three scenarios, production reps 1-5, with logs:
-    python -m pkgs.scripts.run_experiments analyze --reps all --log-dir pkgs/scripts/logs
+    # Both analyses, all three scenarios, reps 1-5, logs in generated_data/rep<N>/:
+    python -m pkgs.scripts.run_experiments analyze --reps all
+
+    # Run repetitions concurrently, with separate logs for each rep:
+    python -m pkgs.scripts.run_experiments analyze --reps all --parallel-reps
 
     # One analysis for selected repetitions:
     python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses clinical_validity
@@ -27,6 +30,8 @@ evaluation (each model's existing function controls reuse of saved models)::
 Selection options:
 - --reps: one or more positive numbers; "all" means production reps 1-5.
   Select rep99 explicitly. Omitted --reps uses CKD_REP, defaulting to 1.
+- --parallel-reps: run all selected repetitions concurrently. Tasks within
+  each repetition still run sequentially. Default: sequential repetitions.
 - --scenarios: four_features, eight_features, twenty_features_heterogeneous;
   all three are selected by default.
 - --models: cox, dynamic_deephit, hazard_transformer, logistic_hazard, rnnsurv,
@@ -36,9 +41,10 @@ Selection options:
   though analysis reports use ddh/rnn_surv internally.
 - --analyses: clinical_validity and/or feature_importance; both by default
   for "analyze". This option does not select anything for "train".
-- --log-dir: optional directory for rep<N>_<task>_<timestamp>.log files;
-  without it, worker output appears in the terminal.
-- --dry-run: prints the selected worker commands without executing them.
+- Logs default to generated_data/rep<N>/rep<N>_<task>_<timestamp>.log.
+  --log-dir optionally overrides the directory for all selected reps.
+- --dry-run: prints the selected worker commands and log paths without
+  executing them or creating files.
 
 Inputs, outputs, and execution:
 - Both actions require existing <scenario>_train_data.csv and
@@ -52,7 +58,8 @@ Inputs, outputs, and execution:
   and auc_comparison.png across the selected scenarios/models.
 - Reports/charts stay under generated_data/rep<N>/ and are overwritten on
   reruns, including subset runs. Use the full selection for final comparisons.
-- Reps/tasks run sequentially in the foreground. Each rep/task uses a fresh
+- The runner stays in the foreground, including with --parallel-reps.
+  Each rep/task uses a fresh
   process because commons.py binds paths at import time. --worker is internal.
   Training calls selected run functions directly, bypassing experiment main
   blocks. Missing data fails the scenario instead of starting raw extraction.
@@ -64,6 +71,7 @@ Inputs, outputs, and execution:
 """
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 import importlib
 import os
@@ -103,11 +111,14 @@ def parse_args(argv=None):
     parser.add_argument("action", choices=("train", "analyze"))
     parser.add_argument("--reps", nargs="+", default=[os.environ.get("CKD_REP", "1")],
                         help="Repetition numbers or 'all' (1-5); defaults to CKD_REP or 1")
+    parser.add_argument("--parallel-reps", action="store_true",
+                        help="Run selected repetitions concurrently; tasks within each rep remain sequential")
     parser.add_argument("--scenarios", nargs="+", choices=SCENARIOS, default=list(SCENARIOS))
     parser.add_argument("--models", nargs="+", choices=TRAIN_FUNCTIONS,
                         help="Model subset; defaults to all applicable models")
     parser.add_argument("--analyses", nargs="+", choices=ANALYSES, default=list(ANALYSES))
-    parser.add_argument("--log-dir", type=Path, help="Save a separate timestamped log for each rep/task")
+    parser.add_argument("--log-dir", type=Path,
+                        help="Override the default generated_data/rep<N>/ log directory")
     parser.add_argument("--dry-run", action="store_true", help="Print subprocess commands without running them")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
@@ -191,17 +202,12 @@ def run_worker(args):
     return int(bool(failures))
 
 
-def main(argv=None):
-    args = parse_args(argv)
-    if args.worker:
-        return run_worker(args)
-
-    print(f"Runner PID {os.getpid()} on {socket.gethostname()}", flush=True)
+def run_rep(args, rep, stamp):
+    """Run one repetition's tasks in order, using isolated worker processes."""
     tasks = args.analyses if args.action == "analyze" else ["train"]
-    stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     failures = []
-    for rep in args.reps:
-        for task in tasks:
+    for task in tasks:
+        try:
             command = [sys.executable, "-u", "-m", "pkgs.scripts.run_experiments",
                        args.action, "--reps", str(rep), "--scenarios", *args.scenarios, "--worker"]
             if args.models:
@@ -209,21 +215,43 @@ def main(argv=None):
             if args.action == "analyze":
                 command.extend(["--analyses", task])
             print(shlex.join(command), flush=True)
+            log_dir = args.log_dir if args.log_dir is not None else ROOT / "generated_data" / f"rep{rep}"
+            log = log_dir / f"rep{rep}_{task}_{stamp}.log"
+            print(f"Log: {log.resolve()}", flush=True)
             if args.dry_run:
                 continue
             env = dict(os.environ, CKD_REP=str(rep), PYTHONUNBUFFERED="1")
             env.setdefault("MPLBACKEND", "Agg")
-            if args.log_dir:
-                args.log_dir.mkdir(parents=True, exist_ok=True)
-                log = args.log_dir / f"rep{rep}_{task}_{stamp}.log"
-                print(f"Log: {log.resolve()}", flush=True)
-                with log.open("w") as stream:
-                    result = subprocess.run(command, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT)
-            else:
-                result = subprocess.run(command, cwd=ROOT, env=env)
+            log_dir.mkdir(parents=True, exist_ok=True)
+            with log.open("w") as stream:
+                result = subprocess.run(command, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT)
             print(f"rep{rep}/{task}: exit {result.returncode}", flush=True)
             if result.returncode:
                 failures.append(f"rep{rep}/{task}")
+        except OSError as exc:
+            print(f"rep{rep}/{task}: failed to run: {exc}", flush=True)
+            failures.append(f"rep{rep}/{task}")
+    return failures
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    if args.worker:
+        return run_worker(args)
+
+    print(f"Runner PID {os.getpid()} on {socket.gethostname()}", flush=True)
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    failures = []
+    # Keep dry-run output ordered and avoid starting threads or workers.
+    if args.parallel_reps and not args.dry_run:
+        print(f"Running {len(args.reps)} repetitions in parallel", flush=True)
+        with ThreadPoolExecutor(max_workers=len(args.reps)) as executor:
+            futures = [executor.submit(run_rep, args, rep, stamp) for rep in args.reps]
+            for future in futures:
+                failures.extend(future.result())
+    else:
+        for rep in args.reps:
+            failures.extend(run_rep(args, rep, stamp))
     if failures:
         print("Failed tasks: " + ", ".join(failures), flush=True)
     return int(bool(failures))
