@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-09-15 10:08:59
+Generated on: 2026-09-17 03:11:25
 Repetition: 3
 Scenario: four_features
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -83,11 +83,11 @@ Decision curve analysis (net benefit by risk threshold):
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
   NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
-  n=  90 events= 75 predicted=1.0000 observed(KM)=0.6222
-  n= 102 events= 86 predicted=1.0000 observed(KM)=0.602
-  n= 234 events=195 predicted=1.0000 observed(KM)=0.5987
-  n= 117 events= 96 predicted=1.0000 observed(KM)=0.6347
-  n=  19 events= 15 predicted=1.0000 observed(KM)=0.5579
+  n=  98 events= 86 predicted=1.0000 observed(KM)=0.63
+  n= 101 events= 84 predicted=1.0000 observed(KM)=0.6323
+  n= 214 events=176 predicted=1.0000 observed(KM)=0.5809
+  n= 135 events=112 predicted=1.0000 observed(KM)=0.6236
+  n=  14 events=  9 predicted=1.0000 observed(KM)=0.6143
 Integrated Brier score (0-730d): 0.42029
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.58913  treat_all=0.06036  treat_none=0.0
@@ -153,8 +153,8 @@ Calibration (predicted risk decile vs. KM-observed risk):
   n=  57 events= 52 predicted=0.0115 observed(KM)=0.7021
   n=  56 events= 41 predicted=0.0169 observed(KM)=0.3877
   n=  57 events= 45 predicted=0.0201 observed(KM)=0.5477
-  n=  56 events= 45 predicted=0.0231 observed(KM)=0.6422
-  n=  55 events= 41 predicted=0.0253 observed(KM)=0.6958
+  n=  55 events= 45 predicted=0.0231 observed(KM)=0.6459
+  n=  56 events= 41 predicted=0.0252 observed(KM)=0.692
   n=  56 events= 48 predicted=0.0284 observed(KM)=0.576
   n=  56 events= 48 predicted=0.0338 observed(KM)=0.5792
   n=  56 events= 47 predicted=0.0540 observed(KM)=0.6089
@@ -421,8 +421,8 @@ Calibration (predicted risk decile vs. KM-observed risk):
   n=  57 events= 52 predicted=0.0205 observed(KM)=0.9787
   n=  56 events= 41 predicted=0.0299 observed(KM)=0.5666
   n=  57 events= 45 predicted=0.0356 observed(KM)=0.6785
-  n=  56 events= 45 predicted=0.0408 observed(KM)=0.8885
-  n=  55 events= 41 predicted=0.0446 observed(KM)=0.8099
+  n=  55 events= 45 predicted=0.0407 observed(KM)=0.8896
+  n=  56 events= 41 predicted=0.0446 observed(KM)=0.8075
   n=  56 events= 48 predicted=0.0500 observed(KM)=0.7973
   n=  56 events= 48 predicted=0.0594 observed(KM)=0.7508
   n=  56 events= 47 predicted=0.0937 observed(KM)=0.7853

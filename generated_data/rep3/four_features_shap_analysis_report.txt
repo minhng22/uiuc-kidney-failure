@@ -1,7 +1,7 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-09-17 05:43:14
-Repetition: 1
+Generated on: 2026-09-17 04:24:44
+Repetition: 3
 Scenario: four_features
 Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
 ================================================================================
@@ -33,51 +33,51 @@ Analyzing COX model...
 
 Analyzing DDH model...
   DDH Feature Importance:
-    age: 0.1957
-    gender: 0.2827
-    egfr: 0.2925
-    uacr: 0.2291
+    age: 0.2191
+    gender: 0.2339
+    egfr: 0.3356
+    uacr: 0.2115
 
 Analyzing HAZARD_TRANSFORMER model...
   HAZARD_TRANSFORMER Feature Importance:
-    age: 0.1942
-    gender: 0.2301
-    egfr: 0.4633
-    uacr: 0.1123
+    age: 0.1479
+    gender: 0.2856
+    egfr: 0.3334
+    uacr: 0.2332
 
 Analyzing LOGISTIC_HAZARD model...
   LOGISTIC_HAZARD Feature Importance:
-    age: 0.2082
-    gender: 0.2140
-    egfr: 0.4020
-    uacr: 0.1757
+    age: 0.1896
+    gender: 0.3819
+    egfr: 0.2236
+    uacr: 0.2048
 
 Analyzing RNN_SURV model...
   RNN_SURV Feature Importance:
-    age: 0.2520
-    gender: 0.2834
-    egfr: 0.3823
-    uacr: 0.0823
+    age: 0.1482
+    gender: 0.5863
+    egfr: 0.1483
+    uacr: 0.1172
 
 Analyzing DEEPSURV model...
   DEEPSURV Feature Importance:
-    age: 0.2440
-    gender: 0.2766
-    egfr: 0.2552
-    uacr: 0.2242
+    age: 0.2543
+    gender: 0.2243
+    egfr: 0.2289
+    uacr: 0.2926
 
 Analyzing GBSA model...
   GBSA Feature Importance:
-    age: 0.2123
-    gender: 0.0256
-    egfr: 0.3763
-    uacr: 0.3857
+    age: 0.2149
+    gender: 0.0341
+    egfr: 0.3428
+    uacr: 0.4083
 
 Analyzing SRF model...
   SRF Feature Importance:
-    age: 0.0467
+    age: 0.0408
     gender: 0.0000
-    egfr: 0.0111
+    egfr: 0.0128
     uacr: 0.0000
 
 Analyzing SURVIVAL_SVM model...
@@ -93,4 +93,4 @@ Analyzing WEIBUL model...
     gender: 0.0080
     egfr: 0.0032
     uacr: 0.0000
-Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_all_models_feature_importance.png
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_all_models_feature_importance.png
