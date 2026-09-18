@@ -3,6 +3,8 @@
 Tracks execution of [EXPERIMENT_PLAN_DETAILS.md](EXPERIMENT_PLAN_DETAILS.md) (Stage 0 plan,
 approved). Do not restart another session's row without confirming its host is actually dead.
 
+**Last Updated:** 2026-09-18 (sunlab-serv-02) — Hazard Transformer metric audit.
+
 ## Status
 
 | Stage | Task | Status | Notes |
@@ -23,7 +25,8 @@ approved). Do not restart another session's row without confirming its host is a
 | 3.0.2 | rep1 twenty_features_heterogeneous run (10 models) | in progress | [log](generated_data/rep1/stage3_0_background_process_log.txt) |
 | 3.0.3 | Debug self-check on combined 3-scenario analysis | not started, blocked on 3.0.2 | [plan](EXPERIMENT_PLAN_DETAILS.md) |
 | 3.1 | rep2-5 full runs | rep2, rep3 (sunlab-serv-02) and rep4, rep5 (sunlab-serv-03) launched this session (gate override — see note); rep4/rep5 hit a GPU-OOM bug, fixed + relaunched — see [report](generated_data/rep4/stage3_1_rep4_rep5_gpu_oom_report.txt) | [log rep2](pkgs/scripts/eval_all_rep2.log), [log rep3](pkgs/scripts/eval_all_rep3.log), [log rep4](pkgs/scripts/eval_all_rep4.log), [log rep5](pkgs/scripts/eval_all_rep5.log) |
-| Bugfix | Cox covariate leakage (duration_in_days + CSV row index entered the design matrix; rep1 four_features C-Index 0.308 -> 0.699) | fixed; rep99 verified (train + feature_importance); rep1 four/eight done, twenty_features retraining (sunlab-serv-01) | [report](generated_data/rep1/cox_covariate_leakage_report.txt) |
+| Bugfix | Cox covariate leakage (duration_in_days + CSV row index entered the design matrix; rep1 four_features C-Index 0.308 -> 0.699) | fixed; rep99 verified; rep1 four/eight done, twenty_features retraining (sunlab-serv-01); all rep2-5 cox artifacts deleted at user request — cox must be retrained there | [report](generated_data/rep1/cox_covariate_leakage_report.txt) |
+| Audit | Hazard Transformer reported C-index / Brier, reps 1-5 + rep99 | done — values tabulated; 5 findings raised (shared split across reps, rep3 eight_features Brier outlier, two disagreeing Brier estimators, four_features training-time Brier never computes, degenerate 730d HT calibration/DCA) | [report](generated_data/hazard_transformer_metrics_audit_report.txt) |
 
 **Note on 3.1 gate:** Stage 3.0.2/3.0.3 (rep1 `twenty_features_heterogeneous` +
 debug) had not finished/been approved when rep2/rep3 (from `sunlab-serv-02`)

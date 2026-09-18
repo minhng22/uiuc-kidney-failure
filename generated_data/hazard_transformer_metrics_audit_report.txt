@@ -1,0 +1,195 @@
+HAZARD TRANSFORMER — REPORTED C-INDEX / BRIER ACROSS ALL REPS (AUDIT)
+================================================================================
+Generated on: 2026-09-18
+Host: sunlab-serv-02.cs.illinois.edu
+Scope: read-only audit. No training/analysis process was launched; no model
+artifact, data file, or existing report was modified.
+
+Sources read (two independent, and they DISAGREE on Brier — see Finding 3):
+  A. generated_data/rep<N>/<scenario>_clinical_validity_report.txt
+     -> "Discrimination metrics (C-index / integrated Brier / mean
+        time-dependent AUC, 0-730d)" block, written by
+        pkgs/data_analysis/clinical_validity_analysis.py. This is the
+        number pkgs/scripts/aggregate_rep_metrics.py feeds to the paper.
+  B. pkgs/scripts/eval_rep<N>_hazard_transformer.log
+     -> the c_idx() / brier_score_evaluation() prints at the end of
+        pkgs/experiments/hazard_transformer.py's run().
+
+================================================================================
+1. REPORTED VALUES — SOURCE A (the paper-facing numbers)
+================================================================================
+
+four_features
+  rep    c_index    brier(0-730d)   auc
+  1      0.6386     0.40436         0.7025
+  2      0.6373     0.40947         0.6991
+  3      0.6373     0.42029         0.7022
+  4      0.6379     0.40303         0.7002
+  5      0.6357     0.40909         0.7034
+  mean   0.637+/-0.001              0.409+/-0.007   auc 0.701+/-0.002
+
+eight_features
+  rep    c_index    brier(0-730d)   auc
+  1      0.5757     0.4419          0.6076
+  2      0.6073     0.4288          0.6365
+  3      0.6111     0.89553  <<<    0.6301
+  4      0.5658     0.45549         0.5727
+  5      0.6653     0.42328         0.7065
+  mean   0.605+/-0.039              0.529+/-0.205   auc 0.631+/-0.049
+
+twenty_features_heterogeneous
+  rep    c_index    brier(0-730d)   auc
+  1      0.6198     0.36466         0.6747
+  2      0.7519     0.28145         0.8473
+  3      0.7561     0.3144          0.8531
+  4      0.7576     0.29245         0.8553
+  5      0.6976     0.31793         0.7788
+  mean   0.717+/-0.060              0.314+/-0.032   auc 0.802+/-0.078
+
+rep99 (mini-experiment, not part of the 1-5 aggregate)
+  four_features                  c_index=0.5503  brier=0.33871  auc=None
+  eight_features                 c_index=0.4883  brier=0.56697  auc=0.4646
+  twenty_features_heterogeneous  c_index=0.4912  brier=0.2208   auc=0.507
+
+Secondary horizon (0-1825d) Brier, same reports, for reference:
+  four:   rep1 0.53052  rep2 0.52719  rep3 0.57704  rep4 0.53502  rep5 0.55527
+  eight:  rep1 0.49524  rep2 0.47562  rep3 1.17459 <<<  rep4 0.52313  rep5 0.48496
+  twenty: rep1 0.47136  rep2 0.39886  rep3 0.47235  rep4 0.42901  rep5 0.42793
+
+Provenance check: every HT checkpoint exists and is distinct per rep
+(different file sizes => different Optuna-chosen architectures), and every
+clinical_validity_report.txt was generated AFTER its rep's HT checkpoint was
+written, so no report is stale w.r.t. its model.
+  checkpoints: rep1 2026-08-28/30, rep2 2026-08-29..09-02, rep3 2026-08-29/09-02,
+               rep4 2026-08-29/31, rep5 2026-08-29/31, rep99 2026-08-27
+  reports:     rep1/2/3 2026-09-17, rep4 2026-09-17, rep5 2026-09-15, rep99 2026-09-14
+
+================================================================================
+2. FINDING 1 — reps 1-5 are NOT independent data resamples
+================================================================================
+The train and test CSVs are BYTE-IDENTICAL across reps 1-5 for all three
+scenarios (md5, first 12 hex chars):
+
+  scenario                       train         test          test rows
+  four_features                  119b8261dbb9  d51045897fb7  5512
+  eight_features                 dd7078d95762  2578931f897e  1101
+  twenty_features_heterogeneous  46f1699c6bbf  a0af705ea7f7  1613453
+
+All five reps share one split. The only thing that differs between reps is
+the trained weights (Optuna/torch seeding). Corroborated by
+aggregate_rep_metrics.py's own output: every deterministic model
+(Cox, Survival SVM, Weibull AFT, KFRE) reports +/-0.000 SD across all five
+reps in all three scenarios, i.e. literally the same number five times.
+
+Consequence for the paper: the "mean +/- SD over 5 reps" for Hazard
+Transformer (and for every other stochastic model) is a TRAINING-SEED
+variance estimate, not a data-resampling / bootstrap CI. It does not
+support a claim about generalization across cohorts or splits, and the
+deterministic models' +/-0.000 is an artifact of the shared split, not
+evidence of stability. Whether that is the intended design of the reps is
+a question for the experiment owner — flagged, not changed.
+
+================================================================================
+3. FINDING 2 — rep3 eight_features Brier is not trustworthy
+================================================================================
+rep3 eight_features Brier = 0.89553 (0-730d) against 0.42328-0.45549 for the
+other four reps — it alone inflates the eight_features SD from roughly
++/-0.012 to +/-0.205, i.e. the headline "0.529+/-0.205" is one outlier
+wearing a mean.
+
+Its 0-1825d counterpart is 1.17459. An integrated Brier score above 1.0 is
+not attainable by a proper scoring rule on probabilities in [0,1] under
+equal weighting; it only arises here because sksurv's IPCW weights blow up
+when the censoring survival function G(t) gets small in the tail. That is a
+weighting blow-up, not a "very badly calibrated model" reading, and the
+0-730d 0.89553 from the same checkpoint should be treated as suspect for
+the same reason rather than reported at face value.
+
+Note the rep3 c_index (0.6111) is unremarkable and sits mid-pack, so the
+checkpoint itself discriminates normally — it is specifically the Brier
+estimator that misbehaves on this rep.
+
+================================================================================
+4. FINDING 3 — the two sources disagree on Brier by 2x or more
+================================================================================
+Source B (training-log) values, for the same checkpoints:
+
+  scenario   rep1    rep2   rep3    rep4    rep5     | source A (0-730d)
+  four       (none)  (none) (none)  (none)  (none)   | 0.403-0.420
+  eight      0.649   0.96   0.963   0.965   0.59     | 0.423-0.456 (+rep3 0.896)
+  twenty     0.684   0.462  0.592   0.547   0.632    | 0.281-0.365
+
+C-index agrees between the two sources to within rounding in all 15
+rep x scenario combos (e.g. rep1 four 0.6386 == 0.6386; rep4 eight 0.5659 vs
+0.5658), so the disagreement is Brier-specific and is an estimator
+difference, not a model difference:
+
+  - Source B uses compute_brier_score_from_risk_scores()
+    (pkgs/experiments/utils.py:69), which converts the risk score to a
+    survival curve with a crude exponential approximation
+    S(t) = exp(-normalized_risk * t/365).
+  - Source A uses brier_score_up_to()
+    (pkgs/data_analysis/clinical_validity_analysis.py:390), which uses that
+    model's own Breslow baseline hazard, and administratively censors test
+    subjects followed past the train-set max.
+
+Source A is the better-founded of the two and is the one the aggregate /
+paper path reads. Source B's Brier print is effectively a legacy number.
+Only one Brier should be quoted anywhere; they are not interchangeable.
+
+================================================================================
+5. FINDING 4 — four_features training-time Brier never computed, in any rep
+================================================================================
+In all five reps, the four_features block of eval_rep<N>_hazard_transformer.log
+ends at the AUC line with:
+
+  Warning: Could not compute Brier Score: time must be smaller than largest
+  observed time point: 4216.413194444444
+
+(rep1 log line 794, rep2 53, rep3 968, rep4 697, rep5 662.) This is the
+train-max 4216d vs test-max 4333d mismatch that brier_score_up_to()'s
+docstring already documents and handles by administrative censoring —
+compute_brier_score_from_risk_scores() does not handle it, catches the
+exception, and returns None. So it is a known, already-diagnosed issue
+surfacing in the un-fixed code path, not a new bug, and it affects only
+Source B. Source A produces a four_features Brier normally for all five reps.
+
+================================================================================
+6. FINDING 5 — HT calibration + decision curves at 730d are degenerate in
+   ALL 15 rep x scenario combos (Brier itself is NOT affected)
+================================================================================
+Every rep x scenario clinical_validity_report.txt carries this line inside
+the HT panel of the "=== Horizon: 730 days ===" section:
+
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon
+
+This is exactly the final-bin saturation that both
+pkgs/experiments/hazard_transformer.py (EVAL_HORIZON_DAYS comment) and
+pkgs/models/hazard_transformer.py (predictions() docstring) warn about: the
+model's 100 bins span exactly [0, max_time=730], so day 730 lands on the
+last bin, where cumsum(softmax(pmf)) == 1.0 for every subject by
+construction. Both modules deliberately use a 365d horizon for their scalar
+risk score to avoid it; the clinical-validity report's per-horizon
+calibration/DCA block asks native_prob_fn for day 730 directly and walks
+straight back into it.
+
+IMPORTANT SCOPE LIMIT on this finding: the reported Brier is NOT computed
+from that constant vector. clinical_validity_analysis.py calls
+brier_score_up_to(..., risk_scores, horizon, baseline) with risk_scores =
+the 365d CIF (hazard_transformer.py predictions(), horizon_bin from
+min(365, max_time)), routed through the Breslow baseline — the "native"
+730d probability is used only for the calibration deciles and the decision
+curve. So Sections 1's Brier numbers stand; what is meaningless is the HT
+calibration table and the HT decision-curve row at the 730d horizon, in
+every rep. rep1 twenty_features_heterogeneous additionally shows the same
+degeneracy at the 1825d horizon.
+
+================================================================================
+7. WHAT WAS NOT DONE
+================================================================================
+- Nothing was retrained, re-analyzed, or relaunched; no process was started.
+- No existing report, model artifact, or data file was modified.
+- Findings 1-5 are reported for the experiment owner to act on. Finding 2
+  (rep3 Brier) and Finding 5 (730d degeneracy) would, if acted on, fall
+  under the repo's "bug found in experiment code -> verify the fix on rep99
+  first" rule before any rep1-5 rerun.
