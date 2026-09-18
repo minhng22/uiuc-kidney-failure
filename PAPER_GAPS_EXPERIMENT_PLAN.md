@@ -2,16 +2,6 @@
 
 **Last Updated:** 2026-09-18 (sunlab-serv-01) — plan only, nothing launched.
 
-Gaps 3–13 from [paper/to submit 2026/README.md](paper/to%20submit%202026/README.md),
-re-verified against the code and data.
-
-**Context:** `generated_data/rep1`–`rep5` were rebuilt today (data only, three
-splits per scenario, its own random seed per repetition). All model artifacts
-behind the paper's results are gone, so a **full retrain is forced**. Fix the
-before-retrain items first, the after-retrain items second. Cox's 0.308
-concordance index is a covariate leak already fixed in `cox.py`; the retrain
-clears it.
-
 ---
 
 **Gap 3 — no uncertainty quantification**
@@ -22,9 +12,32 @@ clears it.
 - relevant — `val_data=(x_test, y_test)`, [logistic_hazard.py:82](pkgs/experiments/logistic_hazard.py#L82)
 - Fix (before retrain): carve a stratified, patient-level validation slice out of the training split and use it for trial selection and checkpointing. The new three-way repetitions make this clean.
 
-**Gap 5 — evaluation-unit mismatches**
-- relevant — the censoring reference for inverse probability of censoring weighting is built from raw training rows ([clinical_validity_analysis.py:419](pkgs/data_analysis/clinical_validity_analysis.py#L419), `:474`) while predictions are one per patient; the integrated Brier score uses a shared scalar-risk transformation and never the native survival distribution (`native_prob_fn`); decision curve comparators are row-level (`:722`, `:729`) while the model curves are patient-level
-- Fix (before retrain): build the censoring reference from the one-row-per-patient training frame and assert the counts match; thread `native_prob_fn` into the Brier path and label per model which was used; compute the decision curve comparators from the same patient-level frame. The last one restores the withdrawn net-benefit claim.
+**Gap 5a — intermediate visits are treated as censored observations in Brier/AUC evaluation**
+
+- Issue — **all 11 models**: Cox, Dynamic-DeepHit, Hazard Transformer, Logistic Hazard, RNN-Surv, DeepSurv, GBSA, Survival Random Forest, Survival SVM, Weibull AFT, and KFRE. The shared evaluator builds its censoring reference from every training row's `has_esrd` and `duration_in_days`, discarding patient IDs and start/stop intervals ([Brier path](pkgs/data_analysis/clinical_validity_analysis.py#L419), [AUC path](pkgs/data_analysis/clinical_validity_analysis.py#L474)). An intermediate visit with `has_esrd=False` is consequently interpreted as a terminal censored observation, even if that patient remains under follow-up. This affects integrated Brier score and time-dependent AUC; the reported Harrell's C-index does not use this reference. It is separate from legitimate use of repeated rows to fit a time-varying hazard model. Applies across all three scenarios, with KFRE only in the four-/eight-feature scenarios.
+- Fix — construct one terminal event/censoring outcome per training patient, aligned with the evaluation's time origin and eligibility rules. Verify patient uniqueness and outcome consistency, then recompute Brier/AUC and measure the change. Preserve longitudinal model-training inputs; this correction alone requires evaluation reruns, not model retraining.
+
+**Gap 5b — integrated Brier score evaluates a fitted score-to-survival conversion**
+
+- Issue — **all 11 models' reported IBS values** use `calibrated_survival_probs(risk_scores, times, baseline)` ([code](pkgs/data_analysis/clinical_validity_analysis.py#L418)). Each model gets its own training-fitted baseline, but the conversion formula is shared. Thus IBS evaluates the model plus this conversion, rather than necessarily its own survival probabilities. The specific action depends on the model:
+
+| Models | Current prediction interface | Fix for IBS |
+| --- | --- | --- |
+| Dynamic-DeepHit, Hazard Transformer, Logistic Hazard, RNN-Surv | Supply `native_prob_fn`, but IBS ignores it. | Evaluate native survival probabilities (`1 - event probability`) across a supported time grid; check time mapping and patient order. |
+| KFRE | Supplies published probabilities at two and five years, not a complete survival curve. | Report Brier scores at supported horizons. Label any IBS from an added survival-curve conversion explicitly; do not interpolate a supposedly native curve without justification. |
+| Cox, DeepSurv, GBSA, Survival Random Forest, Survival SVM, Weibull AFT | Current wrappers return `None` for native probabilities. This does not prove the underlying estimator lacks a survival function. | Inspect each fitted estimator and expose supported survival predictions where available. Otherwise retain the training-fitted conversion as an explicitly labeled evaluation of the augmented model, or omit IBS if inappropriate. |
+
+- Fix — distinguish native-probability metrics from metrics using the fitted conversion in the reports. Use a common supported integration window for comparisons and coordinate censoring weights with Gap 5a. Rerun evaluation; changing this reporting/evaluation path alone does not require retraining.
+
+**Gap 5c — treat-all decision curve counts lab rows instead of patients**
+
+- Issue — affects the **treat-all comparator used against every model**. It takes durations/events from raw `df_test`, while model curves use one prediction per patient ([code](pkgs/data_analysis/clinical_validity_analysis.py#L722)). Patients with more lab rows contribute more observations, and intermediate visits are treated as terminal outcomes.
+- Fix — compute treat-all from the same patient-level outcomes, horizon, and included patients as the model curves. Account for any patients excluded because predictions are unavailable. Recompute comparisons before assessing net benefit; correcting the unit does not guarantee a model outperforms treat-all.
+
+**Gap 5d — eGFR referral comparator uses lab rows instead of a patient-level referral decision**
+
+- Issue — affects the **eGFR-threshold comparator used against model curves in all three scenarios**. It operates on `egfr_referral_df` rows ([code](pkgs/data_analysis/clinical_validity_analysis.py#L729)). In the twenty-feature scenario, filtering to genuinely measured eGFR removes placeholder values but still leaves repeated measurements per patient. This is not the same evaluation unit as the model curves.
+- Fix — define one eGFR-based referral decision per patient at the agreed prediction time, and evaluate it on the same patients, outcomes, and horizon as the models. State how missing eGFR is handled and compare strategies at the same decision thresholds. Rerun the comparator evaluation; any restored clinical-utility claim must follow the corrected results.
 
 **Gap 6 — clarify population and outcome differences in the KFRE comparison**
 - Already partly covered: the [PLOS manuscript's Limitations](paper/to%20submit%202026/paper%20content/plos_digital_health.tex#L371) acknowledge that the selected hospital cohort differs from KFRE's validation populations and that results should not generalize to routine clinical screening. The issue is how those differences affect interpretation of the benchmark, not an absence of any discussion or evidence that the comparison is inherently invalid.
@@ -57,4 +70,3 @@ clears it.
 
 **Separate bibliography cleanup (not an ethics gap)**
 - `ishwaran2008random` lacks a journal field. Check `lee2018deephit` against the selected bibliography style before resolving the reported volume/number warning. `hu2022locf_bias` already has an author and is an arXiv `@misc` entry; the earlier missing-author/publisher claim should not be carried forward without a current check.
-
