@@ -1,0 +1,494 @@
+FEATURE IMPORTANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2026-09-17 14:52:34
+Repetition: 4
+Scenario: twenty_features_heterogeneous
+Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
+================================================================================
+
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS SCENARIO
+================================================================================
+
+Training samples: 6512638
+Test samples: 1613452
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'wbc', 'wbc_missing', 'mchc', 'mchc_missing', 'mch', 'mch_missing', 'rbc', 'rbc_missing', 'mcv', 'mcv_missing', 'rdw', 'rdw_missing', 'glucose', 'glucose_missing', 'calcium', 'calcium_missing', 'magnesium', 'magnesium_missing', 'phosphate', 'phosphate_missing', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  egfr: mean=3.854, std=17.379
+  egfr_missing: mean=0.944, std=0.230 (missing_flag rate=94.4%)
+  potassium: mean=0.228, std=0.967
+  potassium_missing: mean=0.946, std=0.226 (missing_flag rate=94.6%)
+  urea_nitrogen: mean=1.355, std=6.968
+  urea_nitrogen_missing: mean=0.945, std=0.227 (missing_flag rate=94.5%)
+  sodium: mean=7.337, std=31.023
+  sodium_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  chloride: mean=5.364, std=22.806
+  chloride_missing: mean=0.947, std=0.223 (missing_flag rate=94.7%)
+  bicarbonate: mean=1.292, std=5.689
+  bicarbonate_missing: mean=0.950, std=0.219 (missing_flag rate=95.0%)
+  anion_gap: mean=0.717, std=3.217
+  anion_gap_missing: mean=0.950, std=0.218 (missing_flag rate=95.0%)
+  hematocrit: mean=1.857, std=7.796
+  hematocrit_missing: mean=0.944, std=0.229 (missing_flag rate=94.4%)
+  platelet_count: mean=12.149, std=58.906
+  platelet_count_missing: mean=0.946, std=0.226 (missing_flag rate=94.6%)
+  hemoglobin: mean=0.590, std=2.535
+  hemoglobin_missing: mean=0.947, std=0.225 (missing_flag rate=94.7%)
+  wbc: mean=0.460, std=2.960
+  wbc_missing: mean=0.946, std=0.225 (missing_flag rate=94.6%)
+  mchc: mean=1.747, std=7.398
+  mchc_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  mch: mean=1.593, std=6.768
+  mch_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  rbc: mean=0.196, std=0.847
+  rbc_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  mcv: mean=4.830, std=20.502
+  mcv_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  rdw: mean=0.811, std=3.469
+  rdw_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  glucose: mean=5.938, std=31.467
+  glucose_missing: mean=0.956, std=0.206 (missing_flag rate=95.6%)
+  calcium: mean=0.318, std=1.653
+  calcium_missing: mean=0.964, std=0.186 (missing_flag rate=96.4%)
+  magnesium: mean=0.069, std=0.371
+  magnesium_missing: mean=0.966, std=0.182 (missing_flag rate=96.6%)
+  phosphate: mean=0.118, std=0.662
+  phosphate_missing: mean=0.966, std=0.180 (missing_flag rate=96.6%)
+
+ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
+------------------------------------------------------------
+
+Analyzing COX model...
+  COX Feature Importance:
+    egfr: 0.0000 (coeff=0.0000, HR=1.000)
+    egfr_missing: 0.0249 (coeff=-0.0249, HR=0.975)
+    potassium: 0.0172 (coeff=0.0172, HR=1.017)
+    potassium_missing: 0.0702 (coeff=-0.0702, HR=0.932)
+    urea_nitrogen: 0.0022 (coeff=0.0022, HR=1.002)
+    urea_nitrogen_missing: 0.0369 (coeff=-0.0369, HR=0.964)
+    sodium: 0.0005 (coeff=0.0005, HR=1.001)
+    sodium_missing: 0.0745 (coeff=-0.0745, HR=0.928)
+    chloride: 0.0004 (coeff=0.0004, HR=1.000)
+    chloride_missing: 0.0436 (coeff=-0.0436, HR=0.957)
+    bicarbonate: 0.0026 (coeff=0.0026, HR=1.003)
+    bicarbonate_missing: 0.0815 (coeff=-0.0815, HR=0.922)
+    anion_gap: 0.0007 (coeff=0.0007, HR=1.001)
+    anion_gap_missing: 0.0004 (coeff=-0.0004, HR=1.000)
+    hematocrit: 0.0011 (coeff=0.0011, HR=1.001)
+    hematocrit_missing: 0.0403 (coeff=-0.0403, HR=0.961)
+    platelet_count: 0.0001 (coeff=0.0001, HR=1.000)
+    platelet_count_missing: 0.0430 (coeff=-0.0430, HR=0.958)
+    hemoglobin: 0.0053 (coeff=0.0053, HR=1.005)
+    hemoglobin_missing: 0.0626 (coeff=-0.0626, HR=0.939)
+    wbc: 0.0048 (coeff=0.0048, HR=1.005)
+    wbc_missing: 0.0654 (coeff=-0.0654, HR=0.937)
+    mchc: 0.0021 (coeff=0.0021, HR=1.002)
+    mchc_missing: 0.0688 (coeff=-0.0688, HR=0.934)
+    mch: 0.0023 (coeff=0.0023, HR=1.002)
+    mch_missing: 0.0689 (coeff=-0.0689, HR=0.933)
+    rbc: 0.0175 (coeff=0.0175, HR=1.018)
+    rbc_missing: 0.0688 (coeff=-0.0688, HR=0.934)
+    mcv: 0.0007 (coeff=0.0007, HR=1.001)
+    mcv_missing: 0.0687 (coeff=-0.0687, HR=0.934)
+    rdw: 0.0117 (coeff=-0.0117, HR=0.988)
+    rdw_missing: 0.1986 (coeff=0.1986, HR=1.220)
+    glucose: 0.0015 (coeff=-0.0015, HR=0.998)
+    glucose_missing: 0.3260 (coeff=0.3260, HR=1.385)
+    calcium: 0.0128 (coeff=-0.0128, HR=0.987)
+    calcium_missing: 0.0982 (coeff=0.0982, HR=1.103)
+    magnesium: 0.0113 (coeff=-0.0113, HR=0.989)
+    magnesium_missing: 0.0227 (coeff=0.0227, HR=1.023)
+    phosphate: 0.0997 (coeff=-0.0997, HR=0.905)
+    phosphate_missing: 0.4103 (coeff=0.4103, HR=1.507)
+
+Analyzing DDH model...
+Error with mask: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 10412909425216 bytes. Error code 12 (Cannot allocate memory)
+  DDH Feature Importance:
+    egfr: 0.0250
+    egfr_missing: 0.0250
+    potassium: 0.0250
+    potassium_missing: 0.0250
+    urea_nitrogen: 0.0250
+    urea_nitrogen_missing: 0.0250
+    sodium: 0.0250
+    sodium_missing: 0.0250
+    chloride: 0.0250
+    chloride_missing: 0.0250
+    bicarbonate: 0.0250
+    bicarbonate_missing: 0.0250
+    anion_gap: 0.0250
+    anion_gap_missing: 0.0250
+    hematocrit: 0.0250
+    hematocrit_missing: 0.0250
+    platelet_count: 0.0250
+    platelet_count_missing: 0.0250
+    hemoglobin: 0.0250
+    hemoglobin_missing: 0.0250
+    wbc: 0.0250
+    wbc_missing: 0.0250
+    mchc: 0.0250
+    mchc_missing: 0.0250
+    mch: 0.0250
+    mch_missing: 0.0250
+    rbc: 0.0250
+    rbc_missing: 0.0250
+    mcv: 0.0250
+    mcv_missing: 0.0250
+    rdw: 0.0250
+    rdw_missing: 0.0250
+    glucose: 0.0250
+    glucose_missing: 0.0250
+    calcium: 0.0250
+    calcium_missing: 0.0250
+    magnesium: 0.0250
+    magnesium_missing: 0.0250
+    phosphate: 0.0250
+    phosphate_missing: 0.0250
+
+Analyzing HAZARD_TRANSFORMER model...
+Error in gradient calculation: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 38722848000 bytes. Error code 12 (Cannot allocate memory)
+  HAZARD_TRANSFORMER Feature Importance:
+    egfr: 0.0270
+    egfr_missing: 0.0253
+    potassium: 0.0253
+    potassium_missing: 0.0264
+    urea_nitrogen: 0.0240
+    urea_nitrogen_missing: 0.0207
+    sodium: 0.0287
+    sodium_missing: 0.0260
+    chloride: 0.0257
+    chloride_missing: 0.0230
+    bicarbonate: 0.0266
+    bicarbonate_missing: 0.0248
+    anion_gap: 0.0255
+    anion_gap_missing: 0.0231
+    hematocrit: 0.0254
+    hematocrit_missing: 0.0227
+    platelet_count: 0.0219
+    platelet_count_missing: 0.0271
+    hemoglobin: 0.0252
+    hemoglobin_missing: 0.0227
+    wbc: 0.0262
+    wbc_missing: 0.0244
+    mchc: 0.0235
+    mchc_missing: 0.0244
+    mch: 0.0239
+    mch_missing: 0.0239
+    rbc: 0.0235
+    rbc_missing: 0.0241
+    mcv: 0.0223
+    mcv_missing: 0.0263
+    rdw: 0.0262
+    rdw_missing: 0.0274
+    glucose: 0.0224
+    glucose_missing: 0.0264
+    calcium: 0.0275
+    calcium_missing: 0.0233
+    magnesium: 0.0258
+    magnesium_missing: 0.0270
+    phosphate: 0.0261
+    phosphate_missing: 0.0283
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    egfr: 0.0189
+    egfr_missing: 0.0288
+    potassium: 0.0265
+    potassium_missing: 0.0331
+    urea_nitrogen: 0.0236
+    urea_nitrogen_missing: 0.0277
+    sodium: 0.0217
+    sodium_missing: 0.0231
+    chloride: 0.0198
+    chloride_missing: 0.0279
+    bicarbonate: 0.0258
+    bicarbonate_missing: 0.0280
+    anion_gap: 0.0214
+    anion_gap_missing: 0.0229
+    hematocrit: 0.0222
+    hematocrit_missing: 0.0271
+    platelet_count: 0.0229
+    platelet_count_missing: 0.0292
+    hemoglobin: 0.0198
+    hemoglobin_missing: 0.0206
+    wbc: 0.0289
+    wbc_missing: 0.0220
+    mchc: 0.0250
+    mchc_missing: 0.0204
+    mch: 0.0222
+    mch_missing: 0.0249
+    rbc: 0.0208
+    rbc_missing: 0.0289
+    mcv: 0.0319
+    mcv_missing: 0.0302
+    rdw: 0.0277
+    rdw_missing: 0.0238
+    glucose: 0.0172
+    glucose_missing: 0.0234
+    calcium: 0.0219
+    calcium_missing: 0.0241
+    magnesium: 0.0238
+    magnesium_missing: 0.0310
+    phosphate: 0.0287
+    phosphate_missing: 0.0320
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    egfr: 0.0104
+    egfr_missing: 0.0324
+    potassium: 0.0442
+    potassium_missing: 0.0334
+    urea_nitrogen: 0.0167
+    urea_nitrogen_missing: 0.0299
+    sodium: 0.0043
+    sodium_missing: 0.0168
+    chloride: 0.0049
+    chloride_missing: 0.0158
+    bicarbonate: 0.0268
+    bicarbonate_missing: 0.0360
+    anion_gap: 0.0210
+    anion_gap_missing: 0.0296
+    hematocrit: 0.0125
+    hematocrit_missing: 0.0303
+    platelet_count: 0.0051
+    platelet_count_missing: 0.0321
+    hemoglobin: 0.0202
+    hemoglobin_missing: 0.0281
+    wbc: 0.0242
+    wbc_missing: 0.0350
+    mchc: 0.0144
+    mchc_missing: 0.0288
+    mch: 0.0097
+    mch_missing: 0.0309
+    rbc: 0.0350
+    rbc_missing: 0.0324
+    mcv: 0.0041
+    mcv_missing: 0.0300
+    rdw: 0.0112
+    rdw_missing: 0.0322
+    glucose: 0.0039
+    glucose_missing: 0.0263
+    calcium: 0.0306
+    calcium_missing: 0.0329
+    magnesium: 0.0665
+    magnesium_missing: 0.0323
+    phosphate: 0.0378
+    phosphate_missing: 0.0316
+
+Analyzing DEEPSURV model...
+  DEEPSURV Feature Importance:
+    egfr: 0.0171
+    egfr_missing: 0.0197
+    potassium: 0.0663
+    potassium_missing: 0.0291
+    urea_nitrogen: 0.0141
+    urea_nitrogen_missing: 0.0149
+    sodium: 0.0157
+    sodium_missing: 0.0180
+    chloride: 0.0094
+    chloride_missing: 0.0283
+    bicarbonate: 0.0113
+    bicarbonate_missing: 0.0298
+    anion_gap: 0.0482
+    anion_gap_missing: 0.0178
+    hematocrit: 0.0160
+    hematocrit_missing: 0.0187
+    platelet_count: 0.0165
+    platelet_count_missing: 0.0289
+    hemoglobin: 0.0236
+    hemoglobin_missing: 0.0118
+    wbc: 0.0257
+    wbc_missing: 0.0325
+    mchc: 0.0276
+    mchc_missing: 0.0288
+    mch: 0.0204
+    mch_missing: 0.0193
+    rbc: 0.0105
+    rbc_missing: 0.0147
+    mcv: 0.0297
+    mcv_missing: 0.0226
+    rdw: 0.0146
+    rdw_missing: 0.0176
+    glucose: 0.0288
+    glucose_missing: 0.0415
+    calcium: 0.0442
+    calcium_missing: 0.0149
+    magnesium: 0.0179
+    magnesium_missing: 0.0175
+    phosphate: 0.0868
+    phosphate_missing: 0.0292
+
+Analyzing GBSA model...
+  GBSA Feature Importance:
+    egfr: 0.1544
+    egfr_missing: 0.0008
+    potassium: 0.0190
+    potassium_missing: 0.0000
+    urea_nitrogen: 0.0267
+    urea_nitrogen_missing: 0.0005
+    sodium: 0.0113
+    sodium_missing: 0.0001
+    chloride: 0.0131
+    chloride_missing: 0.0001
+    bicarbonate: 0.0002
+    bicarbonate_missing: 0.0000
+    anion_gap: 0.0565
+    anion_gap_missing: 0.0001
+    hematocrit: 0.0741
+    hematocrit_missing: 0.0000
+    platelet_count: 0.0503
+    platelet_count_missing: 0.0003
+    hemoglobin: 0.0392
+    hemoglobin_missing: 0.0000
+    wbc: 0.0045
+    wbc_missing: 0.0003
+    mchc: 0.0006
+    mchc_missing: 0.0000
+    mch: 0.0000
+    mch_missing: 0.0000
+    rbc: 0.0000
+    rbc_missing: 0.0000
+    mcv: 0.0007
+    mcv_missing: 0.0003
+    rdw: 0.0972
+    rdw_missing: 0.0001
+    glucose: 0.2084
+    glucose_missing: 0.0000
+    calcium: 0.0560
+    calcium_missing: 0.0001
+    magnesium: 0.0269
+    magnesium_missing: 0.0000
+    phosphate: 0.1570
+    phosphate_missing: 0.0010
+
+Analyzing SRF model...
+  SRF Feature Importance:
+    egfr: 0.0000
+    egfr_missing: 0.0000
+    potassium: 0.0000
+    potassium_missing: 0.0000
+    urea_nitrogen: 0.0004
+    urea_nitrogen_missing: 0.0000
+    sodium: 0.0000
+    sodium_missing: 0.0000
+    chloride: 0.0001
+    chloride_missing: 0.0000
+    bicarbonate: 0.0000
+    bicarbonate_missing: 0.0000
+    anion_gap: 0.0000
+    anion_gap_missing: 0.0006
+    hematocrit: 0.0000
+    hematocrit_missing: 0.0000
+    platelet_count: 0.0000
+    platelet_count_missing: 0.0000
+    hemoglobin: 0.0000
+    hemoglobin_missing: 0.0000
+    wbc: 0.0000
+    wbc_missing: 0.0000
+    mchc: 0.0000
+    mchc_missing: 0.0000
+    mch: 0.0000
+    mch_missing: 0.0000
+    rbc: 0.0000
+    rbc_missing: 0.0000
+    mcv: 0.0000
+    mcv_missing: 0.0000
+    rdw: 0.0008
+    rdw_missing: 0.0018
+    glucose: 0.0034
+    glucose_missing: 0.0000
+    calcium: 0.0023
+    calcium_missing: 0.0008
+    magnesium: 0.0022
+    magnesium_missing: 0.0015
+    phosphate: 0.0085
+    phosphate_missing: 0.0001
+
+Analyzing SURVIVAL_SVM model...
+  SURVIVAL_SVM Feature Importance:
+    egfr: 0.0012
+    egfr_missing: 0.2372
+    potassium: 0.0343
+    potassium_missing: 0.6793
+    urea_nitrogen: 0.0063
+    urea_nitrogen_missing: 0.0519
+    sodium: 0.0078
+    sodium_missing: 0.6864
+    chloride: 0.0019
+    chloride_missing: 0.2087
+    bicarbonate: 0.1625
+    bicarbonate_missing: 2.9621
+    anion_gap: 0.0213
+    anion_gap_missing: 0.4181
+    hematocrit: 0.0042
+    hematocrit_missing: 0.3776
+    platelet_count: 0.0006
+    platelet_count_missing: 0.2964
+    hemoglobin: 0.0725
+    hemoglobin_missing: 0.9401
+    wbc: 0.0091
+    wbc_missing: 0.5890
+    mchc: 0.0360
+    mchc_missing: 0.5709
+    mch: 0.0000
+    mch_missing: 0.0000
+    rbc: 0.0000
+    rbc_missing: 0.0000
+    mcv: 0.0028
+    mcv_missing: 1.0409
+    rdw: 0.0213
+    rdw_missing: 0.0380
+    glucose: 0.0000
+    glucose_missing: 0.1355
+    calcium: 0.0068
+    calcium_missing: 0.0088
+    magnesium: 0.1372
+    magnesium_missing: 0.0291
+    phosphate: 0.0336
+    phosphate_missing: 0.1569
+
+Analyzing WEIBUL model...
+  WEIBUL Feature Importance:
+    egfr: 0.0041
+    egfr_missing: 0.2932
+    potassium: 0.0255
+    potassium_missing: 0.1420
+    urea_nitrogen: 0.0024
+    urea_nitrogen_missing: 0.3238
+    sodium: 0.0001
+    sodium_missing: 0.0301
+    chloride: 0.0002
+    chloride_missing: 0.0277
+    bicarbonate: 0.0109
+    bicarbonate_missing: 0.2379
+    anion_gap: 0.0570
+    anion_gap_missing: 0.9290
+    hematocrit: 0.0053
+    hematocrit_missing: 0.1522
+    platelet_count: 0.0003
+    platelet_count_missing: 0.1062
+    hemoglobin: 0.0455
+    hemoglobin_missing: 0.3842
+    wbc: 0.0069
+    wbc_missing: 0.3777
+    mchc: 0.0107
+    mchc_missing: 0.3566
+    mch: 4.8977
+    mch_missing: 2.1671
+    rbc: 0.0000
+    rbc_missing: 2.1671
+    mcv: 0.0045
+    mcv_missing: 0.4867
+    rdw: 0.0068
+    rdw_missing: 0.1308
+    glucose: 0.0000
+    glucose_missing: 0.0147
+    calcium: 0.0450
+    calcium_missing: 0.4229
+    magnesium: 0.0476
+    magnesium_missing: 0.1220
+    phosphate: 0.0347
+    phosphate_missing: 0.0685
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep4/twenty_features_heterogeneous_all_models_feature_importance.png
