@@ -1,0 +1,147 @@
+PAPER GAPS — GAP 12: SUBGROUP PERFORMANCE ANALYSIS (implementation + rep99 verification)
+================================================================================
+Generated: 2026-09-18   Host: sunlab-serv-01   Repetition: 99 (mini-experiment)
+Run: CUDA_VISIBLE_DEVICES="" CKD_N_BOOTSTRAP=1000 python -m pkgs.scripts.run_experiments \
+       analyze --reps 99 --analyses subgroup --log-dir pkgs/scripts/logs
+Runner PID 3990185. Per-scenario reports:
+  generated_data/rep99/<scenario>_subgroup_performance_report.txt
+
+EXPERIMENT_PLAN_STATUS.md carries only the per-gap state and a pointer here.
+
+================================================================================
+1. WHAT WAS ALREADY THERE, AND WHAT WAS ACTUALLY MISSING
+================================================================================
+Gap 12 records that the repo already has demographic DESCRIPTION — demographics.py
+implements age/gender/race distributions for the ESRD, non-ESRD and CKD cohorts,
+cohort_flow_analysis.py summarises age and sex for source and extracted cohorts, and
+saved rep100 cohort-flow reports confirm both were produced. The blanket claim that no
+demographic analysis was performed was too broad, and this work does not repeat it.
+
+What was missing is performance WITHIN those groups. Nothing in the clinical-validity
+analyzer or in any inspected report stratifies discrimination or calibration by age,
+sex or race, and the experiment runner offered only `clinical_validity` and
+`feature_importance`. Cohort composition — including composition split by ESRD status —
+does not measure whether a model discriminates equally well inside the groups it
+contains.
+
+================================================================================
+2. WHAT WAS BUILT
+================================================================================
+- pkgs/data_analysis/subgroup_analysis.py — SubgroupAnalyzer, a subclass of
+  ClinicalValidityAnalyzer. It reuses that class's model dispatch (_model_paths /
+  _get_predictions / _get_train_risk_scores) rather than copying it, so a subgroup
+  number and an overall number for the same model cannot diverge because one of them
+  loaded the model differently. Reports per group: patient count, event count, event
+  proportion, C-index, integrated Brier (0-730 d) and mean time-dependent AUC, each
+  with a within-group bootstrap 95% percentile interval.
+- pkgs/data_analysis/patient_metadata.py — one demographic record per held-out patient.
+- pkgs/scripts/run_experiments.py — new `--analyses subgroup`, opt-in and NOT in the
+  default analysis set (it re-reads patients.csv/admissions.csv and is not part of the
+  headline comparison).
+
+Design choices carried in from the rest of the evaluation:
+- Patients, not lab rows: every group is a set of patients with one terminal outcome
+  each (Gap 5a), and a model whose prediction row set does not match those outcomes is
+  dropped rather than stratified against the wrong patients.
+- Survival probabilities prefer each model's native curve and fall back to the labelled
+  fitted conversion (Gap 5b); the source is printed per model per group.
+- The IPCW censoring reference is the FULL training cohort's, not a per-group one.
+  G(t) is a nuisance distribution and re-estimating it inside a 30-patient group would
+  add more noise than it removes bias. The consequence — a group whose censoring
+  pattern differs from the training cohort's is weighted by the cohort's pattern — is
+  stated in every report.
+- Metrics are computed only for groups with >= 20 patients AND >= 5 events. Smaller
+  groups still get their counts printed, so they are visibly present-but-unmeasurable
+  rather than silently absent.
+
+================================================================================
+3. THE TWO AUDITS GAP 12 ASKED FOR BEFORE REUSING THE EXISTING UTILITIES
+================================================================================
+RACE. store.get_admission_df() drops every admission whose race is "PATIENT DECLINED TO
+ANSWER" / "UNABLE TO OBTAIN" / "UNKNOWN" before anything else, and
+demographics.ethnicity_and_race_statistics() then keeps the FIRST remaining admission
+row per patient. For a distribution table that is defensible. For subgroup PERFORMANCE
+it is not: patients whose race was never recorded would vanish from the denominator, so
+the subgroup rows would stop summing to the cohort and "missing" would be invisible
+rather than reported.
+
+  Changed for this analysis (pkgs/data_analysis/patient_metadata.py):
+   - patients with no recorded value are KEPT, under an explicit UNKNOWN/NOT RECORDED
+     group;
+   - the patient-level value is the MODAL recorded race across that patient's
+     admissions, ties broken by earliest admission, replacing "whichever admission row
+     sorted first" — a patient with several admissions can carry several recorded
+     values, and taking the first is arbitrary in a way a modal rule is not.
+  The ethnicity->race collapsing itself still comes from get_admission_df(True), so the
+  category names match the rest of the repo's demographic reporting.
+
+  Measured on rep99 four_features (345 held-out patients): 342 have a recorded race,
+  3 are retained as unknown, 15 have more than one recorded value across their
+  admissions, and 17 admission rows carry declined/unobtainable/unknown. On
+  eight_features (243 patients) 9 are retained as unknown. Under the previous rule
+  those 3 and 9 patients would have been dropped from every subgroup table silently.
+
+AGE. patients.csv gives anchor_age — the patient's age in their MIMIC anchor_year, NOT
+their age at the prediction landmark. The exported scenario CSVs carry duration_in_days
+(days since that patient's first lab record) but no absolute timestamp, so the calendar
+distance between anchor_year and the first lab record cannot be recovered from the data
+this analysis has, and landmark age is therefore NOT derivable here. Rather than quietly
+relabel anchor_age as landmark age, the reports:
+   - name the grouping variable as anchor_age and say explicitly that it is not
+     landmark age;
+   - print the distribution of time from each patient's first lab record to their
+     landmark, so the size of the possible offset is visible. rep99 four_features:
+     median 0.418 y, p90 6.278 y, max 11.863 y.
+The four-/eight-feature CSVs' own `age` column is that same anchor_age (renamed in
+time_series_store.py) and is constant across a patient's rows, so the two agree by
+construction.
+
+================================================================================
+4. rep99 VERIFICATION — GROUP COMPOSITION
+================================================================================
+four_features, 345 held-out patients, 250 events:
+  age <27         n=6    events=6    rate 1.000   [not measurable]
+  age 27-54       n=76   events=67   rate 0.882
+  age 54-82       n=219  events=145  rate 0.662
+  age 82+         n=44   events=32   rate 0.727
+  F               n=145  events=108  rate 0.745
+  M               n=200  events=142  rate 0.710
+  ASIAN           n=17   events=14   rate 0.824   [not measurable]
+  BLACK           n=68   events=51   rate 0.750
+  HISPANIC/LATINO n=27   events=21   rate 0.778
+  OTHER           n=8    events=6    rate 0.750   [not measurable]
+  PORTUGUESE      n=2    events=2    rate 1.000   [not measurable]
+  UNKNOWN/NOT RECORDED n=3 events=3  rate 1.000   [not measurable]
+  WHITE           n=220  events=153  rate 0.696
+
+eight_features, 243 held-out patients, 212 events:
+  age <27 n=7 [nm]; 27-54 n=59 rate 0.881; 54-82 n=150 rate 0.880; 82+ n=27 rate 0.778
+  F n=101 rate 0.871; M n=142 rate 0.873
+  ASIAN n=11 [nm]; BLACK n=56 rate 0.893; HISPANIC/LATINO n=16 [nm]; OTHER n=8 [nm];
+  PORTUGUESE n=1 [nm]; UNKNOWN/NOT RECORDED n=9 [nm]; WHITE n=142 rate 0.852
+
+twenty_features_heterogeneous has 20 held-out patients in the rep99 mini-experiment, so
+every group falls below the minimum and only counts are reported. That is the correct
+behaviour, not a failure.
+
+Note "PORTUGUESE" is a category the repo's existing ethnicity->race map does not
+collapse; it is left as the source data records it rather than silently folded into
+OTHER, and it is below the measurability threshold in both scenarios anyway.
+
+================================================================================
+5. WHAT THIS DOES NOT ESTABLISH
+================================================================================
+- This is subgroup PERFORMANCE analysis, not a fairness evaluation. No fairness
+  criterion is defined or tested. A between-group difference in these numbers has
+  causes — group size, event rate, follow-up length, measurement density, coding
+  practice — that these numbers cannot separate. Every generated report says so in its
+  own header.
+- rep99 is the mini-experiment split. It verifies that the analysis runs, joins the
+  right metadata, respects its own measurability thresholds and produces intervals. It
+  is not evidence about any model's performance in any group.
+- Production reps 1-5 hold data CSVs but no trained model artifacts, so no
+  production-scale subgroup numbers exist yet. That is the blocking dependency, and it
+  is the same one blocking Gap 3's reported intervals.
+- The manuscript's existing limitation that "demographic subgroup performance is
+  untested" remains accurate for the currently reported tables and should stay until a
+  production run replaces them.

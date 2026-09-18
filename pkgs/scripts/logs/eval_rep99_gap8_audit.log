@@ -1,0 +1,198 @@
+Repetition: 99   Generated: 2026-09-18 09:55:34
+
+====================================================================================================
+PART A — PREDICTION TARGET PER MODEL (read from pkgs/models/*.py's predictions())
+====================================================================================================
+
+Shared across all 11 models:
+  Time origin   : days since that patient's FIRST lab record in the exported frame
+                  (time_series_utils_store.calculate_duration_in_days). The origin is
+                  NOT reset at the landmark, so a reported 730-day horizon is measured
+                  from the first record, not from the row the score is attached to.
+  Outcome       : has_esrd, from ICD diagnosis codes (pkgs/commons.esrd_codes).
+                  ESRD-positive patients' rows are truncated at the first ESRD
+                  diagnosis DATE and only rows on that date carry has_esrd=1
+                  (time_series_store.process_patient_esrd); ESRD-negative patients
+                  are censored at their last lab record.
+  Landmark      : every model is scored on one row/curve per patient. Nine models
+                  read the patient's LAST exported row; Dynamic-DeepHit and Hazard
+                  Transformer pool the whole sequence up to that row.
+
+  CONSEQUENCE, stated plainly: for an ESRD-positive patient the landmark row is the
+  last row at or before the diagnosis date, so the input cutoff is the outcome date,
+  not a decision time some fixed interval before it. The duration attached to that
+  patient is time from first record to diagnosis, which is a follow-up length, not a
+  prediction lead time. Part B quantifies how large that distinction is.
+
+Model                        Landmark                                                   Inputs                                                         Native horizon support
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Cox (CoxTimeVaryingFitter)   each patient's LAST exported row (get_last_observation_data) that row's covariates only; predict_partial_hazard needs no time interval baseline_cumulative_hazard_ from the fit, read at any t it covers; covariates held at the landmark value thereafter
+Dynamic-DeepHit              the patient (one curve per subject; the whole sequence is pooled by attention) every exported row of the patient, up to the last one          per-day PMF over 0-5474 d; CIF read directly at any day in range
+Hazard Transformer           the patient (one curve per subject; whole sequence pooled) every exported row of the patient, up to the last one          100 bins over 0-730 d; no native prediction past 730 d
+Logistic Hazard              each patient's LAST exported row (LogisticHazardDataset takes iloc[-1]) that row's covariates only                                     50 quantile bins over the training duration range, via LabTransDiscreteTime
+RNN-Surv                     each patient's LAST exported row, as a length-1 sequence   that row's covariates only                                     PMF bins over 0-730 d
+DeepSurv                     each patient's LAST exported row                           that row's covariates only                                     none (score only); survival probabilities come from the labelled fitted conversion
+GBSA                         each patient's LAST exported row                           that row's covariates only                                     predict_survival_function (loss='coxph' Breslow baseline), to the training max time
+Survival RF                  each patient's LAST exported row                           that row's covariates only                                     predict_survival_function (ensemble Nelson-Aalen), to the training max time
+Survival SVM                 each patient's LAST exported row                           that row's covariates only                                     none (pure ranking model); survival probabilities come from the labelled fitted conversion
+Weibull AFT                  each patient's LAST exported row                           that row's covariates only                                     closed-form parametric S(t|x), defined at every t > 0
+KFRE                         each patient's LAST exported row                           that row's age/sex/eGFR/uACR (+ albumin/phosphate/bicarbonate/calcium for 8-var) exactly 2 y and 5 y -- the only horizons the published S0 constants define
+
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+====================================================================================================
+PART B — TEMPORAL ALIGNMENT FROM THE EXPORTED DATA — four_features
+====================================================================================================
+
+[train] 5806 lab-event rows over 500 patients (5 rows/patient median, 126 max)
+  Landmark (days from first record to last): median 168.9, p90 2601.7, max 4112.3
+  Events: 250/500 (50.0%)
+  Time from first record to EVENT (ESRD-positive patients): median 0.9 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 707.1 d, max 4112.3 d
+  Patients whose landmark IS their first record (duration 0, i.e. a single exported row): 96/500 (19.2%) — for these the 'time-varying' input reduces to one snapshot.
+  Horizon 730 d: 186 events observed inside it; 126 patients censored before it (outcome unobserved); 188 patients followed to or past it.
+  Horizon 1825 d: 225 events observed inside it; 186 patients censored before it (outcome unobserved); 89 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+[test] 3667 lab-event rows over 345 patients (5 rows/patient median, 103 max)
+  Landmark (days from first record to last): median 152.7, p90 2293.1, max 4333.0
+  Events: 250/345 (72.5%)
+  Time from first record to EVENT (ESRD-positive patients): median 68.3 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 274.2 d, max 4333.0 d
+  Patients whose landmark IS their first record (duration 0, i.e. a single exported row): 65/345 (18.8%) — for these the 'time-varying' input reduces to one snapshot.
+  Horizon 730 d: 165 events observed inside it; 52 patients censored before it (outcome unobserved); 128 patients followed to or past it.
+  Horizon 1825 d: 210 events observed inside it; 74 patients censored before it (outcome unobserved); 61 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+====================================================================================================
+PART C — MATCHED-LAB TIMING RELATIVE TO THE ANCHOR CREATININE DRAW — four_features
+====================================================================================================
+  Scanning /home/minhn2/uiuc-kidney-failure/data/mimic-iv-2.2/hosp/labevents.csv for 845 cohort patients and 9 lab item ids (chunked, 2,000,000 rows at a time)...
+  Scanned 118,171,367 labevents rows; kept 226,066 for this cohort.
+  Anchor rows (creatinine draws with an admission, non-zero value): 34,941 over 845 patients.
+  Rule audited per lab, exactly as the extraction applies it (time_series_store.merge_nearest_within_admission, direction='nearest'):
+MATCH_TIMING|uacr|by=subject_id|matched=34941|unmatched=0|after_anchor=13693|after_anchor_pct=39.19|median_h=-1121.083|p95_abs_h=53249.667|max_after_h=99260.350|max_before_h=-100909.817
+    uacr            matched by subject_id (patient's whole history, no time bound)
+      matched 34,941/34,941 anchor rows (100.0%)
+      recorded AFTER the anchor creatinine: 13,693/34,941 (39.2%); simultaneous: 10 (0.0%)
+      signed separation (matched - anchor), hours: median -1121.08, p5 -45428.25, p95 +27053.33, max after +99260.35, max before -100909.82
+      absolute separation, hours: median 5794.65, p95 53249.67, max 100909.82
+
+  Reading: a positive separation means the covariate was measured after the
+  creatinine the row is anchored on, so that row's feature vector contains
+  information not available at the anchor timestamp. Whether that matters depends
+  on the claim being made: for a retrospective benchmark on a reconstructed
+  snapshot it is a documented property of the reconstruction; for a prospective
+  claim it is an information cutoff that would have to be defined and enforced.
+  Quantifying it does not settle which claim the manuscript makes — see Gap 8.
+
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+====================================================================================================
+PART B — TEMPORAL ALIGNMENT FROM THE EXPORTED DATA — eight_features
+====================================================================================================
+
+[train] 1856 lab-event rows over 400 patients (2 rows/patient median, 87 max)
+  Landmark (days from first record to last): median 0.7, p90 987.6, max 3842.6
+  Events: 250/400 (62.5%)
+  Time from first record to EVENT (ESRD-positive patients): median 0.4 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 1.0 d, max 3842.6 d
+  Patients whose landmark IS their first record (duration 0, i.e. a single exported row): 121/400 (30.2%) — for these the 'time-varying' input reduces to one snapshot.
+  Horizon 730 d: 223 events observed inside it; 131 patients censored before it (outcome unobserved); 46 patients followed to or past it.
+  Horizon 1825 d: 237 events observed inside it; 144 patients censored before it (outcome unobserved); 19 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+[test] 1100 lab-event rows over 243 patients (2 rows/patient median, 63 max)
+  Landmark (days from first record to last): median 0.5, p90 1043.5, max 3188.2
+  Events: 212/243 (87.2%)
+  Time from first record to EVENT (ESRD-positive patients): median 0.4 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 1.4 d, max 1584.2 d
+  Patients whose landmark IS their first record (duration 0, i.e. a single exported row): 79/243 (32.5%) — for these the 'time-varying' input reduces to one snapshot.
+  Horizon 730 d: 183 events observed inside it; 25 patients censored before it (outcome unobserved); 35 patients followed to or past it.
+  Horizon 1825 d: 204 events observed inside it; 31 patients censored before it (outcome unobserved); 8 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+====================================================================================================
+PART C — MATCHED-LAB TIMING RELATIVE TO THE ANCHOR CREATININE DRAW — eight_features
+====================================================================================================
+  Scanning /home/minhn2/uiuc-kidney-failure/data/mimic-iv-2.2/hosp/labevents.csv for 643 cohort patients and 9 lab item ids (chunked, 2,000,000 rows at a time)...
+  Scanned 118,171,367 labevents rows; kept 195,815 for this cohort.
+  Anchor rows (creatinine draws with an admission, non-zero value): 29,212 over 643 patients.
+  Rule audited per lab, exactly as the extraction applies it (time_series_store.merge_nearest_within_admission, direction='nearest'):
+MATCH_TIMING|uacr|by=subject_id|matched=29212|unmatched=0|after_anchor=11689|after_anchor_pct=40.01|median_h=-618.042|p95_abs_h=45222.118|max_after_h=89179.117|max_before_h=-90877.067
+    uacr            matched by subject_id (patient's whole history, no time bound)
+      matched 29,212/29,212 anchor rows (100.0%)
+      recorded AFTER the anchor creatinine: 11,689/29,212 (40.0%); simultaneous: 6 (0.0%)
+      signed separation (matched - anchor), hours: median -618.04, p5 -38010.82, p95 +22038.66, max after +89179.12, max before -90877.07
+      absolute separation, hours: median 5202.75, p95 45222.12, max 90877.07
+MATCH_TIMING|calcium|by=hadm_id|matched=27821|unmatched=1391|after_anchor=1055|after_anchor_pct=3.79|median_h=0.000|p95_abs_h=8.667|max_after_h=24.000|max_before_h=-24.000
+    calcium         matched by hadm_id (same admission, +/-24 h)
+      matched 27,821/29,212 anchor rows (95.2%)
+      recorded AFTER the anchor creatinine: 1,055/27,821 (3.8%); simultaneous: 25,678 (92.3%)
+      signed separation (matched - anchor), hours: median +0.00, p5 +0.00, p95 +0.00, max after +24.00, max before -24.00
+      absolute separation, hours: median 0.00, p95 8.67, max 24.00
+MATCH_TIMING|phosphate|by=hadm_id|matched=27800|unmatched=1412|after_anchor=1037|after_anchor_pct=3.73|median_h=0.000|p95_abs_h=8.533|max_after_h=24.000|max_before_h=-24.000
+    phosphate       matched by hadm_id (same admission, +/-24 h)
+      matched 27,800/29,212 anchor rows (95.2%)
+      recorded AFTER the anchor creatinine: 1,037/27,800 (3.7%); simultaneous: 25,687 (92.4%)
+      signed separation (matched - anchor), hours: median +0.00, p5 +0.00, p95 +0.00, max after +24.00, max before -24.00
+      absolute separation, hours: median 0.00, p95 8.53, max 24.00
+MATCH_TIMING|bicarbonate|by=hadm_id|matched=29104|unmatched=108|after_anchor=179|after_anchor_pct=0.62|median_h=0.000|p95_abs_h=0.000|max_after_h=24.000|max_before_h=-24.000
+    bicarbonate     matched by hadm_id (same admission, +/-24 h)
+      matched 29,104/29,212 anchor rows (99.6%)
+      recorded AFTER the anchor creatinine: 179/29,104 (0.6%); simultaneous: 28,671 (98.5%)
+      signed separation (matched - anchor), hours: median +0.00, p5 +0.00, p95 +0.00, max after +24.00, max before -24.00
+      absolute separation, hours: median 0.00, p95 0.00, max 24.00
+MATCH_TIMING|serum_albumin|by=hadm_id|matched=11288|unmatched=17924|after_anchor=2083|after_anchor_pct=18.45|median_h=0.000|p95_abs_h=23.700|max_after_h=24.000|max_before_h=-24.000
+    serum_albumin   matched by hadm_id (same admission, +/-24 h)
+      matched 11,288/29,212 anchor rows (38.6%)
+      recorded AFTER the anchor creatinine: 2,083/11,288 (18.5%); simultaneous: 6,114 (54.2%)
+      signed separation (matched - anchor), hours: median +0.00, p5 -23.16, p95 +21.54, max after +24.00, max before -24.00
+      absolute separation, hours: median 0.00, p95 23.70, max 24.00
+
+  Reading: a positive separation means the covariate was measured after the
+  creatinine the row is anchored on, so that row's feature vector contains
+  information not available at the anchor timestamp. Whether that matters depends
+  on the claim being made: for a retrospective benchmark on a reconstructed
+  snapshot it is a documented property of the reconstruction; for a prospective
+  claim it is an information cutoff that would have to be defined and enforced.
+  Quantifying it does not settle which claim the manuscript makes — see Gap 8.
+
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 20 and train 20
+Number of records: test 9115 and train 4575
+====================================================================================================
+PART B — TEMPORAL ALIGNMENT FROM THE EXPORTED DATA — twenty_features_heterogeneous
+====================================================================================================
+
+[train] 4575 lab-event rows over 20 patients (112 rows/patient median, 862 max)
+  Landmark (days from first record to last): median 373.3, p90 2423.1, max 4449.4
+  Events: 10/20 (50.0%)
+  Time from first record to EVENT (ESRD-positive patients): median 14.1 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 448.0 d, max 2905.9 d
+  Patients whose landmark IS their first record (duration 0, i.e. a single exported row): 5/20 (25.0%) — for these the 'time-varying' input reduces to one snapshot.
+  Horizon 730 d: 6 events observed inside it; 6 patients censored before it (outcome unobserved); 8 patients followed to or past it.
+  Horizon 1825 d: 7 events observed inside it; 8 patients censored before it (outcome unobserved); 5 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+[test] 9115 lab-event rows over 20 patients (110 rows/patient median, 2281 max)
+  Landmark (days from first record to last): median 1052.6, p90 2992.1, max 4630.9
+  Events: 10/20 (50.0%)
+  Time from first record to EVENT (ESRD-positive patients): median 467.0 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 1624.6 d, max 4630.9 d
+  Patients whose landmark IS their first record (duration 0, i.e. a single exported row): 2/20 (10.0%) — for these the 'time-varying' input reduces to one snapshot.
+  Horizon 730 d: 5 events observed inside it; 3 patients censored before it (outcome unobserved); 12 patients followed to or past it.
+  Horizon 1825 d: 9 events observed inside it; 6 patients censored before it (outcome unobserved); 5 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+====================================================================================================
+PART C — MATCHED-LAB TIMING RELATIVE TO THE ANCHOR CREATININE DRAW — twenty_features_heterogeneous
+====================================================================================================
+  Not applicable: twenty_features_heterogeneous anchors every row on its own single drawn lab and performs no nearest-time matching, so there is no anchor/matched pair to time.
+
+Audit report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/stage_gap8_prediction_time_audit_report.txt

@@ -1,12 +1,8 @@
-CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
-================================================================================
-Generated on: 2026-09-18 10:14:22
-Repetition: 99
-Scenario: four_features
-Competing-risk analysis (death before ESRD) not included — raised and declined
-(2026-08-23); see EXPERIMENT_PLAN_DETAILS.md Stage 2.1 for why.
-================================================================================
-
+rep99 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep99
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
 ================================================================================
 CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
 ================================================================================
@@ -19,6 +15,132 @@ Max test follow-up: 4333.0 days. Horizons used: [730, 1825]
 Training-set max follow-up: 4112.3 days; IPCW evaluation capped at 4060.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
 
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 345/345 patients have one (0 excluded, no measured eGFR); selected from 3667/3667 rows with a real eGFR measurement.
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_test_data.csv
+Number of patients: test 345 and train 500
+Number of records: test 3667 and train 5806
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 5806 rows/500 subjects -> 500 rows; test 3667 rows/345 subjects -> 345 rows
 
 Patient-level alignment check (Gap 5a):
   OK   Cox: aligned to 345 patient-level terminal outcomes
@@ -704,3 +826,196 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.50  model=0.05276  treat_all=0.41704  treat_none=0.0
 Calibration plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_calibration_plot.png
 Decision curve plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_decision_curve_plot.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_clinical_validity_report.txt
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 1856 lab-event rows -> 400 patients; event rate 0.1907 (row-level) vs 0.6250 (patient-level, 250 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 1100 lab-event rows -> 243 patients; event rate 0.2800 (row-level) vs 0.8724 (patient-level, 212 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 3188.2 days. Horizons used: [730, 1825]
+Training-set max follow-up: 3842.6 days; IPCW evaluation capped at 3351.5 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 243/243 patients have one (0 excluded, no measured eGFR); selected from 1100/1100 rows with a real eGFR measurement.
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.0s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_test_data.csv
+Number of patients: test 243 and train 400
+Number of records: test 1100 and train 1856
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1856 rows/400 subjects -> 400 rows; test 1100 rows/243 subjects -> 243 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   Cox: aligned to 243 patient-level terminal outcomes
+  OK   Dynamic DeepHit: aligned to 243 patient-level terminal outcomes (164 durations differ by up to 0.998611 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   Hazard Transformer: aligned to 243 patient-level terminal outcomes (164 durations differ by up to 0.998611 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   Logistic Hazard: aligned to 243 patient-level terminal outcomes (54 durations differ by up to 0.000113932 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   RNN-Surv: aligned to 243 patient-level terminal outcomes
+  OK   DeepSurv: aligned to 243 patient-level terminal outcomes
+  OK   GBSA: aligned to 243 patient-level terminal outcomes
+  OK   Survival RF: aligned to 243 patient-level terminal outcomes
+  OK   Survival SVM: aligned to 243 patient-level terminal outcomes
+  OK   Weibull AFT: aligned to 243 patient-level terminal outcomes (79 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   KFRE: aligned to 243 patient-level terminal outcomes
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Cox: c_index=0.5659 brier=0.27556 (native) auc=0.6015
+    fitted-conversion Brier for the same model/window: 0.29189 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.2824, 1825d=0.11664
+  Dynamic DeepHit: c_index=0.8149 brier=0.19074 (native) auc=0.918
+    fitted-conversion Brier for the same model/window: 0.16436 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.20076, 1825d=0.13467
+  Hazard Transformer: c_index=0.4994 brier=0.32747 (native) auc=0.4651
+    fitted-conversion Brier for the same model/window: 0.39814 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.37401
+  Logistic Hazard: c_index=0.4867 brier=0.35589 (native) auc=0.4689
+    fitted-conversion Brier for the same model/window: 0.49813 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.33863, 1825d=0.18945
+  RNN-Surv: c_index=0.501 brier=0.59511 (native) auc=0.5259
+    fitted-conversion Brier for the same model/window: 0.29877 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.52461, 1825d=0.31968
+  DeepSurv: c_index=0.4849 brier=0.3616 (fitted-conversion) auc=0.4952
+  GBSA: c_index=0.5014 brier=0.32278 (native) auc=0.4935
+    fitted-conversion Brier for the same model/window: 0.27907 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.3385, 1825d=0.13345
+  Survival RF: c_index=0.4901 brier=0.29303 (native) auc=0.5162
+    fitted-conversion Brier for the same model/window: 0.30376 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.2946, 1825d=0.16541
+  Survival SVM: c_index=0.5145 brier=0.28743 (fitted-conversion) auc=0.5681
+  Weibull AFT: c_index=0.5102 brier=0.28184 (native) auc=0.5481
+    fitted-conversion Brier for the same model/window: 0.27792 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.28306, 1825d=0.1328
+  KFRE: c_index=0.5391 brier=0.61687 (fitted-conversion) auc=0.5795
+    native point Brier at published horizons: 730d=0.77851, 1825d=0.85433
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 243 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.

@@ -16,6 +16,9 @@ evaluation (each model's existing function controls reuse of saved models)::
     python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses clinical_validity
     python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses feature_importance
 
+    # Subgroup performance (age/sex/race), PAPER_GAPS_EXPERIMENT_PLAN.md Gap 12:
+    python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses subgroup
+
     # Select a scenario and model subset on the mini-experiment repetition:
     python -m pkgs.scripts.run_experiments analyze --reps 99 --scenarios twenty_features_heterogeneous --models cox srf
 
@@ -39,8 +42,11 @@ Selection options:
   models. KFRE is excluded from feature importance and from twenty-feature
   training/clinical validity. Use dynamic_deephit/rnnsurv on the CLI, even
   though analysis reports use ddh/rnn_surv internally.
-- --analyses: clinical_validity and/or feature_importance; both by default
-  for "analyze". This option does not select anything for "train".
+- --analyses: clinical_validity, feature_importance and/or subgroup.
+  clinical_validity and feature_importance run by default for "analyze";
+  subgroup is opt-in (--analyses subgroup), since it re-reads patients.csv/
+  admissions.csv and is not part of the headline comparison. This option does
+  not select anything for "train".
 - Logs default to generated_data/rep<N>/rep<N>_<task>_<timestamp>.log.
   --log-dir optionally overrides the directory for all selected reps.
 - --dry-run: prints the selected worker commands and log paths without
@@ -55,7 +61,10 @@ Inputs, outputs, and execution:
   <scenario>_clinical_validity_report.txt, <scenario>_calibration_plot.png,
   and <scenario>_decision_curve_plot.png for the selected analyses.
   Clinical validity also writes c_index_comparison.png, brier_comparison.png,
-  and auc_comparison.png across the selected scenarios/models.
+  and auc_comparison.png across the selected scenarios/models. Subgroup writes
+  <scenario>_subgroup_performance_report.txt and no charts.
+- Bootstrap resample count for clinical_validity/subgroup: CKD_N_BOOTSTRAP
+  (default 1000). Lower it for a quick smoke run.
 - Reports/charts stay under generated_data/rep<N>/ and are overwritten on
   reruns, including subset runs. Use the full selection for final comparisons.
 - The runner stays in the foreground, including with --parallel-reps.
@@ -102,7 +111,7 @@ TRAIN_FUNCTIONS = {
     "survival_svm": "run_scenario",
     "weibul": "run_scenario",
 }
-ANALYSES = ("clinical_validity", "feature_importance")
+ANALYSES = ("clinical_validity", "feature_importance", "subgroup")
 MODEL_ALIASES = {"dynamic_deephit": "ddh", "rnnsurv": "rnn_surv"}
 
 
@@ -116,7 +125,9 @@ def parse_args(argv=None):
     parser.add_argument("--scenarios", nargs="+", choices=SCENARIOS, default=list(SCENARIOS))
     parser.add_argument("--models", nargs="+", choices=TRAIN_FUNCTIONS,
                         help="Model subset; defaults to all applicable models")
-    parser.add_argument("--analyses", nargs="+", choices=ANALYSES, default=list(ANALYSES))
+    parser.add_argument("--analyses", nargs="+", choices=ANALYSES,
+                        default=["clinical_validity", "feature_importance"],
+                        help="Analyses to run; subgroup is opt-in and not in the default set")
     parser.add_argument("--log-dir", type=Path,
                         help="Override the default generated_data/rep<N>/ log directory")
     parser.add_argument("--dry-run", action="store_true", help="Print subprocess commands without running them")
@@ -155,6 +166,9 @@ def run_worker(args):
         if args.analyses == ["clinical_validity"]:
             from pkgs.data_analysis.clinical_validity_analysis import ClinicalValidityAnalyzer
             analyzer = ClinicalValidityAnalyzer(output_dir)
+        elif args.analyses == ["subgroup"]:
+            from pkgs.data_analysis.subgroup_analysis import SubgroupAnalyzer
+            analyzer = SubgroupAnalyzer(output_dir)
         else:
             from pkgs.data_analysis.feature_importance_analysis import FeatureImportanceAnalyzer
             analyzer = FeatureImportanceAnalyzer("_".join(args.scenarios), output_dir)
@@ -177,7 +191,8 @@ def run_worker(args):
         if analyzer is not None:
             try:
                 getattr(analyzer, SCENARIOS[scenario])()
-                results = (analyzer.all_results if args.analyses == ["clinical_validity"]
+                results = (analyzer.all_results
+                           if args.analyses in (["clinical_validity"], ["subgroup"])
                            else analyzer.all_importances)
                 if not results.get(scenario):
                     raise RuntimeError(f"No analysis results produced for {scenario}")

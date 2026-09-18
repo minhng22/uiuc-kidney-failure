@@ -1,0 +1,60 @@
+SUBGROUP PERFORMANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2026-09-18 10:12:42
+Repetition: 99
+Scenario: twenty_features_heterogeneous
+
+This reports model performance WITHIN demographic groups. It is not a fairness
+evaluation: no fairness criterion is defined or tested here, and a between-group
+difference in these numbers has causes (group size, event rate, follow-up length,
+measurement density, coding practice) that these numbers cannot separate.
+
+Age groups are bins of anchor_age — the patient's age in their MIMIC anchor year,
+NOT their age at the prediction landmark, which the exported scenario data does not
+carry enough information to derive. Race is collapsed from admissions.csv ethnicity
+and keeps an explicit unknown/not-recorded group. See
+pkgs/data_analysis/patient_metadata.py for both rules and why they differ from
+demographics.py's.
+================================================================================
+
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 4575 lab-event rows -> 20 patients, 10 events (patient-level event rate 0.5000)
+test: 9115 lab-event rows -> 20 patients, 10 events (patient-level event rate 0.5000)
+IPCW censoring reference: the full training cohort (20 patients), not a per-group one; evaluation capped at 4449.4 days (training follow-up 4449.4 days).
+
+Patient metadata join:
+  20 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 2.882 y, p90 8.192 y, max 12.679 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    20/20 patients have a recorded race; 0 retained as unknown; 0 have more than one recorded value across admissions; 3 admission rows carry declined/unobtainable/unknown.
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  27-54                    n=2     events=1     event_rate=0.5000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  54-82                    n=13    events=5     event_rate=0.3846   [metrics not computed: needs >= 20 patients and >= 5 events]
+  82+                      n=5     events=4     event_rate=0.8000   [metrics not computed: needs >= 20 patients and >= 5 events]
+
+--- Sex as recorded in patients.csv ---
+  F                        n=9     events=5     event_rate=0.5556   [metrics not computed: needs >= 20 patients and >= 5 events]
+  M                        n=11    events=5     event_rate=0.4545   [metrics not computed: needs >= 20 patients and >= 5 events]
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  BLACK                    n=2     events=1     event_rate=0.5000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  HISPANIC/LATINO          n=1     events=0     event_rate=0.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  OTHER                    n=1     events=1     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  WHITE                    n=16    events=8     event_rate=0.5000   [metrics not computed: needs >= 20 patients and >= 5 events]
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+=== Sex as recorded in patients.csv ===
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===

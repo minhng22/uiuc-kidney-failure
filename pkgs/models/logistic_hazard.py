@@ -141,8 +141,16 @@ class LogisticHazardModel:
         just the net, not the pycox wrapper -- see
         pkgs/experiments/logistic_hazard.py's run()); wrapped into pycox's
         LogisticHazard here, the same way run() does, so callers pass the
-        raw loaded net, not an already-wrapped model."""
-        self.model = LogisticHazard(net, optimizer=optim.Adam(net.parameters()))
+        raw loaded net, not an already-wrapped model.
+
+        Pinned to the CPU: pycox's LogisticHazard picks `cuda` whenever torch
+        reports a GPU is present, which makes ANALYSIS (a few hundred rows
+        through an MLP) fail with "CUDA error: out of memory" whenever another
+        session on the host is using the GPUs for training — observed on
+        sunlab-serv-01 with all four GPUs at 10816/11264 MiB. Nothing in this
+        evaluation path benefits from a GPU, so it does not compete for one."""
+        self.model = LogisticHazard(net, optimizer=optim.Adam(net.parameters()),
+                                    device=torch.device('cpu'))
 
     def predictions(self, scenario: ExperimentScenario, split='test'):
         """Used by pkgs/data_analysis/clinical_validity_analysis.py's Stage

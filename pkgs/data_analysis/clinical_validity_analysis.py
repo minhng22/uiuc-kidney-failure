@@ -104,7 +104,8 @@ from datetime import datetime
 from lifelines import KaplanMeierFitter
 from lifelines.utils import concordance_index
 from sksurv.util import Surv
-from sksurv.metrics import cumulative_dynamic_auc, integrated_brier_score
+from sksurv.metrics import cumulative_dynamic_auc, integrated_brier_score, brier_score
+from sksurv.nonparametric import kaplan_meier_estimator
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -115,6 +116,11 @@ from pkgs.commons import (
     twenty_features_heterogeneous_train_data_path, twenty_features_heterogeneous_test_data_path,
 )
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.patient_outcomes import (
+    patient_level_outcomes, verify_patient_outcomes, align_predictions_to_patients,
+    patient_level_egfr,
+)
+from pkgs.data_analysis import bootstrap_ci
 from pkgs.experiments.utils import load_pkl_and_dill_model
 from pkgs.experiments.kfre import get_kfre_risk_scores_path
 
@@ -302,12 +308,24 @@ def calibration_table(predicted, durations, events, horizon_days, n_bins=10):
 
 
 def treat_all_net_benefit_curve(durations, events, horizon_days, thresholds=DCA_THRESHOLDS):
-    """Net benefit of "treat everyone" at each threshold — computed once from the
-    full test set's own outcomes, independent of any model. Previously this was
-    computed per-model instead (redundantly, and inconsistently for
-    hazard_transformer/ddh, whose predictions cover a different row set than
-    df_test) — moved out so there's one canonical curve every model is compared
-    against."""
+    """Net benefit of "treat everyone" at each threshold — computed once,
+    independent of any model, from the SAME patient-level terminal outcomes and
+    the SAME included patients as the model curves
+    (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5c).
+
+    `durations`/`events` must be one terminal outcome per included patient
+    (patient_level_outcomes()), not raw `df_test` rows. Taken off `df_test`, as
+    this previously was, the comparator counted lab ROWS: a patient with 40 lab
+    draws contributed 40 observations to "treat everyone" while contributing one
+    prediction to every model curve, and each of their intermediate visits
+    entered as a terminal non-event. On rep99 four_features that is 3,667
+    observations at a 9.4% event rate standing in for 345 patients at a 72.5%
+    event rate — the comparator and the models were not being scored on the same
+    thing, so the resulting net-benefit comparison was not interpretable in
+    either direction.
+
+    Correcting the unit does not by itself mean any model beats treat-all; it
+    means the two curves are now the same kind of quantity."""
     overall_event_prob = _km_event_prob_at(durations, events, horizon_days)
     result = {}
     for pt in thresholds:
@@ -358,80 +376,248 @@ def model_net_benefit_curve(predicted, durations, events, horizon_days, threshol
     return model_nb
 
 
-def egfr_threshold_net_benefit(egfr_values, durations, events, horizon_days, egfr_cutoffs=EGFR_REFERRAL_CUTOFFS):
+def egfr_threshold_net_benefit(egfr_values, durations, events, horizon_days,
+                               egfr_cutoffs=EGFR_REFERRAL_CUTOFFS, thresholds=DCA_THRESHOLDS):
     """Net benefit of a fixed eGFR<cutoff referral rule (the non-model comparator
-    KFRE's own clinical-utility papers use), at the same horizon as the model curve."""
+    KFRE's own clinical-utility papers use), evaluated ACROSS THE SAME RISK
+    THRESHOLDS as every model curve (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5d:
+    "compare strategies at the same decision thresholds").
+
+    `egfr_values`/`durations`/`events` must be ONE REFERRAL DECISION PER PATIENT
+    (patient_level_egfr()), carrying that patient's terminal outcome. Run over
+    `egfr_referral_df` rows, as this previously was, it evaluated a per-lab-row
+    rule: patients with more eGFR draws were re-decided more often and their
+    intermediate visits entered as terminal outcomes, so it was never the same
+    evaluation unit as the model curves it was plotted against. Restricting the
+    twenty-feature scenario to rows with `egfr_missing == 0` removed the
+    placeholder zeros but left the repeated-measurement problem untouched
+    (rep99: 502 measured-eGFR rows across 20 patients).
+
+    Patients with no measured eGFR at or before their landmark have no referral
+    decision under this rule and are excluded; patient_level_egfr() reports how
+    many, and the caller logs that denominator so the comparison is not read as
+    covering the full cohort when it does not.
+
+    Threshold handling: an eGFR<cutoff rule is a fixed binary test, so its
+    true-positive and false-positive rates do not vary with the risk threshold
+    pt -- but its NET BENEFIT does, because pt sets the exchange rate between
+    them. The standard decision-curve treatment of a binary test is therefore a
+    curve over pt from fixed TP/FP rates: NB(pt) = TPrate - FPrate * pt/(1-pt).
+    That is what this returns, so the eGFR rule, the model curves and treat-all
+    are all read off the same x-axis.
+
+    This replaces an earlier version that reported ONE number per cutoff, using
+    the rule's own referral fraction (n_high/n) as a stand-in "implied
+    threshold". That number was not a net benefit at any threshold a model was
+    being compared at, so plotting it beside the model curves compared two
+    different quantities -- and because the implied threshold moved with the
+    referral fraction, the eGFR point also shifted whenever cohort composition
+    changed, independently of the rule's actual performance.
+
+    Returns {cutoff: {'n_flagged', 'flagged_fraction', 'tp_rate', 'fp_rate',
+    'net_benefit': {pt: value}}}."""
     egfr_values = np.asarray(egfr_values, dtype=np.float64)
     n = len(egfr_values)
     results = {}
     for cutoff in egfr_cutoffs:
         high_risk = egfr_values < cutoff
         n_high = int(high_risk.sum())
+        entry = {'n_flagged': n_high, 'flagged_fraction': round(n_high / n, 4) if n else None,
+                 'tp_rate': None, 'fp_rate': None,
+                 'net_benefit': {pt: None for pt in thresholds}}
+        if n == 0:
+            results[cutoff] = entry
+            continue
         if n_high == 0:
-            results[cutoff] = 0.0
+            # Refers nobody: identical to treat-none at every threshold.
+            entry['tp_rate'], entry['fp_rate'] = 0.0, 0.0
+            entry['net_benefit'] = {pt: 0.0 for pt in thresholds}
+            results[cutoff] = entry
             continue
         p_event_given_high = _km_event_prob_at(
             np.asarray(durations)[high_risk], np.asarray(events)[high_risk], horizon_days)
         if p_event_given_high is None:
-            results[cutoff] = None
+            results[cutoff] = entry
             continue
         tp_rate = p_event_given_high * (n_high / n)
         fp_rate = (1 - p_event_given_high) * (n_high / n)
-        # eGFR-threshold rule has no single "probability threshold" pt of its own;
-        # KFRE clinical-utility papers report its net benefit as one point per
-        # cutoff, for the reader to compare against the model's NB curve across pt.
-        # Use n_high/n as a stand-in "implied threshold" only to keep the formula's
-        # shape consistent — the eGFR rule itself doesn't vary by pt.
-        implied_pt = n_high / n if n_high < n else 0.5
-        results[cutoff] = round(tp_rate - fp_rate * (implied_pt / max(1 - implied_pt, 1e-6)), 5)
+        entry['tp_rate'] = round(float(tp_rate), 5)
+        entry['fp_rate'] = round(float(fp_rate), 5)
+        entry['net_benefit'] = {
+            pt: round(float(tp_rate - fp_rate * (pt / (1 - pt))), 5) for pt in thresholds}
+        results[cutoff] = entry
     return results
 
 
-def brier_score_up_to(df_train, durations, events, risk_scores, horizon_days, baseline):
-    """Integrated Brier score, 0 to horizon_days. Takes `durations`/`events`
-    directly (this model's own prediction-row labels) rather than re-deriving
-    them from df_test, as an earlier version did via
-    compute_brier_score_from_survival_probs(df_train, df_test, ...) — that
-    silently broke once dynamic_deephit/hazard_transformer's predictions were
-    fixed to be one-per-SUBJECT (see their *_predictions() docstrings above),
-    since df_test is one row per lab EVENT: `Surv.from_dataframe(...,
-    data=df_test)` built a y_test of len(df_test) while survival_probs had
-    len(unique subjects) rows, so sksurv's shape check failed and this always
-    returned None for those two models (caught, not a crash, but silently
-    wrong) — always build y_test from the same durations/events actually
-    paired with risk_scores instead.
+def build_censoring_reference(train_terminal):
+    """The IPCW censoring reference (`y_train`) both the integrated Brier score
+    and the time-dependent AUC estimate G(t) from — built from ONE TERMINAL
+    OUTCOME PER TRAINING PATIENT (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5a).
 
-    Also administratively censors any test subject followed longer than
-    df_train's longest observed duration, at that train-set max. sksurv's
-    IPCW machinery estimates the censoring distribution G(t) from y_train
-    alone, so it has no information past y_train's max follow-up; a test
-    subject who WAS followed past it (observed: four_features rep1, train
-    max 4216d vs test max 4333d) makes sksurv raise "time must be smaller
-    than largest observed time point" -- for EVERY horizon_days, not just
-    the one requested (confirmed by testing horizons from 1yr to 12yr, all
-    identically broken) -- since the break is a train/test max-duration
-    mismatch, not a horizon choice. There's no true information available
-    about what happens to that subject past the training set's covered
-    range, so the standard treatment is to cut their follow-up there and
-    mark them censored at that point, same as any other right-censoring."""
-    times = np.linspace(1, horizon_days, 50)
-    survival_probs = calibrated_survival_probs(risk_scores, times, baseline)
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
+    This replaces `Surv.from_dataframe(event='has_esrd',
+    time='duration_in_days', data=df_train)` on the RAW exported frame. That
+    frame is one row per lab EVENT, so every intermediate visit of a patient
+    still under follow-up entered the reference as a separate TERMINAL censored
+    observation at that visit's own duration — inventing censoring that never
+    happened and collapsing the reference event rate (rep99 four_features: 5.75%
+    across 5,806 training rows vs. 50.0% across the 500 training patients).
+    Only the Brier score and the AUC consume this reference; Harrell's C-index
+    does not, which is why the C-index moves far less than the other two when
+    this is corrected.
 
+    `train_terminal` comes from patient_level_outcomes() and is verified by
+    verify_patient_outcomes() before it reaches here."""
+    return Surv.from_arrays(
+        event=train_terminal['has_esrd'].values.astype(bool),
+        time=train_terminal['duration_in_days'].values.astype(float))
+
+
+def evaluation_time_cap(train_terminal):
+    """The latest time the IPCW-weighted metrics can be evaluated at: the
+    smaller of the training set's longest observed follow-up and the last time
+    its censoring distribution G(t) is still positive.
+
+    sksurv estimates G(t) from y_train and divides by it, so both the
+    integrated Brier score and the time-dependent AUC are undefined once G(t)
+    hits 0 — sksurv reports this as "censoring survival function is zero at one
+    or more time points" and refuses the whole call, for every horizon rather
+    than just the one requested, because the break is a train/test follow-up
+    mismatch and not a horizon choice. Test patients followed past this cap are
+    administratively censored at it (see _administratively_censor).
+
+    Note this is why the time-dependent AUC previously came back None for every
+    model in every scenario: the Brier path applied the cap and the AUC path did
+    not, so the AUC call always saw the test set's raw maximum follow-up
+    (four_features rep99: test max 4333 d against a training censoring
+    distribution that runs out at 4060 d)."""
+    durations = train_terminal['duration_in_days'].values.astype(float)
+    events = train_terminal['has_esrd'].values.astype(bool)
+    train_max = float(durations.max())
+    try:
+        times, g = kaplan_meier_estimator(~events, durations)
+        positive = times[g > 0]
+        if len(positive):
+            return min(train_max, float(positive.max())), train_max
+    except Exception:
+        pass
+    return train_max, train_max
+
+
+def survival_prob_matrix(risk_scores, times, baseline, native_prob_fn):
+    """(n_patients, len(times)) matrix of predicted SURVIVAL probabilities, plus
+    a label saying where it came from (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5b).
+
+    Preference order:
+    1. 'native' — the model's own time-indexed survival output, read at each
+       grid time via native_prob_fn (which returns P(event by t); survival is
+       1 - that). Used only when the model covers EVERY grid time; a partially
+       covered grid would silently mix two different probability definitions
+       inside one integral.
+    2. 'fitted-conversion' — calibrated_survival_probs(), i.e. this model's
+       risk scores pushed through a Breslow baseline fitted from its own
+       TRAINING-set scores. This is a real, documented estimator, but it is an
+       estimator of the model PLUS that conversion, not of the model's own
+       survival probabilities, and every number derived from it is labelled as
+       such in the report.
+
+    Returns (matrix, source). matrix is None when neither route is available."""
+    times = np.asarray(times, dtype=np.float64)
+    if native_prob_fn is not None:
+        columns = []
+        for t in times:
+            native = native_prob_fn(float(t))
+            if native is None:
+                columns = None
+                break
+            columns.append(1.0 - np.asarray(native, dtype=np.float64))
+        if columns is not None and len(columns) == len(times):
+            return np.column_stack(columns), 'native'
+    if baseline is None:
+        return None, 'unavailable'
+    return calibrated_survival_probs(risk_scores, times, baseline), 'fitted-conversion'
+
+
+def _administratively_censor(durations, events, train_max):
+    """Cut any test patient followed longer than the training set's longest
+    observed duration back to that maximum, marked censored there.
+
+    sksurv's IPCW machinery estimates the censoring distribution G(t) from
+    y_train alone, so it has no information past y_train's max follow-up; a test
+    patient who WAS followed past it (observed: four_features rep1, train max
+    4216d vs test max 4333d) makes sksurv raise "time must be smaller than
+    largest observed time point" for EVERY horizon, not just the one requested
+    (confirmed by testing horizons from 1yr to 12yr, all identically broken) —
+    the break is a train/test max-duration mismatch, not a horizon choice.
+    There is no information available about what happens to that patient past
+    the training set's covered range, so the standard treatment is to cut their
+    follow-up there and mark them censored, as with any other right-censoring."""
     durations = np.asarray(durations, dtype=np.float64).copy()
     events = np.asarray(events).astype(bool).copy()
-    train_max = float(df_train['duration_in_days'].max())
-    beyond_train_range = durations > train_max
-    if beyond_train_range.any():
-        durations[beyond_train_range] = train_max
-        events[beyond_train_range] = False
+    beyond = durations > train_max
+    if beyond.any():
+        durations[beyond] = train_max
+        events[beyond] = False
+    return durations, events, int(beyond.sum())
 
+
+def integrated_brier_up_to(y_train, train_max, durations, events, risk_scores,
+                           horizon_days, baseline, native_prob_fn, n_grid=50):
+    """Integrated Brier score over 0..horizon_days, preferring the model's own
+    survival curve over the fitted risk-score conversion (Gap 5b) and weighted
+    by a patient-level censoring reference (Gap 5a).
+
+    Returns {'value', 'source', 'n_censored_at_train_max'}; 'source' is
+    'native' or 'fitted-conversion' and is reported next to every value so a
+    native IBS is never silently compared against a converted one."""
+    times = np.linspace(1, horizon_days, n_grid)
+    survival_probs, source = survival_prob_matrix(risk_scores, times, baseline, native_prob_fn)
+    if survival_probs is None:
+        return {'value': None, 'source': source, 'n_censored_at_train_max': 0}
+
+    durations, events, n_cut = _administratively_censor(durations, events, train_max)
     y_test = Surv.from_arrays(event=events, time=durations)
     try:
-        return round(float(integrated_brier_score(y_train, y_test, survival_probs, times)), 5)
+        value = round(float(integrated_brier_score(y_train, y_test, survival_probs, times)), 5)
     except Exception as e:
         print(f"Warning: Could not compute Brier Score: {e}")
-        return None
+        value = None
+    return {'value': value, 'source': source, 'n_censored_at_train_max': n_cut}
+
+
+def point_brier_scores(y_train, train_max, durations, events, native_prob_fn, horizons):
+    """Brier score AT each supported horizon, rather than integrated over a
+    window (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5b, KFRE row).
+
+    KFRE does not produce a survival CURVE at all: the published equation
+    defines S0 only at 2 and 5 years, so those two horizons are the entire
+    native output. Integrating over a 0-730d grid would require inventing the
+    curve between them, which is exactly the "added survival-curve conversion"
+    the gap says must not be passed off as native. A point Brier score at 730d
+    and 1825d is the honest version of the same measurement, and it is computed
+    here for ANY model with native output at those horizons so KFRE's numbers
+    have something comparable to sit beside.
+
+    Returns {horizon: value_or_None}; horizons the model does not natively
+    cover are omitted."""
+    if native_prob_fn is None:
+        return {}
+    durations, events, _ = _administratively_censor(durations, events, train_max)
+    y_test = Surv.from_arrays(event=events, time=durations)
+    results = {}
+    for horizon in horizons:
+        native = native_prob_fn(float(horizon))
+        if native is None:
+            continue
+        if horizon >= train_max or horizon >= float(np.max(durations)):
+            continue
+        surv = (1.0 - np.asarray(native, dtype=np.float64)).reshape(-1, 1)
+        try:
+            _, values = brier_score(y_train, y_test, surv, [float(horizon)])
+            results[horizon] = round(float(values[0]), 5)
+        except Exception as e:
+            print(f"Warning: Could not compute point Brier score at {horizon}d: {e}")
+            results[horizon] = None
+    return results
 
 
 def resolve_predicted_prob(risk_scores, native_prob_fn, horizon_days, baseline):
@@ -448,33 +634,70 @@ def resolve_predicted_prob(risk_scores, native_prob_fn, horizon_days, baseline):
     return predicted_event_prob_at(risk_scores, horizon_days, baseline), 'approximate'
 
 
-def discrimination_metrics(df_train, risk_scores, durations, events, baseline, auc_horizon_days=730):
+def discrimination_metrics(y_train, train_max, risk_scores, durations, events, baseline,
+                           native_prob_fn=None, auc_horizon_days=730):
     """C-index, integrated Brier score (0 to auc_horizon_days), and mean
     time-dependent AUC (0 to auc_horizon_days) — one summary triple per model,
-    for the cross-model comparison charts. Sign convention: risk_scores is
-    "higher = riskier" for every model here (see each *_predictions() function
-    above), so concordance_index needs it negated — lifelines expects a score
-    that's higher for LONGER survival (confirmed against this codebase's own
-    cox.py, which negates its partial-hazard risk score the same way before
-    calling concordance_index). `baseline` is this same model's own
-    fit_breslow_baseline_hazard() result (None if fitting it failed — brier
-    then fails too, caught below and recorded in errors like any other)."""
-    result = {'c_index': None, 'brier': None, 'auc': None, 'errors': {}}
+    for the cross-model comparison charts.
+
+    Sign convention: risk_scores is "higher = riskier" for every model here (see
+    each predictions() method in pkgs/models/), so concordance_index needs it
+    negated — lifelines expects a score that's higher for LONGER survival
+    (confirmed against this codebase's own cox.py, which negates its
+    partial-hazard risk score the same way before calling concordance_index).
+
+    `y_train` is the PATIENT-LEVEL censoring reference from
+    build_censoring_reference() (Gap 5a); it used to be built from the raw
+    row-per-lab-event training frame. `native_prob_fn` lets the Brier score use
+    the model's own survival curve where one exists (Gap 5b); `brier_source`
+    records which route produced the number. `baseline` is this same model's own
+    fit_breslow_baseline_hazard() result, used only when there is no native
+    curve (None if fitting it failed — the converted Brier then fails too,
+    caught below and recorded in errors like any other)."""
+    result = {'c_index': None, 'brier': None, 'brier_source': None,
+              'brier_converted': None, 'auc': None, 'point_brier': {}, 'errors': {}}
     try:
         result['c_index'] = round(float(concordance_index(durations, -np.asarray(risk_scores), events)), 4)
     except Exception as e:
         result['errors']['c_index'] = str(e)
 
     try:
-        result['brier'] = brier_score_up_to(df_train, durations, events, risk_scores, auc_horizon_days, baseline)
+        brier = integrated_brier_up_to(y_train, train_max, durations, events, risk_scores,
+                                       auc_horizon_days, baseline, native_prob_fn)
+        result['brier'] = brier['value']
+        result['brier_source'] = brier['source']
     except Exception as e:
         result['errors']['brier'] = str(e)
 
+    # Always compute the fitted-conversion IBS alongside a native one, so the
+    # report can show what the conversion was contributing rather than just
+    # swapping one number for another (Gap 5b: "distinguish native-probability
+    # metrics from metrics using the fitted conversion in the reports").
+    if result['brier_source'] == 'native':
+        try:
+            converted = integrated_brier_up_to(y_train, train_max, durations, events, risk_scores,
+                                               auc_horizon_days, baseline, None)
+            result['brier_converted'] = converted['value']
+        except Exception as e:
+            result['errors']['brier_converted'] = str(e)
+
     try:
-        y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
-        max_time = min(float(np.max(durations)), auc_horizon_days - 1)
+        result['point_brier'] = point_brier_scores(
+            y_train, train_max, durations, events, native_prob_fn, DEFAULT_HORIZONS_DAYS)
+    except Exception as e:
+        result['errors']['point_brier'] = str(e)
+
+    try:
+        # Same administrative censoring the Brier path applies. Without it the
+        # AUC call sees test follow-up past the training censoring
+        # distribution's support and sksurv refuses the whole call — which is
+        # why this metric was None for every model in every scenario before
+        # PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5a's rework (see
+        # evaluation_time_cap).
+        auc_durations, auc_events, _ = _administratively_censor(durations, events, train_max)
+        max_time = min(float(np.max(auc_durations)), auc_horizon_days - 1)
         if max_time > 1:
-            y_test = Surv.from_arrays(event=np.asarray(events).astype(bool), time=np.asarray(durations))
+            y_test = Surv.from_arrays(event=auc_events, time=auc_durations)
             times = np.arange(1, max(max_time, 2), 1)
             _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
             result['auc'] = round(float(mean_auc), 4)
@@ -482,10 +705,9 @@ def discrimination_metrics(df_train, risk_scores, durations, events, baseline, a
         # sksurv raises "censoring survival function is zero at one or more
         # time points" whenever the test set has no one censored beyond some
         # point in `times` (IPCW weight denominator hits zero) — a known,
-        # already-documented edge case elsewhere in this repo (see
-        # EXPERIMENT_STATUS.md's Stage 3 notes: "hit the known (unrelated)
-        # censoring-edge-case on AUC"), not a bug here. Recorded rather than
-        # silently swallowed so a bare `auc=None` in the report is traceable.
+        # already-documented edge case elsewhere in this repo, not a bug here.
+        # Recorded rather than silently swallowed so a bare `auc=None` in the
+        # report is traceable.
         result['errors']['auc'] = str(e)
 
     return result
@@ -533,7 +755,14 @@ class ClinicalValidityAnalyzer:
             'deepsurv': 'DeepSurv', 'gbsa': 'GBSA', 'srf': 'Survival RF',
             'survival_svm': 'Survival SVM', 'weibul': 'Weibull AFT',
         }
-        # scenario_name -> horizon_days -> {'treat_all':.., 'egfr_nb':.., 'models': {model_name: {'calibration':.., 'model_nb':..}}}
+        # scenario_name -> {'horizons': {horizon_days: {'treat_all': {pt: nb},
+        #                                'treat_all_row_level': {pt: nb} (superseded, kept for contrast),
+        #                                'egfr_nb': {cutoff: {'n_flagged','flagged_fraction','tp_rate',
+        #                                                     'fp_rate','net_benefit': {pt: nb}}},
+        #                                'models': {model_name: {'calibration':.., 'model_nb':..,
+        #                                                        'predicted_prob_source':..}}}},
+        #                  'metrics': {model_name: ..}, 'patient_counts': .., 'egfr_comparator': ..,
+        #                  'bootstrap': ..}
         # populated by analyze_scenario, read back by create_calibration_plot/create_decision_curve_plot.
         self.all_results = {}
 
@@ -624,54 +853,74 @@ class ClinicalValidityAnalyzer:
         self.log("=" * 80)
         self.log(f"CLINICAL VALIDITY ANALYSIS - {scenario_name.upper()}")
         self.log("=" * 80)
-        self.log(f"Test samples (rows): {len(df_test)}")
 
-        max_followup = df_test['duration_in_days'].max()
+        # ------------------------------------------------------------------
+        # Patient-level evaluation frame (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5a)
+        # ------------------------------------------------------------------
+        # Every model produces one prediction per patient. Everything the
+        # predictions are scored AGAINST is now built from one terminal outcome
+        # per patient too: the IPCW censoring reference, the treat-all curve
+        # (Gap 5c) and the eGFR referral comparator (Gap 5d). The raw
+        # row-per-lab-event frames are kept only for reporting the contrast.
+        train_terminal = patient_level_outcomes(df_train)
+        test_terminal = patient_level_outcomes(df_test)
+        train_check = verify_patient_outcomes(df_train, train_terminal)
+        test_check = verify_patient_outcomes(df_test, test_terminal)
+
+        self.log("Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).")
+        for split_name, check in (('train', train_check), ('test', test_check)):
+            self.log(f"  {split_name}: {check['n_rows']} lab-event rows -> {check['n_patients']} patients; "
+                     f"event rate {check['row_event_rate']:.4f} (row-level) vs "
+                     f"{check['patient_event_rate']:.4f} (patient-level, {check['n_events']} events)")
+            if check['problems']:
+                for problem in check['problems']:
+                    self.log(f"  WARNING {split_name}: {problem}")
+            else:
+                self.log(f"  {split_name}: patient uniqueness and terminal-outcome consistency verified.")
+
+        y_train = build_censoring_reference(train_terminal)
+        train_max, train_observed_max = evaluation_time_cap(train_terminal)
+        test_durations = test_terminal['duration_in_days'].values.astype(float)
+        test_events = test_terminal['has_esrd'].values.astype(int)
+
+        max_followup = float(test_terminal['duration_in_days'].max())
         horizons = [h for h in DEFAULT_HORIZONS_DAYS if h < max_followup]
         if not horizons:
             horizons = [max_followup * 0.5]
         self.log(f"Max test follow-up: {max_followup:.1f} days. Horizons used: {horizons}")
+        self.log(f"Training-set max follow-up: {train_observed_max:.1f} days; IPCW evaluation capped at "
+                 f"{train_max:.1f} days (censoring distribution support). Test patients followed past "
+                 "the cap are administratively censored there.")
         self.log("")
 
-        has_egfr = 'egfr' in df_test.columns
-
-        # eGFR-threshold referral rule rows: for scenarios where each row is one
-        # lab EVENT (e.g. twenty_features_heterogeneous — see
-        # time_series_store.py's heterogeneous branch), only the row's own drawn
-        # lab has a real value; every other lab column (including egfr) is a
-        # placeholder 0 with a companion `<lab>_missing=1` flag. Feeding those
-        # placeholder zeros into "egfr < cutoff" misclassifies them as severely
-        # low eGFR, inflating n_high toward n and blowing up the net-benefit
-        # formula's implied_pt/(1-implied_pt) term (see Stage 2.2 debug report,
-        # generated_data/rep99/stage2_2_debug_report.txt, Finding #1 — confirmed
-        # 8,613/9,115 rep99 twenty_features_heterogeneous test rows had
-        # egfr_missing=1/egfr=0). Restrict to rows with a genuine eGFR
-        # measurement when that flag column exists; four_features/eight_features
-        # have no egfr_missing column (egfr is always real there, anchored on a
-        # creatinine draw) so this is a no-op for them.
-        egfr_referral_df = df_test
-        if has_egfr and 'egfr_missing' in df_test.columns:
-            egfr_referral_df = df_test[df_test['egfr_missing'] == 0]
-            self.log(f"eGFR-threshold referral rule: restricting to "
-                      f"{len(egfr_referral_df)}/{len(df_test)} rows with a real eGFR "
-                      f"measurement (egfr_missing == 0); other rows are placeholder "
-                      f"egfr=0 from this scenario's per-lab-event row format.")
-            if len(egfr_referral_df) == 0:
-                has_egfr = False
+        # eGFR-threshold referral rule: one decision per patient at that
+        # patient's own prediction landmark, using their most recent genuinely
+        # measured eGFR (Gap 5d). In twenty_features_heterogeneous each row
+        # carries only the one lab actually drawn, with the rest set to a
+        # placeholder 0 plus `<lab>_missing=1`, so most rows carry no eGFR at
+        # all and the landmark row itself often does not either.
+        egfr_frame, egfr_info = patient_level_egfr(df_test, test_terminal)
+        has_egfr = egfr_frame is not None and len(egfr_frame) > 0
+        if egfr_frame is None:
+            self.log(f"eGFR-threshold referral rule unavailable: {egfr_info.get('reason')}")
+        else:
+            self.log(f"eGFR-threshold referral rule: one decision per patient from the most recent "
+                     f"measured eGFR at or before the landmark — "
+                     f"{egfr_info['patients_with_egfr']}/{egfr_info['patients_total']} patients have one "
+                     f"({egfr_info['patients_without_egfr']} excluded, no measured eGFR); "
+                     f"selected from {egfr_info['rows_with_measured_egfr']}/{egfr_info['rows_considered']} "
+                     f"rows with a real eGFR measurement.")
 
         # Get every model's predictions once up front — risk_scores/durations/
         # events don't depend on horizon, only the model does. Also fit each
-        # model's own Breslow baseline hazard here (from that SAME model's
-        # risk scores on df_train) — used by every "approximate" (no native
-        # per-horizon output) probability/Brier calculation below. Kept in a
-        # separate try/except from the test-side prediction so a
-        # baseline-fitting failure doesn't discard predictions already
-        # obtained; downstream code treats a missing baseline the same as
-        # any other per-model computation error (caught, logged, that one
-        # number reported as unavailable rather than the whole model
-        # dropped).
+        # model's own Breslow baseline hazard here (from that SAME model's risk
+        # scores on df_train) — used by every probability/Brier calculation that
+        # has no native survival curve to read instead (Gap 5b). Kept in a
+        # separate try/except from the test-side prediction so a baseline-fitting
+        # failure doesn't discard predictions already obtained.
         predictions = {}
         baselines = {}
+        alignment = {}
         for model_name, model_path in self._model_paths(scenario_name).items():
             if not os.path.exists(model_path):
                 self.log(f"Model file not found, skipping: {model_path}")
@@ -681,10 +930,32 @@ class ClinicalValidityAnalyzer:
                 if preds is None:
                     self.log(f"No usable model at {model_path}, skipping {model_name}.")
                     continue
-                predictions[model_name] = preds
             except Exception as e:
                 self.log(f"Error getting predictions for {model_name}: {e}")
                 continue
+
+            # Gap 5a's "verify patient uniqueness and outcome consistency":
+            # confirm this model's own durations/events really are the
+            # scenario's patient-level terminal outcomes in the canonical
+            # subject_id order before pairing its risk scores with anything
+            # patient-level. A model that fails this is dropped rather than
+            # silently scored against another patient's outcome.
+            ok, message = align_predictions_to_patients(
+                test_terminal, preds[1], preds[2], self.model_pretty_names[model_name])
+            alignment[model_name] = (ok, message)
+            if not ok:
+                self.log(f"  EXCLUDED — {message}")
+                continue
+            # Score every model against the SAME canonical patient-level
+            # terminal outcomes, keeping only its risk scores and its native
+            # survival curve. Models that discretize time (Dynamic-DeepHit and
+            # Hazard Transformer floor durations to whole days) or floor a zero
+            # duration (Weibull AFT) otherwise carry slightly different
+            # outcomes into the comparison than the other models — same
+            # patients, but not the same numbers. align_predictions_to_patients
+            # has just confirmed the substitution is safe and reported the size
+            # of the differences.
+            predictions[model_name] = (preds[0], test_durations, test_events, preds[3])
 
             try:
                 train_risk_scores, train_durations, train_events = self._get_train_risk_scores(
@@ -695,45 +966,79 @@ class ClinicalValidityAnalyzer:
                 self.log(f"Error fitting baseline hazard for {model_name}: {e}")
                 baselines[model_name] = None
 
-        # Discrimination metrics (C-index / Brier / AUC) — one per model, not
-        # per horizon (fixed at the 2yr convention used throughout pkgs/experiments/*.py).
-        # Used for the cross-scenario comparison charts built after all scenarios run.
+        self.log("\nPatient-level alignment check (Gap 5a):")
+        for model_name, (ok, message) in alignment.items():
+            self.log(f"  {'OK  ' if ok else 'FAIL'} {message}")
+
+        # Discrimination metrics (C-index / integrated Brier / mean
+        # time-dependent AUC) — one per model, at the 2yr convention used
+        # throughout pkgs/experiments/*.py. Used for the cross-scenario
+        # comparison charts built after all scenarios run.
         metrics = {}
         self.log("\nDiscrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):")
-        for model_name, (risk_scores, durations, events, _) in predictions.items():
+        self.log("  Brier source: 'native' = the model's own survival curve; "
+                 "'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted "
+                 "from its own training scores, i.e. the model PLUS that conversion (Gap 5b).")
+        for model_name, (risk_scores, durations, events, native_prob_fn) in predictions.items():
             try:
-                m = discrimination_metrics(df_train, risk_scores, durations, events, baselines.get(model_name))
+                m = discrimination_metrics(y_train, train_max, risk_scores, durations, events,
+                                           baselines.get(model_name), native_prob_fn)
             except Exception as e:
-                m = {'c_index': None, 'brier': None, 'auc': None}
+                m = {'c_index': None, 'brier': None, 'brier_source': None, 'brier_converted': None,
+                     'auc': None, 'point_brier': {}, 'errors': {}}
                 self.log(f"  Error computing discrimination metrics for {model_name}: {e}")
             metrics[model_name] = m
             self.log(f"  {self.model_pretty_names[model_name]}: c_index={m['c_index']} "
-                      f"brier={m['brier']} auc={m['auc']}")
+                     f"brier={m['brier']} ({m['brier_source']}) auc={m['auc']}")
+            if m.get('brier_converted') is not None:
+                self.log(f"    fitted-conversion Brier for the same model/window: {m['brier_converted']} "
+                         "(reported for contrast; the native number above is the one to use)")
+            if m.get('point_brier'):
+                points = ', '.join(f"{int(h)}d={v}" for h, v in sorted(m['point_brier'].items()))
+                self.log(f"    native point Brier at published horizons: {points}")
             for metric_name, err in m.get('errors', {}).items():
                 self.log(f"    ({metric_name} unavailable: {err})")
 
-        scenario_results = {'horizons': {}, 'metrics': metrics}
+        scenario_results = {'horizons': {}, 'metrics': metrics,
+                            'patient_counts': {'train': train_check, 'test': test_check},
+                            'egfr_comparator': egfr_info}
+
+        # Uncertainty quantification (Gap 3) — patient bootstrap, paired
+        # comparisons on the same resamples.
+        scenario_results['bootstrap'] = self.run_bootstrap(
+            scenario_name, y_train, train_max, test_terminal, predictions, baselines, metrics)
 
         for horizon in horizons:
             self.log(f"\n=== Horizon: {horizon:.0f} days ===")
 
-            # Computed once per horizon, from the full df_test, independent of
-            # any model — every model's panel below is compared against these.
-            treat_all = treat_all_net_benefit_curve(
+            # Computed once per horizon from the patient-level test outcomes,
+            # independent of any model — every model's panel below is compared
+            # against these (Gap 5c: same outcomes, same horizon, same patients
+            # as the model curves).
+            treat_all = treat_all_net_benefit_curve(test_durations, test_events, horizon)
+            self.log(f"Treat-all net benefit ({len(test_terminal)} patients): {treat_all}")
+            treat_all_rows = treat_all_net_benefit_curve(
                 df_test['duration_in_days'].values, df_test['has_esrd'].values, horizon)
-            self.log(f"Treat-all net benefit: {treat_all}")
+            self.log(f"  (for contrast, the superseded row-level treat-all over "
+                     f"{len(df_test)} lab rows: {treat_all_rows})")
 
             egfr_nb = None
             if has_egfr:
                 try:
                     egfr_nb = egfr_threshold_net_benefit(
-                        egfr_referral_df['egfr'].values, egfr_referral_df['duration_in_days'].values,
-                        egfr_referral_df['has_esrd'].values, horizon)
-                    self.log(f"eGFR-threshold referral rule net benefit: {egfr_nb}")
+                        egfr_frame['egfr'].values, egfr_frame['duration_in_days'].values,
+                        egfr_frame['has_esrd'].values, horizon)
+                    for cutoff, entry in egfr_nb.items():
+                        self.log(f"eGFR<{cutoff} referral rule "
+                                 f"({egfr_info['patients_with_egfr']} patients): flags "
+                                 f"{entry['n_flagged']} ({entry['flagged_fraction']}), "
+                                 f"TP rate {entry['tp_rate']}, FP rate {entry['fp_rate']}")
+                        self.log(f"  net benefit across the model thresholds: {entry['net_benefit']}")
                 except Exception as e:
                     self.log(f"Error computing eGFR-threshold net benefit: {e}")
 
-            horizon_result = {'treat_all': treat_all, 'egfr_nb': egfr_nb, 'models': {}}
+            horizon_result = {'treat_all': treat_all, 'treat_all_row_level': treat_all_rows,
+                              'egfr_nb': egfr_nb, 'models': {}}
 
             for model_name, (risk_scores, durations, events, native_prob_fn) in predictions.items():
                 self.log(f"\n--- {self.model_pretty_names[model_name]} ---")
@@ -752,17 +1057,16 @@ class ClinicalValidityAnalyzer:
                     # way (pd.qcut and its rank-based fallback both just return
                     # all-NaN bins, no exception) — the same "silently empty
                     # section, looks broken not wrong" failure mode as the
-                    # degenerate-constant case above, just via a different
-                    # input. Caught explicitly here instead of downstream.
+                    # degenerate-constant case, just via a different input.
                     self.log(f"  SKIPPED: all {len(predicted)} predicted values are NaN — "
-                              "model produced no usable output at this horizon.")
+                             "model produced no usable output at this horizon.")
                     horizon_result['models'][model_name] = {
                         'calibration': None, 'model_nb': None, 'predicted_prob_source': source,
                     }
                     continue
                 if n_nan > 0:
                     self.log(f"  NOTE: {n_nan}/{len(predicted)} predicted values are NaN "
-                              "and excluded from the calibration/DCA calculations below.")
+                             "and excluded from the calibration/DCA calculations below.")
 
                 table = None
                 self.log("Calibration (predicted risk decile vs. KM-observed risk):")
@@ -770,20 +1074,25 @@ class ClinicalValidityAnalyzer:
                     table = calibration_table(predicted, durations, events, horizon)
                     if table and len({row['mean_predicted_risk'] for row in table}) == 1:
                         self.log(f"  NOTE: predicted risk is the same ({table[0]['mean_predicted_risk']}) "
-                                  "for every patient at this horizon — this model draws no distinction "
-                                  "between patients here; the decile split below is an arbitrary rank "
-                                  "tie-break, not a real risk gradient.")
+                                 "for every patient at this horizon — this model draws no distinction "
+                                 "between patients here; the decile split below is an arbitrary rank "
+                                 "tie-break, not a real risk gradient.")
                     for row in table:
                         self.log(f"  n={row['n']:>4} events={row['events']:>3} "
-                                  f"predicted={row['mean_predicted_risk']:.4f} "
-                                  f"observed(KM)={row['km_observed_risk']}")
+                                 f"predicted={row['mean_predicted_risk']:.4f} "
+                                 f"observed(KM)={row['km_observed_risk']}")
                 except Exception as e:
                     self.log(f"  Error computing calibration table: {e}")
 
                 try:
-                    brier = brier_score_up_to(
-                        df_train, durations, events, risk_scores, horizon, baselines.get(model_name))
-                    self.log(f"Integrated Brier score (0-{horizon:.0f}d): {brier}")
+                    brier = integrated_brier_up_to(
+                        y_train, train_max, durations, events, risk_scores, horizon,
+                        baselines.get(model_name), native_prob_fn)
+                    self.log(f"Integrated Brier score (0-{horizon:.0f}d): {brier['value']} "
+                             f"[{brier['source']}]")
+                    if brier['n_censored_at_train_max']:
+                        self.log(f"  ({brier['n_censored_at_train_max']} test patients "
+                                 f"administratively censored at the training-set max follow-up)")
                 except Exception as e:
                     self.log(f"  Error computing Brier score: {e}")
 
@@ -793,7 +1102,7 @@ class ClinicalValidityAnalyzer:
                     model_nb = model_net_benefit_curve(predicted, durations, events, horizon)
                     for pt in DCA_THRESHOLDS:
                         self.log(f"  pt={pt:.2f}  model={model_nb[pt]}  "
-                                  f"treat_all={treat_all[pt]}  treat_none=0.0")
+                                 f"treat_all={treat_all[pt]}  treat_none=0.0")
                 except Exception as e:
                     self.log(f"  Error computing decision curve: {e}")
 
@@ -807,6 +1116,124 @@ class ClinicalValidityAnalyzer:
         self.create_calibration_plot(scenario_name, horizons)
         self.create_decision_curve_plot(scenario_name, horizons)
         self.save_scenario_report(scenario_name)
+
+    def run_bootstrap(self, scenario_name, y_train, train_max, test_terminal,
+                      predictions, baselines, metrics, auc_horizon_days=730):
+        """Patient-level bootstrap intervals and paired model comparisons
+        (PAPER_GAPS_EXPERIMENT_PLAN.md Gap 3).
+
+        Predictions are computed once by analyze_scenario and only re-indexed
+        here, so the whole section costs array indexing plus metric evaluation.
+        Every model is scored on the SAME resamples (one shared index matrix),
+        which is what makes the paired differences against KFRE and against the
+        best model meaningful rather than two independent intervals subtracted.
+
+        Reference models, per Gap 3:
+        - KFRE, where the scenario has one (four/eight features only), as the
+          published-equation comparator;
+        - the best model on the real cohort by C-index, as the internal
+          comparator. When KFRE is itself the best model the two coincide and
+          only one table is printed."""
+        n_patients = len(test_terminal)
+        if not predictions or n_patients < 20:
+            self.log("\nBootstrap uncertainty: skipped (no usable predictions, or too few patients).")
+            return None
+
+        n_bootstrap = int(os.environ.get('CKD_N_BOOTSTRAP', bootstrap_ci.DEFAULT_N_BOOTSTRAP))
+        indices = bootstrap_ci.bootstrap_indices(n_patients, n_bootstrap)
+        times = np.linspace(1, auc_horizon_days, 50)
+        # Bound the AUC grid by the follow-up that actually reaches the metric —
+        # i.e. AFTER administrative censoring at the IPCW cap, not the test set's
+        # raw maximum, which can exceed it.
+        censored_durations, _, _ = _administratively_censor(
+            test_terminal['duration_in_days'].values, test_terminal['has_esrd'].values, train_max)
+        auc_max = min(float(np.max(censored_durations)), auc_horizon_days - 1)
+        auc_times = bootstrap_ci.bootstrap_auc_grid(auc_max)
+
+        self.log(f"\n{'=' * 80}")
+        self.log(f"BOOTSTRAP UNCERTAINTY — {n_bootstrap} resamples of the {n_patients} test patients, "
+                 "95% percentile intervals (Gap 3)")
+        self.log("=" * 80)
+        self.log("Only test patients are resampled; the training-set censoring reference is held "
+                 "fixed (see pkgs/data_analysis/bootstrap_ci.py for why).")
+        self.log(f"Bootstrap AUC uses a {len(auc_times)}-point grid over 0-{auc_max:.0f}d rather than "
+                 "the per-day grid of the point estimate — see bootstrap_ci.py.")
+
+        replicates = {}
+        summaries = {}
+        for model_name, (risk_scores, durations, events, native_prob_fn) in predictions.items():
+            survival_probs, brier_source = survival_prob_matrix(
+                risk_scores, times, baselines.get(model_name), native_prob_fn)
+            d, e, _ = _administratively_censor(durations, events, train_max)
+            replicates[model_name] = bootstrap_ci.bootstrap_model_metrics(
+                y_train, d, e, risk_scores, survival_probs, times, auc_times, indices)
+            point = metrics.get(model_name, {})
+            summaries[model_name] = {
+                'brier_source': brier_source,
+                'c_index': bootstrap_ci.summarize(point.get('c_index'),
+                                                  replicates[model_name]['c_index']),
+                'brier': bootstrap_ci.summarize(point.get('brier'),
+                                                replicates[model_name]['brier']),
+                'auc': bootstrap_ci.summarize(point.get('auc'), replicates[model_name]['auc']),
+            }
+
+        for metric_key, label in (('c_index', 'C-index'), ('brier', 'Integrated Brier'),
+                                  ('auc', 'Mean time-dependent AUC')):
+            self.log(f"\n{label} — estimate [95% CI]:")
+            for model_name in predictions:
+                summary = summaries[model_name][metric_key]
+                suffix = (f"  (Brier source: {summaries[model_name]['brier_source']})"
+                          if metric_key == 'brier' else "")
+                if summary['ci_low'] is None:
+                    self.log(f"  {self.model_pretty_names[model_name]:<20} {summary['estimate']} "
+                             f"[interval unavailable: only {summary['n_bootstrap_usable']} usable "
+                             f"resamples]{suffix}")
+                else:
+                    self.log(f"  {self.model_pretty_names[model_name]:<20} {summary['estimate']} "
+                             f"[{summary['ci_low']}, {summary['ci_high']}]"
+                             f"  (n={summary['n_bootstrap_usable']}){suffix}")
+
+        # Paired differences on the same resamples.
+        reference_models = []
+        if 'kfre' in predictions:
+            reference_models.append(('kfre', 'KFRE (published equation)'))
+        ranked = [(m, metrics.get(m, {}).get('c_index')) for m in predictions]
+        ranked = [(m, c) for m, c in ranked if c is not None]
+        best_model = max(ranked, key=lambda item: item[1])[0] if ranked else None
+        if best_model is not None and best_model not in [m for m, _ in reference_models]:
+            reference_models.append((best_model, f'best model by C-index ({self.model_pretty_names[best_model]})'))
+
+        comparisons = {}
+        for reference, reference_label in reference_models:
+            self.log(f"\nPaired differences vs. {reference_label}, same resamples "
+                     "(positive = the listed model is higher):")
+            self.log("  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a "
+                     "negative difference favours the listed model.")
+            comparisons[reference] = {}
+            for model_name in predictions:
+                if model_name == reference:
+                    continue
+                row = {}
+                for metric_key in ('c_index', 'brier', 'auc'):
+                    row[metric_key] = bootstrap_ci.paired_difference(
+                        replicates[model_name][metric_key], replicates[reference][metric_key])
+                comparisons[reference][model_name] = row
+                parts = []
+                for metric_key, label in (('c_index', 'C-index'), ('brier', 'Brier'), ('auc', 'AUC')):
+                    diff = row[metric_key]
+                    if diff is None:
+                        parts.append(f"{label}: n/a")
+                    else:
+                        marker = '*' if diff['excludes_zero'] else ' '
+                        parts.append(f"{label}: {diff['mean_difference']:+.4f} "
+                                     f"[{diff['ci_low']:+.4f}, {diff['ci_high']:+.4f}]{marker}")
+                self.log(f"  {self.model_pretty_names[model_name]:<20} " + "   ".join(parts))
+            self.log("  * interval excludes 0. These are 95% percentile intervals on paired "
+                     "differences, not multiplicity-controlled tests across the model set.")
+
+        return {'n_bootstrap': n_bootstrap, 'n_patients': n_patients,
+                'summaries': summaries, 'comparisons': comparisons,
+                'reference_models': [m for m, _ in reference_models]}
 
     def create_calibration_plot(self, scenario_name, horizons):
         """<scenario>_calibration_plot.png — rows=horizons, cols=models. Each
@@ -892,13 +1319,18 @@ class ClinicalValidityAnalyzer:
                     ax.plot(xs, ys, '--', color='black', label='Treat all')
                 ax.axhline(0.0, linestyle=':', color='gray', label='Treat none')
 
+                # The eGFR rule is now a CURVE over the same thresholds as the
+                # models (Gap 5d), not a single point at an implied threshold of
+                # its own, so it is plotted as a line on the same x-axis.
                 egfr_nb = horizon_result.get('egfr_nb')
                 if egfr_nb:
-                    for cutoff, nb in egfr_nb.items():
-                        if nb is not None:
-                            ax.scatter([0.1], [nb], marker='D', color='red', zorder=5)
-                            ax.annotate(f'eGFR<{cutoff}', (0.1, nb), fontsize=7, color='red',
-                                        xytext=(5, 0), textcoords='offset points')
+                    for style, (cutoff, entry) in zip(['-.', ':'], sorted(egfr_nb.items())):
+                        curve = entry.get('net_benefit', {}) if isinstance(entry, dict) else {}
+                        xy = [(pt, curve[pt]) for pt in DCA_THRESHOLDS if curve.get(pt) is not None]
+                        if xy:
+                            xs, ys = zip(*xy)
+                            ax.plot(xs, ys, style, color='red', linewidth=1.2,
+                                    label=f'eGFR<{cutoff} referral')
 
                 ax.set_title(f'{horizon:.0f}-day horizon')
                 ax.set_xlabel('Risk threshold (pt)')

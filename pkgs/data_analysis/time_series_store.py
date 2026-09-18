@@ -193,9 +193,56 @@ def merge_nearest_within_admission(anchor_df, other_df, value_col, tolerance=Non
     right = other_df[[by, 'charttime', value_col]].dropna(subset=[by, 'charttime', value_col]).copy()
     right['charttime'] = pd.to_datetime(right['charttime'])
     right = right.sort_values('charttime')
+    # Carry the MATCHED row's own timestamp through the merge under its own
+    # column name. merge_asof keeps every non-key column of `right`, so this
+    # costs one column and makes the anchor-to-match time separation exactly
+    # recoverable. Recovering it afterwards by joining back on (by, value) --
+    # the obvious alternative -- is wrong whenever a patient has the same lab
+    # VALUE twice in the grouping window, because the join then picks whichever
+    # occurrence sorts first rather than the one merge_asof actually chose; that
+    # produced a spurious "matched up to 18 days before the anchor" tail for
+    # labs merged under a 24-hour tolerance.
+    right[f'{value_col}_charttime'] = right['charttime']
 
     merged = pd.merge_asof(left, right, on='charttime', by=by, direction='nearest', tolerance=tolerance)
+    _log_match_timing(merged, value_col, by)
     return merged
+
+
+def _log_match_timing(merged, value_col, by):
+    """Print the SIGNED time separation between each anchor row and the value
+    matched onto it, as a parseable MATCH_TIMING| line.
+
+    direction='nearest' can match a value recorded either before or AFTER the
+    anchor creatinine draw. That is a deliberate part of the merge design (see
+    this function's caller and EXPERIMENT_PLAN_DETAILS.md "1a-2"), but
+    PAPER_GAPS_EXPERIMENT_PLAN.md Gap 8 asks for it to be QUANTIFIED rather
+    than only described: "Quantify later matches and time separations to assess
+    the limitation." Nothing downstream consumed these numbers, and they are not
+    recoverable from the exported scenario CSVs, which keep no absolute
+    timestamp -- so they are emitted here, at the one place that still has both
+    timestamps, for pkgs/scripts/audit_prediction_time.py to read.
+
+    Printing only: no row is changed. The `<value_col>_charttime` column this
+    reads is dropped downstream, where get_time_series_data_ckd_patients selects
+    an explicit column list per scenario.
+    """
+    try:
+        time_col = f'{value_col}_charttime'
+        matched = merged[merged[value_col].notna() & merged[time_col].notna()]
+        n_matched = len(matched)
+        if n_matched == 0:
+            print(f'MATCH_TIMING|{value_col}|by={by}|matched=0|unmatched={len(merged)}')
+            return
+        deltas = (matched[time_col] - matched['charttime']).dt.total_seconds() / 3600.0
+        after = int((deltas > 0).sum())
+        print(f'MATCH_TIMING|{value_col}|by={by}|matched={n_matched}|unmatched={len(merged) - n_matched}'
+              f'|after_anchor={after}|after_anchor_pct={after / len(deltas) * 100:.2f}'
+              f'|median_h={deltas.median():.3f}|p95_abs_h={deltas.abs().quantile(0.95):.3f}'
+              f'|max_after_h={deltas.max():.3f}|max_before_h={deltas.min():.3f}')
+    except Exception as e:  # instrumentation must never break an extraction
+        print(f'MATCH_TIMING|{value_col}|by={by}|unavailable: {e}')
+
 
 def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenario):
     if scenario_name in [ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES, ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS]:

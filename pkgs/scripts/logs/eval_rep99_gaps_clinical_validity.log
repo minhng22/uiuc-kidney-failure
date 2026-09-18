@@ -1,0 +1,26 @@
+Runner PID 4000620 on sunlab-serv-01.cs.illinois.edu
+/home/minhn2/miniconda3/envs/minhn2/bin/python -u -m pkgs.scripts.run_experiments analyze --reps 99 --scenarios four_features eight_features twenty_features_heterogeneous --worker --analyses clinical_validity
+Log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/logs/rep99_clinical_validity_20260918_100146_800892.log
+
+===== LIVE STATUS SNAPSHOT (2026-09-18 10:07:19, via py-spy --pid 4000623 --locals) =====
+Thread 4000623 (idle): "MainThread"
+    forward (torch/nn/modules/rnn.py:1132)
+    _call_impl (torch/nn/modules/module.py:1747)
+    _wrapped_call_impl (torch/nn/modules/module.py:1736)
+    forward (dynamicdeephit.py:262)
+    _call_impl (torch/nn/modules/module.py:1747)
+    _wrapped_call_impl (torch/nn/modules/module.py:1736)
+    predictions (dynamicdeephit.py:347)
+    _get_predictions (pkgs/data_analysis/clinical_validity_analysis.py:831)
+            model_name: "ddh"
+    _get_train_risk_scores (pkgs/data_analysis/clinical_validity_analysis.py:845)
+            model_name: "ddh"
+    analyze_scenario (pkgs/data_analysis/clinical_validity_analysis.py:961)
+            scenario_name: "four_features"
+            model_name: "ddh"
+    analyze_four_features (pkgs/data_analysis/clinical_validity_analysis.py:1418)
+    run_worker (pkgs/scripts/run_experiments.py:193)
+    main (pkgs/scripts/run_experiments.py:255)
+    _run_code (<frozen runpy>:88)
+    _run_module_as_main (<frozen runpy>:198)
+===== END SNAPSHOT =====

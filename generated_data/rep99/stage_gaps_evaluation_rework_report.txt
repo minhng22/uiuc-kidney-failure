@@ -1,0 +1,194 @@
+PAPER GAPS — EVALUATION REWORK (Gaps 3, 5a, 5b, 5c, 5d): rep99 VERIFICATION
+================================================================================
+Generated: 2026-09-18   Host: sunlab-serv-01   Repetition: 99 (mini-experiment)
+Run: CUDA_VISIBLE_DEVICES="" CKD_N_BOOTSTRAP=1000 python -m pkgs.scripts.run_experiments \
+       analyze --reps 99 --analyses clinical_validity --log-dir pkgs/scripts/logs
+Runner PID 3982579, exit 0, ~4 min wall clock (CPU only — GPUs 0-3 held by another session).
+Baseline for comparison: the previous rep99 reports, generated 2026-09-14 05:30-05:31,
+whose numbers are quoted below as "before".
+
+This is the permanent record for the evaluator rework. EXPERIMENT_PLAN_STATUS.md carries
+only the per-gap state and a pointer here.
+
+================================================================================
+1. WHAT CHANGED
+================================================================================
+
+Gap 5a — patient-level censoring reference.
+  The IPCW censoring reference that the integrated Brier score and the time-dependent AUC
+  both weight by was built with
+      Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
+  on the RAW exported training frame, which is one row per lab EVENT. Every intermediate
+  visit of a patient still under follow-up therefore entered the reference as its own
+  TERMINAL censored observation. Measured on rep99:
+
+      scenario                       rows    patients   row event rate   patient event rate
+      four_features (train)          5806         500           0.0575               0.5000
+      four_features (test)           3667         345           0.0938               0.7246
+      eight_features (train)         1856         400           0.1907               0.6250
+      eight_features (test)          1100         243           0.2800               0.8724
+      twenty_features (train)        4575          20           0.0522               0.5000
+      twenty_features (test)         9115          20           0.0325               0.5000
+
+  Replaced by one terminal outcome per patient (pkgs/data_analysis/patient_outcomes.py:
+  patient_level_outcomes). The construction was verified, not assumed — for all six
+  frames verify_patient_outcomes() reported no problems: no duplicate subject_id, each
+  patient's last row IS their maximum-duration row, and each patient's terminal event flag
+  equals their maximum event flag (i.e. the exported frames really are truncated at the
+  event, as time_series_store.process_patient_esrd intends). The terminal frame was also
+  checked to be identical, row for row, to get_last_observation_data()'s output — the frame
+  every model is actually scored on.
+
+  Model-side alignment is now checked per model before its predictions are used
+  (align_predictions_to_patients). Two real mismatches were found and are now handled
+  rather than silently carried:
+    - Dynamic-DeepHit and Hazard Transformer floor every duration to a whole day (both
+      discretize time into day bins): 274 of four_features' 345 test patients, max
+      difference 0.9986 d.
+    - Weibull AFT replaces a duration of exactly 0 with 1e-5 (lifelines errors on a zero
+      duration): 79 of eight_features' 243 test patients.
+  Same patients, same order, same events in every case — so all 11 models are now scored
+  against ONE canonical set of patient-level outcomes, taking only risk scores and native
+  survival curves from each model.
+
+Gap 5b — native survival probabilities vs. the fitted conversion.
+  Every reported IBS previously came from calibrated_survival_probs(), i.e. the model's
+  risk scores pushed through a Breslow baseline fitted from its own training scores. Each
+  fitted estimator was inspected (not assumed score-only, per the gap):
+    - GBSA            GradientBoostingSurvivalAnalysis, loss='coxph' → predict_survival_function  NATIVE
+    - Survival RF     RandomSurvivalForest                          → predict_survival_function  NATIVE
+    - Weibull AFT     WeibullAFTFitter                              → predict_survival_function  NATIVE
+    - Cox             CoxTimeVaryingFitter — no predict_survival_function, but it does carry
+                      baseline_cumulative_hazard_ (197 rows, 1e-5 … 3883.7 d), so
+                      S(t|x) = exp(-H0(t)·partial_hazard) is available from the fit itself.
+                      Covariates are held at the patient's landmark row (the row the model is
+                      scored on); that carry-forward is an assumption of the reading, not of
+                      the fit, and is labelled as such.                                        NATIVE
+    - Survival SVM    FastSurvivalSVM — pure ranking model, no survival function of any kind.
+                      Retains the fitted conversion, explicitly labelled.                      CONVERSION
+    - DeepSurv        nn.Module trained on Cox partial likelihood, no baseline stored.
+                      Retains the fitted conversion, explicitly labelled.                      CONVERSION
+    - KFRE            Native at exactly 2 y and 5 y (the only horizons its published S0
+                      constants define) and nowhere else, so it cannot supply a curve to
+                      integrate. Its IBS stays conversion-based and labelled, and a POINT
+                      Brier score at 730 d and 1825 d is now reported instead — computed for
+                      every model with native output there, so KFRE's numbers have something
+                      comparable beside them.                                    POINT-NATIVE
+    - DDH / Hazard Transformer / Logistic Hazard / RNN-Surv already supplied native_prob_fn;
+      the IBS path simply ignored it. It no longer does.
+  Result: 8 of 11 models in four_features now report a native IBS. Every Brier number in the
+  report carries its source, and where a native number exists the fitted-conversion number
+  for the same model and window is printed next to it for contrast.
+
+Gap 5c — treat-all decision curve.
+  Was computed from raw df_test rows. Now computed from the same patient-level terminal
+  outcomes, horizon and included patients as the model curves. The row-level curve is still
+  printed, labelled "superseded", so the size of the correction is on the record.
+
+Gap 5d — eGFR referral comparator.
+  Was one "decision" per eGFR ROW. Now one decision per patient: their most recent genuinely
+  measured eGFR at or before their prediction landmark, carrying their terminal outcome.
+  Coverage is reported explicitly (rep99: 345/345, 243/243 and 20/20 patients have a usable
+  eGFR; twenty_features selects those 20 decisions from 502 measured-eGFR rows out of 9115).
+
+Gap 3 — uncertainty quantification.
+  1000 patient-level bootstrap resamples, 95% percentile intervals for C-index, IBS and mean
+  time-dependent AUC, plus paired differences against KFRE and against the best model on the
+  SAME resamples (pkgs/data_analysis/bootstrap_ci.py). Predictions are computed once and
+  re-indexed; measured cost 8 ms per resample per model, ≈1.5 min for 1000 × 11.
+  Only test patients are resampled; the training censoring reference is held fixed.
+
+================================================================================
+2. A SIDE EFFECT WORTH RECORDING: THE TIME-DEPENDENT AUC WAS NEVER COMPUTABLE
+================================================================================
+Before this rework, `auc` was None for EVERY model in EVERY scenario, with the recorded
+reason "censoring survival function is zero at one or more time points". That was not a
+property of the data. The Brier path administratively censored test patients followed past
+the training set's covered range; the AUC path did not, so sksurv always saw test follow-up
+beyond the support of G(t) estimated from y_train (four_features rep99: test max 4333 d
+against a training censoring distribution that runs out at 4060 d) and refused the whole
+call. Applying the same cap in the AUC branch (evaluation_time_cap + _administratively_censor)
+makes it compute. All 11 models now report a mean time-dependent AUC.
+
+================================================================================
+3. RESULTS — rep99, 0-730 d, after the rework
+================================================================================
+Brier source: (n) native, (c) fitted-conversion.
+
+four_features (345 test patients, 250 events)
+  model                c-index [95% CI]                 IBS [95% CI]                       mean AUC [95% CI]
+  Cox                  0.5565 [0.5146, 0.5986]          0.2667 [0.2553, 0.2771] (n)        0.5920 [0.5303, 0.6505]
+  Dynamic DeepHit      0.8333 [0.8048, 0.8593]          0.1310 [0.1061, 0.1557] (n)        0.9512 [0.9278, 0.9675]
+  Hazard Transformer   0.5409 [0.4968, 0.5879]          0.3374 [0.3192, 0.3566] (n)        0.5815 [0.5169, 0.6445]
+  Logistic Hazard      0.5182 [0.4770, 0.5621]          0.5273 [0.4680, 0.5863] (n)        0.5317 [0.4732, 0.5916]
+  RNN-Surv             0.5188 [0.4786, 0.5573]          0.3752 [0.3321, 0.4182] (n)        0.5288 [0.4698, 0.5844]
+  DeepSurv             0.5578 [0.5140, 0.5999]          0.2787 [0.2572, 0.3016] (c)        0.5843 [0.5211, 0.6423]
+  GBSA                 0.5180 [0.4781, 0.5601]          0.3118 [0.2840, 0.3394] (n)        0.5346 [0.4776, 0.5915]
+  Survival RF          0.5537 [0.5134, 0.5963]          0.2793 [0.2555, 0.3020] (n)        0.5802 [0.5212, 0.6406]
+  Survival SVM         0.5472 [0.5041, 0.5910]          0.2790 [0.2568, 0.3008] (c)        0.5749 [0.5111, 0.6378]
+  Weibull AFT          0.5474 [0.5054, 0.5896]          0.2745 [0.2546, 0.2921] (n)        0.5766 [0.5152, 0.6373]
+  KFRE                 0.5356 [0.4920, 0.5790]          0.3967 [0.3484, 0.4483] (c)        0.5638 [0.5028, 0.6223]
+
+eight_features (243 test patients, 212 events) — point estimates
+  Cox 0.5659 / 0.27556 (n) / 0.6015      Dynamic DeepHit 0.8149 / 0.19074 (n) / 0.9180
+  Hazard Transformer 0.4994 / 0.32747 (n) / 0.4651   Logistic Hazard 0.4867 / 0.35589 (n) / 0.4689
+  RNN-Surv 0.5010 / 0.59511 (n) / 0.5259  DeepSurv 0.4849 / 0.36160 (c) / 0.4952
+  GBSA 0.5014 / 0.32278 (n) / 0.4935      Survival RF 0.4901 / 0.29303 (n) / 0.5162
+  Survival SVM 0.5145 / 0.28743 (c) / 0.5681  Weibull AFT 0.5102 / 0.28184 (n) / 0.5481
+  KFRE 0.5391 / 0.61687 (c) / 0.5795
+
+twenty_features_heterogeneous (20 test patients, 10 events) — point estimates; this is the
+20-patient mini-experiment split, so every number here is for plumbing verification only.
+  Cox 0.3898 / 0.51521 (n) / 0.2965       Dynamic DeepHit 0.8559 / 0.20140 (n) / 0.9264
+  Hazard Transformer 0.2034 / 0.40481 (n) / 0.0586   Logistic Hazard 0.3729 / 0.62420 (n) / 0.3800
+  RNN-Surv 0.4407 / 0.23881 (n) / 0.2281  DeepSurv 0.6525 / 0.20989 (c) / 0.5690
+  GBSA 0.5424 / 0.19978 (n) / 0.5357      Survival RF 0.4280 / 0.20926 (n) / 0.2554
+  Survival SVM 0.5847 / 0.19494 (c) / 0.7908  Weibull AFT 0.7119 / 0.29651 (n) / 0.7406
+  (KFRE has no published equation for this scenario, so it is absent by design — the 10
+   models above are the full set for twenty_features.)
+
+Changes against the 2026-09-14 rep99 reports, four_features:
+  Cox            c-index 0.3710 → 0.5565     IBS 0.42827 → 0.26673 (now native)
+  Dynamic DeepHit c-index 0.8362 → 0.8333    IBS 0.20223 → 0.13099 (now native)
+  RNN-Surv       c-index 0.5188 → 0.5188     IBS 0.35727 → 0.37518 (now native)
+  Survival RF    c-index 0.5537 → 0.5537     IBS 0.35129 → 0.27934 (now native)
+  Survival SVM   c-index 0.5472 → 0.5472     IBS 0.34846 → 0.27903 (still conversion)
+  AUC            None for all 11             now computed for all 11
+  The C-index is unchanged for every model except Cox, which is what should happen: the
+  C-index does not consume the censoring reference. Cox's move is NOT attributable to this
+  rework — the 2026-09-14 report predates the committed Stage 2.2 change that scores Cox on
+  the flattened one-row-per-patient frame, and re-running HEAD's own code reproduces 0.5565.
+  Flagged here so the difference is not later mistaken for an effect of Gap 5a.
+
+================================================================================
+4. THE LARGEST SINGLE CORRECTION: TREAT-ALL (Gap 5c)
+================================================================================
+four_features, 730-day horizon, net benefit by risk threshold:
+  patient-level (345 patients)  pt=0.05  0.49171   pt=0.20  0.39641   pt=0.50  0.03425
+  row-level, superseded (3667)  pt=0.05  0.03201   pt=0.20 -0.14949   pt=0.50 -0.83918
+
+four_features, 1825-day horizon:
+  patient-level                 pt=0.05  0.69318   pt=0.20  0.63565   pt=0.50  0.41704
+  row-level, superseded         pt=0.05  0.10205   pt=0.20 -0.06632   pt=0.50 -0.70611
+
+twenty_features_heterogeneous, 730-day horizon:
+  patient-level (20 patients)   pt=0.05  0.21805   pt=0.20  0.07143   pt=0.50 -0.48571
+  row-level, superseded (9115)  pt=0.05 -0.02963   pt=0.20 -0.22269   pt=0.50 -0.95630
+
+The superseded curve is negative across most of the threshold range; the corrected one is
+strongly positive at clinically relevant thresholds. Any clinical-utility claim resting on a
+model's decision curve sitting above treat-all must be re-derived against the corrected
+comparator before it is repeated. Correcting the unit does not establish that any model beats
+treat-all — on this mini-experiment split it mostly indicates the opposite — and the
+20-patient twenty-feature split cannot settle the question either way.
+
+================================================================================
+5. WHAT THIS DOES NOT ESTABLISH
+================================================================================
+- rep99 is the 20-500 patient mini-experiment split. It verifies that the corrected code
+  runs, produces the intended quantities, and changes the numbers in the direction and
+  magnitude expected. It is not evidence about model performance.
+- The paired-difference intervals are 95% percentile intervals on differences, not
+  multiplicity-controlled tests across 11 models.
+- Production reps 1-5 currently hold data CSVs but no trained model artifacts, so none of
+  this has been run at full scale. That is the blocking dependency for the reported tables.

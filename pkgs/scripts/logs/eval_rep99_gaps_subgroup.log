@@ -1,0 +1,34 @@
+Runner PID 3990185 on sunlab-serv-01.cs.illinois.edu
+/home/minhn2/miniconda3/envs/minhn2/bin/python -u -m pkgs.scripts.run_experiments analyze --reps 99 --scenarios four_features eight_features twenty_features_heterogeneous --worker --analyses subgroup
+Log: /home/minhn2/uiuc-kidney-failure/pkgs/scripts/logs/rep99_subgroup_20260918_094836_849556.log
+rep99/subgroup: exit 0
+SHOT (2026-09-18 10:04:02, via py-spy --pid 3990188 --locals) =====
+Thread 3990188 (active+gil): "MainThread"
+            n_bootstrap: 1000
+            scenario_name: "eight_features"
+            column: "race"
+            value: "BLACK"
+            n_bootstrap: 1000
+            model_name: "kfre"
+===== END SNAPSHOT =====
+
+===== LIVE STATUS SNAPSHOT (2026-09-18 10:08:13, via py-spy --pid 3990188 --locals) =====
+Thread 3990188 (active): "MainThread"
+    forward (torch/nn/modules/rnn.py:1132)
+    _call_impl (torch/nn/modules/module.py:1747)
+    _wrapped_call_impl (torch/nn/modules/module.py:1736)
+    forward (dynamicdeephit.py:262)
+    _call_impl (torch/nn/modules/module.py:1747)
+    _wrapped_call_impl (torch/nn/modules/module.py:1736)
+    predictions (dynamicdeephit.py:347)
+    _get_predictions (pkgs/data_analysis/clinical_validity_analysis.py:797)
+            model_name: "ddh"
+    _load_predictions (pkgs/data_analysis/subgroup_analysis.py:212)
+            scenario_name: "twenty_features_heterogeneous"
+            model_name: "ddh"
+    analyze_scenario (pkgs/data_analysis/subgroup_analysis.py:138)
+            scenario_name: "twenty_features_heterogeneous"
+    analyze_twenty_features (pkgs/data_analysis/clinical_validity_analysis.py:1385)
+    run_worker (pkgs/scripts/run_experiments.py:193)
+    main (pkgs/scripts/run_experiments.py:255)
+===== END SNAPSHOT =====

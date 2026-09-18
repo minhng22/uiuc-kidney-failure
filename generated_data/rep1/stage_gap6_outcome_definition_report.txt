@@ -1,0 +1,152 @@
+GAP 6 — OUTCOME DEFINITION, ELIGIBILITY AND HORIZON AUDIT FOR THE KFRE COMPARISON
+====================================================================================================
+See PAPER_GAPS_EXPERIMENT_PLAN.md Gap 6. This audit changes no code and no data; it
+verifies what the existing label and eligibility rule actually select.
+====================================================================================================
+
+Repetition: 1   Generated: 2026-09-18 10:01:12
+
+Reading /home/minhn2/uiuc-kidney-failure/data/mimic-iv-2.2/hosp/diagnoses_icd.csv ...
+  4,756,326 diagnosis rows, 180,640 patients.
+
+====================================================================================================
+PART 1 — WHAT THE LABEL ACTUALLY MARKS
+====================================================================================================
+
+pkgs/commons.py's `esrd_codes` — the code set `has_esrd` is built from
+(store.get_first_time_esrd_df / time_series_store.process_patient_esrd):
+
+  N17      ICD-10  Acute kidney failure, unspecified/with lesion (N17.x block)    rows=       0  patients=      0
+  N170     ICD-10  Acute kidney failure with tubular necrosis                     rows=    2514  patients=   2315
+  N171     ICD-10  Acute kidney failure with acute cortical necrosis              rows=       4  patients=      3
+  N172     ICD-10  Acute kidney failure with medullary necrosis                   rows=       1  patients=      1
+  N178     ICD-10  Other acute kidney failure                                     rows=     145  patients=    141
+  N179     ICD-10  Acute kidney failure, unspecified                              rows=   20215  patients=  13394
+  N19      ICD-10  Unspecified kidney failure                                     rows=      33  patients=     32
+  5845     ICD-9   Acute kidney failure with lesion of tubular necrosis           rows=    3179  patients=   2892
+  5846     ICD-9   Acute kidney failure with lesion of renal cortical necrosis    rows=       0  patients=      0
+  5847     ICD-9   Acute kidney failure with lesion of renal medullary necrosis   rows=       5  patients=      5
+  5848     ICD-9   Acute kidney failure with other specified pathological lesion  rows=     117  patients=    113
+  5849     ICD-9   Acute kidney failure, unspecified                              rows=   27641  patients=  17295
+
+  FINDING: every code in this set is an ACUTE or UNSPECIFIED kidney-failure code.
+  None of them is end-stage renal disease. The codes a reader would expect are:
+    N186     ICD-10  End stage renal disease                                        in esrd_codes: False   rows in MIMIC=    5131  patients=   1825
+    5856     ICD-9   Chronic kidney disease, stage V requiring chronic dialysis (ESRD) in esrd_codes: False   rows in MIMIC=    8885  patients=   2441
+
+  So `has_esrd` marks a hospital admission carrying an acute/unspecified
+  kidney-failure diagnosis in a patient who also carries a CKD stage 3-5
+  diagnosis. It does not mark end-stage renal disease, and it does not mark
+  the KFRE endpoint (initiation of maintenance dialysis, or preemptive
+  transplantation). For reference, MIMIC-IV's own counts for the
+  dialysis/transplant-status codes that endpoint would be built from:
+    Z992     ICD-10  Dependence on renal dialysis                                   rows=    4306  patients=   1498
+    Z940     ICD-10  Kidney transplant status                                       rows=    1776  patients=    651
+    T861     ICD-10  Complications of kidney transplant (T86.1x block)              rows=       0  patients=      0
+    V451     ICD-9   Renal dialysis status                                          rows=     266  patients=    159
+    V420     ICD-9   Kidney replaced by transplant                                  rows=    2414  patients=    768
+    99673    ICD-9   Complications due to renal dialysis device/graft               rows=     821  patients=    483
+
+  EVENT TIME: store.get_first_time_esrd_df takes the ADMITTIME of the earliest
+  admission carrying one of those codes — an admission timestamp, not a
+  treatment-initiation date. time_series_store.process_patient_esrd then marks
+  every lab row on that calendar DATE as the event and discards the patient's
+  later rows, so the label's resolution is one day and the input cutoff
+  coincides with the event date (see Gap 8's audit).
+
+pkgs/commons.py's `ckd_codes_stage3_to_5` — the eligibility rule:
+  5853     ICD-9   Chronic kidney disease, stage III (moderate)                   rows=    6997  patients=   4312
+  5854     ICD-9   Chronic kidney disease, stage IV (severe)                      rows=    2838  patients=   1587
+  5855     ICD-9   Chronic kidney disease, stage V                                rows=     682  patients=    475
+  N183     ICD-10  Chronic kidney disease, stage 3                                rows=    7165  patients=   4301
+  N184     ICD-10  Chronic kidney disease, stage 4                                rows=    2076  patients=   1250
+  N185     ICD-10  Chronic kidney disease, stage 5                                rows=     585  patients=    401
+  This one checks out: CKD stage 3-5 by diagnosis code, which is the same
+  disease stage band the original KFRE derivation cohorts were drawn from.
+
+====================================================================================================
+PART 2 — BASELINE ELIGIBILITY, AND WHY THE COHORT'S EVENT PROPORTION IS NOT AN INCIDENCE
+====================================================================================================
+
+  MIMIC-IV patients with any diagnosis row          :   180640
+  ... with a CKD stage 3-5 code (eligible)          :    10179 (5.63% of the above)
+  ... with an `esrd_codes` code                     :    31542
+  ... with BOTH (label-positive population)         :     7389 (72.59% of eligible patients)
+
+  The extracted scenarios do NOT sample this population proportionally. Each rep
+  is built by drawing label-positive and label-negative patients separately
+  (time_series_store.process_esrd_patients / process_negative_patients, joined in
+  model_data_store), so the 83-92% label-positive proportion reported for the
+  extracted cohorts is a DESIGN PARAMETER of that draw plus the lab-availability
+  filtering that follows it — not an observed incidence and not a risk.
+
+  RETRACTION (Gap 6): the earlier claim that this cohort's incidence is 'one to
+  two orders of magnitude lower' than KFRE's validation populations should not be
+  repeated. It compared a sampled label proportion against a fixed-horizon risk,
+  which are not the same kind of quantity in either direction. The correct
+  statement is that the two are not commensurable, and why.
+
+  For the record, KFRE's own populations, so the difference can be described
+  rather than quantified against an incommensurable number:
+    - Tangri et al. 2011, JAMA 305(15):1553-1559 (PMID 21482743): two
+      nephrology-REFERRED CKD stage 3-5 cohorts in Ontario, development and
+      validation, with kidney-failure event proportions of 11% and 24%.
+    - Tangri et al. 2016, JAMA 315(2):164-174 (PMID 26757465): multinational
+      validation across 31 cohorts, extending beyond the referred setting.
+    - Endpoint in both: need for maintenance dialysis or preemptive kidney
+      transplantation. Horizons: 2 and 5 years.
+
+====================================================================================================
+PART 3 — PREDICTION HORIZON SUPPORT IN THE EXTRACTED COHORTS
+====================================================================================================
+
+  KFRE is applied at its published 2-year and 5-year horizons without refitting,
+  while the learned models are fitted to this cohort. Whether those horizons are
+  supported here is a property of the extracted follow-up:
+
+    four_features: 450 held-out patients, 376 label-positive (83.6%)
+      2-year  (730 d): 281 events inside the window, 33 censored before it, 136 followed to or past it
+      5-year  (1825 d): 342 events inside the window, 52 censored before it, 56 followed to or past it
+      follow-up: median 37 d, p90 2053 d, max 3942 d
+
+    eight_features: 194 held-out patients, 165 label-positive (85.1%)
+      2-year  (730 d): 147 events inside the window, 22 censored before it, 25 followed to or past it
+      5-year  (1825 d): 155 events inside the window, 26 censored before it, 13 followed to or past it
+      follow-up: median 0 d, p90 1110 d, max 3843 d
+
+    twenty_features_heterogeneous: 5216 held-out patients, 4770 label-positive (91.4%)
+      2-year  (730 d): 3602 events inside the window, 285 censored before it, 1329 followed to or past it
+      5-year  (1825 d): 4235 events inside the window, 355 censored before it, 626 followed to or past it
+      follow-up: median 125 d, p90 2065 d, max 5049 d
+
+  Reading: where most label-positive patients reach the event well inside two
+  years, a 2-year KFRE risk and a model score fitted on this cohort are being
+  asked different questions of different populations, and a head-to-head
+  discrimination difference between them reflects that as much as it reflects
+  model quality. Any superiority claim should be scoped to this cohort and this
+  protocol.
+
+====================================================================================================
+PART 4 — WHAT THE MANUSCRIPT SHOULD SAY
+====================================================================================================
+
+  1. Name the outcome for what it is: an acute/unspecified kidney-failure
+     diagnosis code recorded in a patient with CKD stage 3-5, dated to the
+     admission that carried it. Do not call it ESRD without that qualification,
+     and do not describe it as the KFRE endpoint.
+  2. State that KFRE's endpoint is maintenance dialysis or preemptive
+     transplantation, that this differs from the labelled outcome here, and that
+     an equation applied to a different endpoint should not be expected to
+     calibrate — so a calibration gap is partly definitional, not only a
+     population effect.
+  3. Remove the 'one to two orders of magnitude lower' incidence comparison; say
+     instead that the extraction draws label-positive and label-negative patients
+     separately, so its label proportion is not an incidence and is not
+     comparable to KFRE's cohort risks.
+  4. State that the learned models are fitted to this cohort while KFRE is
+     applied without refitting, so the comparison is between a fitted and an
+     externally-specified model. Limit superiority claims to this cohort and
+     protocol.
+  5. Coordinate with Gap 8: the input cutoff coincides with the event date for
+     label-positive patients, which bears on whether any score here can be read
+     as prospective risk.
