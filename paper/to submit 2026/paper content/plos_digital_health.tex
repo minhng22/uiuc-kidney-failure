@@ -1,0 +1,421 @@
+% PLOS Digital Health submission
+% Adapted from the official PLOS LaTeX template (plos_latex_template.tex, v3.8 Apr 2026)
+% Single-file manuscript per PLOS LaTeX guidelines (https://journals.plos.org/digitalhealth/s/latex)
+% Figures are NOT embedded here per PLOS policy -- they are uploaded as separate files;
+% only captions appear in place, immediately after first citation, as required.
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{changepage}
+\usepackage{textcomp,marvosym}
+\usepackage{cite}
+\usepackage{nameref,hyperref}
+\usepackage[right]{lineno}
+\usepackage[nopatch=eqnum]{microtype}
+\usepackage{iftex}
+\ifPDFTeX
+  \DisableLigatures[f]{encoding = *, family = * }
+\fi
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{booktabs}
+
+\newcolumntype{+}{!{\vrule width 2pt}}
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
+
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+
+% Please use the included `plos2025.bst` as the BibTeX style
+\bibliographystyle{plos2025}
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
+
+\begin{document}
+\vspace*{0.2in}
+
+\begin{flushleft}
+{\Large
+\textbf{Feature-set scaling for kidney failure prediction: benchmarking ten survival models against the Kidney Failure Risk Equation on MIMIC-IV}
+}
+\newline
+\\
+Minh Nguyen\textsuperscript{1\Yinyang},
+John Wu\textsuperscript{1\Yinyang},
+Jimeng Sun\textsuperscript{1*}
+\\
+\bigskip
+\textbf{1} University of Illinois Urbana-Champaign, Urbana, Illinois, United States of America
+\\
+\bigskip
+
+\Yinyang These authors contributed equally to this work.
+
+* jimeng@illinois.edu
+
+\end{flushleft}
+
+\section*{Abstract}
+The Kidney Failure Risk Equation (KFRE) uses four or eight clinical variables to estimate kidney failure risk. We benchmark ten learned survival models and the published KFRE equation on MIMIC-IV-derived cohorts with four features (2{,}809 patients), eight features (1{,}213 patients), and twenty laboratory features with missingness indicators (32{,}601 patients; no KFRE analogue). Five runs per scenario provide 160 model--scenario--run results. Patient-level discrimination is summarized as mean (sample SD); the runs reuse a fixed patient partition, so SD measures fitting and tuning variation rather than patient-sampling uncertainty. Dynamic-DeepHit has the highest recorded C-index: 0.827 (0.011), 0.880 (0.009), and 0.856 (0.035), respectively. KFRE has C-index 0.539 in both applicable scenarios. Hazard Transformer reaches 0.717 (0.060) on the full twenty-feature cohort, superseding its poor feasibility-pilot result. These rankings do not imply uniformly good native risk calibration: Dynamic-DeepHit substantially underpredicts risk in one twenty-feature run, and Hazard Transformer yields constant two-year probabilities. Differences in cohorts, representations, and available patient histories prevent isolation of feature-count effects. Below-chance predictions, test-set reuse for Logistic Hazard tuning, and row-based censoring references remain evaluation limitations. Decision-curve superiority claims are withheld because model and baseline curves use different evaluation units. The completed runs provide a descriptive benchmark and identify the validation changes required before conclusions about clinical utility can be drawn.
+
+\section*{Author summary}
+Kidney failure prediction methods can use a few routine measurements or a much larger laboratory history. We compared ten learned methods, plus the established Kidney Failure Risk Equation where applicable, using three groups drawn from hospital records. All five runs are now available, including the full group with twenty laboratory measurements. Dynamic-DeepHit ranked patients most accurately in the recorded results, but more measurements did not consistently improve every method, and the patient groups differed between feature sets. Repeating model fitting on the same patient split also does not tell us how precisely performance would transfer to new patients. We found that good rankings could coexist with poorly calibrated risk estimates. An audit further identified differences in how the clinical decision curves were evaluated and use of test data during tuning for one model. We therefore report the completed comparisons with these limitations and do not infer that any model is ready to guide referral decisions. Additional evaluation using consistent patient-level methods, separate tuning data, and external populations is needed.
+
+\clearpage
+\newgeometry{top=0.85in,left=1in,right=1in,footskip=0.75in}
+\linenumbers
+
+\section*{Introduction}\label{Intro}
+
+Chronic kidney disease (CKD) affects over 1 in 7 Americans \cite{CDC2023CKD} and can progress to end-stage renal disease (ESRD), which carries a five-year survival rate below 50\%. Early identification of patients at high risk of progression is critical for timely nephrology referral, dialysis-access planning, and transplant work-up \cite{levin2011early_detection}. The clinical standard for this task is the Kidney Failure Risk Equation (KFRE) \cite{tangri2011predicting}, a closed-form Cox model built from as few as four routinely collected variables (age, sex, estimated glomerular filtration rate (eGFR), and urine albumin-to-creatinine ratio (uACR)) or, in its extended form, eight variables (adding serum calcium, phosphate, bicarbonate, and albumin). KFRE has been externally validated across 31 cohorts spanning more than 700,000 patients \cite{tangri2016multinational} and is now embedded in clinical guidelines \cite{major2019kfre_external_validation}.
+
+Modern EHR resources and flexible survival models motivate comparison with KFRE under different input representations. A broader laboratory panel may provide useful information, but its availability also changes which patients can be included and how their histories are represented \cite{ghosh2023machine_nomogram,kdigo2024}. Separating these effects requires care when interpreting comparisons across feature sets.
+
+We benchmark ten learned survival models in three MIMIC-IV-derived \cite{johnson2023mimic_ehr} scenarios, adding the published KFRE equation to the four- and eight-feature scenarios (11 models there):
+
+\begin{itemize}
+    \item \textbf{Four features}: age, sex, eGFR, and uACR, matching KFRE's four-variable inputs.
+    \item \textbf{Eight features}: the four inputs plus calcium, phosphate, bicarbonate, and serum albumin, matching KFRE's eight-variable inputs.
+    \item \textbf{Twenty features (heterogeneous)}: 20 frequently measured laboratory variables, each represented by a value and missingness flag, with one row per laboratory event and no published KFRE analogue.
+\end{itemize}
+
+The scenarios share a source population but have different extracted cohorts: 2{,}809, 1{,}213, and 32{,}601 patients, respectively. They are therefore comparisons of feature/representation/cohort combinations, not a nested feature-count experiment on a fixed population. Within each scenario, the same patient partition is used across model runs.
+
+Constructing the four- and eight-feature scenarios requires merging asynchronous measurements around creatinine anchors while retaining repeated rows (\nameref{sec:cohort}). Nearest-value matching increases laboratory completeness but can include measurements after an anchor, so this construction is retrospective.
+
+Our contributions are:
+\begin{itemize}
+    \item A documented cohort-construction procedure for combining asynchronously measured KFRE inputs, with explicit matching rules and cohort attrition (\nameref{sec:cohort}).
+    \item A completed comparison of ten learned models across all three scenarios, plus KFRE where applicable, reporting mean and sample SD across five runs on the same patient partition (\nameref{sec:results}).
+    \item A common patient-level prediction unit, with explicit distinctions between final-row and full-history inputs and between native calibration probabilities and score-derived IBS (\nameref{sec:eval}).
+    \item An account of evaluation limitations, including cohort differences, test-informed LogisticHazard selection, raw-row censoring references, and unmatched decision-curve comparators. These delimit the conclusions that can be drawn from the observed rankings (\nameref{sec:limitations}).
+\end{itemize}
+
+
+\section*{Materials and methods}
+
+\subsection*{Problem Formulation}
+We frame progression to ESRD as a right-censored time-to-event problem. Each row of covariates $\boldsymbol{x}_i \in \mathbb{R}^d$ is paired with a duration $t_i \in \mathbb{R}^+$ and an event indicator $e_i \in \{0,1\}$ ($e_i=1$: ESRD onset observed; $e_i=0$: right-censored). As in our prior MIMIC-CKD benchmark, patient histories are stored in a counting-process (\texttt{start}, \texttt{stop}) format so the same row schema supports time-varying Cox fitting, snapshot-based KFRE prediction, and sequence models that consume a patient's full row history (Dynamic-DeepHit, Hazard Transformer). All three feature-set scenarios below share this schema; they differ only in $d$ and in how each row's covariates are populated.
+
+\subsection*{Cohort} \label{sec:cohort}
+The source population is identical to our prior MIMIC-CKD benchmark: 34{,}332 MIMIC-IV \cite{johnson2023mimic_ehr} patients meeting a CKD stage 3--5 or ESRD diagnosis-code criterion, 57.2\% male, mean age 67.8 (SD 16.1). What differs in this work is how covariates are assembled into rows for each feature-set scenario.
+
+\subsubsection*{Four and eight features (KFRE-comparable)}
+KFRE's inputs are drawn from separate, asynchronously-ordered labs (serum creatinine, a urine albumin/creatinine test, and, for the 8-variable form, a chemistry panel), unlike our prior benchmark's scenarios, which avoid multi-lab merging altogether by encoding one row per single-lab event with missingness flags. Producing complete covariate rows from asynchronously measured inputs required a merge design with two design choices: (1) whether the row format should still be time-varying given that KFRE itself is a point-in-time equation, and (2) how to handle a patient having multiple draws of the same lab within one admission.
+
+\textbf{Row format.} We keep the time-varying (\texttt{start}, \texttt{stop}) format used throughout this benchmark family. KFRE's formula is agnostic to row packaging — it can be applied independently to each row, treating every row as its own landmark snapshot in the sense of landmarking methodology for time-varying covariates in survival analysis \cite{vanhouwelingen2007landmarking,putter2022landmarking2}.
+
+\textbf{Merge rule: creatinine-anchored nearest-value matching.} Each row is anchored on one creatinine measurement (eGFR is computed from it, via the CKD-EPI 2021 equation, at that instant). Other required labs are attached to the anchor by nearest-value matching using the matching rules below rather than by unbounded last-observation-carried-forward, which is known to bias sparse EHR-derived time-varying covariates \cite{hu2022locf_bias}:
+\begin{itemize}
+    \item \textit{Calcium, phosphate, bicarbonate, serum albumin} (8-variable scenario only, routinely drawn on the same chemistry panel as creatinine): nearest value within $\pm$24 hours of the anchor. This window follows APACHE II's precedent of treating all labs drawn within a patient's first 24 hours — including serum creatinine — as one physiologic snapshot \cite{knaus1985apacheii}; no directly analogous 24h-snapshot convention was found for other candidate windows (e.g., KDIGO's 48h AKI change-detection window measures a \emph{trend}, not concurrency, and is not equivalent).
+    \item \textit{uACR} (a separately-ordered urine test): nearest value across the patient's entire history. We initially bounded this match to the same hospital admission, following the resolution Tangri et al.\ document for one of their own real-world validation cohorts (\textit{"Geisinger: covariates obtained most closely to index date within a past year were included in models"} \cite{tangri2016multinational}), but this bound caused 96.5\% patient attrition (34{,}332 $\to$ 1{,}220 for the 4-feature scenario) and skewed the outcome rate from 91.9\% to 98.2\% ESRD-positive by disproportionately dropping ESRD-negative patients. We loosened the bound to the patient's whole history, increasing cohort size at the cost of temporal alignment. Because matching is not restricted to measurements before the anchor, these retrospective inputs can include future information relative to that anchor.
+    \item Any row missing a required lab within its window is \emph{dropped}, not imputed or flagged — unlike our prior benchmark's missingness-flag scenarios, four\_features/eight\_features are complete-case by construction, matching KFRE's own derivation cohort's eligibility criteria \cite{tangri2011predicting}.
+\end{itemize}
+One row is emitted per qualifying creatinine draw, so a patient monitored multiple times within one admission correctly yields multiple rows, each independently paired with its own nearest in-window value of every other required lab (a sparser lab such as uACR is therefore legitimately reused, at its nearest value, across several rows for the same patient — expected under the landmarking framework above, not a bug).
+
+\subsubsection*{Twenty features (heterogeneous)}
+Following our prior benchmark's heterogeneous representation, we select the 20 most frequently measured labs for this cohort and represent each as a (value, missingness-flag) pair, giving a 40-column row, one row per lab event (no cross-lab merge). This scenario evaluates a broader, sparse representation on a larger extracted cohort. It changes cohort eligibility and row representation as well as feature count, and is not a controlled feature-count ablation.
+
+\subsubsection*{Resulting cohorts}
+Table~\ref{tab:cohort_flow} reports each scenario's final extracted cohort next to the shared source population, following the two-column cohort-flow reporting convention of Major et al.\ \cite{major2019kfre_external_validation} and STROBE item 13(a) \cite{vonelm2007strobe}. All three scenarios are event-rich by construction (83--92\% patient-level ESRD-positive), because the source population is itself drawn from a CKD/ESRD diagnosis-code criterion; we discuss the implications of this for calibration in \nameref{sec:results}.
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{} & \textbf{Source cohort} & \textbf{four\_features} & \textbf{eight\_features} & \textbf{twenty\_features (heterog.)} \\
+\midrule
+Patients & 34,332 & 2,809 & 1,213 & 32,601 \\
+Records (rows) & 74,197 & 26,829 & 5,407 & 8,126,090 \\
+\% male & 57.2 & 58.3 & 60.4 & 57.1 \\
+Mean age, yrs (SD) & 67.8 (16.1) & 63.9 (15.1) & 62.1 (15.4) & 67.8 (16.1) \\
+Median eGFR (IQR) & N/A & 62.1 (36.6--93.0) & 61.3 & 67.5 (45.4--93.6) \\
+Median uACR, mg/g (IQR) & N/A & 54.1 (13.0--266.7) & 56.0 & N/A \\
+Median follow-up, yrs (IQR) & N/A & 0.2 (0.0--2.9) & N/A & 0.4 (0.0--2.2) \\
+ESRD events, patients (\%) & 31,542 (91.9) & 2,346 (83.5) & 1,032 (85.1) & 29,815 (91.5) \\
+ESRD rate /1,000 person-yrs & N/A & 461.9 & N/A & 556.2 \\
+Train / test patients & --- & 2,247 / 562 & 970 / 243 & 26,080 / 6,521 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Cohort flow: shared MIMIC-IV source population versus each scenario's final extracted, feature-complete cohort. Splits are 80/20 by patient ID.}
+\label{tab:cohort_flow}
+\end{table}
+
+\textbf{Cohort size.} The eight-feature scenario is the smallest, with 1{,}213 patients and 1{,}032 observed events. These counts describe the full extracted cohort, before its training/test split, and do not establish the adequacy of the training sample for every architecture. Complete-case selection also changes cohort composition, so cross-scenario differences cannot be attributed to feature count alone.
+
+\subsection*{KFRE Baseline} \label{sec:kfre}
+For four\_features and eight\_features, we add KFRE itself as an eleventh, non-trained benchmark: a closed-form risk score computed directly from Tangri et al.'s published coefficients, requiring no \texttt{.fit()} step. Risk at horizon $t$ is $\mathrm{Risk}(t) = 1 - S_0(t)^{\exp(L)}$, using the published original-equation baseline survival constants: $S_0$(2yr)$=0.9750$ and $S_0$(5yr)$=0.9240$ for four variables, and $S_0$(2yr)$=0.9780$ and $S_0$(5yr)$=0.9301$ for eight variables \cite{tangri2016multinational}, with the linear predictor:
+\begin{align}
+L_4 &= -0.2201\left(\tfrac{\text{age}}{10}-7.036\right) + 0.2467(\text{male}-0.5642) \nonumber\\
+&\quad -0.5567\left(\tfrac{\text{eGFR}}{5}-7.222\right) + 0.4510\left(\ln(\text{uACR})-5.137\right)
+\end{align}
+for the 4-variable form \cite{tangri2011predicting}, and
+\begin{align}
+L_8 &= -0.1992\left(\tfrac{\text{age}}{10}-7.036\right) + 0.1602(\text{male}-0.5642) \nonumber \\
+&\quad -0.4919\left(\tfrac{\text{eGFR}}{5}-7.222\right) + 0.3364\left(\ln(\text{uACR})-5.137\right) \nonumber \\
+&\quad -0.3441(\text{albumin}-3.997) + 0.2604(\text{phosphate}-3.916) \nonumber \\
+&\quad -0.07354(\text{bicarb.}-25.57) -0.2228(\text{calcium}-9.355)
+\end{align}
+for the 8-variable form \cite{tangri2011predicting}. KFRE has no published equation for the twenty\_features scenario and is therefore absent from it.
+
+\subsection*{Benchmarked Models} \label{sec:models}
+We benchmark the ten learned models below on all three scenarios, plus the closed-form KFRE baseline of \nameref{sec:kfre} on four\_features/eight\_features only, for 11 models total on those two scenarios. Unlike our prior MIMIC-CKD benchmark, which described each architecture at a representative fixed configuration, the neural models, GBSA, and SRF are tuned per scenario (\nameref{sec:training}), so we describe each model's structural form and loss precisely, verified directly against this codebase's model classes rather than restated from that description, and give the tuned hyperparameter ranges rather than a single fixed value.
+
+\subsubsection*{Traditional Survival Analysis Models}
+Both use \texttt{lifelines} \cite{davidson2019lifelines}; Cox is fitted to counting-process rows and Weibull AFT to each patient's final row.
+
+\textbf{Cox proportional hazards} \cite{cox1972regression} models the hazard of subject $i$ at time $t$ as
+\begin{align}
+\lambda_i(t) = \lambda_0(t)\exp(\boldsymbol{x}_i(t)^\intercal\boldsymbol{\beta}),
+\end{align}
+where $\boldsymbol{x}_i(t)$ is subject $i$'s (possibly time-varying) covariate row and $\lambda_0(t)$ an unspecified baseline hazard, fit by maximizing the Efron-corrected partial likelihood over all subjects' \texttt{start}/\texttt{stop} intervals directly (\texttt{lifelines}' \texttt{CoxTimeVaryingFitter}, \texttt{id\_col=subject\_id}) rather than one static row per patient — the model consumes every landmark row from \nameref{sec:cohort}, not just each patient's last. We use an L2 penalizer of 1.0 (\texttt{lifelines}' regularization term added to the partial log-likelihood) to stabilize the fit against the strongly collinear rows a single patient contributes.
+
+\textbf{Weibull Accelerated Failure Time (AFT)} \cite{anderson1991nonproportional_weibull} instead parameterizes the full survival distribution,
+\begin{align}
+S(t\mid\boldsymbol{x}) = \exp\!\left(-\left(\frac{t}{\lambda(\boldsymbol{x})}\right)^{\rho}\right), \quad \lambda(\boldsymbol{x}) = \exp(\boldsymbol{x}^\intercal\boldsymbol{\beta}),
+\end{align}
+fit on the flattened one-row-per-patient (last-observation) frame via \texttt{lifelines}' \texttt{WeibullAFTFitter}. For twenty\_features (whose 40, mostly-zero-filled columns produce a near-singular design matrix), we add an L2 penalizer of 0.1 on the scale parameter's coefficients, the library's own documented remedy for this failure mode; four\_features/eight\_features use the unpenalized default.
+
+\subsubsection*{Deep Survival Analysis Models}
+DeepSurv and LogisticHazard use each patient's final row. Dynamic-DeepHit and Hazard Transformer consume full patient histories. RNN-Surv is trained on individual rows represented as length-one sequences and is evaluated on each patient's final row; its recurrent architecture therefore does not model longitudinal histories in this implementation.
+
+\textbf{DeepSurv} \cite{katzman2018deepsurv} is a feedforward network — 1 to 20 \texttt{Linear}$\to$\texttt{ReLU}$\to$\texttt{Dropout} blocks (width 16--256, per-layer dropout 0.1--0.5, all tuned) followed by a single linear output — trained with the Cox partial log-likelihood on its scalar output, so its raw output is already a "higher = riskier" hazard score by construction, unlike the discrete-time models below.
+
+\textbf{Dynamic-DeepHit} \cite{lee2020dynamicdeephit,lee2018deephit} feeds each patient's full covariate row sequence with a padding mask directly into a 2-layer \emph{bidirectional} LSTM (hidden width 16--128, dropout 0.1--0.5, tuned). The concatenated forward/backward outputs at each timestep pass through a \texttt{Linear}$\to$\texttt{Tanh} compression, then a masked additive (Bahdanau-style) attention layer pools the sequence into one context vector per patient — a departure from a simple last-hidden-state readout, letting the model weight informative visits over uninformative ones. The pooled vector feeds 0--3 further cause-specific \texttt{Linear}$\to$\texttt{ReLU}$\to$\texttt{Dropout} layers (width 16--128, tuned) and a final per-risk linear head producing a probability mass function (PMF) over 5{,}475 daily bins (15 years). Following DeepHit's original formulation \cite{lee2018deephit}, training minimizes a composite loss $L=\alpha L_1+(1-\alpha)L_2$: $L_1$ is the negative log-likelihood of the discretized, right-censored outcome (event probability mass at the observed bin for events; one minus the cumulative incidence up to that bin for censored subjects), and $L_2$ is a pairwise ranking loss rewarding the model for assigning an event subject higher cumulative incidence, at that subject's own event time, than any subject not yet failed by then — with the likelihood/ranking tradeoff $\alpha\in[0.1,1.0]$ tuned per scenario.
+
+\textbf{RNN-Surv} \cite{giunchiglia2018rnn_surv} embeds each timestep through 1--3 linear embedding layers with intervening \texttt{ReLU} activations (width 32--128, tuned) into a 1--3-layer \emph{LSTM} (hidden width 64--256, tuned) — unlike our prior benchmark's description, this codebase's RNN-Surv uses an LSTM rather than a GRU cell. A final linear layer maps the last hidden state to logits over $K\in[10,50]$ (tuned) discrete intervals spanning the maximum training follow-up, softmax-normalized into a PMF $\hat{f}$. As with Dynamic-DeepHit, the loss combines a discrete-time likelihood — the observed interval's event probability for events, the survival-beyond-interval probability for censored subjects — with a pairwise ranking term over the cumulative incidence function (an event should have a higher cumulative risk than any comparable subject not yet failed at that time), weighted by a tunable coefficient in $[0.1,0.9]$.
+
+\textbf{LogisticHazard} discretizes training follow-up into 50 bins (\texttt{pycox}'s \texttt{LabTransDiscreteTime}) and learns the log-odds of failure in each bin. We use \texttt{pycox}'s off-the-shelf implementation (an \texttt{MLPVanilla} network — 1--3 hidden layers, width $\in\{16,32,64,128\}$, dropout 0--0.5, all tuned, categorical batch size $\in\{32,64,128,256\}$) wrapping its \texttt{LogisticHazard} discrete-time hazard head and cross-entropy-style loss, rather than a custom architecture, since it already provides one purpose-built for this decomposition.
+
+\textbf{Hazard Transformer} \cite{hazard_transformer,vaswani2017attention} departs the furthest from a sequence-attention reading of "Transformer": each patient's rows are linearly embedded and \emph{mean-pooled} (masked over observed rows) into a single patient representation \emph{before} any attention is applied. This pooled vector is then broadcast across 100 fixed query time points spanning $[0,730]$ days, each combined with a learned time-encoding of that query point and a sinusoidal positional encoding; a stack of 2--6 (tuned) standard Transformer encoder layers (1--8 heads, tuned) then self-attends \emph{across these 100 time queries}, not across the patient's visits. A per-risk decoder produces a softmax-normalized PMF over the 100 bins (architecture version 2 in this codebase; an earlier per-bin independent-sigmoid parametrization was found to collapse to a constant prediction and was replaced by this bounded-PMF form, the same fix Dynamic-DeepHit's risk heads use). Training minimizes the discrete-time event/censoring negative log-likelihood without an additional ranking term.
+
+\subsubsection*{Ensemble-Learning-Based Models}
+All three are \texttt{scikit-survival} \cite{polsterl2020sksurv} estimators fit on the flattened last-observation frame.
+
+\textbf{Gradient Boosting Survival Analysis (GBSA)} \cite{chen2013gradient_GBSA} fits an additive ensemble of regression trees against the Cox partial-likelihood gradient; we grid-search \texttt{n\_estimators}$\in\{50,100,200,300\}$, \texttt{max\_depth}$\in\{3,5,10,15\}$, and \texttt{learning\_rate}$\in\{0.01,0.1,0.2\}$ by cross-validated C-index.
+
+\textbf{Random Survival Forest (SRF)} \cite{pickett2021random_survival_forests,ishwaran2008random} grows an ensemble of survival trees splitting on the log-rank statistic; we grid-search \texttt{n\_estimators}$\in\{50,100,150\}$ and \texttt{max\_depth}$\in\{\text{None},5,10\}$. Because \texttt{scikit-survival} does not expose impurity-based feature importance for this estimator (it is known to be biased for survival forests), we compute permutation importance directly for it in \nameref{sec:results} rather than treating it identically to GBSA.
+
+\textbf{FastSurvivalSVM} learns a linear ranking function over the covariate space, optimizing a convex upper bound on the concordance index subject to margin and $\ell_2$ constraints. Unlike the other two ensemble models, we do not tune it: it is fit with \texttt{scikit-survival}'s defaults ($\alpha=0.01$), as with the fixed-parameter Cox and Weibull AFT baselines.
+
+\subsection*{Model Training and Optimization} \label{sec:training}
+The neural models use 10-trial Optuna searches per scenario, maximizing the implemented C-index objective. DeepSurv, Dynamic-DeepHit, RNN-Surv, and Hazard Transformer select trials on training-set C-index and stop when training loss fails to improve (patience five epochs, maximum 50 epochs). LogisticHazard is fitted for 100 epochs and uses the designated test partition both as \texttt{val\_data} and for trial/checkpoint selection. Its reported test performance therefore has model-selection leakage and is descriptive rather than an unbiased held-out estimate. GBSA and SRF use five-fold grid search within the training partition, selected by C-index. FastSurvivalSVM, Cox, and Weibull AFT use fixed hyperparameters. All neural models use Adam.
+
+\subsection*{Evaluation} \label{sec:eval}
+\textbf{Repetitions and aggregation.} We report all three scenarios from the completed clinical-validity analyses for repetitions 1--5. Each scenario uses an 80/20 split by patient ID with \texttt{random\_state=42}; the repetitions reuse the same partition. Results are the arithmetic mean and sample standard deviation ($n=5$, denominator $n-1$) of the five report values. They describe run-to-run variation on a fixed partition, not uncertainty across independent cohorts or externally validated confidence intervals.
+
+\textbf{Prediction unit.} Every model contributes one test prediction per patient. Snapshot models use the final available row; Dynamic-DeepHit and Hazard Transformer use the available row history and the outcome recorded on its final row. RNN-Surv uses the final row as a length-one sequence. Thus the scoring unit is shared, while input histories differ. Durations remain measured from the extraction's first-lab anchor rather than being reset at a prospective prediction landmark. This retrospective evaluation does not establish prospective two-year prediction from a common baseline.
+
+\textbf{Metrics.} Harrell's C-index is calculated over each model's available patient follow-up, without truncation at 730 days, after orienting scalar scores so higher values indicate greater risk. Mean cumulative/dynamic AUC uses that scalar score on a daily grid from day 1 through day 728 (or the shorter observed support), with the survival-weighted mean returned by \texttt{scikit-survival}. Score definitions remain model-specific: for example, Dynamic-DeepHit uses day-730 cumulative incidence, Hazard Transformer uses day-365 cumulative incidence, RNN-Surv uses expected event earliness, and LogisticHazard evaluates survival near the scored partition's median duration.
+
+The integrated Brier score (IBS) uses 50 equally spaced times from day 1 to day 730. For every model, including KFRE, the reported IBS uses a score-derived survival curve $\hat S(t\mid r)=\exp[-r^*\hat H_0(t)]$, where $r^*=\max(r-\min(r_{\mathrm{train}}),10^{-6})$ and $\hat H_0$ is a Breslow-style cumulative baseline hazard fitted to that model's training-patient scores and outcomes. These IBS values evaluate this additional conversion rather than each model's native survival probabilities. For IBS only, test follow-up beyond the maximum training duration is administratively censored there. The inverse-probability-of-censoring reference for IBS and AUC is constructed from raw training rows, while test predictions are per patient; this mismatch remains a limitation of the completed analysis.
+
+\textbf{Calibration and exploratory decision curves.} Calibration compares mean predicted risk with Kaplan--Meier-observed risk within risk deciles at 730 and 1{,}825 days. It uses native horizon probabilities where supported, with the score-derived survival conversion above as fallback. Unlike the IBS comparison, native KFRE calibration therefore uses the published equation directly. The generated decision-curve analyses \cite{vickers2006decisioncurve} include treat-all, treat-none, and eGFR referral rules ($<$30 or $<$45), but model curves use patient-level predictions whereas treat-all and eGFR comparators use raw test rows. The eGFR calculation also uses its referral fraction as an implied risk threshold. These unmatched units and thresholds preclude clinical-utility comparisons; the generated curves are exploratory and are not used to infer superiority over referral baselines. A competing-risk analysis for death before ESRD was not performed because exported durations omit the absolute calendar anchor needed to align death dates.
+
+
+\section*{Results}\label{sec:results}
+
+All three scenarios have completed discrimination reports for repetitions 1--5: 11 models for each KFRE-input scenario and 10 for the twenty-feature scenario, yielding 160 model--scenario--run records. Tables~\ref{tab:discrimination} and~\ref{tab:twenty} summarize their reported metrics as mean (sample SD). These runs reuse a fixed patient partition; their variation reflects repeated model fitting and tuning, not independent test cohorts or repeated random splits. Rep99 feasibility results are excluded. The evaluation qualifications in \nameref{sec:eval} apply throughout.
+
+\subsection*{Four and Eight Features}
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\multicolumn{4}{c}{\textbf{Four features}} \\
+\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{IBS}$\downarrow$ & \textbf{Mean AUC}$\uparrow$ \\
+\midrule
+Cox & 0.308 (0.000) & 0.531 (0.000) & 0.272 (0.000) \\
+Dynamic-DeepHit & \textbf{0.827 (0.011)} & \textbf{0.279 (0.018)} & \textbf{0.939 (0.017)} \\
+Hazard Transformer & 0.637 (0.001) & 0.409 (0.007) & 0.701 (0.002) \\
+Logistic Hazard & 0.551 (0.012) & 0.416 (0.006) & 0.567 (0.018) \\
+RNN-Surv & 0.522 (0.006) & 0.430 (0.011) & 0.526 (0.011) \\
+DeepSurv & 0.540 (0.020) & 0.463 (0.075) & 0.549 (0.023) \\
+GBSA & 0.518 (0.003) & 0.438 (0.008) & 0.530 (0.008) \\
+Survival RF & 0.532 (0.005) & 0.445 (0.003) & 0.543 (0.007) \\
+Survival SVM & 0.543 (0.000) & 0.417 (0.000) & 0.571 (0.000) \\
+Weibull AFT & 0.552 (0.000) & 0.414 (0.000) & 0.579 (0.000) \\
+KFRE & 0.539 (0.000) & 0.552 (0.000) & 0.553 (0.000) \\
+\midrule
+\multicolumn{4}{c}{\textbf{Eight features}} \\
+\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{IBS}$\downarrow$ & \textbf{Mean AUC}$\uparrow$ \\
+\midrule
+Cox & 0.470 (0.000) & 0.578 (0.000) & 0.425 (0.000) \\
+Dynamic-DeepHit & \textbf{0.880 (0.009)} & \textbf{0.281 (0.024)} & \textbf{0.953 (0.009)} \\
+Hazard Transformer & 0.605 (0.039) & 0.529 (0.205) & 0.631 (0.049) \\
+Logistic Hazard & 0.521 (0.019) & 0.490 (0.016) & 0.500 (0.029) \\
+RNN-Surv & 0.531 (0.005) & 0.493 (0.005) & 0.590 (0.015) \\
+DeepSurv & 0.484 (0.014) & 0.555 (0.115) & 0.486 (0.022) \\
+GBSA & 0.541 (0.011) & 0.529 (0.014) & 0.559 (0.011) \\
+Survival RF & 0.522 (0.008) & 0.523 (0.007) & 0.539 (0.008) \\
+Survival SVM & 0.540 (0.000) & 0.488 (0.000) & 0.595 (0.000) \\
+Weibull AFT & 0.554 (0.000) & 0.485 (0.000) & 0.597 (0.000) \\
+KFRE & 0.539 (0.000) & 0.737 (0.000) & 0.579 (0.000) \\
+\bottomrule
+\end{tabular}
+\caption{{\bf Discrimination on the KFRE-input scenarios.} Mean (sample SD) over five runs on a fixed patient partition. C-index uses available follow-up; IBS integrates days 1--730 after the common risk-score transformation; AUC is averaged over the daily grid before day 730. Bold marks the best recorded mean in each scenario. SD describes run variation, not sampling uncertainty; 0.000 denotes rounding at the displayed precision.}
+\label{tab:discrimination}
+\end{table}
+
+\textbf{Dynamic-DeepHit has the highest recorded discrimination in both scenarios.} Its mean C-index is 0.827 (SD 0.011) with four features and 0.880 (0.009) with eight features; the corresponding mean time-dependent AUCs are 0.939 (0.017) and 0.953 (0.009). KFRE has C-index 0.539 in both scenarios, with AUC 0.553 and 0.579, respectively. Dynamic-DeepHit also has the lowest transformed-score IBS, 0.279 (0.018) and 0.281 (0.024). This IBS is computed from the shared scalar-risk-to-survival transformation and does not establish that its native probability predictions are the best calibrated.
+
+Hazard Transformer has the next highest mean C-index, 0.637 (0.001) and 0.605 (0.039). The remaining learned models, excluding Cox, span mean C-indices of 0.518--0.552 with four features and 0.484--0.554 with eight features. These are descriptive comparisons: the run SDs do not provide confidence intervals for differences from KFRE or establish equivalence. Cox remains below 0.5, at 0.308 and 0.470, and DeepSurv also has a mean below 0.5 in the eight-feature scenario.
+
+\textbf{Feature-set differences are model-dependent.} Moving from four to eight features changes Dynamic-DeepHit's mean C-index by +0.053, Cox's by +0.162, DeepSurv's by $-$0.056, and Hazard Transformer's by $-$0.032. The other seven models change by 0.03 or less. The complete-case cohorts differ in size and composition (2{,}809 versus 1{,}213 patients, Table~\ref{tab:cohort_flow}), so these changes cannot be attributed to the four additional measurements alone.
+
+\subsection*{Full Twenty-Feature Cohort}
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\multicolumn{4}{c}{\textbf{Twenty features (heterogeneous)}} \\
+\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{IBS}$\downarrow$ & \textbf{Mean AUC}$\uparrow$ \\
+\midrule
+Cox & 0.457 (0.000) & 0.397 (0.000) & 0.433 (0.000) \\
+Dynamic-DeepHit & \textbf{0.856 (0.035)} & \textbf{0.248 (0.013)} & \textbf{0.946 (0.026)} \\
+Hazard Transformer & 0.717 (0.060) & 0.314 (0.032) & 0.802 (0.078) \\
+Logistic Hazard & 0.522 (0.005) & 0.374 (0.006) & 0.531 (0.026) \\
+RNN-Surv & 0.523 (0.001) & 0.376 (0.003) & 0.527 (0.001) \\
+DeepSurv & 0.533 (0.003) & 0.370 (0.001) & 0.539 (0.007) \\
+GBSA & 0.521 (0.000) & 0.371 (0.000) & 0.529 (0.000) \\
+Survival RF & 0.522 (0.001) & 0.372 (0.000) & 0.534 (0.001) \\
+Survival SVM & 0.513 (0.000) & 0.369 (0.000) & 0.540 (0.000) \\
+Weibull AFT & 0.525 (0.000) & 0.370 (0.000) & 0.546 (0.000) \\
+\bottomrule
+\end{tabular}
+\caption{{\bf Discrimination on the full twenty-feature cohort.} Mean (sample SD), five runs. The cohort contains 32{,}601 patients, with 6{,}521 held out. Metric definitions and variability interpretation follow Table~\ref{tab:discrimination}; KFRE has no corresponding equation.}
+\label{tab:twenty}
+\end{table}
+
+The heterogeneous scenario now reports the full extracted cohort of 32{,}601 patients and approximately 8.13 million lab-event rows, replacing the earlier 20-patient feasibility analysis. Dynamic-DeepHit has the highest mean C-index, 0.856 (0.035), and mean AUC, 0.946 (0.026), with IBS 0.248 (0.013). Hazard Transformer follows at C-index 0.717 (0.060) and AUC 0.802 (0.078); its poor pilot result does not describe the full-cohort runs. Both sequence-based architectures vary more across runs here than Dynamic-DeepHit does in either complete-case scenario. The other non-Cox models have mean C-indices between 0.513 and 0.533, while Cox remains below chance at 0.457.
+
+These results characterize a different cohort and input representation, with 20 laboratory values and their missingness flags. They are not a matched-patient experiment establishing the isolated effect of increasing feature count.
+
+\subsection*{Feature Importance}
+
+Fig~\ref{fig:feature_importance_four} illustrates the updated four-feature analysis for rep1, with the eight-feature companion in S1 Fig. Importance measures differ by model: absolute coefficients for Cox, Weibull AFT, and Survival SVM; native feature importance for GBSA; permutation importance for Survival RF; and gradient-based summaries for neural models. Magnitudes are not comparable across these families.
+
+\begin{figure}[h!]
+    \centering
+    \caption{{\bf Four-feature importance diagnostics from rep1,} regenerated with the completed analyses. Panels use model-specific measures and are illustrative of one run; their scales are not comparable. These are not SHAP values.}
+    \label{fig:feature_importance_four}
+\end{figure}
+
+In this illustrative run, eGFR has the largest reported neural importance for Dynamic-DeepHit (0.293), Hazard Transformer (0.463), Logistic Hazard (0.402), and RNN-Surv (0.382). GBSA assigns similar importance to uACR (0.386) and eGFR (0.376), while DeepSurv's largest value is for sex (0.277). These within-model summaries do not establish a common biological ranking. In particular, a raw uACR coefficient displayed as 0.0000 is scale- and precision-dependent and does not demonstrate that uACR was discarded.
+
+All five twenty-feature importance reports record memory-allocation failures for the Dynamic-DeepHit and Hazard Transformer gradient calculations. The resulting uniform Dynamic-DeepHit values and first-layer-weight Transformer fallbacks are excluded from substantive feature-importance conclusions.
+
+\subsection*{Calibration and Decision-Curve Diagnostics}
+
+Calibration is assessed separately from the transformed-score IBS, using native horizon-specific probabilities where available and a training-fitted approximation otherwise (\nameref{sec:eval}). Fig~\ref{fig:calibration_four} gives the updated four-feature rep1 diagnostic. These plots are descriptive and do not provide calibration confidence intervals.
+
+\begin{figure}[h!]
+    \centering
+    \caption{{\bf Four-feature calibration diagnostics from rep1 at 2 and 5 years:} mean predicted risk versus Kaplan--Meier-observed risk within risk groups. Native and approximated probabilities are distinguished in the analysis reports. This figure illustrates one run, not an average over five runs.}
+    \label{fig:calibration_four}
+\end{figure}
+
+\textbf{High discrimination does not guarantee stable absolute-risk calibration.} Dynamic-DeepHit's four-feature rep1 predictions broadly track the observed risks, but calibration varies across scenarios and runs. In the twenty-feature rep1 analysis, its 2-year risk-group means lie between 0.166 and 0.187 while the corresponding observed risks range from 0.431 to 0.998; at 5 years, predictions range from 0.390 to 0.423 versus observed risks of 0.676--1.000. This substantial underprediction precludes a general claim of uniformly good calibration. Hazard Transformer also produces constant or near-constant native probabilities at the horizon in multiple reports, even where its scalar risk score discriminates between patients.
+
+\textbf{The current decision curves do not support a clinical-utility comparison.} The saved model curves use patient-level predictions, whereas the treat-all and eGFR-rule comparators use raw test rows (and, for the heterogeneous eGFR rule, a measured-eGFR subset). The eGFR rule also derives its displayed threshold from the fraction referred rather than using each common decision threshold. These differing evaluation units and thresholds invalidate direct net-benefit comparisons. We therefore omit the decision-curve figures and make no claim that model-guided referral improves on treat-all or an eGFR cutoff. Harmonized patient-level recomputation is required.
+
+
+\section*{Discussion}
+
+\textbf{Repeated runs support a descriptive ranking, with substantial evaluation qualifications.} Dynamic-DeepHit has the highest recorded mean C-index and mean time-dependent AUC in all three scenarios. Hazard Transformer ranks second and performs substantially better on the full twenty-feature cohort than in the feasibility pilot. Most other learned models have discrimination near KFRE in the four-/eight-feature cohorts. These results describe the implemented models under this evaluation pipeline; they do not establish statistical equivalence, clinical superiority, or the intrinsic superiority of an architecture.
+
+\textbf{Feature count is confounded with cohort and representation.} The eight-feature complete-case cohort is smaller than the four-feature cohort, and the twenty-feature representation includes missingness indicators and a much broader patient group. Dynamic-DeepHit and Hazard Transformer use patient histories, whereas several comparators use final observations. Both population selection and access to longitudinal information can affect performance. A matched-patient, matched-history ablation is needed to isolate the contribution of additional measurements or architecture.
+
+\textbf{Discrimination and absolute risk require separate assessment.} The transformed-score IBS favors Dynamic-DeepHit, but its native predictions can still substantially underpredict risk, as in twenty-feature rep1. Hazard Transformer's constant two-year probabilities further show why a favorable scalar-score ranking does not establish clinically useful risk estimates. Because the current decision-curve comparators use different evaluation units, the completed reports cannot support recommendations about model-guided referral.
+
+\subsection*{Limitations} \label{sec:limitations}
+
+\begin{itemize}
+    \item \textbf{One data source and a fixed patient partition.} Five model runs quantify fitting/tuning variation, not uncertainty from independent patient samples. There are no patient-bootstrap confidence intervals, paired significance tests, or external-cohort validation. Deterministic results can have zero displayed SD without being known precisely. The selected hospital cohort is event-rich and differs from the populations supporting KFRE's published validation; performance here should not be generalized to routine clinical screening.
+    \item \textbf{Evaluation and model selection require further validation.} Although test predictions are patient-level, the reported IPCW metrics use raw training rows to estimate the censoring distribution. IBS evaluates the common transformed risk scores rather than each model's native survival distribution. Logistic Hazard uses the nominal test set for tuning and checkpoint selection, so its numbers are not an untouched test-set estimate. These pipeline choices limit comparative interpretation and require a harmonized validation rerun.
+    \item \textbf{Prediction time and available information are not fully aligned.} Final-observation scoring for some models and full-history scoring for others are not a common prospective landmark design. Whole-history nearest-uACR matching and bidirectional chemistry matching can attach measurements taken after an anchor. The current results therefore do not establish performance using only information available at a prespecified clinical decision time.
+    \item \textbf{Below-chance and degenerate predictions remain unresolved.} Cox has mean C-index 0.308, 0.470, and 0.457 across the three scenarios, and eight-feature DeepSurv averages 0.484. Hazard Transformer has constant or near-constant native two-year probabilities. Repetition of these behaviors does not exclude a shared implementation or representation issue, and no causal explanation is established here.
+    \item \textbf{No competing-risk assessment or subgroup validation.} Death before ESRD is not explicitly modeled as a competing event. The benchmark also does not establish performance across demographic subgroups or care settings.
+    \item \textbf{Importance diagnostics are heterogeneous and partly incomplete.} Coefficients, gradients, and permutation scores have different meanings and scales. All twenty-feature Dynamic-DeepHit and Hazard Transformer gradient analyses failed memory allocation; their fallback outputs do not support substantive interpretation.
+\end{itemize}
+
+\subsection*{Future Work}
+The next evaluation should reserve a separate tuning partition, define a common prospective landmark and information cutoff, estimate censoring from patient-level training outcomes, and compare native survival probabilities and calibration under a common protocol. Decision curves require the same patients and thresholds for every strategy. Matched-cohort feature ablations, patient-level uncertainty estimates, external validation, explicit competing-risk analysis, and memory-bounded feature-importance calculations would then address the remaining gaps.
+
+
+\section*{Supporting information}
+
+\paragraph*{S1 Fig.}
+\label{S1_Fig}
+\textbf{Per-model feature importance, eight\_features (rep1).} Companion to Fig~\ref{fig:feature_importance_four}; each panel uses that model's own native importance measure, illustrative of one run, with scales not comparable across panels (\nameref{sec:results}). These are not SHAP values.
+
+\section*{Acknowledgments}
+
+This section is intended only for general acknowledgements and thanks. Any
+information related to funding, data availability, author contributions, etc.
+should be entered directly into their dedicated fields in the PLOS Editorial
+Manager submission system, which will then be incorporated into the appropriate
+section in your article during the production process.
+
+\nolinenumbers
+
+\bibliography{sn-bibliography}
+
+\end{document}
+
+% --------------------------------------------------------------------------
+% Portal-field reference (NOT part of the manuscript body -- paste into the
+% corresponding fields of PLOS's Editorial Manager submission form; PLOS's
+% own template instructs that this content must NOT appear in the manuscript
+% text itself, only in the portal, per the Acknowledgments note above).
+%
+% Funding: Not applicable.
+% Competing interests: The authors declare no competing interests.
+% Ethics approval: MIMIC-IV is a de-identified, publicly available critical
+%   care database released under a data use agreement; this study involved
+%   no additional identifiable patient contact.
+% Data availability: MIMIC-IV is available via PhysioNet to credentialed
+%   users. Extracted cohort definitions and code are made available via the
+%   project repository.
+% Code availability: Benchmark code, extraction pipeline, and trained model
+%   artifacts are available in the project repository.
+% Author contributions: All authors contributed to study design,
+%   experimentation, analysis, and manuscript preparation.
+% --------------------------------------------------------------------------
