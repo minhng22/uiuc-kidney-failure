@@ -1,0 +1,198 @@
+================================================================================
+COX COVARIATE LEAKAGE — ROOT CAUSE, FIX, VERIFICATION, ARTIFACT DELETION
+================================================================================
+Date:      2026-09-18
+Host:      sunlab-serv-01.cs.illinois.edu
+Scope:     pkgs/experiments/cox.py — FOUR_FEATURES, EIGHT_FEATURES,
+           TWENTY_FEATURES_HETEROGENEOUS
+Status:    FIXED; verified on rep99; rep1 four/eight verified;
+           rep1 twenty_features_heterogeneous retrain in progress
+
+NOTE: an earlier copy of this report was written at ~03:52 on 2026-09-18 and
+was found missing at 04:01 the same session. Cause undetermined — the file
+was untracked (no git record), and no local process of this session removed
+it. Per CLAUDE.md this tree is worked by concurrent sessions on other hosts.
+This is a faithful reconstruction; the coefficient values in section 1 were
+captured from the leaky artifacts while they still existed.
+
+--------------------------------------------------------------------------------
+1. ROOT CAUSE
+--------------------------------------------------------------------------------
+pkgs/experiments/cox.py:51 (pre-fix) called
+
+    model.fit(data_train, event_col='has_esrd', id_col='subject_id')
+
+without naming covariates. lifelines' CoxTimeVaryingFitter consumes
+subject_id / start / stop / has_esrd via its own id_col/start_col/stop_col/
+event_col arguments and treats EVERY remaining column of the frame as a
+covariate. Two non-features therefore entered the design matrix:
+
+  a) duration_in_days — the outcome time itself.
+  b) an unnamed CSV row-index column ("Unnamed: 0"), introduced because
+     pkgs/data_analysis/model_data_store.py:205 writes the cached split with
+     `data_train.to_csv(train_path)` (no index=False), and line 209 reads it
+     back with a plain `pd.read_csv`.
+
+Confirmed by loading the fitted rep1 artifacts (params_.index):
+
+  four_features                  6 covariates:
+      ['Unnamed: 0', 'duration_in_days', 'age', 'gender', 'egfr', 'uacr']
+  eight_features                10 covariates: ['Unnamed: 0', 'duration_in_days', ...]
+  twenty_features_heterogeneous 42 covariates: ['Unnamed: 0', 'duration_in_days', ...]
+
+duration_in_days coefficients (all positive):
+
+  Scenario                        coef            p
+  four_features                   +5.115072e-05   1.961e-11
+  eight_features                  +1.259937e-04   4.289e-06
+  twenty_features_heterogeneous   +1.577538e-05   1.734e-282
+
+"Unnamed: 0" coefficients: -1.795e-07 (p=0.865), -3.160e-06 (p=0.771),
+-8.933e-10 (p=7.3e-06).
+
+Because the coefficient on duration_in_days is positive, predicted hazard
+rises with duration; run_cox_model() then scores that prediction against
+duration_in_days itself via concordance_index(). The result was a
+systematically INVERTED ranking rather than a spuriously good one — rep1
+four_features scored C-Index 0.308, and 1 - 0.308 = 0.692, essentially the
+0.699 obtained after the fix.
+
+Why Cox-specific: all ten other models select features explicitly through
+pkgs/experiments/utils.py:get_tv_rnn_model_features(). cox.py was the only
+module that never imported it (verified by grep across pkgs/). The analysis
+layer was already immune — feature_importance_analysis.py:311-312 filters
+non-features and any "Unnamed*" column.
+
+--------------------------------------------------------------------------------
+2. FIX
+--------------------------------------------------------------------------------
+pkgs/experiments/cox.py:
+  - imports get_tv_rnn_model_features (the same per-scenario feature table
+    the other ten models use).
+  - adds COX_NON_COVARIATE_COLS + get_cox_covariates(scenario, df), which
+    returns that scenario's explicit feature list. It falls back to column
+    exclusion (mirroring feature_importance_analysis.py's rule) only for
+    HETEROGENEOUS_IMPUTE — the one scenario run_cox_model() accepts that
+    get_tv_rnn_model_features() has no table entry for, because that frame
+    is assembled at runtime in model_data_store.get_train_test_data() from
+    the FIVELABMS subsets with the *_missing columns dropped after
+    imputation. It asserts every named covariate is present in the frame.
+  - run_cox_model() now fits on
+    data_train[['subject_id','start','stop','has_esrd'] + covariates]
+    and logs the covariate list it used.
+
+No other module was changed. Evaluation is unaffected: lifelines 0.30.0's
+predict_log_partial_hazard() selects the fitted covariates from the test
+frame by name (self.regressors.transform_df(X)), so passing the full
+data_test remains correct.
+
+--------------------------------------------------------------------------------
+3. REP99 VERIFICATION (required before any full-scale rep)
+--------------------------------------------------------------------------------
+Retrained all three scenarios on rep99; artifacts re-inspected via
+params_.index — no duration_in_days, no Unnamed* in any of them:
+
+  four_features                   4 covariates   C-Index 0.617  IBS 0.075
+  eight_features                  8 covariates   C-Index 0.585  IBS 0.416   AUC 0.5947
+  twenty_features_heterogeneous  40 covariates   C-Index 0.500  IBS n/a     AUC 0.4957
+
+rep99 is the 500-train-subject mini-experiment, so its absolute values are
+not meaningful on their own; the check is that the covariate sets are clean
+and the inversion is gone.
+
+Feature-importance analysis re-run on rep99 for cox
+(`run_experiments analyze --reps 99 --analyses feature_importance --models cox`,
+exit 0, log generated_data/rep99/rep99_feature_importance_20260918_034801_600118.log).
+Cox importance tables now list only real features — no duration_in_days row.
+
+--------------------------------------------------------------------------------
+4. REP1 RESULTS
+--------------------------------------------------------------------------------
+Log: generated_data/rep1/rep1_train_20260918_034841_372696.log (exit 0)
+
+  Scenario                        C-Index before   C-Index after
+  four_features                   0.308            0.699   (AUC 0.7026)
+  eight_features                  --               0.609   (AUC 0.6248, IBS 0.499)
+  twenty_features_heterogeneous   0.44             pending
+
+four_features moving 0.308 -> 0.699 across the 0.5 line is the signature of
+removing an inverted-ranking artifact, and lands where the other models for
+this scenario sit.
+
+rep1 twenty_features_heterogeneous (6,512,639 train rows) retrain launched
+in the background, log generated_data/rep1/rep1_train_20260918_034902_704347.log.
+A prior subsample trial (pkgs/scripts/cox_subsample_trial_16000.result) fit
+16,000 patients / 3.94M rows in 2102s at ~7GB RSS, so the full fit is
+expected to take roughly an hour.
+
+--------------------------------------------------------------------------------
+5. RELATED PRE-EXISTING ISSUES (NOT CHANGED — FOR THE OWNING SESSION)
+--------------------------------------------------------------------------------
+a) run_ti_cox_model() (cox.py, NON_TIME_VARIANT / CoxPHFitter) has the same
+   class of bug: it calls fit(data_train, duration_col=..., event_col=...)
+   with no covariate list, so subject_id and the "Unnamed: 0" row index
+   enter its design matrix. duration_in_days does NOT leak there (it is
+   consumed as duration_col). This is legacy, out of scope for the 4/8/20
+   feature-set experiment, and was deliberately left untouched.
+
+b) compute_time_dependent_auc() (cox.py:22-33) catches only MemoryError, so
+   the known sksurv "censoring survival function is zero at one or more time
+   points" ValueError propagates and aborts the caller. Observed on rep99
+   four_features. C-Index and Brier are computed before that call and the
+   model is saved before evaluation, so nothing above is invalidated;
+   run_experiments.py isolates it per scenario/model anyway. Left unchanged
+   (it alters behaviour for every rep and scenario).
+
+c) pkgs/scripts/run_stage2_new_scenarios.py, cited in CLAUDE.md as the
+   scoped-driver pattern, no longer exists. pkgs/scripts/run_experiments.py
+   supersedes it: it already provides per-scenario/per-model exception
+   isolation, CKD_REP handling, per-rep logging, and an explicit guard that
+   refuses to run when a scenario's train/test CSVs are missing — which is
+   what prevents the raw-MIMIC-extraction fallback described in CLAUDE.md.
+   It was used for all runs above; no new driver was written.
+
+--------------------------------------------------------------------------------
+6. ARTIFACT DELETION (2026-09-18, sunlab-serv-01, at user request)
+--------------------------------------------------------------------------------
+Deleted, irreversibly (~2.7GB freed). Manifest of the exact 41 paths:
+  generated_data/rep1/cox_deleted_artifacts_manifest_20260918.txt
+
+a) All 6 leaky_bak backups (314MB):
+     generated_data/rep1/{four,eight,twenty..}_cox_model.leaky_bak_20260918_034837.dill
+     generated_data/rep99/{four,eight,twenty..}_cox_model.leaky_bak_20260918_034620.dill
+   rep1's twenty_features_heterogeneous backup was removed while that
+   scenario's retrain was still in flight, so until the retrain completes
+   there is no cox artifact on disk for rep1/twenty_features_heterogeneous.
+   Accepted: the backup was invalid anyway.
+
+b) All 35 cox models in rep2-rep5 (2.4GB) — every *cox_model*.dill, not just
+   the three feature-set scenarios. Justified because run_cox_model() fitted
+   ALL of its scenarios through the same unnamed-covariate fit() call, so
+   egfr_tv, hg (heterogeneous), egfr_components, fivelabms, heterogen_impute
+   and ckd_fifty_features_heterogeneous were leaky by the same mechanism,
+   not only four/eight/twenty_features.
+
+Pre-deletion safety checks (sunlab-serv-01 only): no local rep2-5 experiment
+processes, no open file handles on any target (lsof), and all targets dated
+2026-08-18..08-29, i.e. runs long finished. Per CLAUDE.md, a local ps cannot
+prove another host's process is dead — rep2/rep3 (sunlab-serv-02) and
+rep4/rep5 (sunlab-serv-03) were not verifiable from here.
+
+CONSEQUENCES / FOLLOW-UPS:
+  - rep2-5 now have NO cox artifacts. Every cox scenario in those reps must
+    be retrained before their cox numbers mean anything. Any aggregate that
+    already consumed rep2-5 cox metrics (e.g. generated_data/stats.xlsx,
+    pkgs/scripts/aggregate_rep_metrics.py output) is stale.
+  - rep1 retains LEAKY cox models for the scenarios outside this
+    experiment's scope: ckd_fifty_features_heterogeneous, egfr_components,
+    egfr_ti, egfr_tv, fivelabms, hg (dated 2026-05-27/08-28). Deletion was
+    scoped to rep2-5, so these were deliberately left in place. They are
+    leaky and WILL be reused by load_pkl_and_dill_model() if those scenarios
+    are re-run without first removing them.
+  - egfr_ti_cox_model.dill is produced by run_ti_cox_model() (CoxPHFitter),
+    which was NOT fixed (section 5a). Refitting rep2-5's egfr_ti will
+    reproduce a model that still carries subject_id and the CSV row index as
+    covariates.
+  - rep1 four_features/eight_features artifacts re-verified intact and clean
+    after deletion (4 and 8 covariates, no duration_in_days, no Unnamed*).
+================================================================================

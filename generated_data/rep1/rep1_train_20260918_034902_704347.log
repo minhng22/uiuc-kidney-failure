@@ -1,0 +1,8 @@
+rep1 train: twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep1
+RUN twenty_features_heterogeneous/cox
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 6521 and train 26080
+Number of records: test 1613452 and train 6512638
+Fitting model on 40 covariates: ['egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'wbc', 'wbc_missing', 'mchc', 'mchc_missing', 'mch', 'mch_missing', 'rbc', 'rbc_missing', 'mcv', 'mcv_missing', 'rdw', 'rdw_missing', 'glucose', 'glucose_missing', 'calcium', 'calcium_missing', 'magnesium', 'magnesium_missing', 'phosphate', 'phosphate_missing']
+

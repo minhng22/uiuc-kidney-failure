@@ -9,7 +9,7 @@ from sksurv.util import Surv
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path, ckd_fifty_features_heterogeneous_cox_model_path, four_features_cox_model_path, eight_features_cox_model_path, twenty_features_heterogeneous_cox_model_path, ckd_fifty_features_heterogeneous_train_data_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores, get_tv_rnn_model_features
 import dill
 
 def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_train, data_test, duration_col, event_col, times):
@@ -35,6 +35,38 @@ def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_t
         auc_values, mean_auc = None, None
     return auc_values, mean_auc
 
+# Columns that are structure/outcome, never covariates. CoxTimeVaryingFitter
+# consumes subject_id/start/stop/has_esrd via its own id_col/start_col/
+# stop_col/event_col arguments and treats EVERY OTHER column in the frame as
+# a covariate -- so duration_in_days (the outcome time the C-Index is then
+# scored against) and the unnamed CSV row index that get_train_test_data()'s
+# `to_csv(path)` writes both silently entered the design matrix. Confirmed on
+# rep1's fitted artifacts: duration_in_days coef +5.115e-05 (p=2.0e-11) for
+# four_features, +1.260e-04 for eight_features, +1.578e-05 for
+# twenty_features_heterogeneous -- all positive, so predicted hazard rose with
+# duration and the C-Index scored that against duration itself. Every other
+# model already selects features explicitly via get_tv_rnn_model_features(),
+# which is why this was Cox-specific.
+COX_NON_COVARIATE_COLS = frozenset({'subject_id', 'duration_in_days', 'start', 'stop', 'has_esrd'})
+
+def get_cox_covariates(scenario: ExperimentScenario, df):
+    """Explicit covariate list for a CoxTimeVaryingFitter fit on `scenario`.
+
+    Uses the same per-scenario feature table the other models use. Falls back
+    to column exclusion for HETEROGENEOUS_IMPUTE, the one scenario
+    run_cox_model() accepts that get_tv_rnn_model_features() has no entry for
+    (its frame is built in model_data_store.get_train_test_data() from the
+    FIVELABMS subsets with the *_missing columns dropped after imputation, so
+    it has no fixed column list to name). Mirrors the exclusion rule already
+    used in data_analysis/feature_importance_analysis.py."""
+    features = get_tv_rnn_model_features(scenario)
+    if features is None:
+        features = [c for c in df.columns
+                    if c not in COX_NON_COVARIATE_COLS and not c.startswith('Unnamed')]
+    missing = [c for c in features if c not in df.columns]
+    assert not missing, f'{scenario}: covariates missing from data: {missing}'
+    return features
+
 def run_cox_model(scenario: ExperimentScenario):
     assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS, ExperimentScenario.HETEROGENEOUS_IMPUTE, ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS, ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES, ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS]
 
@@ -47,8 +79,10 @@ def run_cox_model(scenario: ExperimentScenario):
     if not trained_model:
         model = CoxTimeVaryingFitter(penalizer=1.0)
 
-        print(f'Fitting model:\n')
-        model.fit(data_train, event_col='has_esrd', id_col='subject_id')
+        covariates = get_cox_covariates(scenario, data_train)
+        fit_cols = ['subject_id', 'start', 'stop', 'has_esrd'] + covariates
+        print(f'Fitting model on {len(covariates)} covariates: {covariates}\n')
+        model.fit(data_train[fit_cols], event_col='has_esrd', id_col='subject_id')
 
         with open(model_path, 'wb') as f:
             dill.dump(model, f, protocol=4)

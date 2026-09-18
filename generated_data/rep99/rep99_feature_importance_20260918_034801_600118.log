@@ -1,11 +1,66 @@
-FEATURE IMPORTANCE ANALYSIS REPORT
+rep99 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep99
 ================================================================================
-Generated on: 2026-09-18 03:48:13
-Repetition: 99
-Scenario: twenty_features_heterogeneous
-Models analyzed: cox
+FEATURE IMPORTANCE ANALYSIS - FOUR_FEATURES SCENARIO
 ================================================================================
 
+Training samples: 5806
+Test samples: 3667
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=65.705, std=14.519
+  gender: mean=0.549, std=0.498
+  egfr: mean=55.284, std=33.892
+  uacr: mean=629.029, std=1398.494
+
+ANALYZING ALL MODELS FOR FOUR_FEATURES
+------------------------------------------------------------
+
+Analyzing COX model...
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_cox_model.dill
+  COX Feature Importance:
+    age: 0.0013 (coeff=-0.0013, HR=0.999)
+    gender: 0.0045 (coeff=-0.0045, HR=0.996)
+    egfr: 0.0006 (coeff=-0.0006, HR=0.999)
+    uacr: 0.0000 (coeff=0.0000, HR=1.000)
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_all_models_feature_importance.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/four_features_shap_analysis_report.txt
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - EIGHT_FEATURES SCENARIO
+================================================================================
+
+Training samples: 1856
+Test samples: 1100
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=61.052, std=15.866
+  gender: mean=0.606, std=0.489
+  egfr: mean=59.458, std=38.502
+  uacr: mean=1037.235, std=2357.756
+  calcium: mean=8.494, std=0.990
+  phosphate: mean=3.671, std=1.402
+  bicarbonate: mean=23.668, std=4.837
+  serum_albumin: mean=3.171, std=0.712
+
+ANALYZING ALL MODELS FOR EIGHT_FEATURES
+------------------------------------------------------------
+
+Analyzing COX model...
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_cox_model.dill
+  COX Feature Importance:
+    age: 0.0022 (coeff=-0.0022, HR=0.998)
+    gender: 0.0218 (coeff=0.0218, HR=1.022)
+    egfr: 0.0012 (coeff=-0.0012, HR=0.999)
+    uacr: 0.0000 (coeff=0.0000, HR=1.000)
+    calcium: 0.0345 (coeff=-0.0345, HR=0.966)
+    phosphate: 0.0070 (coeff=0.0070, HR=1.007)
+    bicarbonate: 0.0168 (coeff=-0.0168, HR=0.983)
+    serum_albumin: 0.0373 (coeff=-0.0373, HR=0.963)
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_all_models_feature_importance.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/eight_features_shap_analysis_report.txt
 ================================================================================
 FEATURE IMPORTANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS SCENARIO
 ================================================================================
@@ -61,6 +116,7 @@ ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
 ------------------------------------------------------------
 
 Analyzing COX model...
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_cox_model.dill
   COX Feature Importance:
     egfr: 0.0000 (coeff=-0.0000, HR=1.000)
     egfr_missing: 0.0027 (coeff=0.0027, HR=1.003)
@@ -103,3 +159,5 @@ Analyzing COX model...
     phosphate: 0.0170 (coeff=-0.0170, HR=0.983)
     phosphate_missing: 0.0656 (coeff=0.0656, HR=1.068)
 Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_all_models_feature_importance.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep99/twenty_features_heterogeneous_shap_analysis_report.txt
+COMPLETE
