@@ -10,6 +10,8 @@ from pkgs.commons import (
     four_features_train_data_path, four_features_test_data_path,
     eight_features_train_data_path, eight_features_test_data_path,
     twenty_features_heterogeneous_train_data_path, twenty_features_heterogeneous_test_data_path,
+    four_features_external_validation_data_path, eight_features_external_validation_data_path,
+    twenty_features_heterogeneous_external_validation_data_path,
     prev_egfr_ti_train_data_path,
     prev_egfr_ti_test_data_path, prev_egfr_tv_train_data_path, prev_egfr_tv_test_data_path,
     prev_egfr_components_train_data_path, prev_egfr_components_test_data_path,
@@ -218,6 +220,76 @@ def get_train_test_data(scenario: ExperimentScenario):
     data_test.reset_index(drop=True, inplace=True)
 
     return data_train, data_test
+
+EXTERNAL_VALIDATION_DATA_PATHS = {
+    ExperimentScenario.FOUR_FEATURES: four_features_external_validation_data_path,
+    ExperimentScenario.EIGHT_FEATURES: eight_features_external_validation_data_path,
+    ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS: twenty_features_heterogeneous_external_validation_data_path,
+}
+
+
+def has_external_validation_data(scenario: ExperimentScenario) -> bool:
+    """Whether the current rep (CKD_REP) holds a held-out external validation set
+    for this scenario.
+
+    False for scenarios/reps built with the legacy two-way 80/20 train/test rule
+    in get_train_test_data() -- only reps built by
+    pkgs/scripts/build_external_validation_reps.py have a third split."""
+    path = EXTERNAL_VALIDATION_DATA_PATHS.get(scenario)
+    return path is not None and os.path.exists(path)
+
+
+def get_external_validation_data(scenario: ExperimentScenario):
+    """The rep's held-out external validation set: 20% of the original patient pool,
+    disjoint by subject_id from both train and test.
+
+    Written by pkgs/scripts/build_external_validation_reps.py, which splits the pool
+    80/20 into development/external-validation (stratified on the patient's ESRD
+    label), then 4:1 train/test inside development -- 64/16/20 overall. This set is
+    never seen during training or model selection; use it only for final evaluation.
+
+    Raises FileNotFoundError on reps built with the older two-way split, which have
+    no such file -- callers that must tolerate both should gate on
+    has_external_validation_data() first."""
+    if scenario not in EXTERNAL_VALIDATION_DATA_PATHS:
+        raise KeyError(
+            f"No external validation split defined for scenario {scenario}. "
+            f"Available: {sorted(sc.value for sc in EXTERNAL_VALIDATION_DATA_PATHS)}"
+        )
+
+    path = EXTERNAL_VALIDATION_DATA_PATHS[scenario]
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"No external validation data at {path}. This rep was probably built with "
+            f"the two-way train/test rule; rebuild it with "
+            f"`python -m pkgs.scripts.build_external_validation_reps`."
+        )
+
+    data = pd.read_csv(path)
+    data.reset_index(drop=True, inplace=True)
+    print(
+        f"External validation data ({scenario}): "
+        f"{data['subject_id'].nunique()} patients, {len(data)} records -- {path}"
+    )
+    return data
+
+
+def get_train_test_external_data(scenario: ExperimentScenario):
+    """get_train_test_data() plus the held-out external validation set, as a 3-tuple."""
+    data_train, data_test = get_train_test_data(scenario)
+    data_external = get_external_validation_data(scenario)
+
+    train_subjects = set(data_train['subject_id'].unique())
+    test_subjects = set(data_test['subject_id'].unique())
+    external_subjects = set(data_external['subject_id'].unique())
+    leaked = external_subjects & (train_subjects | test_subjects)
+    assert not leaked, (
+        f"{len(leaked)} subject_id(s) appear in both the external validation set and "
+        f"train/test for {scenario}, e.g. {sorted(leaked)[:5]}"
+    )
+
+    return data_train, data_test, data_external
+
 
 def get_last_observation_data(scenario: ExperimentScenario):
     """Flattens a time-varying scenario's train/test data (multiple rows per

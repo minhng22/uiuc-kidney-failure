@@ -275,6 +275,15 @@ eight_features_test_data_path = f'{generate_data_path_latest_rep}/eight_features
 twenty_features_heterogeneous_train_data_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_train_data.csv'
 twenty_features_heterogeneous_test_data_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_test_data.csv'
 
+# Held-out external validation data. Only reps built by
+# pkgs/scripts/build_external_validation_reps.py have these -- that script splits the
+# patient pool 80/20 into development/external-validation, then 4:1 train/test inside
+# development (64/16/20 overall). Legacy reps (e.g. rep99, rep100) were built with the
+# two-way 80/20 train/test rule and have no external validation file.
+four_features_external_validation_data_path = f'{generate_data_path_latest_rep}/four_features_external_validation_data.csv'
+eight_features_external_validation_data_path = f'{generate_data_path_latest_rep}/eight_features_external_validation_data.csv'
+twenty_features_heterogeneous_external_validation_data_path = f'{generate_data_path_latest_rep}/twenty_features_heterogeneous_external_validation_data.csv'
+
 five_labms_num_subsets_train = 10
 five_labms_num_subsets_test = 2
 def five_labms_train_subset_path(i):

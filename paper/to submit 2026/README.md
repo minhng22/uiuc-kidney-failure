@@ -149,19 +149,6 @@ the full 32,601-patient cohort rather than the n=20 pilot, and all three
 venue files were rewritten around those numbers. That closes the two
 completeness gaps below and reframes the rest.
 
-### Resolved by the completed runs
-
-- **1. ~~Incomplete experiments presented as findings.~~** Closed. All three
-  scenarios report repetitions 1--5, and the twenty-feature results are the
-  full cohort, not the 20-patient feasibility subsample. The "interim
-  benchmark" framing is gone from all three abstracts.
-- **2. Partially closed — Hazard Transformer's pilot collapse was an artifact
-  of the pilot.** It reaches C-index 0.717 (SD 0.060) / AUC 0.802 on the full
-  twenty-feature cohort, superseding the AUC 0.059 pilot number. **Cox's
-  below-chance discrimination persists** across all three scenarios
-  (0.308/0.470/0.457) and is still unexplained; eight-feature DeepSurv also
-  averages 0.484. Still a live reviewer risk.
-
 ### Near-certain rejection/major-revision triggers
 
 - **3.** Uncertainty quantification is still absent in the sense reviewers

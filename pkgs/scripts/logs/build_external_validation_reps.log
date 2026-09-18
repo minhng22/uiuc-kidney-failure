@@ -1,0 +1,105 @@
+Source rep: rep100
+Destination reps: [1, 2, 3, 4, 5]
+Scenarios: ['four_features', 'eight_features', 'twenty_features_heterogeneous']
+Rule: 80% development / 20% external validation; within development 1:1 train:test (= 64% / 16% / 20% of the pool)
+Stratified on patient-level ESRD label; seed = 42 + rep
+
+=== four_features ===
+Reading patient labels from ['/home/minhn2/uiuc-kidney-failure/generated_data/rep100/four_features_train_data.csv', '/home/minhn2/uiuc-kidney-failure/generated_data/rep100/four_features_test_data.csv']
+Pool: 2,809 patients, 83.52% with ESRD
+--- rep1 / four_features (seed=43) ---
+  train                patients   1,797 (63.97% of pool)  ESRD patients 83.53%
+  test                 patients     450 (16.02% of pool)  ESRD patients 83.56%
+  external_validation  patients     562 (20.01% of pool)  ESRD patients 83.45%
+  train                rows     17,532  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_train_data.csv
+  test                 rows      4,474  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_test_data.csv
+  external_validation  rows      4,823  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/four_features_external_validation_data.csv
+  elapsed 0:00:00.358986
+--- rep2 / four_features (seed=44) ---
+  train                patients   1,797 (63.97% of pool)  ESRD patients 83.53%
+  test                 patients     450 (16.02% of pool)  ESRD patients 83.56%
+  external_validation  patients     562 (20.01% of pool)  ESRD patients 83.45%
+  train                rows     16,856  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep2/four_features_train_data.csv
+  test                 rows      4,816  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep2/four_features_test_data.csv
+  external_validation  rows      5,157  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep2/four_features_external_validation_data.csv
+  elapsed 0:00:00.295281
+--- rep3 / four_features (seed=45) ---
+  train                patients   1,797 (63.97% of pool)  ESRD patients 83.53%
+  test                 patients     450 (16.02% of pool)  ESRD patients 83.56%
+  external_validation  patients     562 (20.01% of pool)  ESRD patients 83.45%
+  train                rows     17,707  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_train_data.csv
+  test                 rows      4,385  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_test_data.csv
+  external_validation  rows      4,737  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep3/four_features_external_validation_data.csv
+  elapsed 0:00:00.304068
+--- rep4 / four_features (seed=46) ---
+  train                patients   1,797 (63.97% of pool)  ESRD patients 83.53%
+  test                 patients     450 (16.02% of pool)  ESRD patients 83.56%
+  external_validation  patients     562 (20.01% of pool)  ESRD patients 83.45%
+  train                rows     17,599  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep4/four_features_train_data.csv
+  test                 rows      3,945  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep4/four_features_test_data.csv
+  external_validation  rows      5,285  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep4/four_features_external_validation_data.csv
+  elapsed 0:00:00.354512
+--- rep5 / four_features (seed=47) ---
+  train                patients   1,797 (63.97% of pool)  ESRD patients 83.53%
+  test                 patients     450 (16.02% of pool)  ESRD patients 83.56%
+  external_validation  patients     562 (20.01% of pool)  ESRD patients 83.45%
+  train                rows     17,989  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_train_data.csv
+  test                 rows      4,041  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_test_data.csv
+  external_validation  rows      4,799  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep5/four_features_external_validation_data.csv
+  elapsed 0:00:00.312849
+
+=== eight_features ===
+Reading patient labels from ['/home/minhn2/uiuc-kidney-failure/generated_data/rep100/eight_features_train_data.csv', '/home/minhn2/uiuc-kidney-failure/generated_data/rep100/eight_features_test_data.csv']
+Pool: 1,213 patients, 85.08% with ESRD
+--- rep1 / eight_features (seed=43) ---
+  train                patients     776 (63.97% of pool)  ESRD patients 85.05%
+  test                 patients     194 (15.99% of pool)  ESRD patients 85.05%
+  external_validation  patients     243 (20.03% of pool)  ESRD patients 85.19%
+  train                rows      3,444  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_train_data.csv
+  test                 rows        892  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_test_data.csv
+  external_validation  rows      1,071  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/eight_features_external_validation_data.csv
+  elapsed 0:00:00.126083
+--- rep2 / eight_features (seed=44) ---
+  train                patients     776 (63.97% of pool)  ESRD patients 85.05%
+  test                 patients     194 (15.99% of pool)  ESRD patients 85.05%
+  external_validation  patients     243 (20.03% of pool)  ESRD patients 85.19%
+  train                rows      3,728  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep2/eight_features_train_data.csv
+  test                 rows        898  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep2/eight_features_test_data.csv
+  external_validation  rows        781  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep2/eight_features_external_validation_data.csv
+  elapsed 0:00:00.090489
+--- rep3 / eight_features (seed=45) ---
+  train                patients     776 (63.97% of pool)  ESRD patients 85.05%
+  test                 patients     194 (15.99% of pool)  ESRD patients 85.05%
+  external_validation  patients     243 (20.03% of pool)  ESRD patients 85.19%
+  train                rows      3,671  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_train_data.csv
+  test                 rows        791  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_test_data.csv
+  external_validation  rows        945  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep3/eight_features_external_validation_data.csv
+  elapsed 0:00:00.135578
+--- rep4 / eight_features (seed=46) ---
+  train                patients     776 (63.97% of pool)  ESRD patients 85.05%
+  test                 patients     194 (15.99% of pool)  ESRD patients 85.05%
+  external_validation  patients     243 (20.03% of pool)  ESRD patients 85.19%
+  train                rows      3,309  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep4/eight_features_train_data.csv
+  test                 rows      1,060  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep4/eight_features_test_data.csv
+  external_validation  rows      1,038  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep4/eight_features_external_validation_data.csv
+  elapsed 0:00:00.125777
+--- rep5 / eight_features (seed=47) ---
+  train                patients     776 (63.97% of pool)  ESRD patients 85.05%
+  test                 patients     194 (15.99% of pool)  ESRD patients 85.05%
+  external_validation  patients     243 (20.03% of pool)  ESRD patients 85.19%
+  train                rows      3,592  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_train_data.csv
+  test                 rows        831  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_test_data.csv
+  external_validation  rows        984  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep5/eight_features_external_validation_data.csv
+  elapsed 0:00:00.122909
+
+=== twenty_features_heterogeneous ===
+Reading patient labels from ['/home/minhn2/uiuc-kidney-failure/generated_data/rep100/twenty_features_heterogeneous_train_data.csv', '/home/minhn2/uiuc-kidney-failure/generated_data/rep100/twenty_features_heterogeneous_test_data.csv']
+Pool: 32,601 patients, 91.45% with ESRD
+--- rep1 / twenty_features_heterogeneous (seed=43) ---
+  train                patients  20,864 (64.00% of pool)  ESRD patients 91.45%
+  test                 patients   5,216 (16.00% of pool)  ESRD patients 91.45%
+  external_validation  patients   6,521 (20.00% of pool)  ESRD patients 91.46%
+  train                rows  5,208,900  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_train_data.csv
+  test                 rows  1,255,828  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_test_data.csv
+  external_validation  rows  1,661,362  -> /home/minhn2/uiuc-kidney-failure/generated_data/rep1/twenty_features_heterogeneous_external_validation_data.csv
+  elapsed 0:02:24.394020
