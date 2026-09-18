@@ -4,13 +4,10 @@
 
 ---
 
+## RELEVANT GAPS
 **Gap 3 — no uncertainty quantification**
 - relevant (narrowed: the "one fixed patient partition" half is closed by the rebuilt repetitions)
 - Fix (after retrain): bootstrap test-set patients about 1000 times, report percentile 95 percent confidence intervals for the concordance index, the integrated Brier score, and the time-dependent area under the curve; take paired differences against the Kidney Failure Risk Equation and against the best model on the same resamples. Predictions are computed once and re-indexed, so this costs minutes. Tables change from mean and standard deviation to mean with a confidence interval.
-
-**Gap 4 — Logistic Hazard tunes on the test set**
-- relevant — `val_data=(x_test, y_test)`, [logistic_hazard.py:82](pkgs/experiments/logistic_hazard.py#L82)
-- Fix (before retrain): carve a stratified, patient-level validation slice out of the training split and use it for trial selection and checkpointing. The new three-way repetitions make this clean.
 
 **Gap 5a — intermediate visits are treated as censored observations in Brier/AUC evaluation**
 
