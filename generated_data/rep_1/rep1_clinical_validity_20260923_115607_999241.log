@@ -1,0 +1,37 @@
+rep1 analyze: twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_1
+TRAIN twenty_features_heterogeneous/cox: missing artifact /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+Fitting model on 40 covariates: ['egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'wbc', 'wbc_missing', 'mchc', 'mchc_missing', 'mch', 'mch_missing', 'rbc', 'rbc_missing', 'mcv', 'mcv_missing', 'rdw', 'rdw_missing', 'glucose', 'glucose_missing', 'calcium', 'calcium_missing', 'magnesium', 'magnesium_missing', 'phosphate', 'phosphate_missing']
+
+Evaluate on test data
+Concordance Index Test: 0.502
+Integrated Brier Score Test: 0.802
+Mean time-dependent AUC (patient-level, supported follow-up below 730 days): 0.4641
+TRAIN twenty_features_heterogeneous/dynamic_deephit: missing artifact /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_ddh_model.pt
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+Running Optuna hyperparameter optimization
+[I 2026-09-23 12:53:13,566] A new study created in memory with name: no-name-f13671ec-06f8-4e3a-a8f6-37b9420ad5f6
+Using GPU: cuda:3 (utilization=0%, free_mem=11260MiB)
+Running trial 0 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cuda:3
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+Epoch 1/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 108])
+fc_output shape: torch.Size([16, 8729, 54])
+context shape: torch.Size([16, 54])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 123])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
