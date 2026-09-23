@@ -24,3 +24,4 @@ final comparisons.
 
 To run this script in the background, do:
 
+nohup python -u -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses clinical_validity feature_importance --parallel-reps > generated_data/run_experiments_rep_2_3.log 2>&1 < /dev/null &

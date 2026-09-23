@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-09-18 09:46:18
+Generated on: 2026-09-18 10:19:31
 Repetition: 99
 Scenario: twenty_features_heterogeneous
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -22,15 +22,15 @@ eGFR-threshold referral rule: one decision per patient from the most recent meas
 
 Patient-level alignment check (Gap 5a):
   OK   Cox: aligned to 20 patient-level terminal outcomes
-  OK   Dynamic DeepHit: aligned to 20 patient-level terminal outcomes (18 durations differ by up to 0.9688 d — this model's own time discretization; scored against the canonical outcomes)
-  OK   Hazard Transformer: aligned to 20 patient-level terminal outcomes (18 durations differ by up to 0.9688 d — this model's own time discretization; scored against the canonical outcomes)
-  OK   Logistic Hazard: aligned to 20 patient-level terminal outcomes (13 durations differ by up to 0.0002 d — this model's own time discretization; scored against the canonical outcomes)
+  OK   Dynamic DeepHit: aligned to 20 patient-level terminal outcomes (18 durations differ by up to 0.96875 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   Hazard Transformer: aligned to 20 patient-level terminal outcomes (18 durations differ by up to 0.96875 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   Logistic Hazard: aligned to 20 patient-level terminal outcomes (13 durations differ by up to 0.000206163 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
   OK   RNN-Surv: aligned to 20 patient-level terminal outcomes
   OK   DeepSurv: aligned to 20 patient-level terminal outcomes
   OK   GBSA: aligned to 20 patient-level terminal outcomes
   OK   Survival RF: aligned to 20 patient-level terminal outcomes
   OK   Survival SVM: aligned to 20 patient-level terminal outcomes
-  OK   Weibull AFT: aligned to 20 patient-level terminal outcomes (2 durations differ by up to 0.0000 d — this model's own time discretization; scored against the canonical outcomes)
+  OK   Weibull AFT: aligned to 20 patient-level terminal outcomes (2 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
@@ -119,7 +119,10 @@ Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (
 === Horizon: 730 days ===
 Treat-all net benefit (20 patients): {0.05: 0.21805, 0.1: 0.1746, 0.15: 0.12605, 0.2: 0.07143, 0.25: 0.00952, 0.3: -0.06122, 0.4: -0.2381, 0.5: -0.48571}
   (for contrast, the superseded row-level treat-all over 9115 lab rows: {0.05: -0.02963, 0.1: -0.08683, 0.15: -0.15076, 0.2: -0.22269, 0.25: -0.3042, 0.3: -0.39736, 0.4: -0.63025, 0.5: -0.9563})
-eGFR-threshold referral rule net benefit (20 patients): {30: 0.05, 45: -0.4}
+eGFR<30 referral rule (20 patients): flags 5 (0.25), TP rate 0.1, FP rate 0.15
+  net benefit across the model thresholds: {0.05: 0.09211, 0.1: 0.08333, 0.15: 0.07353, 0.2: 0.0625, 0.25: 0.05, 0.3: 0.03571, 0.4: -0.0, 0.5: -0.05}
+eGFR<45 referral rule (20 patients): flags 12 (0.6), TP rate 0.2, FP rate 0.4
+  net benefit across the model thresholds: {0.05: 0.17895, 0.1: 0.15556, 0.15: 0.12941, 0.2: 0.1, 0.25: 0.06667, 0.3: 0.02857, 0.4: -0.06667, 0.5: -0.2}
 
 --- Cox ---
 Predicted-probability source: native (model output read directly at this horizon)
@@ -353,7 +356,10 @@ Decision curve analysis (net benefit by risk threshold):
 === Horizon: 1825 days ===
 Treat-all net benefit (20 patients): {0.05: 0.51731, 0.1: 0.4905, 0.15: 0.46052, 0.2: 0.42681, 0.25: 0.38859, 0.3: 0.34492, 0.4: 0.23574, 0.5: 0.08289}
   (for contrast, the superseded row-level treat-all over 9115 lab rows: {0.05: -0.00508, 0.1: -0.06092, 0.15: -0.12333, 0.2: -0.19353, 0.25: -0.2731, 0.3: -0.36404, 0.4: -0.59138, 0.5: -0.90966})
-eGFR-threshold referral rule net benefit (20 patients): {30: 0.05, 45: 0.06429}
+eGFR<30 referral rule (20 patients): flags 5 (0.25), TP rate 0.1, FP rate 0.15
+  net benefit across the model thresholds: {0.05: 0.09211, 0.1: 0.08333, 0.15: 0.07353, 0.2: 0.0625, 0.25: 0.05, 0.3: 0.03571, 0.4: -0.0, 0.5: -0.05}
+eGFR<45 referral rule (20 patients): flags 12 (0.6), TP rate 0.38571, FP rate 0.21429
+  net benefit across the model thresholds: {0.05: 0.37444, 0.1: 0.3619, 0.15: 0.3479, 0.2: 0.33214, 0.25: 0.31429, 0.3: 0.29388, 0.4: 0.24286, 0.5: 0.17143}
 
 --- Cox ---
 Predicted-probability source: native (model output read directly at this horizon)
