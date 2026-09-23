@@ -3,7 +3,7 @@
 How to run
 ----------
 From the repository root, activate the project Python environment. Choose
-"analyze" for existing trained models or "train" to invoke model training/
+"analyze" to train missing models and analyze them, or "train" for training/
 evaluation (each model's existing function controls reuse of saved models)::
 
     # All analyses and gap audits, all three scenarios, reps 1-5:
@@ -55,8 +55,9 @@ Selection options:
 
 Inputs, outputs, and execution:
 - Both actions require existing <scenario>_train_data.csv and
-  <scenario>_test_data.csv under the repetition directory. Analysis also needs
-  trained model artifacts there; missing models are logged and skipped.
+  <scenario>_test_data.csv under the repetition directory. Analysis reuses
+  existing model artifacts and trains missing selected models before analysis.
+  Missing KFRE score caches are generated for four/eight-feature scenarios.
 - Analysis writes <scenario>_shap_analysis_report.txt,
   <scenario>_all_models_feature_importance.png,
   <scenario>_clinical_validity_report.txt, <scenario>_calibration_plot.png,
@@ -66,8 +67,9 @@ Inputs, outputs, and execution:
   <scenario>_subgroup_performance_report.txt and no charts.
   The audits write stage_gap6_outcome_definition_report.txt and
   stage_gap8_prediction_time_audit_report.txt. They need raw diagnosis/demographic/
-  lab files and existing exports, but no trained models. Analysis never rebuilds
-  datasets or retrains models; the backward uACR fix requires new extraction.
+  lab files and existing exports, but no trained models. Audit-only runs do not
+  train models. Analysis never rebuilds datasets or retrains existing models;
+  the backward uACR fix requires new extraction and retraining.
 - Bootstrap resample count for clinical_validity/subgroup: CKD_N_BOOTSTRAP
   (default 1000). Lower it for a quick smoke run.
 - Reports/charts stay under the repetition directory and are overwritten on
@@ -79,8 +81,8 @@ Inputs, outputs, and execution:
   blocks. Missing data fails the scenario instead of starting raw extraction.
 - Failed workers do not prevent remaining tasks from running; the runner
   returns a nonzero exit status if any worker fails. Inspect analysis logs
-  and reports too: analyzers can skip missing models or unavailable metrics
-  without failing the whole worker.
+  and reports too: analyzers can omit unavailable metrics. Failure to train
+  a missing model or produce its artifact fails the scenario and worker.
 
 """
 
@@ -123,6 +125,44 @@ AUDIT_MODULES = {
 }
 ANALYSES = ("clinical_validity", "feature_importance", "subgroup", *AUDIT_MODULES)
 MODEL_ALIASES = {"dynamic_deephit": "ddh", "rnnsurv": "rnn_surv"}
+MODEL_ARTIFACT_SUFFIXES = {
+    "cox": "cox_model.dill",
+    "dynamic_deephit": "ddh_model.pt",
+    "hazard_transformer": "hazard_transformer_model.pt",
+    "logistic_hazard": "logistic_hazard_model.pt",
+    "rnnsurv": "rnn_surv_model.pt",
+    "kfre": "kfre_2yr_risk_scores.csv",
+    "deepsurv": "deepsurv_model.pt",
+    "gbsa": "gbsa_model.dill",
+    "srf": "srf_model.dill",
+    "survival_svm": "survival_svm_model.dill",
+    "weibul": "weibul_model.dill",
+}
+
+
+def ensure_analysis_models(output_dir, scenario, analysis_models):
+    """Create missing selected artifacts before an analyzer can skip them."""
+    from pkgs.data_analysis.types import ExperimentScenario
+
+    failures = []
+    for model, function in TRAIN_FUNCTIONS.items():
+        if MODEL_ALIASES.get(model, model) not in analysis_models:
+            continue
+        if model == "kfre" and scenario == "twenty_features_heterogeneous":
+            continue
+        artifact = output_dir / f"{scenario}_{MODEL_ARTIFACT_SUFFIXES[model]}"
+        if artifact.is_file():
+            continue
+        try:
+            print(f"TRAIN {scenario}/{model}: missing artifact {artifact}", flush=True)
+            module = importlib.import_module(f"pkgs.experiments.{model}")
+            getattr(module, function)(ExperimentScenario(scenario))
+            if not artifact.is_file():
+                raise RuntimeError(f"Training did not produce required artifact: {artifact}")
+        except Exception:
+            traceback.print_exc()
+            failures.append(f"{scenario}/{model}")
+    return failures
 
 
 def parse_args(argv=None):
@@ -215,6 +255,10 @@ def run_worker(args):
             failures.append(scenario)
             continue
         if analyzer is not None:
+            training_failures = ensure_analysis_models(output_dir, scenario, analyzer.models)
+            if training_failures:
+                failures.extend(training_failures)
+                continue
             try:
                 getattr(analyzer, SCENARIOS[scenario])()
                 results = (analyzer.all_results

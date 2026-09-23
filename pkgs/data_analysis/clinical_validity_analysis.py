@@ -29,9 +29,9 @@ Options and prerequisites:
   twenty_features_heterogeneous. --models defaults to all applicable models;
   KFRE is available only for four_features/eight_features. CLI model names
   include dynamic_deephit and rnnsurv (displayed as ddh and rnn_surv internally).
-- Existing <scenario>_train_data.csv / <scenario>_test_data.csv and trained
-  model artifacts must be under generated_data/rep<N>/. Missing model files
-  are logged and skipped; inspect the reports for incomplete results.
+- Existing <scenario>_train_data.csv / <scenario>_test_data.csv must be under
+  the repetition directory. The runner reuses saved models and trains missing
+  selected models before analysis; training failures make the worker fail.
 - Add --dry-run to preview commands without executing them.
 
 Outputs under generated_data/rep<N>/:
