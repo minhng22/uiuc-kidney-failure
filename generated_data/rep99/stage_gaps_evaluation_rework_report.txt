@@ -4,6 +4,9 @@ Generated: 2026-09-18   Host: sunlab-serv-01   Repetition: 99 (mini-experiment)
 Run: CUDA_VISIBLE_DEVICES="" CKD_N_BOOTSTRAP=1000 python -m pkgs.scripts.run_experiments \
        analyze --reps 99 --analyses clinical_validity --log-dir pkgs/scripts/logs
 Runner PID 3982579, exit 0, ~4 min wall clock (CPU only — GPUs 0-3 held by another session).
+Re-run as PID 4000620 after the Gap 5d threshold fix, exit 0; every discrimination metric
+reproduced identically (that fix touches only the comparator), so the tables below stand and
+only the eGFR comparator numbers changed.
 Baseline for comparison: the previous rep99 reports, generated 2026-09-14 05:30-05:31,
 whose numbers are quoted below as "before".
 
@@ -86,10 +89,20 @@ Gap 5c — treat-all decision curve.
   printed, labelled "superseded", so the size of the correction is on the record.
 
 Gap 5d — eGFR referral comparator.
-  Was one "decision" per eGFR ROW. Now one decision per patient: their most recent genuinely
-  measured eGFR at or before their prediction landmark, carrying their terminal outcome.
-  Coverage is reported explicitly (rep99: 345/345, 243/243 and 20/20 patients have a usable
-  eGFR; twenty_features selects those 20 decisions from 502 measured-eGFR rows out of 9115).
+  Two separate defects, both fixed.
+  (a) Unit. Was one "decision" per eGFR ROW. Now one decision per patient: their most recent
+  genuinely measured eGFR at or before their prediction landmark, carrying their terminal
+  outcome. Coverage is reported explicitly (rep99: 345/345, 243/243 and 20/20 patients have a
+  usable eGFR; twenty_features selects those 20 decisions from 502 measured-eGFR rows out of
+  9115).
+  (b) Threshold. Was ONE number per cutoff, computed at the rule's own referral fraction
+  (n_high/n) used as a stand-in "implied threshold" — a value no model was being compared at,
+  and one that moved with cohort composition independently of the rule's performance. An
+  eGFR<cutoff rule is a fixed binary test: its TP/FP rates do not vary with the risk threshold
+  pt, but its net benefit does, because pt sets the exchange rate between them. It now returns
+  NB(pt) = TPrate - FPrate * pt/(1-pt) across the same DCA_THRESHOLDS as every model curve, and
+  is plotted as a line on the same axis instead of a point floating at x=0.1. Section 4 below
+  gives the resulting curves.
 
 Gap 3 — uncertainty quantification.
   1000 patient-level bootstrap resamples, 95% percentile intervals for C-index, IBS and mean
@@ -175,8 +188,24 @@ twenty_features_heterogeneous, 730-day horizon:
   patient-level (20 patients)   pt=0.05  0.21805   pt=0.20  0.07143   pt=0.50 -0.48571
   row-level, superseded (9115)  pt=0.05 -0.02963   pt=0.20 -0.22269   pt=0.50 -0.95630
 
-The superseded curve is negative across most of the threshold range; the corrected one is
-strongly positive at clinically relevant thresholds. Any clinical-utility claim resting on a
+eGFR-threshold referral comparator, now on the same threshold axis (Gap 5d(b)), 730-day
+horizon — previously a single point per cutoff (four_features: eGFR<30 0.11794, eGFR<45
+0.01606), which is not a net benefit at any threshold a model was compared at:
+  four_features  eGFR<30  flags 93/345 (0.270), TP 0.15881 FP 0.11075
+                          NB  pt=0.05 0.15298 ... pt=0.20 0.13112 ... pt=0.50 0.04806
+                 eGFR<45  flags 173/345 (0.501), TP 0.25946 FP 0.24199
+                          NB  pt=0.05 0.24672 ... pt=0.20 0.19896 ... pt=0.50 0.01746
+  eight_features eGFR<30  flags 88/243 (0.362), TP 0.30530 FP 0.05684
+                          NB  pt=0.05 0.30231 ... pt=0.20 0.29109 ... pt=0.50 0.24846
+                 eGFR<45  flags 133/243 (0.547), TP 0.44206 FP 0.10526
+                          NB  pt=0.05 0.43652 ... pt=0.20 0.41575 ... pt=0.50 0.33680
+  twenty_feats   eGFR<30  flags 5/20 (0.250), TP 0.10000 FP 0.15000
+                          NB  pt=0.05 0.09211 ... pt=0.20 0.06250 ... pt=0.50 -0.05000
+                 eGFR<45  flags 12/20 (0.600), TP 0.20000 FP 0.40000
+                          NB  pt=0.05 0.17895 ... pt=0.20 0.10000 ... pt=0.50 -0.20000
+
+The superseded treat-all curve is negative across most of the threshold range; the corrected
+one is strongly positive at clinically relevant thresholds. Any clinical-utility claim resting on a
 model's decision curve sitting above treat-all must be re-derived against the corrected
 comparator before it is repeated. Correcting the unit does not establish that any model beats
 treat-all — on this mini-experiment split it mostly indicates the opposite — and the
