@@ -94,10 +94,10 @@ class NumericalRankingTests(unittest.TestCase):
             root = Path(tmp)
             for rep, row in [(1, 'None brier=0.4 (native) auc=None'),
                              (2, '0.6 brier=0.2 auc=0.7')]:
-                path = root / 'generated_data' / f'rep{rep}' / 'test_clinical_validity_report.txt'
+                path = root / 'generated_data' / f'rep_{rep}' / 'test_clinical_validity_report.txt'
                 path.parent.mkdir(parents=True)
                 path.write_text('Discrimination metrics:\n  Cox: c_index=' + row + '\n\n')
-            parsed = aggregate.parse_report(root / 'generated_data/rep1/test_clinical_validity_report.txt')
+            parsed = aggregate.parse_report(root / 'generated_data/rep_1/test_clinical_validity_report.txt')
             self.assertEqual(parsed, {'Cox': (None, .4, None)})
             output = io.StringIO()
             with patch.object(aggregate, 'REPO_ROOT', root), \

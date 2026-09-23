@@ -2,7 +2,7 @@
 
 Parses the "Discrimination metrics" block that
 pkgs/data_analysis/clinical_validity_analysis.py writes into every
-generated_data/rep<N>/<scenario>_clinical_validity_report.txt, for
+generated_data/rep_<N>/<scenario>_clinical_validity_report.txt, for
 whichever reps (1-5) currently have that file for a given scenario, and
 reports mean +/- SD per model -- the format needed for the ML4H 2026
 Proceedings-track paper's results tables (paper/to submit 2026).
@@ -23,6 +23,7 @@ import math
 import statistics
 import sys
 from pathlib import Path
+from pkgs.paths import repetition_directory_name
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REP_RANGE = range(1, 6)
@@ -72,7 +73,7 @@ def fmt(vals):
 def aggregate_scenario(scenario: str):
     per_rep = {}
     for rep in REP_RANGE:
-        path = REPO_ROOT / "generated_data" / f"rep{rep}" / f"{scenario}_clinical_validity_report.txt"
+        path = REPO_ROOT / "generated_data" / repetition_directory_name(rep) / f"{scenario}_clinical_validity_report.txt"
         parsed = parse_report(path)
         if parsed:
             per_rep[rep] = parsed

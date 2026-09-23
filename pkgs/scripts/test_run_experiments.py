@@ -16,6 +16,19 @@ from pkgs.scripts import audit_prediction_time as timing
 
 
 class AnalysisRunnerTests(unittest.TestCase):
+    def test_production_directory_names_in_data_builder_and_runner(self):
+        from pkgs.paths import repetition_directory_name
+        from pkgs.scripts.build_external_validation_reps import rep_dir
+        for rep in range(1, 6):
+            self.assertEqual(repetition_directory_name(rep), f'rep_{rep}')
+            self.assertEqual(Path(rep_dir(rep)).name, f'rep_{rep}')
+        self.assertEqual(repetition_directory_name(99), 'rep99')
+        self.assertEqual(repetition_directory_name(100), 'rep100')
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(runner.main(['analyze', '--reps', 'all', '--dry-run']), 0)
+        for rep in range(1, 6):
+            self.assertIn(f'generated_data/rep_{rep}/', out.getvalue())
+
     def test_parallel_defaults_launch_all_five_tasks_for_all_five_reps(self):
         with tempfile.TemporaryDirectory() as tmp, \
                 patch.object(runner.subprocess, 'run', return_value=SimpleNamespace(returncode=0)) as run, \

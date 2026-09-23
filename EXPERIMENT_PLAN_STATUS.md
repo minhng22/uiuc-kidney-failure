@@ -12,7 +12,8 @@ now runs clinical validity (Gaps 3, 5a–5d), feature importance, subgroup perfo
 lab timing (Gap 8). All three scenarios run for reps 1–5. Raw labs are scanned once
 per repetition and shared across scenarios; each task has its own log. Use
 `--analyses` to select a subset. Analysis does not re-extract or retrain; existing
-exports/models must be rebuilt to incorporate backward-only uACR matching.
+Production paths are `generated_data/rep_1/` through `rep_5/`. Four-/eight-feature
+exports have now been rebuilt with backward-only uACR; model retraining is pending.
 
 Gap 3 — patient bootstrap uncertainty
 - state: done (code + rep99 verification); production numbers blocked on rep1-5 retraining
@@ -100,8 +101,13 @@ Gap 8 — prediction-time alignment audit
 - 2026-09-23 uACR fix: four-/eight-feature extraction now selects the latest uACR at or before
   each anchor creatinine, across admissions with no maximum lookback. Rows with no eligible uACR
   are dropped. The timing audit uses the same backward rule. Four matching/audit tests and the
-  14 evaluator regression tests pass. Existing exports, checkpoints and results predate this fix;
-  re-extraction, retraining and evaluation remain pending. Chemistry still uses nearest +/-24 h.
+  14 evaluator regression tests pass. Production four-/eight-feature exports were rebuilt in
+  `generated_data/rep_1/` through `rep_5/`, including train/test/external-validation splits.
+  Twenty-feature exports reuse the unchanged rep100 pool. Retraining and evaluation remain pending;
+  rep99 still contains the earlier data/results. Chemistry still uses nearest +/-24 h.
+  Cohort imbalance flagged in each rep's `cohort_balance_warning.txt`: label-positive patients are
+  75.22% (four features), 76.88% (eight), and 91.45% (twenty). These are current `has_esrd`
+  labels, not verified ESRD incidence. Four/eight proportions fell from 83.52%/85.08%.
 - open follow-up: the audit describes the reconstruction; deciding whether the manuscript claims prospective
   risk (which would require defining and enforcing an information cutoff, then re-extracting) is a framing
   decision the audit deliberately does not make.

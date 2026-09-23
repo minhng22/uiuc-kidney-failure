@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from pkgs.commons import project_dir
+from pkgs.paths import repetition_directory_name
 
 RANDOM_SEED = 42
 PATIENTS_PER_CLASS = 250  # 250 ESRD + 250 non-ESRD = 500 total per split
@@ -40,8 +41,8 @@ PATIENTS_PER_CLASS_OVERRIDES = {
 SRC_REP = 1
 DST_REP = 99
 
-SRC_DIR = f"{project_dir()}/generated_data/rep{SRC_REP}"
-DST_DIR = f"{project_dir()}/generated_data/rep{DST_REP}"
+SRC_DIR = f"{project_dir()}/generated_data/{repetition_directory_name(SRC_REP)}"
+DST_DIR = f"{project_dir()}/generated_data/{repetition_directory_name(DST_REP)}"
 
 ESRD_IDS_SRC = f"{SRC_DIR}/esrd_patient_ids.csv"
 

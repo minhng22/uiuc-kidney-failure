@@ -36,7 +36,9 @@ a `<scenario>_clinical_validity_report.txt`):
 PYTHONPATH=. python -m pkgs.scripts.aggregate_rep_metrics four_features eight_features twenty_features_heterogeneous
 ```
 
-Reports and charts are written under `generated_data/rep<N>/` and are
+Production data, model artifacts, reports and logs use `generated_data/rep_1/`
+through `generated_data/rep_5/`; rep99 and rep100 retain their existing names.
+Reports and charts are
 overwritten on rerun, including by subset runs — use the full selection for
 final comparisons.
 

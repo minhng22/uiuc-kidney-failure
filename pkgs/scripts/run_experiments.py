@@ -46,14 +46,16 @@ Selection options:
   outcome_definition, prediction_time. All five run by default for "analyze".
   Explicit selections run only those tasks. This option does not select anything
   for "train". prediction_time includes raw lab timing (a large CSV scan per rep).
-- Logs default to generated_data/rep<N>/rep<N>_<task>_<timestamp>.log.
+- Production data/artifacts/logs use generated_data/rep_1/ through rep_5/;
+  rep99 and rep100 retain their existing names.
+- Logs default to the repetition directory as rep<N>_<task>_<timestamp>.log.
   --log-dir optionally overrides the directory for all selected reps.
 - --dry-run: prints the selected worker commands and log paths without
   executing them or creating files.
 
 Inputs, outputs, and execution:
 - Both actions require existing <scenario>_train_data.csv and
-  <scenario>_test_data.csv under generated_data/rep<N>/. Analysis also needs
+  <scenario>_test_data.csv under the repetition directory. Analysis also needs
   trained model artifacts there; missing models are logged and skipped.
 - Analysis writes <scenario>_shap_analysis_report.txt,
   <scenario>_all_models_feature_importance.png,
@@ -68,7 +70,7 @@ Inputs, outputs, and execution:
   datasets or retrains models; the backward uACR fix requires new extraction.
 - Bootstrap resample count for clinical_validity/subgroup: CKD_N_BOOTSTRAP
   (default 1000). Lower it for a quick smoke run.
-- Reports/charts stay under generated_data/rep<N>/ and are overwritten on
+- Reports/charts stay under the repetition directory and are overwritten on
   reruns, including subset runs. Use the full selection for final comparisons.
 - The runner stays in the foreground, including with --parallel-reps.
   Each rep/task uses a fresh
@@ -93,6 +95,7 @@ import socket
 import subprocess
 import sys
 import traceback
+from pkgs.paths import repetition_directory_name
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -253,7 +256,7 @@ def run_rep(args, rep, stamp):
             if args.action == "analyze":
                 command.extend(["--analyses", task])
             print(shlex.join(command), flush=True)
-            log_dir = args.log_dir if args.log_dir is not None else ROOT / "generated_data" / f"rep{rep}"
+            log_dir = args.log_dir if args.log_dir is not None else ROOT / "generated_data" / repetition_directory_name(rep)
             log = log_dir / f"rep{rep}_{task}_{stamp}.log"
             print(f"Log: {log.resolve()}", flush=True)
             if args.dry_run:

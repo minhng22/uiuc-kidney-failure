@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from pkgs.paths import repetition_directory_name
 
 
 def project_dir():
@@ -154,7 +155,7 @@ figs_path_icd_stats = figs_path + '/esrd_icds.jpg'
 
 current_rep = int(os.environ.get('CKD_REP', 5))
 
-generate_data_path_latest_rep = f'{project_dir()}/generated_data/rep{current_rep}'
+generate_data_path_latest_rep = f'{project_dir()}/generated_data/{repetition_directory_name(current_rep)}'
 generate_data_path = f'{project_dir()}/generated_data'
 
 # trained models - time invariant scenario

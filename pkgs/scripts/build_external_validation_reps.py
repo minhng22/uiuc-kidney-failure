@@ -48,6 +48,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from pkgs.commons import project_dir
+from pkgs.paths import repetition_directory_name
 
 SOURCE_REP = 100
 DEST_REPS = [1, 2, 3, 4, 5]
@@ -72,7 +73,7 @@ SPLITS = ["train", "test", "external_validation"]
 
 
 def rep_dir(rep: int) -> str:
-    return f"{project_dir()}/generated_data/rep{rep}"
+    return f"{project_dir()}/generated_data/{repetition_directory_name(rep)}"
 
 
 def source_paths(scenario: str) -> list:
