@@ -3,8 +3,6 @@ import joblib
 import numpy as np
 from lifelines.utils import concordance_index
 from sksurv.ensemble import GradientBoostingSurvivalAnalysis
-from sksurv.metrics import cumulative_dynamic_auc
-from sksurv.util import Surv
 from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.metrics import make_scorer
 
@@ -14,6 +12,7 @@ from pkgs.commons import (
 )
 from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
 import dill
 
@@ -41,7 +40,6 @@ def evaluate_model(gbsa, df, df_test):
     
     X_test = get_x_for_sckit_survival_model(df_test)
     risk_scores = gbsa.predict(X_test)
-    times = np.arange(1, 730, 1)
 
     print(f'Risk scores shape: {risk_scores.shape}')
     print(f'First 10 risk scores: {risk_scores[:10]}')
@@ -50,12 +48,8 @@ def evaluate_model(gbsa, df, df_test):
     c_index_test = round_metric(concordance_index(df_test['duration_in_days'], risk_scores, df_test['has_esrd']))
     print(f'Concordance Index Test: {round_metric(c_index_test)}')
     
-    # Compute time-dependent AUC
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-    print(f'Mean AUC: {round_metric(mean_auc)}')
-    
+    report_auc(df, df_test, risk_scores)
+
     # Compute Brier Score
     brier_score = compute_brier_score_from_risk_scores(df, df_test, risk_scores)
     if brier_score is not None:
@@ -113,7 +107,6 @@ def run_gbsa():
     
     X_test = get_x_for_sckit_survival_model(df_test)
     risk_scores = gbsa.predict(X_test)
-    times = np.arange(1, 730, 1)
 
     print(f'Risk scores shape: {risk_scores.shape}')
     print(f'First 10 risk scores: {risk_scores[:10]}')
@@ -122,13 +115,8 @@ def run_gbsa():
     c_index_test = round_metric(concordance_index(df_test['duration_in_days'], 1 - risk_scores, df_test['has_esrd']))
     print(f'Concordance Index Test: {round_metric(c_index_test)}')
     
-    # Compute time-dependent AUC
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
+    report_auc(df, df_test, risk_scores)
 
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-    print(f'Mean AUC: {round_metric(mean_auc)}')
-    
     # Compute Brier Score
     brier_score = compute_brier_score_from_risk_scores(df, df_test, risk_scores)
     if brier_score is not None:
@@ -188,18 +176,11 @@ def run_scenario(scenario: ExperimentScenario):
     c_index_test = round_metric(concordance_index(df_test['duration_in_days'], 1 - risk_scores, df_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
 
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    times = np.arange(1, min(730, int(df_test['duration_in_days'].max())), 1)
-    try:
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-        print(f'Mean AUC: {round_metric(mean_auc)}')
-    except Exception as e:
-        print(f"Warning: could not compute AUC: {e}")
-
     brier_score = compute_brier_score_from_risk_scores(df, df_test, risk_scores)
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
+
+    report_auc(df, df_test, risk_scores)
 
 
 def joblib_to_dill():

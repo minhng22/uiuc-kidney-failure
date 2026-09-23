@@ -2,7 +2,7 @@ import os
 import numpy as np
 import joblib
 from sksurv.svm import FastSurvivalSVM
-from sksurv.metrics import concordance_index_censored, cumulative_dynamic_auc, integrated_brier_score
+from sksurv.metrics import concordance_index_censored, integrated_brier_score
 from sksurv.util import Surv
 import pandas as pd
 
@@ -12,6 +12,7 @@ from pkgs.commons import (
 )
 from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, get_tv_rnn_model_features
 import dill
 
@@ -30,26 +31,6 @@ survival_svm_model_path_dict = {
     ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS: twenty_features_heterogeneous_survival_svm_model_path,
 }
 
-def compute_time_dependent_auc(model, data_train, data_test, duration_col, event_col, times):
-    """Compute time-dependent AUC for Survival SVM"""
-    # Filter training data
-    valid_mask_train = data_train[duration_col] > 0
-    data_train_filtered = data_train[valid_mask_train].copy()
-    
-    y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train_filtered)
-    y_test = Surv.from_dataframe(event=event_col, time=duration_col, data=data_test)
-    
-    # Get features (exclude time and event columns)
-    feature_cols = [col for col in data_test.columns 
-                   if col not in [duration_col, event_col, 'subject_id', 'Unnamed: 0']]
-    X_test = data_test[feature_cols].values
-    
-    # Get risk scores (negative because higher risk score means worse survival)
-    risk_scores = -model.predict(X_test)
-    
-    print(f"Risk scores test: {risk_scores.shape}")
-    auc_values, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-    return auc_values, mean_auc
 
 def compute_brier_score(model, data_train, data_test, duration_col, event_col, times):
     """Compute integrated Brier score for Survival SVM"""
@@ -170,9 +151,7 @@ def run_ti_survival_svm_model():
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    # Compute time-dependent AUC  
-    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test_filtered, 'duration_in_days', 'has_esrd', times)
-    print(f"Mean AUC: {mean_auc:.3f}")
+    report_auc(data_train, data_test_filtered, risk_scores)
 
 def run_scenario(scenario: ExperimentScenario):
     """Scenario-aware entry point for four_features/eight_features/
@@ -225,11 +204,7 @@ def run_scenario(scenario: ExperimentScenario):
     except Exception as e:
         print(f"Warning: could not compute Brier score: {e}")
 
-    try:
-        _, mean_auc = compute_time_dependent_auc(model, data_train, data_test_filtered, 'duration_in_days', 'has_esrd', times)
-        print(f"Mean AUC: {mean_auc:.3f}")
-    except Exception as e:
-        print(f"Warning: could not compute AUC: {e}")
+    report_auc(data_train, data_test_filtered, risk_scores)
 
 
 def run_all():

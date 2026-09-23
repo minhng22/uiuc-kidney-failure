@@ -10,15 +10,13 @@ don't recompute them) and reports the same C-index/Brier/AUC metrics as every ot
 """
 import os
 
-import numpy as np
 import pandas as pd
 from lifelines.utils import concordance_index
-from sksurv.metrics import cumulative_dynamic_auc
-from sksurv.util import Surv
 
 from pkgs.commons import generate_data_path_latest_rep
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import round_metric, compute_brier_score_from_risk_scores
 from pkgs.models.kfre import compute_risk_scores
 
@@ -51,7 +49,7 @@ def run_kfre_model(scenario: ExperimentScenario, years=2):
 
     # Same sign convention as cox.py's run_cox_model: higher risk_scores_test means higher risk
     # (shorter survival); negate before passing to lifelines' concordance_index and the Brier-score
-    # helper (both expect the opposite direction), but not before sksurv's cumulative_dynamic_auc
+    # helper (both expect the opposite direction), but not before report_auc
     # (which expects higher = higher risk directly).
     c_index_test = round_metric(concordance_index(data_test['duration_in_days'], -risk_scores_test, data_test['has_esrd']))
     print(f'Concordance Index Test: {c_index_test}')
@@ -60,12 +58,7 @@ def run_kfre_model(scenario: ExperimentScenario, years=2):
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 730, 1)
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=data_train)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=data_test)
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
-    print(f"Mean time-dependent AUC: {mean_auc:.4f}")
-
+    mean_auc = report_auc(data_train, data_test, risk_scores_test)
     return c_index_test, brier_score, mean_auc
 
 

@@ -50,5 +50,5 @@ final comparisons.
 To run this script in the background, do:
 
 ```bash
-nohup python -u -m pkgs.scripts.run_experiments analyze --reps 2 3 --parallel-reps > generated_data/run_experiments_rep_2_3.log 2>&1 < /dev/null &
+nohup python -u -m pkgs.scripts.run_experiments analyze --reps 1 --parallel-reps > generated_data/run_experiments_rep_1.log 2>&1 < /dev/null &
 ```

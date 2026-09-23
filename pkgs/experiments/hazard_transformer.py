@@ -9,7 +9,7 @@ import numpy as np
 import os
 from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss, compute_brier_score_from_risk_scores
 from pkgs.data_analysis.types import ExperimentScenario
-from sksurv.metrics import cumulative_dynamic_auc
+from pkgs.data_analysis.auc_evaluation import report_prediction_auc
 from sksurv.util import Surv
 from lifelines.utils import concordance_index
 from pkgs.experiments.utils import get_device
@@ -171,31 +171,6 @@ def c_idx(model, data_loader, train_df, device):
     print(f"C-index: {c_td:.4f}")
     return c_td
 
-def auc(model: HazardTransformer, train_df, dataloader: DataLoader, device):
-    y_train = Surv.from_arrays(
-        event=train_df['has_esrd'].values, time=train_df['duration_in_days'].values, name_event='has_esrd', name_time='duration_in_days')
-    aucs = []
-    times = np.arange(1, 730, 1)
-    for features, mask, time_to_events, event_indicators, _, _ in dataloader:
-        features, mask = features.to(device), mask.to(device)
-        y_test = Surv.from_arrays(
-            event=event_indicators.squeeze(),
-            time=time_to_events.squeeze(),
-            name_event='has_esrd',
-            name_time='duration_in_days'
-        )
-
-        pmf_preds, _, _ = model(features, mask)
-        # Fixed common horizon -- see EVAL_HORIZON_DAYS.
-        cif = torch.cumsum(pmf_preds[:, 0, :], dim=1)
-        bin_idx = _fixed_horizon_bin_idx(cif.size(1), model.max_time, device)
-        risk_scores = cif[:, bin_idx].detach().cpu().numpy()
-
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-        aucs.append(mean_auc)
-
-    avg_auc = np.mean(aucs, axis=0)
-    print(f"Mean time-dependent AUC: {avg_auc:.2f}")
 
 def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataLoader, device):
     """Compute Brier Score for Hazard Transformer model"""
@@ -261,8 +236,9 @@ def run(scenario_name: ExperimentScenario):
     print(model)
 
     c_idx(model, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), df, device)
-    auc(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
     brier_score_evaluation(model, df, DataLoader(HazardTransformerDataset(df_test, scenario_name), shuffle=True, collate_fn=custom_collate_fn, batch_size=256), device)
+
+    report_prediction_auc(model, scenario_name, df, df_test)
 
 if __name__ == '__main__':
     run(ExperimentScenario.FOUR_FEATURES)

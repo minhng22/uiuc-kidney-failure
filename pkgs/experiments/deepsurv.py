@@ -1,11 +1,8 @@
 import os
-import numpy as np
 import torch
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
-from sksurv.metrics import cumulative_dynamic_auc
-from sksurv.util import Surv
 
 from pkgs.commons import (
     egfr_ti_deepsurv_model_path, four_features_deepsurv_model_path,
@@ -14,6 +11,7 @@ from pkgs.commons import (
 from pkgs.experiments.utils import get_device
 from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.models.deepsurv import DeepSurv
 from pkgs.experiments.utils import c_idx_rnn_model, ex_optuna, round_metric, compute_brier_score_from_risk_scores, get_tv_rnn_model_features
 
@@ -192,20 +190,7 @@ def run():
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    # Compute time-dependent AUC
-    times = np.arange(1, 730, 1)
-    risk_scores = test_risk_scores
-
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-
-    print(f'Risk scores shape: {risk_scores.shape}')
-    print(f'First 10 risk scores: {risk_scores[:10]}')
-    print(f'y_train shape: {y_train.shape}')
-    print(f'y_test shape: {y_test.shape}')
-
-    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-    print(f'Mean AUC: {round_metric(mean_auc)}')
+    report_auc(df, df_test, test_risk_scores)
 
 
 def objective_scenario(trial, scenario: ExperimentScenario, df):
@@ -305,14 +290,7 @@ def run_scenario(scenario: ExperimentScenario):
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 730, 1)
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    try:
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, test_risk_scores, times)
-        print(f'Mean AUC: {round_metric(mean_auc)}')
-    except Exception as e:
-        print(f"Warning: could not compute AUC: {e}")
+    report_auc(df, df_test, test_risk_scores)
 
 
 if __name__ == '__main__':

@@ -1,39 +1,15 @@
 import os
-import numpy as np
 import joblib
 from lifelines import CoxPHFitter, CoxTimeVaryingFitter
 from lifelines.utils import concordance_index
-from sksurv.metrics import cumulative_dynamic_auc
-from sksurv.util import Surv
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path, ckd_fifty_features_heterogeneous_cox_model_path, four_features_cox_model_path, eight_features_cox_model_path, twenty_features_heterogeneous_cox_model_path, ckd_fifty_features_heterogeneous_train_data_path
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores, get_tv_rnn_model_features
 import dill
 
-def compute_time_dependent_auc(model: CoxTimeVaryingFitter | CoxPHFitter, data_train, data_test, duration_col, event_col, times):
-    y_train = Surv.from_dataframe(event=event_col, time=duration_col, data=data_train)
-    y_test = Surv.from_dataframe(event=event_col, time=duration_col, data=data_test)
-    risk_scores_test = model.predict_partial_hazard(data_test).values.flatten()
-
-    print(f"Risk scores test: {risk_scores_test.shape}")
-    # sksurv's cumulative_dynamic_auc internally does an O(N_test x
-    # len(times)) argsort (and similarly-shaped intermediates) regardless of
-    # whether the risk estimate itself is 1D -- for TWENTY_FEATURES_
-    # HETEROGENEOUS (N_test ~1.6M) this reliably exhausts host memory
-    # (observed: numpy MemoryError allocating 50GB+) even though C-Index
-    # and Brier Score above succeed fine. Same class of failure
-    # independently hit in rnnsurv.py's TWENTY_FEATURES_HETEROGENEOUS eval
-    # -- see EXPERIMENT_STATUS.md Stage 3.1 rep2/rep3 notes. Mirrors the
-    # existing try/except around this same sksurv call already in srf.py's
-    # run_scenario().
-    try:
-        auc_values, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores_test, times)
-    except MemoryError as e:
-        print(f"Warning: could not compute AUC: {e}")
-        auc_values, mean_auc = None, None
-    return auc_values, mean_auc
 
 # Columns that are structure/outcome, never covariates. CoxTimeVaryingFitter
 # consumes subject_id/start/stop/has_esrd via its own id_col/start_col/
@@ -100,11 +76,7 @@ def run_cox_model(scenario: ExperimentScenario):
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 730, 1)
-
-    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
-    if mean_auc is not None:
-        print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+    report_auc(data_train, data_test, risk_scores_test)
 
 def get_model_path(scenario: ExperimentScenario):
     assert scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT,
@@ -153,11 +125,7 @@ def run_ti_cox_model():
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    times = np.arange(1, 730, 1)
-    _, mean_auc = compute_time_dependent_auc(model, data_train, data_test, 'duration_in_days', 'has_esrd', times)
-
-    if mean_auc is not None:
-        print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+    report_auc(data_train, data_test, risk_scores_test)
 
 def run_all():
     print("\nRunning non-time-variant Cox model evaluation...")

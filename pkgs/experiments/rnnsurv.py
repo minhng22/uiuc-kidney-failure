@@ -14,12 +14,11 @@ from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, e
                           twenty_features_heterogeneous_rnn_surv_model_path,
                           ckd_fifty_features_heterogeneous_train_data_path)
 from pkgs.data_analysis.types import ExperimentScenario
-from sksurv.metrics import cumulative_dynamic_auc
+from pkgs.data_analysis.auc_evaluation import report_prediction_auc
 import numpy as np
 from pkgs.experiments.utils import get_device
 
 import os
-from sksurv.util import Surv
 
 class RNNSurvDataset(Dataset):
     def __init__(self, df, features, duration_col, event_col):
@@ -292,27 +291,7 @@ def run(scenario_name: ExperimentScenario):
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
 
-    y_train = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df)
-    y_test = Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_test)
-    # sksurv's cumulative_dynamic_auc internally does an O(N_test x
-    # len(times)) argsort (and similarly-shaped intermediates) over the
-    # full risk_by_time matrix -- for TWENTY_FEATURES_HETEROGENEOUS
-    # (N_test ~1.6M, len(times) up to ~4700 days) this reliably exhausts
-    # host memory (observed: numpy MemoryError allocating 28-56GB) even
-    # though C-Index and Brier Score above succeed fine (those don't need
-    # the full [N_test, len(times)] matrix). Same class of failure
-    # independently hit in cox.py's TWENTY_FEATURES_HETEROGENEOUS eval --
-    # see EXPERIMENT_STATUS.md Stage 3.1 rep2/rep3 notes. Mirrors the
-    # existing try/except around this same sksurv call already in
-    # srf.py's run_scenario().
-    try:
-        _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_by_time, times)
-    except MemoryError as e:
-        print(f"Warning: could not compute AUC: {e}")
-        mean_auc = None
-
-    if mean_auc is not None:
-        print(f"Mean time-dependent AUC: {mean_auc:.4f}")
+    report_prediction_auc(model, scenario_name, df, df_test)
 
 if __name__ == '__main__':
     run(ExperimentScenario.FOUR_FEATURES)

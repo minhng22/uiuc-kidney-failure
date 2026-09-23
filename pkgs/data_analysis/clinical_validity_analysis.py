@@ -680,6 +680,33 @@ def resolve_predicted_prob(risk_scores, native_prob_fn, horizon_days, baseline):
     return predicted_event_prob_at(risk_scores, horizon_days, baseline), 'approximate'
 
 
+def mean_time_dependent_auc(y_train, train_max, risk_scores, durations, events,
+                            horizon_days=730):
+    """Patient-level IPCW AUC, with follow-up capped to censoring support.
+
+    Shared by clinical validity, subgroup analysis and experiment scripts.
+    Scores must be patient-aligned and higher for greater event risk.
+    Unsupported metrics raise ValueError; callers report them as unavailable.
+    """
+    ranking_issue = bootstrap_ci.discrimination_unavailable_reason(risk_scores)
+    if ranking_issue:
+        raise ValueError(ranking_issue)
+    auc_durations, auc_events, _ = _administratively_censor(durations, events, train_max)
+    event_times = auc_durations[auc_events]
+    if not len(event_times):
+        raise ValueError('No observed events within the censoring support for AUC')
+    min_time = max(1.0, float(event_times.min()))
+    max_time = min(float(np.max(auc_durations)), horizon_days)
+    times = np.arange(min_time, max_time, 1)
+    if not len(times):
+        raise ValueError('No supported AUC evaluation times with both cases and controls')
+    y_test = Surv.from_arrays(event=auc_events, time=auc_durations)
+    _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
+    if not np.isfinite(mean_auc):
+        raise ValueError('AUC is undefined: insufficient cases or controls on the evaluation grid')
+    return float(mean_auc)
+
+
 def discrimination_metrics(y_train, train_max, risk_scores, durations, events, baseline,
                            native_prob_fn=None, auc_horizon_days=730):
     """C-index, integrated Brier score (0 to auc_horizon_days), and mean
@@ -737,20 +764,8 @@ def discrimination_metrics(y_train, train_max, risk_scores, durations, events, b
         result['errors']['point_brier'] = str(e)
 
     try:
-        if ranking_issue:
-            raise ValueError(ranking_issue)
-        # Same administrative censoring the Brier path applies. Without it the
-        # AUC call sees test follow-up past the training censoring
-        # distribution's support and sksurv refuses the whole call — which is
-        # why all models in the September 14 four-feature rep99 run returned
-        # None (the other two scenarios already returned AUCs).
-        auc_durations, auc_events, _ = _administratively_censor(durations, events, train_max)
-        max_time = min(float(np.max(auc_durations)), auc_horizon_days - 1)
-        if max_time > 1:
-            y_test = Surv.from_arrays(event=auc_events, time=auc_durations)
-            times = np.arange(1, max(max_time, 2), 1)
-            _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
-            result['auc'] = round(float(mean_auc), 4)
+        result['auc'] = round(mean_time_dependent_auc(
+            y_train, train_max, risk_scores, durations, events, auc_horizon_days), 4)
     except Exception as e:
         # Preserve the reason for unsupported horizons, undefined rankings,
         # or other metric failures rather than leaving an unexplained None.

@@ -1,3 +1,4 @@
+from pkgs.models.logistic_hazard import LogisticHazardModel
 import pandas as pd
 import numpy as np
 import torch
@@ -17,10 +18,10 @@ from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard
                           ckd_fifty_features_heterogeneous_train_data_path)
 from pkgs.data_analysis.model_data_store import get_train_test_data
 from pkgs.data_analysis.types import ExperimentScenario
+from pkgs.data_analysis.auc_evaluation import report_prediction_auc
 from pkgs.experiments.utils import ex_optuna, compute_brier_score_from_risk_scores
 
-from sksurv.util import Surv
-from sksurv.metrics import cumulative_dynamic_auc, concordance_index_censored
+from sksurv.metrics import concordance_index_censored
 from lifelines.utils import concordance_index
 
 num_risks = 1
@@ -138,36 +139,6 @@ def c_idx(model, labtrans, test_dataset: LogisticHazardDataset, device, test=Fal
     
     return c_index
 
-def auc(model, labtrans, test_dataset: LogisticHazardDataset, train_df: pd.DataFrame, device):
-    x_test, durations_test, events_test = test_dataset.prepare_data_for_pycox()
-    x_test = torch.tensor(x_test, dtype=torch.float32)
-    
-    surv = model.predict_surv_df(x_test)
-    
-    y_test = Surv.from_arrays(events_test.astype(bool), durations_test)
-    
-    times = np.percentile(durations_test[events_test == 1], [25, 50, 75])
-    times = times[times > 0]
-    
-    if len(times) == 0:
-        print("No valid time points for AUC calculation")
-        return 0.5
-    
-    aucs = []
-    for time_point in times:
-        time_idx = np.argmin(np.abs(surv.index - time_point))
-        risk_scores = 1 - surv.iloc[time_idx].values
-        
-        try:
-            auc_score, _ = cumulative_dynamic_auc(y_test, y_test, risk_scores, time_point)
-            aucs.append(auc_score[0])
-        except Exception as e:
-            print(f"Error computing AUC at time {time_point}: {e}")
-            aucs.append(0.5)
-    
-    mean_auc = np.mean(aucs)
-    print(f"Mean time-dependent AUC: {mean_auc:.3f}")
-    return mean_auc
 
 def brier_score_evaluation(model, labtrans, test_dataset: LogisticHazardDataset, train_df: pd.DataFrame, device):
     x_test, durations_test, events_test = test_dataset.prepare_data_for_pycox()
@@ -218,8 +189,9 @@ def run(scenario_name: ExperimentScenario):
     
     print(f"\n=== Evaluation Results for {scenario_name.value} ===")
     c_idx(model, labtrans, test_dataset, device, True)
-    auc(model, labtrans, test_dataset, df, device)
     brier_score_evaluation(model, labtrans, test_dataset, df, device)
+
+    report_prediction_auc(LogisticHazardModel(model.net), scenario_name, df, df_test)
 
 if __name__ == '__main__':
     run(ExperimentScenario.FOUR_FEATURES)
