@@ -105,7 +105,7 @@ from lifelines import KaplanMeierFitter
 from lifelines.utils import concordance_index
 from sksurv.util import Surv
 from sksurv.metrics import cumulative_dynamic_auc, integrated_brier_score, brier_score
-from sksurv.nonparametric import kaplan_meier_estimator
+from sksurv.nonparametric import CensoringDistributionEstimator
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -343,14 +343,16 @@ def model_net_benefit_curve(predicted, durations, events, horizon_days, threshol
     Kaplan-Meier so censoring before `horizon_days` doesn't bias the count (a
     plain proportion would). `predicted` is already a per-row/subject
     predicted probability at `horizon_days` — see resolve_predicted_prob().
-    Rows with a NaN prediction are dropped (a NaN never satisfies `>= pt`, so
+    Rows with a nonfinite prediction are dropped (a NaN never satisfies `>= pt`, so
     without this they'd silently count as "definitely low-risk" in the
     denominator at every threshold rather than being excluded, biasing net
-    benefit down instead of raising or being visibly absent)."""
+    benefit down instead of raising or being visibly absent). The analyzer
+    calls decision_curve_comparison first to apply the same exclusions to
+    every strategy displayed together."""
     predicted = np.asarray(predicted, dtype=np.float64)
     durations = np.asarray(durations)
     events = np.asarray(events)
-    valid = ~np.isnan(predicted)
+    valid = np.isfinite(predicted)
     predicted, durations, events = predicted[valid], durations[valid], events[valid]
     n = len(predicted)
 
@@ -393,10 +395,9 @@ def egfr_threshold_net_benefit(egfr_values, durations, events, horizon_days,
     placeholder zeros but left the repeated-measurement problem untouched
     (rep99: 502 measured-eGFR rows across 20 patients).
 
-    Patients with no measured eGFR at or before their landmark have no referral
-    decision under this rule and are excluded; patient_level_egfr() reports how
-    many, and the caller logs that denominator so the comparison is not read as
-    covering the full cohort when it does not.
+    Patients with no finite measured eGFR at or before their landmark have no
+    referral decision. The analyzer intersects eGFR coverage with prediction
+    coverage and passes the same cohort to every displayed DCA strategy.
 
     Threshold handling: an eGFR<cutoff rule is a fixed binary test, so its
     true-positive and false-positive rates do not vary with the risk threshold
@@ -449,6 +450,54 @@ def egfr_threshold_net_benefit(egfr_values, durations, events, horizon_days,
     return results
 
 
+def decision_curve_comparison(predicted_by_model, durations, events, horizon_days,
+                              egfr_values=None, thresholds=DCA_THRESHOLDS):
+    """All displayed strategies evaluated on one common cohort per horizon.
+
+    Intersect finite predictions from every model with any usable output and,
+    when available, finite eGFR values aligned to the same patient positions.
+    Entirely unavailable models/rules are omitted explicitly rather than
+    emptying the cohort. Partial availability DOES restrict every curve,
+    including treat-all. An empty intersection yields unavailable curves.
+    Return the mask and coverage so reports and plots expose this selection.
+    """
+    durations, events = np.asarray(durations), np.asarray(events)
+    n = len(durations)
+    if durations.shape != (n,) or events.shape != (n,):
+        raise ValueError('DCA outcomes must be aligned one-dimensional arrays')
+    mask = np.ones(n, dtype=bool)
+    usable, unavailable = {}, []
+    for name, values in predicted_by_model.items():
+        values = np.asarray(values, dtype=np.float64)
+        if values.shape != (n,):
+            raise ValueError(f'{name}: DCA predictions are not patient-aligned')
+        finite = np.isfinite(values)
+        if not finite.any():
+            unavailable.append(name)
+            continue
+        usable[name] = values
+        mask &= finite
+    if egfr_values is not None:
+        egfr_values = np.asarray(egfr_values, dtype=np.float64)
+        if egfr_values.shape != (n,):
+            raise ValueError('DCA eGFR values are not patient-aligned')
+        if np.isfinite(egfr_values).any():
+            mask &= np.isfinite(egfr_values)
+        else:
+            egfr_values = None
+    d, e = durations[mask], events[mask]
+    return {
+        'mask': mask, 'n_total': n, 'n_included': int(mask.sum()),
+        'unavailable_models': unavailable,
+        'treat_all': treat_all_net_benefit_curve(d, e, horizon_days, thresholds),
+        'models': {name: model_net_benefit_curve(values[mask], d, e, horizon_days, thresholds)
+                   for name, values in usable.items()},
+        'egfr_nb': (egfr_threshold_net_benefit(
+            egfr_values[mask], d, e, horizon_days, thresholds=thresholds)
+            if egfr_values is not None else None),
+    }
+
+
 def build_censoring_reference(train_terminal):
     """The IPCW censoring reference (`y_train`) both the integrated Brier score
     and the time-dependent AUC estimate G(t) from — built from ONE TERMINAL
@@ -474,8 +523,9 @@ def build_censoring_reference(train_terminal):
 
 def evaluation_time_cap(train_terminal):
     """The latest time the IPCW-weighted metrics can be evaluated at: the
-    smaller of the training set's longest observed follow-up and the last time
-    its censoring distribution G(t) is still positive.
+    training maximum, or the floating-point instant just before G(t) reaches
+    zero. Use the SAME reverse-KM estimator as sksurv's IPCW metrics: ordinary
+    KM on inverted event flags treats event/censoring ties differently.
 
     sksurv estimates G(t) from y_train and divides by it, so both the
     integrated Brier score and the time-dependent AUC are undefined once G(t)
@@ -485,22 +535,18 @@ def evaluation_time_cap(train_terminal):
     mismatch and not a horizon choice. Test patients followed past this cap are
     administratively censored at it (see _administratively_censor).
 
-    Note this is why the time-dependent AUC previously came back None for every
-    model in every scenario: the Brier path applied the cap and the AUC path did
-    not, so the AUC call always saw the test set's raw maximum follow-up
-    (four_features rep99: test max 4333 d against a training censoring
-    distribution that runs out at 4060 d)."""
+    The uncapped AUC failed for all models in the September 14 four-feature
+    rep99 run; the eight- and twenty-feature runs already returned AUCs.
+    G(t) is a right-continuous step function, so follow-up between its last
+    positive training knot and its first zero is supported too."""
     durations = train_terminal['duration_in_days'].values.astype(float)
-    events = train_terminal['has_esrd'].values.astype(bool)
     train_max = float(durations.max())
-    try:
-        times, g = kaplan_meier_estimator(~events, durations)
-        positive = times[g > 0]
-        if len(positive):
-            return min(train_max, float(positive.max())), train_max
-    except Exception:
-        pass
-    return train_max, train_max
+    censoring = CensoringDistributionEstimator().fit(build_censoring_reference(train_terminal))
+    zeros = censoring.unique_time_[censoring.prob_ <= 0]
+    cap = min(train_max, float(np.nextafter(zeros[0], -np.inf))) if len(zeros) else train_max
+    if not np.isfinite(cap) or cap < 0:
+        raise ValueError('Training censoring distribution has no supported nonnegative time')
+    return cap, train_max
 
 
 def survival_prob_matrix(risk_scores, times, baseline, native_prob_fn):
@@ -656,7 +702,10 @@ def discrimination_metrics(y_train, train_max, risk_scores, durations, events, b
     caught below and recorded in errors like any other)."""
     result = {'c_index': None, 'brier': None, 'brier_source': None,
               'brier_converted': None, 'auc': None, 'point_brier': {}, 'errors': {}}
+    ranking_issue = bootstrap_ci.discrimination_unavailable_reason(risk_scores)
     try:
+        if ranking_issue:
+            raise ValueError(ranking_issue)
         result['c_index'] = round(float(concordance_index(durations, -np.asarray(risk_scores), events)), 4)
     except Exception as e:
         result['errors']['c_index'] = str(e)
@@ -688,12 +737,13 @@ def discrimination_metrics(y_train, train_max, risk_scores, durations, events, b
         result['errors']['point_brier'] = str(e)
 
     try:
+        if ranking_issue:
+            raise ValueError(ranking_issue)
         # Same administrative censoring the Brier path applies. Without it the
         # AUC call sees test follow-up past the training censoring
         # distribution's support and sksurv refuses the whole call — which is
-        # why this metric was None for every model in every scenario before
-        # PAPER_GAPS_EXPERIMENT_PLAN.md Gap 5a's rework (see
-        # evaluation_time_cap).
+        # why all models in the September 14 four-feature rep99 run returned
+        # None (the other two scenarios already returned AUCs).
         auc_durations, auc_events, _ = _administratively_censor(durations, events, train_max)
         max_time = min(float(np.max(auc_durations)), auc_horizon_days - 1)
         if max_time > 1:
@@ -702,12 +752,8 @@ def discrimination_metrics(y_train, train_max, risk_scores, durations, events, b
             _, mean_auc = cumulative_dynamic_auc(y_train, y_test, risk_scores, times)
             result['auc'] = round(float(mean_auc), 4)
     except Exception as e:
-        # sksurv raises "censoring survival function is zero at one or more
-        # time points" whenever the test set has no one censored beyond some
-        # point in `times` (IPCW weight denominator hits zero) — a known,
-        # already-documented edge case elsewhere in this repo, not a bug here.
-        # Recorded rather than silently swallowed so a bare `auc=None` in the
-        # report is traceable.
+        # Preserve the reason for unsupported horizons, undefined rankings,
+        # or other metric failures rather than leaving an unexplained None.
         result['errors']['auc'] = str(e)
 
     return result
@@ -767,6 +813,7 @@ class ClinicalValidityAnalyzer:
         self.all_results = {}
 
     def log(self, message):
+        message = message.rstrip()
         print(message)
         if self.current_scenario is not None:
             self.scenario_report_lines.setdefault(self.current_scenario, []).append(message)
@@ -1011,67 +1058,79 @@ class ClinicalValidityAnalyzer:
         for horizon in horizons:
             self.log(f"\n=== Horizon: {horizon:.0f} days ===")
 
-            # Computed once per horizon from the patient-level test outcomes,
-            # independent of any model — every model's panel below is compared
-            # against these (Gap 5c: same outcomes, same horizon, same patients
-            # as the model curves).
-            treat_all = treat_all_net_benefit_curve(test_durations, test_events, horizon)
-            self.log(f"Treat-all net benefit ({len(test_terminal)} patients): {treat_all}")
+            horizon_predictions = {}
+            for model_name, (risk_scores, _, _, native_prob_fn) in predictions.items():
+                try:
+                    predicted, source = resolve_predicted_prob(
+                        risk_scores, native_prob_fn, horizon, baselines.get(model_name))
+                    predicted = np.asarray(predicted, dtype=np.float64)
+                    if predicted.shape != test_durations.shape:
+                        raise ValueError('predicted probabilities are not patient-aligned')
+                except Exception as exc:
+                    self.log(f"  {self.model_pretty_names[model_name]}: horizon prediction unavailable: {exc}")
+                    predicted, source = np.full(len(test_terminal), np.nan), 'unavailable'
+                horizon_predictions[model_name] = (predicted, source)
+
+            # Reindex by subject ID before taking the common availability mask.
+            # The eGFR frame contains only patients with a finite measurement.
+            aligned_egfr = (egfr_frame.set_index('subject_id')['egfr'].reindex(
+                test_terminal['subject_id']).to_numpy() if has_egfr else None)
+            dca = decision_curve_comparison(
+                {name: values[0] for name, values in horizon_predictions.items()},
+                test_durations, test_events, horizon, aligned_egfr)
+            self.log(f"DCA common cohort: {dca['n_included']}/{dca['n_total']} patients "
+                     "with finite predictions for every available model"
+                     f"{' and measured eGFR' if has_egfr else ''}; "
+                     f"{dca['n_total'] - dca['n_included']} excluded from ALL strategies.")
+            for name in dca['unavailable_models']:
+                self.log(f"  DCA omitted {self.model_pretty_names[name]}: no finite predictions at this horizon.")
+            if not dca['n_included']:
+                self.log("  DCA unavailable: no patients in the shared cohort.")
+            treat_all = dca['treat_all']
+            self.log(f"Treat-all net benefit ({dca['n_included']} patients): {treat_all}")
             treat_all_rows = treat_all_net_benefit_curve(
                 df_test['duration_in_days'].values, df_test['has_esrd'].values, horizon)
             self.log(f"  (for contrast, the superseded row-level treat-all over "
                      f"{len(df_test)} lab rows: {treat_all_rows})")
 
-            egfr_nb = None
-            if has_egfr:
-                try:
-                    egfr_nb = egfr_threshold_net_benefit(
-                        egfr_frame['egfr'].values, egfr_frame['duration_in_days'].values,
-                        egfr_frame['has_esrd'].values, horizon)
-                    for cutoff, entry in egfr_nb.items():
-                        self.log(f"eGFR<{cutoff} referral rule "
-                                 f"({egfr_info['patients_with_egfr']} patients): flags "
-                                 f"{entry['n_flagged']} ({entry['flagged_fraction']}), "
-                                 f"TP rate {entry['tp_rate']}, FP rate {entry['fp_rate']}")
-                        self.log(f"  net benefit across the model thresholds: {entry['net_benefit']}")
-                except Exception as e:
-                    self.log(f"Error computing eGFR-threshold net benefit: {e}")
+            egfr_nb = dca['egfr_nb']
+            if egfr_nb is not None:
+                for cutoff, entry in egfr_nb.items():
+                    self.log(f"eGFR<{cutoff} referral rule "
+                             f"({dca['n_included']} patients): flags "
+                             f"{entry['n_flagged']} ({entry['flagged_fraction']}), "
+                             f"TP rate {entry['tp_rate']}, FP rate {entry['fp_rate']}")
+                    self.log(f"  net benefit across the model thresholds: {entry['net_benefit']}")
 
             horizon_result = {'treat_all': treat_all, 'treat_all_row_level': treat_all_rows,
-                              'egfr_nb': egfr_nb, 'models': {}}
+                              'egfr_nb': egfr_nb, 'models': {},
+                              'dca_n_patients': dca['n_included'],
+                              'dca_subject_ids': test_terminal.loc[dca['mask'], 'subject_id'].tolist()}
 
             for model_name, (risk_scores, durations, events, native_prob_fn) in predictions.items():
                 self.log(f"\n--- {self.model_pretty_names[model_name]} ---")
 
-                predicted, source = resolve_predicted_prob(
-                    risk_scores, native_prob_fn, horizon, baselines.get(model_name))
+                predicted, source = horizon_predictions[model_name]
                 self.log(f"Predicted-probability source: {source} "
                          f"({'model output read directly at this horizon' if source == 'native' else 'per-model calibrated baseline-hazard extrapolation — see module docstring'})")
 
-                predicted = np.asarray(predicted, dtype=np.float64)
-                n_nan = int(np.isnan(predicted).sum())
-                if n_nan == len(predicted):
-                    # All-NaN predictions (e.g. a severely undertrained model —
-                    # this repo has documented NaN-loss issues before) silently
-                    # produce an empty calibration table with no error either
-                    # way (pd.qcut and its rank-based fallback both just return
-                    # all-NaN bins, no exception) — the same "silently empty
-                    # section, looks broken not wrong" failure mode as the
-                    # degenerate-constant case, just via a different input.
-                    self.log(f"  SKIPPED: all {len(predicted)} predicted values are NaN — "
+                finite = np.isfinite(predicted)
+                n_missing = int((~finite).sum())
+                if n_missing == len(predicted):
+                    self.log(f"  SKIPPED: all {len(predicted)} predicted values are nonfinite — "
                              "model produced no usable output at this horizon.")
                     horizon_result['models'][model_name] = {
                         'calibration': None, 'model_nb': None, 'predicted_prob_source': source,
                     }
                     continue
-                if n_nan > 0:
-                    self.log(f"  NOTE: {n_nan}/{len(predicted)} predicted values are NaN "
-                             "and excluded from the calibration/DCA calculations below.")
+                if n_missing > 0:
+                    self.log(f"  NOTE: {n_missing}/{len(predicted)} predicted values are nonfinite "
+                             "and excluded from calibration. DCA uses the shared cohort above.")
 
                 table = None
                 self.log("Calibration (predicted risk decile vs. KM-observed risk):")
                 try:
-                    table = calibration_table(predicted, durations, events, horizon)
+                    table = calibration_table(predicted[finite], durations[finite], events[finite], horizon)
                     if table and len({row['mean_predicted_risk'] for row in table}) == 1:
                         self.log(f"  NOTE: predicted risk is the same ({table[0]['mean_predicted_risk']}) "
                                  "for every patient at this horizon — this model draws no distinction "
@@ -1099,7 +1158,7 @@ class ClinicalValidityAnalyzer:
                 model_nb = None
                 self.log("Decision curve analysis (net benefit by risk threshold):")
                 try:
-                    model_nb = model_net_benefit_curve(predicted, durations, events, horizon)
+                    model_nb = dca['models'][model_name]
                     for pt in DCA_THRESHOLDS:
                         self.log(f"  pt={pt:.2f}  model={model_nb[pt]}  "
                                  f"treat_all={treat_all[pt]}  treat_none=0.0")
@@ -1156,6 +1215,8 @@ class ClinicalValidityAnalyzer:
         self.log("=" * 80)
         self.log("Only test patients are resampled; the training-set censoring reference is held "
                  "fixed (see pkgs/data_analysis/bootstrap_ci.py for why).")
+        self.log("C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. "
+                 "Numerically constant rankings are withheld from points, intervals and paired differences.")
         self.log(f"Bootstrap AUC uses a {len(auc_times)}-point grid over 0-{auc_max:.0f}d rather than "
                  "the per-day grid of the point estimate — see bootstrap_ci.py.")
 
@@ -1166,7 +1227,8 @@ class ClinicalValidityAnalyzer:
                 risk_scores, times, baselines.get(model_name), native_prob_fn)
             d, e, _ = _administratively_censor(durations, events, train_max)
             replicates[model_name] = bootstrap_ci.bootstrap_model_metrics(
-                y_train, d, e, risk_scores, survival_probs, times, auc_times, indices)
+                y_train, durations, events, risk_scores, survival_probs, times, auc_times, indices,
+                ipcw_durations=d, ipcw_events=e)
             point = metrics.get(model_name, {})
             summaries[model_name] = {
                 'brier_source': brier_source,
@@ -1184,7 +1246,10 @@ class ClinicalValidityAnalyzer:
                 summary = summaries[model_name][metric_key]
                 suffix = (f"  (Brier source: {summaries[model_name]['brier_source']})"
                           if metric_key == 'brier' else "")
-                if summary['ci_low'] is None:
+                reason = metrics.get(model_name, {}).get('errors', {}).get(metric_key)
+                if summary['estimate'] is None and reason:
+                    self.log(f"  {self.model_pretty_names[model_name]:<20} n/a [{reason}]{suffix}")
+                elif summary['ci_low'] is None:
                     self.log(f"  {self.model_pretty_names[model_name]:<20} {summary['estimate']} "
                              f"[interval unavailable: only {summary['n_bootstrap_usable']} usable "
                              f"resamples]{suffix}")
@@ -1291,7 +1356,7 @@ class ClinicalValidityAnalyzer:
     def create_decision_curve_plot(self, scenario_name, horizons):
         """<scenario>_decision_curve_plot.png — one subplot per horizon: net
         benefit (y) vs. risk threshold (x), one line per model plus treat-all/
-        treat-none reference lines and eGFR-cutoff reference points."""
+        treat-none and eGFR-cutoff curves, all on the same patient cohort."""
         try:
             results = self.all_results[scenario_name]['horizons']
             fig, axes = plt.subplots(1, len(horizons), figsize=(6 * len(horizons), 5), squeeze=False)
@@ -1332,7 +1397,7 @@ class ClinicalValidityAnalyzer:
                             ax.plot(xs, ys, style, color='red', linewidth=1.2,
                                     label=f'eGFR<{cutoff} referral')
 
-                ax.set_title(f'{horizon:.0f}-day horizon')
+                ax.set_title(f"{horizon:.0f}-day horizon (n={horizon_result['dca_n_patients']})")
                 ax.set_xlabel('Risk threshold (pt)')
                 if i == 0:
                     ax.set_ylabel('Net benefit')

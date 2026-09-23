@@ -44,6 +44,31 @@ DEFAULT_SEED = 20260918
 BOOTSTRAP_AUC_GRID_POINTS = 25
 
 
+def discrimination_unavailable_reason(risk_scores):
+    """Reject rankings that cannot be resolved at the scores' stored precision.
+
+    Check the original dtype BEFORE promoting to float64. A float32 model whose
+    entire score range is only a few rounding units can change rankings with
+    CPU thread count (observed for rep99's twenty-feature Hazard Transformer).
+    We withhold rank metrics when the whole cohort's range is <= 8 * eps *
+    max(abs(score)), rather than interpret those differences as discrimination.
+    This is a numerical screening convention, not a clinical effect threshold;
+    it does not alter the probabilities used for Brier scores or DCA.
+    """
+    scores = np.asarray(risk_scores)
+    if scores.ndim != 1 or not len(scores) or not np.isfinite(scores).all():
+        return 'risk scores must be a nonempty, finite one-dimensional array'
+    eps = np.finfo(scores.dtype).eps if np.issubdtype(scores.dtype, np.floating) else 0.0
+    values = scores.astype(np.float64)
+    span = float(np.ptp(values))
+    tolerance = 8 * eps * float(np.max(np.abs(values)))
+    if span <= tolerance:
+        return (f'numerically constant risk scores (range={span:.6g}, '
+                f'8*eps*scale={tolerance:.6g}, dtype={scores.dtype}); '
+                'ranking metrics withheld; probability metrics remain available')
+    return None
+
+
 def bootstrap_indices(n_patients, n_bootstrap=DEFAULT_N_BOOTSTRAP, seed=DEFAULT_SEED):
     """One (n_bootstrap, n_patients) integer matrix of patient positions drawn
     with replacement. Generated once and shared by every model so that paired
@@ -71,46 +96,66 @@ def _mean_auc(y_train, durations, events, risk_scores, auc_times):
 
 
 def metrics_on_resample(idx, y_train, durations, events, risk_scores,
-                        survival_probs, times, auc_times):
+                        survival_probs, times, auc_times, *,
+                        ipcw_durations=None, ipcw_events=None,
+                        discrimination_available=True):
     """C-index / integrated Brier / mean time-dependent AUC for one resample of
     patient positions. Each metric is computed inside its own try/except: a
     resample can legitimately break one of them without breaking the others
-    (e.g. sksurv raises when a resample happens to contain no one censored past
-    some point in `auc_times`, the IPCW-weight-denominator edge case already
-    documented elsewhere in this repo), and dropping that one draw is the
-    correct treatment — dropping the whole resample would bias the other two
-    intervals toward the resamples that happened to be well-behaved for AUC."""
+    (e.g. no cases/controls at an AUC time, or resampled follow-up shorter than
+    the fixed integration grid). Record that metric as unavailable on the
+    draw, retaining the others. Reports expose the surviving draw count;
+    intervals with failed draws are conditional on metric availability."""
     d, e, r = durations[idx], events[idx], risk_scores[idx]
+    # Harrell's C uses the original follow-up; only the IPCW metrics use the
+    # administratively censored copy. Both copies share the same patient draw.
+    wd = d if ipcw_durations is None else ipcw_durations[idx]
+    we = e if ipcw_events is None else ipcw_events[idx]
     out = {'c_index': None, 'brier': None, 'auc': None}
-    try:
-        out['c_index'] = _c_index(d, e, r)
-    except Exception:
-        pass
-    if survival_probs is not None:
+    if discrimination_available:
         try:
-            out['brier'] = _ibs(y_train, d, e, survival_probs[idx], times)
+            out['c_index'] = _c_index(d, e, r)
         except Exception:
             pass
-    if auc_times is not None and len(auc_times):
+    if survival_probs is not None:
         try:
-            out['auc'] = _mean_auc(y_train, d, e, r, auc_times)
+            out['brier'] = _ibs(y_train, wd, we, survival_probs[idx], times)
+        except Exception:
+            pass
+    if discrimination_available and auc_times is not None and len(auc_times):
+        try:
+            out['auc'] = _mean_auc(y_train, wd, we, r, auc_times)
         except Exception:
             pass
     return out
 
 
 def bootstrap_model_metrics(y_train, durations, events, risk_scores, survival_probs,
-                            times, auc_times, indices):
+                            times, auc_times, indices, *,
+                            ipcw_durations=None, ipcw_events=None):
     """Per-metric arrays of bootstrap replicates (NaN where that draw failed),
     aligned row-for-row with `indices` so two models' replicate arrays can be
-    subtracted directly for a paired comparison."""
+    subtracted directly for a paired comparison. `durations/events` are always
+    the original outcomes; optional `ipcw_*` are the capped copies for IBS/AUC.
+    Numerically unresolved rankings are withheld for the whole cohort before
+    resampling, consistently with the point estimates."""
+    discrimination_available = discrimination_unavailable_reason(risk_scores) is None
     durations = np.asarray(durations, dtype=np.float64)
     events = np.asarray(events).astype(bool)
     risk_scores = np.asarray(risk_scores, dtype=np.float64)
+    if (ipcw_durations is None) != (ipcw_events is None):
+        raise ValueError('IPCW durations and events must be supplied together')
+    if ipcw_durations is not None:
+        ipcw_durations = np.asarray(ipcw_durations, dtype=np.float64)
+        ipcw_events = np.asarray(ipcw_events).astype(bool)
+        if ipcw_durations.shape != durations.shape or ipcw_events.shape != events.shape:
+            raise ValueError('IPCW outcomes must have the same patient positions as original outcomes')
     replicates = {'c_index': [], 'brier': [], 'auc': []}
     for idx in indices:
         m = metrics_on_resample(idx, y_train, durations, events, risk_scores,
-                                survival_probs, times, auc_times)
+                                survival_probs, times, auc_times,
+                                ipcw_durations=ipcw_durations, ipcw_events=ipcw_events,
+                                discrimination_available=discrimination_available)
         for key in replicates:
             replicates[key].append(np.nan if m[key] is None else m[key])
     return {key: np.asarray(values, dtype=np.float64) for key, values in replicates.items()}

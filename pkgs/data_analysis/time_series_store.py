@@ -173,7 +173,8 @@ def process_negative_patients(patient_ids: any, scenario_name: ExperimentScenari
     
     return lab_df
 
-def merge_nearest_within_admission(anchor_df, other_df, value_col, tolerance=None, by='hadm_id'):
+def merge_nearest_within_admission(anchor_df, other_df, value_col, tolerance=None, by='hadm_id',
+                                   *, direction='nearest'):
     """Attach `value_col` from other_df onto anchor_df, matching each anchor row to the other_df
     row with the nearest charttime, grouped by `by` (default: 'hadm_id', i.e. bounded to the same
     hospital admission). Pass by='subject_id' to match across a patient's whole history instead -
@@ -181,7 +182,9 @@ def merge_nearest_within_admission(anchor_df, other_df, value_col, tolerance=Non
     outcome-correlated attrition (96.5% of patients dropped, disproportionately ESRD-negative ones
     - see EXPERIMENT_PLAN_DETAILS.md "1c-0" pilot findings). `tolerance` additionally bounds how
     far apart (in time) a match may be - None means bounded only by the `by` grouping itself (no
-    separate time-window on top of that).
+    separate time-window on top of that). `direction='backward'` selects the latest
+    measurement at or before the anchor, including exact timestamp matches. The
+    four-/eight-feature uACR callers use this rule to exclude future measurements.
 
     Design + literature backing (Tangri et al. 2016 JAMA eAppendix 1's Geisinger cohort precedent;
     APACHE II's 24h-window convention for chemistry-panel labs; landmarking methodology for sparse
@@ -204,7 +207,7 @@ def merge_nearest_within_admission(anchor_df, other_df, value_col, tolerance=Non
     # labs merged under a 24-hour tolerance.
     right[f'{value_col}_charttime'] = right['charttime']
 
-    merged = pd.merge_asof(left, right, on='charttime', by=by, direction='nearest', tolerance=tolerance)
+    merged = pd.merge_asof(left, right, on='charttime', by=by, direction=direction, tolerance=tolerance)
     _log_match_timing(merged, value_col, by)
     return merged
 
@@ -213,15 +216,9 @@ def _log_match_timing(merged, value_col, by):
     """Print the SIGNED time separation between each anchor row and the value
     matched onto it, as a parseable MATCH_TIMING| line.
 
-    direction='nearest' can match a value recorded either before or AFTER the
-    anchor creatinine draw. That is a deliberate part of the merge design (see
-    this function's caller and EXPERIMENT_PLAN_DETAILS.md "1a-2"), but
-    PAPER_GAPS_EXPERIMENT_PLAN.md Gap 8 asks for it to be QUANTIFIED rather
-    than only described: "Quantify later matches and time separations to assess
-    the limitation." Nothing downstream consumed these numbers, and they are not
-    recoverable from the exported scenario CSVs, which keep no absolute
-    timestamp -- so they are emitted here, at the one place that still has both
-    timestamps, for pkgs/scripts/audit_prediction_time.py to read.
+    Nearest chemistry matches can fall after the anchor; backward uACR matches
+    must have no positive separation. Exported scenario CSVs keep no absolute
+    timestamps, so log timing here while both timestamps remain available.
 
     Printing only: no row is changed. The `<value_col>_charttime` column this
     reads is dropped downstream, where get_time_series_data_ckd_patients selects
@@ -394,12 +391,11 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         lab_df = pd.concat(lab_dfs)
     elif scenario_name == ExperimentScenario.FOUR_FEATURES or scenario_name == ExperimentScenario.EIGHT_FEATURES:
         # age, gender, egfr, uacr (+ calcium, phosphate, bicarbonate, serum_albumin for
-        # EIGHT_FEATURES). No missingness flags - like EGFR_COMPONENTS - real simultaneous values
-        # only. Merge design + literature backing (anchor on each creatinine draw; uACR matched
-        # nearest-value across the patient's whole history - loosened from same-admission after the
-        # 1c-0 pilot showed that bound caused severe, outcome-correlated attrition; chemistry-panel
-        # labs matched nearest-value within +/-24h, per APACHE II's same-panel-snapshot convention)
-        # recorded in EXPERIMENT_PLAN_DETAILS.md, section "1a-2".
+        # EIGHT_FEATURES). Require measured values for every feature. Use each
+        # creatinine draw as the uACR cutoff: carry the latest prior/simultaneous
+        # uACR across admissions, with no maximum lookback. Never borrow a future
+        # uACR. Chemistry-panel matching remains nearest within +/-24h of the
+        # anchor in the same admission.
         def log_cohort_flow_stage(stage_name, df):
             # Parseable by pkgs/data_analysis/cohort_flow_analysis.py - see EXPERIMENT_PLAN_DETAILS.md "1c-0".
             print(f'COHORT_FLOW|{scenario_name.value}|{stage_name}|patients={df["subject_id"].nunique()}|records={len(df)}')
@@ -410,7 +406,8 @@ def get_lab_df_for_scenario_name(patients: any, scenario_name: ExperimentScenari
         log_cohort_flow_stage('has_egfr_admission_linked', egfr_df)
 
         uacr_df = get_uacr_df(patients)
-        lab_df = merge_nearest_within_admission(egfr_df, uacr_df, 'uacr', tolerance=None, by='subject_id')
+        lab_df = merge_nearest_within_admission(
+            egfr_df, uacr_df, 'uacr', tolerance=None, by='subject_id', direction='backward')
         lab_df = lab_df.dropna(subset=['uacr'])
         log_cohort_flow_stage('has_qualifying_uacr', lab_df)
 

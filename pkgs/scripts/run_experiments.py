@@ -6,7 +6,7 @@ From the repository root, activate the project Python environment. Choose
 "analyze" for existing trained models or "train" to invoke model training/
 evaluation (each model's existing function controls reuse of saved models)::
 
-    # Both analyses, all three scenarios, reps 1-5, logs in generated_data/rep<N>/:
+    # All analyses and gap audits, all three scenarios, reps 1-5:
     python -m pkgs.scripts.run_experiments analyze --reps all
 
     # Run repetitions concurrently, with separate logs for each rep:
@@ -42,11 +42,10 @@ Selection options:
   models. KFRE is excluded from feature importance and from twenty-feature
   training/clinical validity. Use dynamic_deephit/rnnsurv on the CLI, even
   though analysis reports use ddh/rnn_surv internally.
-- --analyses: clinical_validity, feature_importance and/or subgroup.
-  clinical_validity and feature_importance run by default for "analyze";
-  subgroup is opt-in (--analyses subgroup), since it re-reads patients.csv/
-  admissions.csv and is not part of the headline comparison. This option does
-  not select anything for "train".
+- --analyses: clinical_validity, feature_importance, subgroup,
+  outcome_definition, prediction_time. All five run by default for "analyze".
+  Explicit selections run only those tasks. This option does not select anything
+  for "train". prediction_time includes raw lab timing (a large CSV scan per rep).
 - Logs default to generated_data/rep<N>/rep<N>_<task>_<timestamp>.log.
   --log-dir optionally overrides the directory for all selected reps.
 - --dry-run: prints the selected worker commands and log paths without
@@ -63,6 +62,10 @@ Inputs, outputs, and execution:
   Clinical validity also writes c_index_comparison.png, brier_comparison.png,
   and auc_comparison.png across the selected scenarios/models. Subgroup writes
   <scenario>_subgroup_performance_report.txt and no charts.
+  The audits write stage_gap6_outcome_definition_report.txt and
+  stage_gap8_prediction_time_audit_report.txt. They need raw diagnosis/demographic/
+  lab files and existing exports, but no trained models. Analysis never rebuilds
+  datasets or retrains models; the backward uACR fix requires new extraction.
 - Bootstrap resample count for clinical_validity/subgroup: CKD_N_BOOTSTRAP
   (default 1000). Lower it for a quick smoke run.
 - Reports/charts stay under generated_data/rep<N>/ and are overwritten on
@@ -111,7 +114,11 @@ TRAIN_FUNCTIONS = {
     "survival_svm": "run_scenario",
     "weibul": "run_scenario",
 }
-ANALYSES = ("clinical_validity", "feature_importance", "subgroup")
+AUDIT_MODULES = {
+    "outcome_definition": "pkgs.scripts.audit_outcome_definition",
+    "prediction_time": "pkgs.scripts.audit_prediction_time",
+}
+ANALYSES = ("clinical_validity", "feature_importance", "subgroup", *AUDIT_MODULES)
 MODEL_ALIASES = {"dynamic_deephit": "ddh", "rnnsurv": "rnn_surv"}
 
 
@@ -126,8 +133,8 @@ def parse_args(argv=None):
     parser.add_argument("--models", nargs="+", choices=TRAIN_FUNCTIONS,
                         help="Model subset; defaults to all applicable models")
     parser.add_argument("--analyses", nargs="+", choices=ANALYSES,
-                        default=["clinical_validity", "feature_importance"],
-                        help="Analyses to run; subgroup is opt-in and not in the default set")
+                        default=list(ANALYSES),
+                        help="Analyses to run (default: all five, including raw lab timing)")
     parser.add_argument("--log-dir", type=Path,
                         help="Override the default generated_data/rep<N>/ log directory")
     parser.add_argument("--dry-run", action="store_true", help="Print subprocess commands without running them")
@@ -161,6 +168,20 @@ def run_worker(args):
 
     output_dir = Path(generate_data_path_latest_rep)
     print(f"rep{args.reps[0]} {args.action}: {', '.join(args.scenarios)}; output={output_dir}", flush=True)
+    if args.action == "analyze" and args.analyses[0] in AUDIT_MODULES:
+        missing = [str(output_dir / f"{scenario}_{split}_data.csv")
+                   for scenario in args.scenarios for split in ("train", "test")
+                   if not (output_dir / f"{scenario}_{split}_data.csv").is_file()]
+        if missing:
+            print(f"FAILED: missing existing data: {', '.join(missing)}", flush=True)
+            return 1
+        task = args.analyses[0]
+        audit_args = ["--scenarios", *args.scenarios]
+        if task == "prediction_time":
+            audit_args.append("--lab-timing")
+        status = importlib.import_module(AUDIT_MODULES[task]).main(audit_args)
+        print("COMPLETE" if status == 0 else "FAILED", flush=True)
+        return status
     analyzer = None
     if args.action == "analyze":
         if args.analyses == ["clinical_validity"]:
@@ -169,9 +190,11 @@ def run_worker(args):
         elif args.analyses == ["subgroup"]:
             from pkgs.data_analysis.subgroup_analysis import SubgroupAnalyzer
             analyzer = SubgroupAnalyzer(output_dir)
-        else:
+        elif args.analyses == ["feature_importance"]:
             from pkgs.data_analysis.feature_importance_analysis import FeatureImportanceAnalyzer
             analyzer = FeatureImportanceAnalyzer("_".join(args.scenarios), output_dir)
+        else:
+            raise ValueError(f"Unsupported worker analysis: {args.analyses}")
         if args.models:
             selected = {MODEL_ALIASES.get(model, model) for model in args.models}
             analyzer.models = [model for model in analyzer.models if model in selected]

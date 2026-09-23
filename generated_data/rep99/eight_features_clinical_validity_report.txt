@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-09-18 10:18:39
+Generated on: 2026-09-23 08:42:49
 Repetition: 99
 Scenario: eight_features
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -16,7 +16,7 @@ Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
   test: 1100 lab-event rows -> 243 patients; event rate 0.2800 (row-level) vs 0.8724 (patient-level, 212 events)
   test: patient uniqueness and terminal-outcome consistency verified.
 Max test follow-up: 3188.2 days. Horizons used: [730, 1825]
-Training-set max follow-up: 3842.6 days; IPCW evaluation capped at 3351.5 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+Training-set max follow-up: 3842.6 days; IPCW evaluation capped at 3842.6 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
 
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 243/243 patients have one (0 excluded, no measured eGFR); selected from 1100/1100 rows with a real eGFR measurement.
 
@@ -68,6 +68,7 @@ Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 243 test patients, 95% percentile intervals (Gap 3)
 ================================================================================
 Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
@@ -111,16 +112,16 @@ Mean time-dependent AUC — estimate [95% CI]:
 
 Paired differences vs. KFRE (published equation), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
-  Cox                  C-index: +0.0257 [-0.0178, +0.0691]    Brier: -0.3397 [-0.4297, -0.2504]*   AUC: +0.0205 [-0.0540, +0.0928] 
+  Cox                  C-index: +0.0257 [-0.0178, +0.0691]    Brier: -0.3397 [-0.4297, -0.2504]*   AUC: +0.0205 [-0.0540, +0.0928]
   Dynamic DeepHit      C-index: +0.2755 [+0.2218, +0.3263]*   Brier: -0.4246 [-0.4881, -0.3650]*   AUC: +0.3390 [+0.2667, +0.4159]*
   Hazard Transformer   C-index: -0.0412 [-0.1067, +0.0218]    Brier: -0.2875 [-0.3690, -0.2080]*   AUC: -0.1116 [-0.2054, -0.0118]*
   Logistic Hazard      C-index: -0.0528 [-0.1141, +0.0048]    Brier: -0.2581 [-0.3553, -0.1711]*   AUC: -0.1097 [-0.2062, -0.0104]*
-  RNN-Surv             C-index: -0.0371 [-0.0987, +0.0276]    Brier: -0.0205 [-0.0917, +0.0458]    AUC: -0.0507 [-0.1419, +0.0435] 
+  RNN-Surv             C-index: -0.0371 [-0.0987, +0.0276]    Brier: -0.0205 [-0.0917, +0.0458]    AUC: -0.0507 [-0.1419, +0.0435]
   DeepSurv             C-index: -0.0551 [-0.1030, -0.0062]*   Brier: -0.2528 [-0.3209, -0.1885]*   AUC: -0.0819 [-0.1528, -0.0096]*
-  GBSA                 C-index: -0.0382 [-0.1020, +0.0268]    Brier: -0.2913 [-0.3926, -0.1937]*   AUC: -0.0841 [-0.1801, +0.0217] 
-  Survival RF          C-index: -0.0496 [-0.1046, +0.0074]    Brier: -0.3222 [-0.4017, -0.2440]*   AUC: -0.0622 [-0.1446, +0.0301] 
-  Survival SVM         C-index: -0.0255 [-0.0762, +0.0216]    Brier: -0.3276 [-0.4058, -0.2525]*   AUC: -0.0118 [-0.0895, +0.0656] 
-  Weibull AFT          C-index: -0.0302 [-0.0797, +0.0158]    Brier: -0.3331 [-0.4190, -0.2522]*   AUC: -0.0324 [-0.1070, +0.0422] 
+  GBSA                 C-index: -0.0382 [-0.1020, +0.0268]    Brier: -0.2913 [-0.3926, -0.1937]*   AUC: -0.0841 [-0.1801, +0.0217]
+  Survival RF          C-index: -0.0496 [-0.1046, +0.0074]    Brier: -0.3222 [-0.4017, -0.2440]*   AUC: -0.0622 [-0.1446, +0.0301]
+  Survival SVM         C-index: -0.0255 [-0.0762, +0.0216]    Brier: -0.3276 [-0.4058, -0.2525]*   AUC: -0.0118 [-0.0895, +0.0656]
+  Weibull AFT          C-index: -0.0302 [-0.0797, +0.0158]    Brier: -0.3331 [-0.4190, -0.2522]*   AUC: -0.0324 [-0.1070, +0.0422]
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
 Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (positive = the listed model is higher):
@@ -138,6 +139,7 @@ Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
 === Horizon: 730 days ===
+DCA common cohort: 243/243 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
 Treat-all net benefit (243 patients): {0.05: 0.79677, 0.1: 0.78548, 0.15: 0.77286, 0.2: 0.75867, 0.25: 0.74258, 0.3: 0.72419, 0.4: 0.67822, 0.5: 0.61387}
   (for contrast, the superseded row-level treat-all over 1100 lab rows: {0.05: 0.2981, 0.1: 0.25911, 0.15: 0.21553, 0.2: 0.1665, 0.25: 0.11093, 0.3: 0.04742, 0.4: -0.11134, 0.5: -0.33361})
 eGFR<30 referral rule (243 patients): flags 88 (0.3621), TP rate 0.3053, FP rate 0.05684
@@ -407,6 +409,7 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.50  model=0.06878  treat_all=0.61387  treat_none=0.0
 
 === Horizon: 1825 days ===
+DCA common cohort: 243/243 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
 Treat-all net benefit (243 patients): {0.05: 0.93405, 0.1: 0.93038, 0.15: 0.92629, 0.2: 0.92168, 0.25: 0.91646, 0.3: 0.91049, 0.4: 0.89557, 0.5: 0.87469}
   (for contrast, the superseded row-level treat-all over 1100 lab rows: {0.05: 0.57584, 0.1: 0.55228, 0.15: 0.52594, 0.2: 0.49631, 0.25: 0.46273, 0.3: 0.42436, 0.4: 0.32842, 0.5: 0.1941})
 eGFR<30 referral rule (243 patients): flags 88 (0.3621), TP rate 0.33291, FP rate 0.02923

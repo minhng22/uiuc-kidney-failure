@@ -19,6 +19,7 @@ papered over: a model with fewer reps than the scenario's max gets an
 explicit note.
 """
 import re
+import math
 import statistics
 import sys
 from pathlib import Path
@@ -27,13 +28,17 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 REP_RANGE = range(1, 6)
 
 LINE_RE = re.compile(
-    r"^\s*([A-Za-z][A-Za-z0-9 \-]*?):\s*c_index=([\-0-9.]+)\s+brier=([\-0-9.]+)\s+auc=([\-0-9.]+)\s*$"
+    r"^\s*([A-Za-z][A-Za-z0-9 \-]*?):\s*c_index=(None|nan|[+\-0-9.eE]+)"
+    r"\s+brier=(None|nan|[+\-0-9.eE]+)(?:\s+\([^)]+\))?"
+    r"\s+auc=(None|nan|[+\-0-9.eE]+)\s*$"
 )
 
 
 def parse_report(path: Path):
     """Returns {model_name: (c_index, brier, auc)} from one report's
-    Discrimination metrics block, or {} if the file doesn't exist yet."""
+    Discrimination metrics block, or {} if the file doesn't exist yet.
+    Each metric can be None; an unavailable ranking must not discard a
+    model's usable native Brier score. Accept both old and source-labelled rows."""
     if not path.exists():
         return {}
     in_block = False
@@ -46,7 +51,9 @@ def parse_report(path: Path):
             m = LINE_RE.match(line)
             if m:
                 name, c, b, a = m.groups()
-                out[name.strip()] = (float(c), float(b), float(a))
+                values = [float(v) if v != 'None' else None for v in (c, b, a)]
+                out[name.strip()] = tuple(v if v is not None and math.isfinite(v) else None
+                                          for v in values)
             elif line.strip() == "" or line.strip().startswith("==="):
                 in_block = False
     return out
@@ -87,16 +94,18 @@ def aggregate_scenario(scenario: str):
     print(header)
     print("-" * len(header))
     for model in all_models:
-        c_vals, b_vals, a_vals, reps_used = [], [], [], []
+        c_vals, b_vals, a_vals = [], [], []
+        metric_reps = [[], [], []]
         for rep in reps_present:
             row = per_rep[rep].get(model)
             if row is not None:
-                c_vals.append(row[0])
-                b_vals.append(row[1])
-                a_vals.append(row[2])
-                reps_used.append(rep)
-        note = "" if len(reps_used) == len(reps_present) else f"  ** only reps {reps_used} **"
-        print(f"{model:<20} {fmt(c_vals):<20} {fmt(b_vals):<20} {fmt(a_vals):<20}{note}")
+                for i, values in enumerate((c_vals, b_vals, a_vals)):
+                    if row[i] is not None:
+                        values.append(row[i])
+                        metric_reps[i].append(rep)
+        coverage = '; '.join(f'{name}={reps}' for name, reps in
+                             zip(('C-index', 'Brier', 'AUC'), metric_reps))
+        print(f"{model:<20} {fmt(c_vals):<20} {fmt(b_vals):<20} {fmt(a_vals):<20} {coverage}")
 
 
 if __name__ == "__main__":

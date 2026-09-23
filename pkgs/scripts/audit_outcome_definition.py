@@ -34,6 +34,7 @@ ESRD-positive proportion is a property of a deliberately balanced case-control
 style extraction, not a fixed-horizon risk or an incidence rate, so it is not
 commensurable with either. The report states that directly.
 """
+import argparse
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -231,6 +232,12 @@ def audit_horizon(lines, scenario_names):
 
 
 def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--scenarios', nargs='+',
+                        choices=('four_features', 'eight_features', 'twenty_features_heterogeneous'),
+                        default=['four_features', 'eight_features', 'twenty_features_heterogeneous'])
+    args = parser.parse_args(argv)
     from pkgs.commons import current_rep, diagnose_icd_file_path, generate_data_path_latest_rep
 
     lines = []
@@ -245,7 +252,7 @@ def main(argv=None):
 
     audit_codes(lines, diagnoses)
     audit_cohort(lines, diagnoses)
-    audit_horizon(lines, ('four_features', 'eight_features', 'twenty_features_heterogeneous'))
+    audit_horizon(lines, args.scenarios)
 
     _report(lines, "=" * 100)
     _report(lines, "PART 4 — WHAT THE MANUSCRIPT SHOULD SAY")

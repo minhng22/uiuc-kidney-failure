@@ -41,9 +41,10 @@ past the reported 2-year and 5-year horizons, and how much of the cohort's
 Part C (--lab-timing) -- the one question the exported CSVs cannot answer:
 how often a matched lab was recorded AFTER the creatinine draw the row is
 anchored on, and by how much. The exported frames keep no absolute timestamp,
-so this re-derives the match from raw labevents for the rep's own cohort,
+so this re-derives the match under CURRENT rules from raw labevents for the rep's own cohort,
 calling the extraction's own merge_nearest_within_admission() rather than
-re-implementing it.
+re-implementing it. This is not a reconstruction of historical exports if their
+matching rules differed; uACR now uses backward matching.
 
 A finding here is a description of what the reconstruction did. It does not by
 itself establish that any model's score is or is not usable as prospective
@@ -183,9 +184,11 @@ def audit_exported(lines, scenario_name, df_train, df_test):
                            f"max {durations[~events].max():.1f} d")
 
         n_zero = int((durations <= 0).sum())
-        _report(lines, f"  Patients whose landmark IS their first record (duration 0, i.e. a single "
-                       f"exported row): {n_zero}/{len(durations)} ({n_zero / len(durations) * 100:.1f}%)"
-                       " — for these the 'time-varying' input reduces to one snapshot.")
+        n_single = int((rows_per_patient == 1).sum())
+        _report(lines, f"  Patients with zero follow-up duration: {n_zero}/{len(durations)} "
+                       f"({n_zero / len(durations) * 100:.1f}%); these can have multiple rows.")
+        _report(lines, f"  Patients with a single exported row: {n_single}/{len(durations)} "
+                       f"({n_single / len(durations) * 100:.1f}%).")
 
         for horizon in HORIZONS_DAYS:
             at_risk_past = int((durations >= horizon).sum())
@@ -224,6 +227,9 @@ def _load_cohort_labs(lines, subject_ids, chunksize=2_000_000):
     key = frozenset(subject_ids)
     if key in _LABS_CACHE:
         return _LABS_CACHE[key], wanted
+    for cached_ids, cached_labs in _LABS_CACHE.items():
+        if key.issubset(cached_ids):
+            return cached_labs[cached_labs['subject_id'].isin(key)].copy(), wanted
 
     all_codes = set().union(*wanted.values())
     _report(lines, f"  Scanning {lab_events_file_path} for {len(subject_ids)} cohort patients "
@@ -281,14 +287,16 @@ def audit_lab_timing(lines, scenario_name, df_test, df_train):
     _report(lines, f"  Anchor rows (creatinine draws with an admission, non-zero value): {len(anchor):,} "
                    f"over {anchor['subject_id'].nunique()} patients.")
     _report(lines, "  Rule audited per lab, exactly as the extraction applies it "
-                   "(time_series_store.merge_nearest_within_admission, direction='nearest'):")
+                   "(time_series_store.merge_nearest_within_admission):")
+    _report(lines, "  Recomputed with current matching rules on raw anchors for cohort patients; "
+                   "this does not validate previously exported feature values.")
 
-    matched_labs = [('uacr', 'subject_id', None)]
+    matched_labs = [('uacr', 'subject_id', None, 'backward')]
     if scenario_name == 'eight_features':
-        matched_labs += [(name, 'hadm_id', pd.Timedelta(hours=24))
+        matched_labs += [(name, 'hadm_id', pd.Timedelta(hours=24), 'nearest')
                          for name in ('calcium', 'phosphate', 'bicarbonate', 'serum_albumin')]
 
-    for lab_name, by, tolerance in matched_labs:
+    for lab_name, by, tolerance, direction in matched_labs:
         other = labs[labs['itemid'].isin(wanted[lab_name])].copy()
         other[lab_name] = other['valuenum']
         other = other.dropna(subset=[by, 'charttime', lab_name])
@@ -296,7 +304,7 @@ def audit_lab_timing(lines, scenario_name, df_test, df_train):
             _report(lines, f"    {lab_name:<15} no source rows in this cohort — skipped.")
             continue
         merged = merge_nearest_within_admission(anchor.copy(), other, lab_name,
-                                                tolerance=tolerance, by=by)
+                                                tolerance=tolerance, by=by, direction=direction)
         time_col = f'{lab_name}_charttime'
         matched = merged[merged[lab_name].notna() & merged[time_col].notna()]
         deltas = (matched[time_col] - matched['charttime']).dt.total_seconds() / 3600.0
@@ -306,8 +314,8 @@ def audit_lab_timing(lines, scenario_name, df_test, df_train):
         after = int((deltas > 0).sum())
         simultaneous = int((deltas == 0).sum())
         window = 'same admission, +/-24 h' if tolerance is not None else (
-            "patient's whole history, no time bound" if by == 'subject_id' else 'same admission')
-        _report(lines, f"    {lab_name:<15} matched by {by} ({window})")
+            "patient's history at/before anchor, no maximum lookback" if by == 'subject_id' else 'same admission')
+        _report(lines, f"    {lab_name:<15} matched by {by} ({window}; direction={direction})")
         _report(lines, f"      matched {len(matched):,}/{len(merged):,} anchor rows "
                        f"({len(matched) / len(merged) * 100:.1f}%)")
         _report(lines, f"      recorded AFTER the anchor creatinine: {after:,}/{len(deltas):,} "
@@ -349,6 +357,7 @@ def main(argv=None):
     _report(lines, "")
     audit_static(lines)
 
+    frames = {}
     for scenario_name in args.scenarios:
         for split in ('train', 'test'):
             path = output_dir / f'{scenario_name}_{split}_data.csv'
@@ -356,10 +365,22 @@ def main(argv=None):
                 _report(lines, f"SKIP {scenario_name}: missing {path}")
                 break
         else:
-            df_train, df_test = get_train_test_data(ExperimentScenario(scenario_name))
-            audit_exported(lines, scenario_name, df_train, df_test)
-            if args.lab_timing:
-                audit_lab_timing(lines, scenario_name, df_test, df_train)
+            frames[scenario_name] = get_train_test_data(ExperimentScenario(scenario_name))
+
+    # Scan raw labs once for the union, then restrict cached rows per scenario.
+    if args.lab_timing:
+        subject_ids = set()
+        for scenario_name, pair in frames.items():
+            if scenario_name in ('four_features', 'eight_features'):
+                for df in pair:
+                    subject_ids.update(df['subject_id'].unique())
+        if subject_ids:
+            _load_cohort_labs(lines, subject_ids)
+
+    for scenario_name, (df_train, df_test) in frames.items():
+        audit_exported(lines, scenario_name, df_train, df_test)
+        if args.lab_timing:
+            audit_lab_timing(lines, scenario_name, df_test, df_train)
 
     report_path = output_dir / 'stage_gap8_prediction_time_audit_report.txt'
     header = [

@@ -2,12 +2,32 @@
 Analyses consume the trained model artifacts written above:
 
 ```bash
-# both analyses, all scenarios, reps 1-5
+# all five analyses/audits, all scenarios, reps 1-5
 python -m pkgs.scripts.run_experiments analyze --reps all --parallel-reps
 
 # one analysis, selected reps
-python -m pkgs.scripts.run_experiments analyze --reps 2 3
+python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses clinical_validity
 ```
+
+The default includes:
+
+- `clinical_validity`: calibration, patient bootstrap intervals and paired differences
+  (Gap 3), corrected patient-level IPCW/Brier/AUC and treat-all/eGFR decision curves
+  (Gaps 5a–5d), including the recent numerical-ranking and common-cohort fixes.
+- `feature_importance`: existing SHAP reports and charts.
+- `subgroup`: age/sex/race performance with bootstrap intervals (Gap 12).
+- `outcome_definition`: label, eligibility and horizon-support audit (Gap 6).
+- `prediction_time`: input/landmark/horizon audit, including raw lab-match timing
+  under the current matching rules (Gap 8).
+
+Repetitions run in parallel; the five tasks within each repetition run sequentially,
+with separate logs. The timing audit scans the large raw lab CSV once per repetition,
+sharing the loaded patient subset across scenarios. Audits require raw source files;
+model evaluations require trained artifacts. `CKD_N_BOOTSTRAP` defaults to 1000.
+
+Analysis uses existing exports and models. Applying backward-only uACR matching to
+the reported model results requires re-extraction and retraining first; auditing
+current matching rules does not validate the inputs in older exports.
 
 Then aggregate discrimination metrics (mean ± SD across whichever reps have
 a `<scenario>_clinical_validity_report.txt`):
@@ -24,4 +44,6 @@ final comparisons.
 
 To run this script in the background, do:
 
-nohup python -u -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses clinical_validity feature_importance --parallel-reps > generated_data/run_experiments_rep_2_3.log 2>&1 < /dev/null &
+```bash
+nohup python -u -m pkgs.scripts.run_experiments analyze --reps 2 3 --parallel-reps > generated_data/run_experiments_rep_2_3.log 2>&1 < /dev/null &
+```

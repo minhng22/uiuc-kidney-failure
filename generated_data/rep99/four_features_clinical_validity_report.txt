@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-09-18 10:14:22
+Generated on: 2026-09-23 08:41:27
 Repetition: 99
 Scenario: four_features
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -16,7 +16,7 @@ Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
   test: 3667 lab-event rows -> 345 patients; event rate 0.0938 (row-level) vs 0.7246 (patient-level, 250 events)
   test: patient uniqueness and terminal-outcome consistency verified.
 Max test follow-up: 4333.0 days. Horizons used: [730, 1825]
-Training-set max follow-up: 4112.3 days; IPCW evaluation capped at 4060.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+Training-set max follow-up: 4112.3 days; IPCW evaluation capped at 4112.3 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
 
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 345/345 patients have one (0 excluded, no measured eGFR); selected from 3667/3667 rows with a real eGFR measurement.
 
@@ -68,6 +68,7 @@ Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 345 test patients, 95% percentile intervals (Gap 3)
 ================================================================================
 Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
@@ -111,16 +112,16 @@ Mean time-dependent AUC — estimate [95% CI]:
 
 Paired differences vs. KFRE (published equation), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
-  Cox                  C-index: +0.0209 [-0.0167, +0.0581]    Brier: -0.1298 [-0.1764, -0.0862]*   AUC: +0.0284 [-0.0270, +0.0829] 
+  Cox                  C-index: +0.0209 [-0.0167, +0.0581]    Brier: -0.1298 [-0.1764, -0.0862]*   AUC: +0.0284 [-0.0270, +0.0829]
   Dynamic DeepHit      C-index: +0.2979 [+0.2500, +0.3478]*   Brier: -0.2660 [-0.3138, -0.2215]*   AUC: +0.3862 [+0.3247, +0.4467]*
-  Hazard Transformer   C-index: +0.0068 [-0.0539, +0.0650]    Brier: -0.0590 [-0.1145, -0.0049]*   AUC: +0.0209 [-0.0667, +0.1054] 
-  Logistic Hazard      C-index: -0.0173 [-0.0538, +0.0190]    Brier: +0.1306 [+0.0409, +0.2228]*   AUC: -0.0311 [-0.0809, +0.0186] 
-  RNN-Surv             C-index: -0.0165 [-0.0752, +0.0444]    Brier: -0.0214 [-0.0567, +0.0111]    AUC: -0.0328 [-0.1177, +0.0493] 
-  DeepSurv             C-index: +0.0220 [-0.0193, +0.0629]    Brier: -0.1176 [-0.1520, -0.0851]*   AUC: +0.0205 [-0.0348, +0.0779] 
-  GBSA                 C-index: -0.0173 [-0.0739, +0.0392]    Brier: -0.0850 [-0.1312, -0.0401]*   AUC: -0.0277 [-0.1109, +0.0492] 
-  Survival RF          C-index: +0.0186 [-0.0313, +0.0697]    Brier: -0.1175 [-0.1566, -0.0820]*   AUC: +0.0178 [-0.0532, +0.0898] 
-  Survival SVM         C-index: +0.0120 [-0.0393, +0.0608]    Brier: -0.1178 [-0.1572, -0.0815]*   AUC: +0.0122 [-0.0627, +0.0822] 
-  Weibull AFT          C-index: +0.0121 [-0.0336, +0.0577]    Brier: -0.1223 [-0.1677, -0.0779]*   AUC: +0.0139 [-0.0546, +0.0779] 
+  Hazard Transformer   C-index: +0.0068 [-0.0539, +0.0650]    Brier: -0.0590 [-0.1145, -0.0049]*   AUC: +0.0209 [-0.0667, +0.1054]
+  Logistic Hazard      C-index: -0.0173 [-0.0538, +0.0190]    Brier: +0.1306 [+0.0409, +0.2228]*   AUC: -0.0311 [-0.0809, +0.0186]
+  RNN-Surv             C-index: -0.0165 [-0.0752, +0.0444]    Brier: -0.0214 [-0.0567, +0.0111]    AUC: -0.0328 [-0.1177, +0.0493]
+  DeepSurv             C-index: +0.0220 [-0.0193, +0.0628]    Brier: -0.1176 [-0.1520, -0.0851]*   AUC: +0.0205 [-0.0348, +0.0779]
+  GBSA                 C-index: -0.0173 [-0.0740, +0.0392]    Brier: -0.0850 [-0.1312, -0.0401]*   AUC: -0.0277 [-0.1109, +0.0492]
+  Survival RF          C-index: +0.0186 [-0.0313, +0.0697]    Brier: -0.1175 [-0.1566, -0.0820]*   AUC: +0.0178 [-0.0532, +0.0898]
+  Survival SVM         C-index: +0.0120 [-0.0393, +0.0608]    Brier: -0.1178 [-0.1572, -0.0815]*   AUC: +0.0122 [-0.0627, +0.0822]
+  Weibull AFT          C-index: +0.0121 [-0.0336, +0.0577]    Brier: -0.1223 [-0.1677, -0.0779]*   AUC: +0.0139 [-0.0546, +0.0779]
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
 Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (positive = the listed model is higher):
@@ -129,7 +130,7 @@ Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (
   Hazard Transformer   C-index: -0.2912 [-0.3416, -0.2435]*   Brier: +0.2070 [+0.1749, +0.2400]*   AUC: -0.3654 [-0.4333, -0.3030]*
   Logistic Hazard      C-index: -0.3153 [-0.3641, -0.2659]*   Brier: +0.3966 [+0.3278, +0.4670]*   AUC: -0.4173 [-0.4790, -0.3520]*
   RNN-Surv             C-index: -0.3144 [-0.3594, -0.2710]*   Brier: +0.2446 [+0.2055, +0.2857]*   AUC: -0.4190 [-0.4823, -0.3627]*
-  DeepSurv             C-index: -0.2759 [-0.3240, -0.2295]*   Brier: +0.1484 [+0.1217, +0.1734]*   AUC: -0.3658 [-0.4299, -0.3063]*
+  DeepSurv             C-index: -0.2760 [-0.3240, -0.2295]*   Brier: +0.1484 [+0.1217, +0.1734]*   AUC: -0.3658 [-0.4299, -0.3063]*
   GBSA                 C-index: -0.3152 [-0.3633, -0.2708]*   Brier: +0.1811 [+0.1489, +0.2118]*   AUC: -0.4139 [-0.4735, -0.3564]*
   Survival RF          C-index: -0.2793 [-0.3238, -0.2353]*   Brier: +0.1485 [+0.1219, +0.1762]*   AUC: -0.3684 [-0.4296, -0.3096]*
   Survival SVM         C-index: -0.2859 [-0.3377, -0.2393]*   Brier: +0.1483 [+0.1214, +0.1771]*   AUC: -0.3740 [-0.4384, -0.3145]*
@@ -138,6 +139,7 @@ Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
 === Horizon: 730 days ===
+DCA common cohort: 345/345 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
 Treat-all net benefit (345 patients): {0.05: 0.49171, 0.1: 0.46347, 0.15: 0.43191, 0.2: 0.39641, 0.25: 0.35617, 0.3: 0.31018, 0.4: 0.19521, 0.5: 0.03425}
   (for contrast, the superseded row-level treat-all over 3667 lab rows: {0.05: 0.03201, 0.1: -0.02177, 0.15: -0.08187, 0.2: -0.14949, 0.25: -0.22612, 0.3: -0.3137, 0.4: -0.53265, 0.5: -0.83918})
 eGFR<30 referral rule (345 patients): flags 93 (0.2696), TP rate 0.15881, FP rate 0.11075
@@ -422,6 +424,7 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.50  model=0.01449  treat_all=0.03425  treat_none=0.0
 
 === Horizon: 1825 days ===
+DCA common cohort: 345/345 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
 Treat-all net benefit (345 patients): {0.05: 0.69318, 0.1: 0.67613, 0.15: 0.65708, 0.2: 0.63565, 0.25: 0.61136, 0.3: 0.5836, 0.4: 0.5142, 0.5: 0.41704}
   (for contrast, the superseded row-level treat-all over 3667 lab rows: {0.05: 0.10205, 0.1: 0.05216, 0.15: -0.0036, 0.2: -0.06632, 0.25: -0.13741, 0.3: -0.21865, 0.4: -0.42176, 0.5: -0.70611})
 eGFR<30 referral rule (345 patients): flags 93 (0.2696), TP rate 0.20333, FP rate 0.06624

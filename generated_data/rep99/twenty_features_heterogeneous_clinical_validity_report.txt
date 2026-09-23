@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-09-18 10:19:31
+Generated on: 2026-09-23 08:43:29
 Repetition: 99
 Scenario: twenty_features_heterogeneous
 Competing-risk analysis (death before ESRD) not included — raised and declined
@@ -38,11 +38,13 @@ Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-
     fitted-conversion Brier for the same model/window: 0.24078 (reported for contrast; the native number above is the one to use)
     native point Brier at published horizons: 730d=0.59314, 1825d=0.44753
   Dynamic DeepHit: c_index=0.8559 brier=0.2014 (native) auc=0.9264
-    fitted-conversion Brier for the same model/window: 0.09927 (reported for contrast; the native number above is the one to use)
+    fitted-conversion Brier for the same model/window: 0.09932 (reported for contrast; the native number above is the one to use)
     native point Brier at published horizons: 730d=0.21632, 1825d=0.32615
-  Hazard Transformer: c_index=0.2034 brier=0.40481 (native) auc=0.0586
+  Hazard Transformer: c_index=None brier=0.40481 (native) auc=None
     fitted-conversion Brier for the same model/window: 0.20233 (reported for contrast; the native number above is the one to use)
     native point Brier at published horizons: 730d=1.03125
+    (c_index unavailable: numerically constant risk scores (range=1.19209e-07, 8*eps*scale=4.86487e-07, dtype=float32); ranking metrics withheld; probability metrics remain available)
+    (auc unavailable: numerically constant risk scores (range=1.19209e-07, 8*eps*scale=4.86487e-07, dtype=float32); ranking metrics withheld; probability metrics remain available)
   Logistic Hazard: c_index=0.3729 brier=0.6242 (native) auc=0.38
     fitted-conversion Brier for the same model/window: 0.55816 (reported for contrast; the native number above is the one to use)
     native point Brier at published horizons: 730d=0.75054, 1825d=0.54218
@@ -65,12 +67,13 @@ Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 20 test patients, 95% percentile intervals (Gap 3)
 ================================================================================
 Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
   Cox                  0.3898 [0.1514, 0.6395]  (n=1000)
   Dynamic DeepHit      0.8559 [0.6639, 0.9744]  (n=1000)
-  Hazard Transformer   0.2034 [0.1, 0.3624]  (n=1000)
+  Hazard Transformer   n/a [numerically constant risk scores (range=1.19209e-07, 8*eps*scale=4.86487e-07, dtype=float32); ranking metrics withheld; probability metrics remain available]
   Logistic Hazard      0.3729 [0.1571, 0.6057]  (n=1000)
   RNN-Surv             0.4407 [0.2155, 0.6748]  (n=1000)
   DeepSurv             0.6525 [0.458, 0.8511]  (n=1000)
@@ -94,7 +97,7 @@ Integrated Brier — estimate [95% CI]:
 Mean time-dependent AUC — estimate [95% CI]:
   Cox                  0.2965 [0.0258, 0.7345]  (n=988)
   Dynamic DeepHit      0.9264 [0.7614, 1.0]  (n=988)
-  Hazard Transformer   0.0586 [0.0, 0.2433]  (n=988)
+  Hazard Transformer   n/a [numerically constant risk scores (range=1.19209e-07, 8*eps*scale=4.86487e-07, dtype=float32); ranking metrics withheld; probability metrics remain available]
   Logistic Hazard      0.38 [0.1009, 0.7169]  (n=988)
   RNN-Surv             0.2281 [0.0074, 0.5934]  (n=988)
   DeepSurv             0.569 [0.3508, 0.8152]  (n=988)
@@ -106,17 +109,18 @@ Mean time-dependent AUC — estimate [95% CI]:
 Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
   Cox                  C-index: -0.4685 [-0.7011, -0.1724]*   Brier: +0.3130 [+0.0534, +0.5460]*   AUC: -0.6182 [-0.8743, -0.2336]*
-  Hazard Transformer   C-index: -0.6485 [-0.8379, -0.3679]*   Brier: +0.2040 [+0.0185, +0.3674]*   AUC: -0.8512 [-0.9838, -0.6291]*
+  Hazard Transformer   C-index: n/a   Brier: +0.2040 [+0.0185, +0.3674]*   AUC: n/a
   Logistic Hazard      C-index: -0.4723 [-0.7788, -0.1511]*   Brier: +0.4220 [+0.1616, +0.6724]*   AUC: -0.5443 [-0.8918, -0.1124]*
   RNN-Surv             C-index: -0.4114 [-0.6403, -0.1412]*   Brier: +0.0377 [-0.0062, +0.0958]    AUC: -0.6830 [-0.9173, -0.3684]*
   DeepSurv             C-index: -0.1885 [-0.4094, +0.0580]    Brier: +0.0085 [-0.0526, +0.0594]    AUC: -0.3418 [-0.5894, -0.0704]*
-  GBSA                 C-index: -0.3021 [-0.5678, +0.0123]    Brier: -0.0018 [-0.0865, +0.0792]    AUC: -0.3760 [-0.7774, +0.1053] 
+  GBSA                 C-index: -0.3021 [-0.5678, +0.0123]    Brier: -0.0018 [-0.0865, +0.0792]    AUC: -0.3760 [-0.7774, +0.1053]
   Survival RF          C-index: -0.4259 [-0.6760, -0.1462]*   Brier: +0.0076 [-0.0650, +0.0686]    AUC: -0.6591 [-0.9211, -0.3033]*
-  Survival SVM         C-index: -0.2639 [-0.5428, +0.0389]    Brier: -0.0074 [-0.0869, +0.0603]    AUC: -0.1475 [-0.5364, +0.1599] 
-  Weibull AFT          C-index: -0.1293 [-0.3530, +0.1163]    Brier: +0.0951 [-0.1182, +0.3294]    AUC: -0.1877 [-0.5066, +0.1240] 
+  Survival SVM         C-index: -0.2639 [-0.5428, +0.0389]    Brier: -0.0074 [-0.0869, +0.0603]    AUC: -0.1475 [-0.5364, +0.1599]
+  Weibull AFT          C-index: -0.1293 [-0.3530, +0.1163]    Brier: +0.0951 [-0.1182, +0.3294]    AUC: -0.1877 [-0.5066, +0.1240]
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
 === Horizon: 730 days ===
+DCA common cohort: 20/20 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
 Treat-all net benefit (20 patients): {0.05: 0.21805, 0.1: 0.1746, 0.15: 0.12605, 0.2: 0.07143, 0.25: 0.00952, 0.3: -0.06122, 0.4: -0.2381, 0.5: -0.48571}
   (for contrast, the superseded row-level treat-all over 9115 lab rows: {0.05: -0.02963, 0.1: -0.08683, 0.15: -0.15076, 0.2: -0.22269, 0.25: -0.3042, 0.3: -0.39736, 0.4: -0.63025, 0.5: -0.9563})
 eGFR<30 referral rule (20 patients): flags 5 (0.25), TP rate 0.1, FP rate 0.15
@@ -179,9 +183,8 @@ Decision curve analysis (net benefit by risk threshold):
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
   NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
-  n=   6 events=  5 predicted=1.0000 observed(KM)=0.6667
-  n=  13 events=  4 predicted=1.0000 observed(KM)=0.0909
-  n=   1 events=  1 predicted=1.0000 observed(KM)=None
+  n=  18 events=  9 predicted=1.0000 observed(KM)=0.2308
+  n=   2 events=  1 predicted=1.0000 observed(KM)=None
 Integrated Brier score (0-730d): 0.40481 [native]
   (1 test patients administratively censored at the training-set max follow-up)
 Decision curve analysis (net benefit by risk threshold):
@@ -354,6 +357,7 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.50  model=-0.05  treat_all=-0.48571  treat_none=0.0
 
 === Horizon: 1825 days ===
+DCA common cohort: 20/20 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
 Treat-all net benefit (20 patients): {0.05: 0.51731, 0.1: 0.4905, 0.15: 0.46052, 0.2: 0.42681, 0.25: 0.38859, 0.3: 0.34492, 0.4: 0.23574, 0.5: 0.08289}
   (for contrast, the superseded row-level treat-all over 9115 lab rows: {0.05: -0.00508, 0.1: -0.06092, 0.15: -0.12333, 0.2: -0.19353, 0.25: -0.2731, 0.3: -0.36404, 0.4: -0.59138, 0.5: -0.90966})
 eGFR<30 referral rule (20 patients): flags 5 (0.25), TP rate 0.1, FP rate 0.15

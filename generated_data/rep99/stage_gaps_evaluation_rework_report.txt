@@ -1,223 +1,108 @@
-PAPER GAPS — EVALUATION REWORK (Gaps 3, 5a, 5b, 5c, 5d): rep99 VERIFICATION
-================================================================================
-Generated: 2026-09-18   Host: sunlab-serv-01   Repetition: 99 (mini-experiment)
-Run: CUDA_VISIBLE_DEVICES="" CKD_N_BOOTSTRAP=1000 python -m pkgs.scripts.run_experiments \
-       analyze --reps 99 --analyses clinical_validity --log-dir pkgs/scripts/logs
-Runner PID 3982579, exit 0, ~4 min wall clock (CPU only — GPUs 0-3 held by another session).
-Re-run as PID 4000620 after the Gap 5d threshold fix, exit 0; every discrimination metric
-reproduced identically (that fix touches only the comparator), so the tables below stand and
-only the eGFR comparator numbers changed.
-Baseline for comparison: the previous rep99 reports, generated 2026-09-14 05:30-05:31,
-whose numbers are quoted below as "before".
-
-This is the permanent record for the evaluator rework. EXPERIMENT_PLAN_STATUS.md carries
-only the per-gap state and a pointer here.
-
-================================================================================
-1. WHAT CHANGED
+EVALUATION REWORK — STATUS AND VALIDATION
+Updated: 2026-09-23 | rep99 mini-experiment | Gaps 3, 5a–5d
 ================================================================================
 
-Gap 5a — patient-level censoring reference.
-  The IPCW censoring reference that the integrated Brier score and the time-dependent AUC
-  both weight by was built with
-      Surv.from_dataframe(event='has_esrd', time='duration_in_days', data=df_train)
-  on the RAW exported training frame, which is one row per lab EVENT. Every intermediate
-  visit of a patient still under follow-up therefore entered the reference as its own
-  TERMINAL censored observation. Measured on rep99:
+STATUS
+Evaluator fixes are implemented and verified on rep99. The five review findings
+are addressed for evaluation/reporting. Model repair and study-validity work remain.
+14 regression tests passed; all three scenarios completed 1000 bootstrap draws.
 
-      scenario                       rows    patients   row event rate   patient event rate
-      four_features (train)          5806         500           0.0575               0.5000
-      four_features (test)           3667         345           0.0938               0.7246
-      eight_features (train)         1856         400           0.1907               0.6250
-      eight_features (test)          1100         243           0.2800               0.8724
-      twenty_features (train)        4575          20           0.0522               0.5000
-      twenty_features (test)         9115          20           0.0325               0.5000
+1. REMAINING GAPS
+--------------------------------------------------------------------------------
 
-  Replaced by one terminal outcome per patient (pkgs/data_analysis/patient_outcomes.py:
-  patient_level_outcomes). The construction was verified, not assumed — for all six
-  frames verify_patient_outcomes() reported no problems: no duplicate subject_id, each
-  patient's last row IS their maximum-duration row, and each patient's terminal event flag
-  equals their maximum event flag (i.e. the exported frames really are truncated at the
-  event, as time_series_store.process_patient_esrd intends). The terminal frame was also
-  checked to be identical, row for row, to get_last_observation_data()'s output — the frame
-  every model is actually scored on.
+R5 — Verify inputs were available when the prediction was made. OPEN (Gap 8).
+  uACR matching is fixed in code (below); existing exports/models predate the fix.
+  Re-extract, retrain and evaluate to measure its effect on coverage/performance.
+  Remaining: eight-feature chemistry still allows +/-24 h matches; positive
+  patients' last rows are on the event date. Define the prediction cutoff and
+  verify inputs precede it and the predicted outcome follows it.
 
-  Model-side alignment is now checked per model before its predictions are used
-  (align_predictions_to_patients). Two real mismatches were found and are now handled
-  rather than silently carried:
-    - Dynamic-DeepHit and Hazard Transformer floor every duration to a whole day (both
-      discretize time into day bins): 274 of four_features' 345 test patients, max
-      difference 0.9986 d.
-    - Weibull AFT replaces a duration of exactly 0 with 1e-5 (lifelines errors on a zero
-      duration): 79 of eight_features' 243 test patients.
-  Same patients, same order, same events in every case — so all 11 models are now scored
-  against ONE canonical set of patient-level outcomes, taking only risk scores and native
-  survival curves from each model.
+2. ADDRESSED GAPS — FIX AND VALIDATION
+--------------------------------------------------------------------------------
+uACR matching — Backward-only in four/eight-feature extraction.
+  Fix: latest measurement at/before anchor creatinine, across admissions, without
+  a maximum lookback. Future-only uACR leaves the row unmatched and it is dropped.
+  Timing audit uses the same rule. Existing datasets/results were not regenerated.
+  Validation: four tests cover prior/exact/future-only/empty matches, both scenario
+  callers and the timing audit. The 14 evaluator regression tests also pass.
 
-Gap 5b — native survival probabilities vs. the fitted conversion.
-  Every reported IBS previously came from calibrated_survival_probs(), i.e. the model's
-  risk scores pushed through a Breslow baseline fitted from its own training scores. Each
-  fitted estimator was inspected (not assumed score-only, per the gap):
-    - GBSA            GradientBoostingSurvivalAnalysis, loss='coxph' → predict_survival_function  NATIVE
-    - Survival RF     RandomSurvivalForest                          → predict_survival_function  NATIVE
-    - Weibull AFT     WeibullAFTFitter                              → predict_survival_function  NATIVE
-    - Cox             CoxTimeVaryingFitter — no predict_survival_function, but it does carry
-                      baseline_cumulative_hazard_ (197 rows, 1e-5 … 3883.7 d), so
-                      S(t|x) = exp(-H0(t)·partial_hazard) is available from the fit itself.
-                      Covariates are held at the patient's landmark row (the row the model is
-                      scored on); that carry-forward is an assumption of the reading, not of
-                      the fit, and is labelled as such.                                        NATIVE
-    - Survival SVM    FastSurvivalSVM — pure ranking model, no survival function of any kind.
-                      Retains the fitted conversion, explicitly labelled.                      CONVERSION
-    - DeepSurv        nn.Module trained on Cox partial likelihood, no baseline stored.
-                      Retains the fitted conversion, explicitly labelled.                      CONVERSION
-    - KFRE            Native at exactly 2 y and 5 y (the only horizons its published S0
-                      constants define) and nowhere else, so it cannot supply a curve to
-                      integrate. Its IBS stays conversion-based and labelled, and a POINT
-                      Brier score at 730 d and 1825 d is now reported instead — computed for
-                      every model with native output there, so KFRE's numbers have something
-                      comparable beside them.                                    POINT-NATIVE
-    - DDH / Hazard Transformer / Logistic Hazard / RNN-Surv already supplied native_prob_fn;
-      the IBS path simply ignored it. It no longer does.
-  Result: 8 of 11 models in four_features now report a native IBS. Every Brier number in the
-  report carries its source, and where a native number exists the fitted-conversion number
-  for the same model and window is printed next to it for contrast.
+Gap 3 — Patient bootstrap; C-index outcome mismatch corrected.
+  Fix: shared patient draws and paired differences; original follow-up for C-index,
+  capped outcomes only for IBS/AUC, including the subgroup caller.
+  Validation: cohort/subgroup regression tests and 1000-draw rep99 run. Correcting
+  the mismatch moved C-index CI endpoints by <=0.000035; printed individual CIs
+  stayed unchanged, while some paired differences changed in their last decimal.
 
-Gap 5c — treat-all decision curve.
-  Was computed from raw df_test rows. Now computed from the same patient-level terminal
-  outcomes, horizon and included patients as the model curves. The row-level curve is still
-  printed, labelled "superseded", so the size of the correction is on the record.
+Gap 5a — Patient-level IPCW reference and tied-time support.
+  Fix: one terminal training outcome per patient, canonical test outcomes, and
+  sksurv reverse-KM support capped immediately before G(t) first reaches zero.
+  Validation: all six rep99 outcome frames and model alignment checked; tests
+  cover tied event/censor times, positive terminal support and no supported window.
 
-Gap 5d — eGFR referral comparator.
-  Two separate defects, both fixed.
-  (a) Unit. Was one "decision" per eGFR ROW. Now one decision per patient: their most recent
-  genuinely measured eGFR at or before their prediction landmark, carrying their terminal
-  outcome. Coverage is reported explicitly (rep99: 345/345, 243/243 and 20/20 patients have a
-  usable eGFR; twenty_features selects those 20 decisions from 502 measured-eGFR rows out of
-  9115).
-  (b) Threshold. Was ONE number per cutoff, computed at the rule's own referral fraction
-  (n_high/n) used as a stand-in "implied threshold" — a value no model was being compared at,
-  and one that moved with cohort composition independently of the rule's performance. An
-  eGFR<cutoff rule is a fixed binary test: its TP/FP rates do not vary with the risk threshold
-  pt, but its net benefit does, because pt sets the exchange rate between them. It now returns
-  NB(pt) = TPrate - FPrate * pt/(1-pt) across the same DCA_THRESHOLDS as every model curve, and
-  is plotted as a line on the same axis instead of a point floating at x=0.1. Section 4 below
-  gives the resulting curves.
+Gap 5b — Native survival probabilities and labelled conversions.
+  Fix: native IBS where supported; explicit fitted-conversion labels otherwise;
+  KFRE native point Brier at 730/1825 d alongside its labelled converted IBS.
+  Validation: all three scenarios exercised; 8/11 four-feature models use native
+  IBS. Per-model native/converted values appear in the scenario reports.
 
-Gap 3 — uncertainty quantification.
-  1000 patient-level bootstrap resamples, 95% percentile intervals for C-index, IBS and mean
-  time-dependent AUC, plus paired differences against KFRE and against the best model on the
-  SAME resamples (pkgs/data_analysis/bootstrap_ci.py). Predictions are computed once and
-  re-indexed; measured cost 8 ms per resample per model, ≈1.5 min for 1000 × 11.
-  Only test patients are resampled; the training censoring reference is held fixed.
+Gaps 5c/5d — Patient-level comparators and common coverage.
+  Fix: last finite measured eGFR per patient; referral curves on the same risk
+  thresholds; all plotted DCA strategies share the finite-prediction/eGFR cohort.
+  Unavailable models and empty intersections are explicit; coverage is reported.
+  Validation: missing-value, carry-forward, disjoint-coverage and subject-ID-join
+  tests passed. All 18 rep99 comparator curves reproduced exactly; included counts
+  are 345/345, 243/243 and 20/20 at both horizons.
 
-================================================================================
-2. A SIDE EFFECT WORTH RECORDING: THE TIME-DEPENDENT AUC WAS NEVER COMPUTABLE
-================================================================================
-Before this rework, `auc` was None for EVERY model in EVERY scenario, with the recorded
-reason "censoring survival function is zero at one or more time points". That was not a
-property of the data. The Brier path administratively censored test patients followed past
-the training set's covered range; the AUC path did not, so sksurv always saw test follow-up
-beyond the support of G(t) estimated from y_train (four_features rep99: test max 4333 d
-against a training censoring distribution that runs out at 4060 d) and refused the whole
-call. Applying the same cap in the AUC branch (evaluation_time_cap + _administratively_censor)
-makes it compute. All 11 models now report a mean time-dependent AUC.
+Numerically unstable ranking — Evaluation/reporting addressed; R1 remains open.
+  Fix: withhold rank metrics when score range <= 8 * eps(dtype) * max(abs(score)),
+  using original precision. Applies to points, CIs, paired ranks and charts;
+  probability metrics remain evaluated. This is a numerical screening convention.
+  Validation: 1- and 16-thread runs both report ranks unavailable and IBS 0.40481;
+  tests verify retained Brier evaluation. Aggregation accepts missing ranks and
+  source-labelled Brier, preserving values with per-metric repetition counts.
 
-================================================================================
-3. RESULTS — rep99, 0-730 d, after the rework
-================================================================================
-Brier source: (n) native, (c) fitted-conversion.
+Historical claims — Corrected.
+  Fix: old all-model AUC failure applied to FOUR features, not every scenario.
+  DDH/HT C-index also changed when day-floored durations became canonical outcomes.
+  Validation: September 14 logs already contain eight-/twenty-feature AUCs;
+  four-feature DDH changed 0.8362 -> 0.8333 and HT 0.5503 -> 0.5409.
 
-four_features (345 test patients, 250 events)
-  model                c-index [95% CI]                 IBS [95% CI]                       mean AUC [95% CI]
-  Cox                  0.5565 [0.5146, 0.5986]          0.2667 [0.2553, 0.2771] (n)        0.5920 [0.5303, 0.6505]
-  Dynamic DeepHit      0.8333 [0.8048, 0.8593]          0.1310 [0.1061, 0.1557] (n)        0.9512 [0.9278, 0.9675]
-  Hazard Transformer   0.5409 [0.4968, 0.5879]          0.3374 [0.3192, 0.3566] (n)        0.5815 [0.5169, 0.6445]
-  Logistic Hazard      0.5182 [0.4770, 0.5621]          0.5273 [0.4680, 0.5863] (n)        0.5317 [0.4732, 0.5916]
-  RNN-Surv             0.5188 [0.4786, 0.5573]          0.3752 [0.3321, 0.4182] (n)        0.5288 [0.4698, 0.5844]
-  DeepSurv             0.5578 [0.5140, 0.5999]          0.2787 [0.2572, 0.3016] (c)        0.5843 [0.5211, 0.6423]
-  GBSA                 0.5180 [0.4781, 0.5601]          0.3118 [0.2840, 0.3394] (n)        0.5346 [0.4776, 0.5915]
-  Survival RF          0.5537 [0.5134, 0.5963]          0.2793 [0.2555, 0.3020] (n)        0.5802 [0.5212, 0.6406]
-  Survival SVM         0.5472 [0.5041, 0.5910]          0.2790 [0.2568, 0.3008] (c)        0.5749 [0.5111, 0.6378]
-  Weibull AFT          0.5474 [0.5054, 0.5896]          0.2745 [0.2546, 0.2921] (n)        0.5766 [0.5152, 0.6373]
-  KFRE                 0.5356 [0.4920, 0.5790]          0.3967 [0.3484, 0.4483] (c)        0.5638 [0.5028, 0.6223]
+3. VALIDATION RECORD AND LIMITS
+--------------------------------------------------------------------------------
+Tests: python -W ignore::DeprecationWarning -m unittest pkgs.data_analysis.test_evaluation_gaps -v
+  Result: 14 passed.
+Run: OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 CUDA_VISIBLE_DEVICES="" \
+     CKD_N_BOOTSTRAP=1000 python -m pkgs.scripts.run_experiments analyze --reps 99 \
+       --analyses clinical_validity --log-dir pkgs/scripts/logs
+  Interpreter: /home/minhn2/miniconda3/envs/minhn2/bin/python. Exit: 0.
+  Log: pkgs/scripts/logs/rep99_clinical_validity_20260923_083935_738829.log
 
-eight_features (243 test patients, 212 events) — point estimates
-  Cox 0.5659 / 0.27556 (n) / 0.6015      Dynamic DeepHit 0.8149 / 0.19074 (n) / 0.9180
-  Hazard Transformer 0.4994 / 0.32747 (n) / 0.4651   Logistic Hazard 0.4867 / 0.35589 (n) / 0.4689
-  RNN-Surv 0.5010 / 0.59511 (n) / 0.5259  DeepSurv 0.4849 / 0.36160 (c) / 0.4952
-  GBSA 0.5014 / 0.32278 (n) / 0.4935      Survival RF 0.4901 / 0.29303 (n) / 0.5162
-  Survival SVM 0.5145 / 0.28743 (c) / 0.5681  Weibull AFT 0.5102 / 0.28184 (n) / 0.5481
-  KFRE 0.5391 / 0.61687 (c) / 0.5795
+Results: 32 model metric triples checked (11/11/10 models across scenarios).
+  31 unchanged at reported precision; twenty-feature HT ranks now unavailable,
+  IBS unchanged. All 18 treat-all/eGFR curves unchanged. Reports/plots regenerated.
+  Supplementary twenty-feature DDH converted IBS changed 0.09927 -> 0.09932 on this
+  CPU run; headline native IBS stayed 0.20140. Do not claim bitwise reproducibility.
 
-twenty_features_heterogeneous (20 test patients, 10 events) — point estimates; this is the
-20-patient mini-experiment split, so every number here is for plumbing verification only.
-  Cox 0.3898 / 0.51521 (n) / 0.2965       Dynamic DeepHit 0.8559 / 0.20140 (n) / 0.9264
-  Hazard Transformer 0.2034 / 0.40481 (n) / 0.0586   Logistic Hazard 0.3729 / 0.62420 (n) / 0.3800
-  RNN-Surv 0.4407 / 0.23881 (n) / 0.2281  DeepSurv 0.6525 / 0.20989 (c) / 0.5690
-  GBSA 0.5424 / 0.19978 (n) / 0.5357      Survival RF 0.4280 / 0.20926 (n) / 0.2554
-  Survival SVM 0.5847 / 0.19494 (c) / 0.7908  Weibull AFT 0.7119 / 0.29651 (n) / 0.7406
-  (KFRE has no published equation for this scenario, so it is absent by design — the 10
-   models above are the full set for twenty_features.)
+Limits: rep99 is a mini-experiment (only 20 twenty-feature test patients). Bootstrap
+  intervals condition on fitted models and a fixed training censoring reference;
+  they cover test-patient sampling only. Paired intervals are not multiplicity-
+  controlled tests. Bootstrap AUC uses a labelled 25-point grid; usable-draw counts
+  identify metrics unavailable on some resamples.
 
-Changes against the 2026-09-14 rep99 reports, four_features:
-  Cox            c-index 0.3710 → 0.5565     IBS 0.42827 → 0.26673 (now native)
-  Dynamic DeepHit c-index 0.8362 → 0.8333    IBS 0.20223 → 0.13099 (now native)
-  RNN-Surv       c-index 0.5188 → 0.5188     IBS 0.35727 → 0.37518 (now native)
-  Survival RF    c-index 0.5537 → 0.5537     IBS 0.35129 → 0.27934 (now native)
-  Survival SVM   c-index 0.5472 → 0.5472     IBS 0.34846 → 0.27903 (still conversion)
-  AUC            None for all 11             now computed for all 11
-  The C-index is unchanged for every model except Cox, which is what should happen: the
-  C-index does not consume the censoring reference. Cox's move is NOT attributable to this
-  rework — the 2026-09-14 report predates the committed Stage 2.2 change that scores Cox on
-  the flattened one-row-per-patient frame, and re-running HEAD's own code reproduces 0.5565.
-  Flagged here so the difference is not later mistaken for an effect of Gap 5a.
+Former R2 — Optional calibration-display cleanup, not a separate open gap.
+  Splitting equal predictions into groups does not create meaningful risk strata;
+  the report already says this. These groups do not enter C-index, AUC, IBS or DCA.
+  Pooling them would simplify the display, not correct those metrics.
 
-================================================================================
-4. THE LARGEST SINGLE CORRECTION: TREAT-ALL (Gap 5c)
-================================================================================
-four_features, 730-day horizon, net benefit by risk threshold:
-  patient-level (345 patients)  pt=0.05  0.49171   pt=0.20  0.39641   pt=0.50  0.03425
-  row-level, superseded (3667)  pt=0.05  0.03201   pt=0.20 -0.14949   pt=0.50 -0.83918
-
-four_features, 1825-day horizon:
-  patient-level                 pt=0.05  0.69318   pt=0.20  0.63565   pt=0.50  0.41704
-  row-level, superseded         pt=0.05  0.10205   pt=0.20 -0.06632   pt=0.50 -0.70611
-
-twenty_features_heterogeneous, 730-day horizon:
-  patient-level (20 patients)   pt=0.05  0.21805   pt=0.20  0.07143   pt=0.50 -0.48571
-  row-level, superseded (9115)  pt=0.05 -0.02963   pt=0.20 -0.22269   pt=0.50 -0.95630
-
-eGFR-threshold referral comparator, now on the same threshold axis (Gap 5d(b)), 730-day
-horizon — previously a single point per cutoff (four_features: eGFR<30 0.11794, eGFR<45
-0.01606), which is not a net benefit at any threshold a model was compared at:
-  four_features  eGFR<30  flags 93/345 (0.270), TP 0.15881 FP 0.11075
-                          NB  pt=0.05 0.15298 ... pt=0.20 0.13112 ... pt=0.50 0.04806
-                 eGFR<45  flags 173/345 (0.501), TP 0.25946 FP 0.24199
-                          NB  pt=0.05 0.24672 ... pt=0.20 0.19896 ... pt=0.50 0.01746
-  eight_features eGFR<30  flags 88/243 (0.362), TP 0.30530 FP 0.05684
-                          NB  pt=0.05 0.30231 ... pt=0.20 0.29109 ... pt=0.50 0.24846
-                 eGFR<45  flags 133/243 (0.547), TP 0.44206 FP 0.10526
-                          NB  pt=0.05 0.43652 ... pt=0.20 0.41575 ... pt=0.50 0.33680
-  twenty_feats   eGFR<30  flags 5/20 (0.250), TP 0.10000 FP 0.15000
-                          NB  pt=0.05 0.09211 ... pt=0.20 0.06250 ... pt=0.50 -0.05000
-                 eGFR<45  flags 12/20 (0.600), TP 0.20000 FP 0.40000
-                          NB  pt=0.05 0.17895 ... pt=0.20 0.10000 ... pt=0.50 -0.20000
-
-The superseded treat-all curve is negative across most of the threshold range; the corrected
-one is strongly positive at clinically relevant thresholds. Any clinical-utility claim resting on a
-model's decision curve sitting above treat-all must be re-derived against the corrected
-comparator before it is repeated. Correcting the unit does not establish that any model beats
-treat-all — on this mini-experiment split it mostly indicates the opposite — and the
-20-patient twenty-feature split cannot settle the question either way.
-
-================================================================================
-5. WHAT THIS DOES NOT ESTABLISH
-================================================================================
-- rep99 is the 20-500 patient mini-experiment split. It verifies that the corrected code
-  runs, produces the intended quantities, and changes the numbers in the direction and
-  magnitude expected. It is not evidence about model performance.
-- The paired-difference intervals are 95% percentile intervals on differences, not
-  multiplicity-controlled tests across 11 models.
-- Production reps 1-5 currently hold data CSVs but no trained model artifacts, so none of
-  this has been run at full scale. That is the blocking dependency for the reported tables.
+Detailed results (paths from repository root):
+  generated_data/rep99/four_features_clinical_validity_report.txt
+  generated_data/rep99/eight_features_clinical_validity_report.txt
+  generated_data/rep99/twenty_features_heterogeneous_clinical_validity_report.txt
+Historical comparison:
+  pkgs/scripts/logs/rep99_clinical_validity_20260914_053028_731265.log
+Related audits:
+  generated_data/rep1/stage_gap6_outcome_definition_report.txt
+  generated_data/rep1/stage_gap8_prediction_time_audit_report.txt
+  Gap 8 audit now counts single-row patients separately from zero duration;
+  historical reports predate this correction. Current timing audits
+  explicitly distinguish raw-anchor matches from previously exported predictions.

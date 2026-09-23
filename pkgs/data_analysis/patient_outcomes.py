@@ -184,6 +184,10 @@ def patient_level_egfr(df, terminal):
     n_rows_total = len(candidates)
     if 'egfr_missing' in df.columns:
         candidates = candidates[df['egfr_missing'] == 0]
+    # A measurement flag alone does not establish a usable numeric value.
+    # Filter before selecting the last row so an earlier finite measurement
+    # can be carried forward when the most recent entry is NaN or infinite.
+    candidates = candidates[np.isfinite(candidates['egfr'])]
     landmark = terminal.set_index('subject_id')['duration_in_days']
     candidates = candidates[
         candidates['duration_in_days'] <= candidates['subject_id'].map(landmark) + 1e-9]

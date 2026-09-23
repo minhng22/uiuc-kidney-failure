@@ -184,6 +184,8 @@ class SubgroupAnalyzer(ClinicalValidityAnalyzer):
                              f"c_index={self._fmt(result['c_index'])}  "
                              f"brier={self._fmt(result['brier'])} [{result['brier_source']}]  "
                              f"auc={self._fmt(result['auc'])}")
+                    for metric, reason in result['errors'].items():
+                        self.log(f"      {metric} unavailable: {reason}")
 
         self.all_results[scenario_name] = {'groups': group_results, 'metadata': metadata_info}
         self.save_scenario_report(scenario_name)
@@ -241,7 +243,8 @@ class SubgroupAnalyzer(ClinicalValidityAnalyzer):
         intervals (see pkgs/data_analysis/bootstrap_ci.py)."""
         group_durations = np.asarray(durations, dtype=np.float64)[positions]
         group_events = np.asarray(events).astype(bool)[positions]
-        group_risk = np.asarray(risk_scores, dtype=np.float64)[positions]
+        # Preserve model precision for the numerical-ranking check.
+        group_risk = np.asarray(risk_scores)[positions]
 
         point = discrimination_metrics(y_train, train_max, group_risk, group_durations,
                                        group_events, baseline, self._subset_prob_fn(
@@ -256,9 +259,11 @@ class SubgroupAnalyzer(ClinicalValidityAnalyzer):
         auc_times = bootstrap_ci.bootstrap_auc_grid(auc_max)
         indices = bootstrap_ci.bootstrap_indices(len(positions), n_bootstrap)
         replicates = bootstrap_ci.bootstrap_model_metrics(
-            y_train, d, e, group_risk, survival_probs, times, auc_times, indices)
+            y_train, group_durations, group_events, group_risk, survival_probs,
+            times, auc_times, indices, ipcw_durations=d, ipcw_events=e)
 
         return {
+            'errors': point['errors'],
             'brier_source': brier_source,
             'c_index': bootstrap_ci.summarize(point['c_index'], replicates['c_index']),
             'brier': bootstrap_ci.summarize(point['brier'], replicates['brier']),
