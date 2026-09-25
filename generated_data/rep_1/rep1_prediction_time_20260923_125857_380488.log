@@ -1,0 +1,96 @@
+rep1 analyze: four_features; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_1
+Repetition: 1   Generated: 2026-09-23 15:23:18
+
+====================================================================================================
+PART A — PREDICTION TARGET PER MODEL (read from pkgs/models/*.py's predictions())
+====================================================================================================
+
+Shared across all 11 models:
+  Time origin   : days since that patient's FIRST lab record in the exported frame
+                  (time_series_utils_store.calculate_duration_in_days). The origin is
+                  NOT reset at the landmark, so a reported 730-day horizon is measured
+                  from the first record, not from the row the score is attached to.
+  Outcome       : has_esrd, from ICD diagnosis codes (pkgs/commons.esrd_codes).
+                  ESRD-positive patients' rows are truncated at the first ESRD
+                  diagnosis DATE and only rows on that date carry has_esrd=1
+                  (time_series_store.process_patient_esrd); ESRD-negative patients
+                  are censored at their last lab record.
+  Landmark      : every model is scored on one row/curve per patient. Nine models
+                  read the patient's LAST exported row; Dynamic-DeepHit and Hazard
+                  Transformer pool the whole sequence up to that row.
+
+  CONSEQUENCE, stated plainly: for an ESRD-positive patient the landmark row is the
+  last row at or before the diagnosis date, so the input cutoff is the outcome date,
+  not a decision time some fixed interval before it. The duration attached to that
+  patient is time from first record to diagnosis, which is a follow-up length, not a
+  prediction lead time. Part B quantifies how large that distinction is.
+
+Model                        Landmark                                                   Inputs                                                         Native horizon support
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Cox (CoxTimeVaryingFitter)   each patient's LAST exported row (get_last_observation_data) that row's covariates only; predict_partial_hazard needs no time interval baseline_cumulative_hazard_ from the fit, read at any t it covers; covariates held at the landmark value thereafter
+Dynamic-DeepHit              the patient (one curve per subject; the whole sequence is pooled by attention) every exported row of the patient, up to the last one          per-day PMF over 0-5474 d; CIF read directly at any day in range
+Hazard Transformer           the patient (one curve per subject; whole sequence pooled) every exported row of the patient, up to the last one          100 bins over 0-730 d; no native prediction past 730 d
+Logistic Hazard              each patient's LAST exported row (LogisticHazardDataset takes iloc[-1]) that row's covariates only                                     50 quantile bins over the training duration range, via LabTransDiscreteTime
+RNN-Surv                     each patient's LAST exported row, as a length-1 sequence   that row's covariates only                                     PMF bins over 0-730 d
+DeepSurv                     each patient's LAST exported row                           that row's covariates only                                     none (score only); survival probabilities come from the labelled fitted conversion
+GBSA                         each patient's LAST exported row                           that row's covariates only                                     predict_survival_function (loss='coxph' Breslow baseline), to the training max time
+Survival RF                  each patient's LAST exported row                           that row's covariates only                                     predict_survival_function (ensemble Nelson-Aalen), to the training max time
+Survival SVM                 each patient's LAST exported row                           that row's covariates only                                     none (pure ranking model); survival probabilities come from the labelled fitted conversion
+Weibull AFT                  each patient's LAST exported row                           that row's covariates only                                     closed-form parametric S(t|x), defined at every t > 0
+KFRE                         each patient's LAST exported row                           that row's age/sex/eGFR/uACR (+ albumin/phosphate/bicarbonate/calcium for 8-var) exactly 2 y and 5 y -- the only horizons the published S0 constants define
+
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2121 and train 9730
+  Scanning /home/minhn2/uiuc-kidney-failure/data/mimic-iv-2.2/hosp/labevents.csv for 1349 cohort patients and 9 lab item ids (chunked, 2,000,000 rows at a time)...
+  Scanned 118,171,367 labevents rows; kept 337,181 for this cohort.
+====================================================================================================
+PART B — TEMPORAL ALIGNMENT FROM THE EXPORTED DATA — four_features
+====================================================================================================
+
+[train] 9730 lab-event rows over 1079 patients (4 rows/patient median, 230 max)
+  Landmark (days from first record to last): median 34.2, p90 1890.9, max 3907.0
+  Events: 812/1079 (75.3%)
+  Time from first record to EVENT (ESRD-positive patients): median 17.6 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 168.2 d, max 3846.2 d
+  Patients with zero follow-up duration: 256/1079 (23.7%); these can have multiple rows.
+  Patients with a single exported row: 256/1079 (23.7%).
+  Horizon 730 d: 594 events observed inside it; 180 patients censored before it (outcome unobserved); 305 patients followed to or past it.
+  Horizon 1825 d: 736 events observed inside it; 228 patients censored before it (outcome unobserved); 115 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+[test] 2121 lab-event rows over 270 patients (4 rows/patient median, 86 max)
+  Landmark (days from first record to last): median 15.1, p90 1774.0, max 4333.0
+  Events: 203/270 (75.2%)
+  Time from first record to EVENT (ESRD-positive patients): median 0.9 d, p10 0.0 d, min 0.0 d
+  Time from first record to CENSORING (ESRD-negative patients): median 149.0 d, max 4333.0 d
+  Patients with zero follow-up duration: 68/270 (25.2%); these can have multiple rows.
+  Patients with a single exported row: 67/270 (24.8%).
+  Horizon 730 d: 155 events observed inside it; 45 patients censored before it (outcome unobserved); 70 patients followed to or past it.
+  Horizon 1825 d: 185 events observed inside it; 60 patients censored before it (outcome unobserved); 25 patients followed to or past it.
+  NOTE: a patient censored before a horizon contributes no outcome information at that horizon; the IPCW-weighted metrics reweight for this, the raw proportions above do not.
+
+====================================================================================================
+PART C — MATCHED-LAB TIMING RELATIVE TO THE ANCHOR CREATININE DRAW — four_features
+====================================================================================================
+  Anchor rows (creatinine draws with an admission, non-zero value): 50,799 over 1349 patients.
+  Rule audited per lab, exactly as the extraction applies it (time_series_store.merge_nearest_within_admission):
+  Recomputed with current matching rules on raw anchors for cohort patients; this does not validate previously exported feature values.
+MATCH_TIMING|uacr|by=subject_id|matched=47293|unmatched=3506|after_anchor=0|after_anchor_pct=0.00|median_h=-9445.350|p95_abs_h=58139.933|max_after_h=0.000|max_before_h=-112034.517
+    uacr            matched by subject_id (patient's history at/before anchor, no maximum lookback; direction=backward)
+      matched 47,293/50,799 anchor rows (93.1%)
+      recorded AFTER the anchor creatinine: 0/47,293 (0.0%); simultaneous: 7 (0.0%)
+      signed separation (matched - anchor), hours: median -9445.35, p5 -58139.93, p95 -375.75, max after +0.00, max before -112034.52
+      absolute separation, hours: median 9445.35, p95 58139.93, max 112034.52
+
+  Reading: a positive separation means the covariate was measured after the
+  creatinine the row is anchored on, so that row's feature vector contains
+  information not available at the anchor timestamp. Whether that matters depends
+  on the claim being made: for a retrospective benchmark on a reconstructed
+  snapshot it is a documented property of the reconstruction; for a prospective
+  claim it is an information cutoff that would have to be defined and enforced.
+  Quantifying it does not settle which claim the manuscript makes — see Gap 8.
+
+Audit report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/stage_gap8_prediction_time_audit_report.txt
+COMPLETE

@@ -1,0 +1,241 @@
+rep1 analyze: eight_features; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - EIGHT_FEATURES
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 1500 lab-event rows -> 425 patients, 327 events (patient-level event rate 0.7694)
+test: 522 lab-event rows -> 107 patients, 82 events (patient-level event rate 0.7664)
+IPCW censoring reference: the full training cohort (425 patients), not a per-group one; evaluation capped at 2891.9 days (training follow-up 2891.9 days).
+
+Patient metadata join:
+  107 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.002 y, p90 2.919 y, max 7.262 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    105/107 patients have a recorded race; 2 retained as unknown; 8 have more than one recorded value across admissions; 3 admission rows carry declined/unobtainable/unknown.
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_gbsa_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.2s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.2s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.1s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_srf_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.1s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    0.1s finished
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_survival_svm_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_weibul_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 522 and train 1500
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1500 rows/425 subjects -> 425 rows; test 522 rows/107 subjects -> 107 rows
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  <27                      n=2     events=2     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  27-54                    n=15    events=12    event_rate=0.8000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  54-82                    n=79    events=60    event_rate=0.7595
+  82+                      n=11    events=8     event_rate=0.7273   [metrics not computed: needs >= 20 patients and >= 5 events]
+
+--- Sex as recorded in patients.csv ---
+  F                        n=40    events=28    event_rate=0.7000
+  M                        n=67    events=54    event_rate=0.8060
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  ASIAN                    n=7     events=6     event_rate=0.8571   [metrics not computed: needs >= 20 patients and >= 5 events]
+  BLACK                    n=24    events=19    event_rate=0.7917
+  HISPANIC/LATINO          n=3     events=2     event_rate=0.6667   [metrics not computed: needs >= 20 patients and >= 5 events]
+  UNKNOWN/NOT RECORDED     n=2     events=2     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  WHITE                    n=71    events=53    event_rate=0.7465
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+  [54-82] n=79 events=60
+    Cox                  c_index=0.5169 [0.4353, 0.6063]  brier=0.2756 [0.1516, 0.4032] [native]  auc=0.5459 [0.4245, 0.678]
+    Dynamic DeepHit      c_index=0.8419 [0.7888, 0.8924]  brier=0.1511 [0.0841, 0.2219] [native]  auc=0.9209 [0.8398, 0.9805]
+    Hazard Transformer   c_index=0.4871 [0.4043, 0.5757]  brier=0.2883 [0.1554, 0.4225] [native]  auc=0.4653 [0.3341, 0.6082]
+    Logistic Hazard      c_index=0.5156 [0.421, 0.6103]  brier=0.2983 [0.1876, 0.4226] [native]  auc=0.496 [0.3571, 0.6408]
+    RNN-Surv             c_index=0.5585 [0.4799, 0.6399]  brier=0.3029 [0.2669, 0.3354] [native]  auc=0.5685 [0.4419, 0.703]
+    DeepSurv             c_index=0.5765 [0.4763, 0.6757]  brier=0.2297 [0.1458, 0.3184] [fitted-conversion]  auc=0.5954 [0.4481, 0.7449]
+    GBSA                 c_index=0.4996 [0.409, 0.6084]  brier=0.2483 [0.145, 0.3583] [native]  auc=0.5671 [0.4355, 0.7168]
+    Survival RF          c_index=0.489 [0.3977, 0.5811]  brier=0.2349 [0.1538, 0.3232] [native]  auc=0.5629 [0.4209, 0.7071]
+    Survival SVM         c_index=0.4336 [0.3445, 0.5355]  brier=0.561 [0.4541, 0.6877] [fitted-conversion]  auc=0.4156 [0.2692, 0.5645]
+    Weibull AFT          c_index=0.5254 [0.4418, 0.6078]  brier=0.2562 [0.1463, 0.3696] [native]  auc=0.5639 [0.4467, 0.7001]
+    KFRE                 c_index=0.4556 [0.3687, 0.5392]  brier=0.4875 [0.3663, 0.608] [fitted-conversion]  auc=0.4511 [0.3149, 0.5935]
+
+=== Sex as recorded in patients.csv ===
+
+  [F] n=40 events=28
+    Cox                  c_index=0.4839 [0.3622, 0.6142]  brier=0.3502 [0.1683, 0.5449] [native]  auc=0.501 [0.3142, 0.7137]
+    Dynamic DeepHit      c_index=0.8571 [0.7826, 0.9332]  brier=0.142 [0.0594, 0.2444] [native]  auc=0.9631 [0.8799, 1.0]
+    Hazard Transformer   c_index=0.4911 [0.3571, 0.6132]  brier=0.3665 [0.1746, 0.5731] [native]  auc=0.4941 [0.308, 0.6839]
+    Logistic Hazard      c_index=0.5482 [0.4107, 0.671]  brier=0.3165 [0.1657, 0.4926] [native]  auc=0.6301 [0.4308, 0.808]
+    RNN-Surv             c_index=0.4813 [0.3479, 0.6066]  brier=0.2902 [0.2326, 0.3431] [native]  auc=0.524 [0.3314, 0.7139]
+    DeepSurv             c_index=0.4643 [0.3238, 0.6104]  brier=0.2842 [0.1548, 0.4205] [fitted-conversion]  auc=0.4022 [0.1937, 0.6311]
+    GBSA                 c_index=0.4964 [0.363, 0.6348]  brier=0.3142 [0.1615, 0.4899] [native]  auc=0.5819 [0.3704, 0.7757]
+    Survival RF          c_index=0.5661 [0.4361, 0.6992]  brier=0.2674 [0.1489, 0.404] [native]  auc=0.6754 [0.4604, 0.8829]
+    Survival SVM         c_index=0.4696 [0.318, 0.6128]  brier=0.5384 [0.3726, 0.7291] [fitted-conversion]  auc=0.4616 [0.2413, 0.6811]
+    Weibull AFT          c_index=0.4679 [0.3526, 0.5908]  brier=0.321 [0.1606, 0.4896] [native]  auc=0.4709 [0.2825, 0.6799]
+    KFRE                 c_index=0.4304 [0.2936, 0.5685]  brier=0.4999 [0.3264, 0.6787] [fitted-conversion]  auc=0.3726 [0.1915, 0.5831]
+
+  [M] n=67 events=54
+    Cox                  c_index=0.5642 [0.4764, 0.6559]  brier=0.3126 [0.1829, 0.4452] [native]  auc=0.5952 [0.4658, 0.7221]
+    Dynamic DeepHit      c_index=0.823 [0.7705, 0.8708]  brier=0.1788 [0.1143, 0.2549] [native]  auc=0.9163 [0.8329, 0.9725]
+    Hazard Transformer   c_index=0.4931 [0.3968, 0.5978]  brier=0.3306 [0.1945, 0.4724] [native]  auc=0.4819 [0.3479, 0.6303]
+    Logistic Hazard      c_index=0.4895 [0.3833, 0.5919]  brier=0.3317 [0.2067, 0.4714] [native]  auc=0.4791 [0.3275, 0.6255]
+    RNN-Surv             c_index=0.5852 [0.4986, 0.6734]  brier=0.3111 [0.2777, 0.3417] [native]  auc=0.599 [0.4476, 0.7384]
+    DeepSurv             c_index=0.594 [0.496, 0.6884]  brier=0.2577 [0.1689, 0.3504] [fitted-conversion]  auc=0.628 [0.4888, 0.7624]
+    GBSA                 c_index=0.5116 [0.4151, 0.6125]  brier=0.2912 [0.1774, 0.4119] [native]  auc=0.5295 [0.3891, 0.6612]
+    Survival RF          c_index=0.505 [0.4119, 0.6187]  brier=0.2718 [0.1789, 0.365] [native]  auc=0.5312 [0.4006, 0.6808]
+    Survival SVM         c_index=0.4115 [0.3128, 0.5114]  brier=0.6253 [0.4979, 0.7469] [fitted-conversion]  auc=0.4015 [0.2436, 0.5521]
+    Weibull AFT          c_index=0.5852 [0.5009, 0.6742]  brier=0.2894 [0.1753, 0.4082] [native]  auc=0.6398 [0.5096, 0.7608]
+    KFRE                 c_index=0.4978 [0.4098, 0.5851]  brier=0.5203 [0.3953, 0.6447] [fitted-conversion]  auc=0.5084 [0.3714, 0.6512]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [BLACK] n=24 events=19
+    Cox                  c_index=0.5962 [0.4506, 0.7489]  brier=0.2027 [0.0821, 0.4276] [native]  auc=0.5822 [0.3048, 0.79]
+    Dynamic DeepHit      c_index=0.8028 [0.6479, 0.9135]  brier=0.0834 [0.0222, 0.1713] [native]  auc=0.9508 [0.8303, 1.0]
+    Hazard Transformer   c_index=0.5211 [0.3725, 0.678]  brier=0.2073 [0.0766, 0.4388] [native]  auc=0.5751 [0.3584, 0.8146]
+    Logistic Hazard      c_index=0.493 [0.3153, 0.6697]  brier=0.2738 [0.1496, 0.5264] [native]  auc=0.5979 [0.3569, 0.8416]
+    RNN-Surv             c_index=0.5892 [0.4147, 0.75]  brier=0.2856 [0.2261, 0.3391] [native]  auc=0.708 [0.4902, 0.8878]
+    DeepSurv             c_index=0.6901 [0.5163, 0.8325]  brier=0.1798 [0.1004, 0.3304] [fitted-conversion]  auc=0.83 [0.6163, 0.986]
+    GBSA                 c_index=0.5117 [0.3447, 0.6982]  brier=0.205 [0.1068, 0.4029] [native]  auc=0.5218 [0.2812, 0.7419]
+    Survival RF          c_index=0.4977 [0.3163, 0.6594]  brier=0.1983 [0.1135, 0.3549] [native]  auc=0.5977 [0.2609, 0.9021]
+    Survival SVM         c_index=0.3427 [0.201, 0.515]  brier=0.6498 [0.4529, 0.8754] [fitted-conversion]  auc=0.1803 [0.0327, 0.3979]
+    Weibull AFT          c_index=0.6103 [0.4681, 0.7556]  brier=0.1899 [0.0836, 0.3814] [native]  auc=0.5929 [0.3043, 0.8095]
+    KFRE                 c_index=0.4366 [0.2611, 0.6276]  brier=0.5671 [0.381, 0.7777] [fitted-conversion]  auc=0.173 [0.0204, 0.4107]
+
+  [WHITE] n=71 events=53
+    Cox                  c_index=0.5257 [0.4334, 0.6227]  brier=0.3625 [0.2295, 0.5109] [native]  auc=0.5898 [0.4512, 0.7263]
+    Dynamic DeepHit      c_index=0.8333 [0.7752, 0.8843]  brier=0.1926 [0.1189, 0.2813] [native]  auc=0.9239 [0.8448, 0.978]
+    Hazard Transformer   c_index=0.4908 [0.3864, 0.5956]  brier=0.3864 [0.2408, 0.5423] [native]  auc=0.4847 [0.3534, 0.6171]
+    Logistic Hazard      c_index=0.5262 [0.4219, 0.622]  brier=0.3402 [0.216, 0.484] [native]  auc=0.5636 [0.4228, 0.6876]
+    RNN-Surv             c_index=0.5349 [0.4465, 0.6289]  brier=0.3026 [0.2614, 0.3393] [native]  auc=0.5552 [0.4224, 0.6993]
+    DeepSurv             c_index=0.5288 [0.4342, 0.6321]  brier=0.2947 [0.1996, 0.4] [fitted-conversion]  auc=0.4959 [0.3573, 0.6485]
+    GBSA                 c_index=0.5178 [0.4154, 0.6312]  brier=0.3327 [0.2119, 0.4727] [native]  auc=0.5822 [0.4357, 0.7236]
+    Survival RF          c_index=0.5608 [0.4713, 0.656]  brier=0.291 [0.1988, 0.3956] [native]  auc=0.6209 [0.4896, 0.7571]
+    Survival SVM         c_index=0.4565 [0.3491, 0.5554]  brier=0.5539 [0.4381, 0.6797] [fitted-conversion]  auc=0.4717 [0.3275, 0.6141]
+    Weibull AFT          c_index=0.5236 [0.4383, 0.6201]  brier=0.3347 [0.2145, 0.467] [native]  auc=0.5834 [0.4422, 0.7172]
+    KFRE                 c_index=0.4853 [0.3926, 0.5726]  brier=0.486 [0.3676, 0.6045] [fitted-conversion]  auc=0.5059 [0.3695, 0.639]
+Subgroup report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_subgroup_performance_report.txt
+COMPLETE
