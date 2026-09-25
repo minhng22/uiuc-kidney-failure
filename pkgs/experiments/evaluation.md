@@ -2,7 +2,7 @@
 Analyses reuse saved models and automatically train missing selected models:
 
 ```bash
-# all five analyses/audits, all scenarios, reps 1-5
+# all three analyses, all scenarios, reps 1-5
 python -m pkgs.scripts.run_experiments analyze --reps all --parallel-reps
 
 # one analysis, selected reps
@@ -16,21 +16,16 @@ The default includes:
   (Gaps 5a–5d), including the recent numerical-ranking and common-cohort fixes.
 - `feature_importance`: existing SHAP reports and charts.
 - `subgroup`: age/sex/race performance with bootstrap intervals (Gap 12).
-- `outcome_definition`: label, eligibility and horizon-support audit (Gap 6).
-- `prediction_time`: input/landmark/horizon audit, including raw lab-match timing
-  under the current matching rules (Gap 8).
 
-Repetitions run in parallel; the five tasks within each repetition run sequentially,
-with separate logs. The timing audit scans the large raw lab CSV once per repetition,
-sharing the loaded patient subset across scenarios. Audits require raw source files;
-model evaluations train missing models from the existing train/test exports first.
+Repetitions run in parallel; the three tasks within each repetition run sequentially,
+with separate logs. Model evaluations train missing models from the existing
+train/test exports first.
 Missing KFRE score caches are generated where applicable. Training appears in the
 analysis task's log; a training failure makes the command exit nonzero.
-Audit-only runs do not train models. `CKD_N_BOOTSTRAP` defaults to 1000.
+`CKD_N_BOOTSTRAP` defaults to 1000.
 
 Analysis uses existing exports and reuses existing models. Applying backward-only uACR matching to
-the reported model results requires re-extraction and retraining first; auditing
-current matching rules does not validate the inputs in older exports.
+the reported model results requires re-extraction and retraining first.
 
 Then aggregate discrimination metrics (mean ± SD across whichever reps have
 a `<scenario>_clinical_validity_report.txt`):

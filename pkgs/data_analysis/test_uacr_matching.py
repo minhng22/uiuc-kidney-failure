@@ -8,7 +8,6 @@ import pandas as pd
 
 from pkgs.data_analysis import time_series_store as ts
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.scripts import audit_prediction_time as audit
 
 
 class UacrMatchingTests(unittest.TestCase):
@@ -59,21 +58,6 @@ class UacrMatchingTests(unittest.TestCase):
                 result = ts.get_lab_df_for_scenario_name(self.anchor[['subject_id']], scenario)
                 self.assertEqual(result.set_index('subject_id').uacr.to_dict(), {1: 20., 2: 30.})
                 self.assertTrue((result.uacr_charttime <= result.time).all())
-
-    def test_timing_audit_uses_backward_uacr_rule(self):
-        anchors = self.anchor.assign(itemid=1, valuenum=1.)
-        uacr = self.uacr.assign(itemid=2, valuenum=self.uacr.uacr)
-        labs = pd.concat([anchors, uacr], ignore_index=True)[
-            ['subject_id', 'hadm_id', 'charttime', 'itemid', 'valuenum']]
-        lines = []
-        with patch.object(audit, '_load_cohort_labs', return_value=(
-                labs, {'creatinine': {1}, 'uacr': {2}})), \
-                contextlib.redirect_stdout(io.StringIO()):
-            audit.audit_lab_timing(lines, 'four_features', self.anchor, self.anchor)
-        report = '\n'.join(lines)
-        self.assertIn('direction=backward', report)
-        self.assertIn('recorded AFTER the anchor creatinine: 0/2', report)
-        self.assertIn('matched 2/3 anchor rows', report)
 
 
 if __name__ == '__main__':
