@@ -250,7 +250,6 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
-    torch.backends.cudnn.enabled = False
     device = get_device()
     df, df_test = get_train_test_data(scenario_name)
 
