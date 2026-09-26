@@ -1,0 +1,169 @@
+SUBGROUP PERFORMANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2026-09-26 13:42:16
+Repetition: 3
+Scenario: four_features
+
+This reports model performance WITHIN demographic groups. It is not a fairness
+evaluation: no fairness criterion is defined or tested here, and a between-group
+difference in these numbers has causes (group size, event rate, follow-up length,
+measurement density, coding practice) that these numbers cannot separate.
+
+Age groups are bins of anchor_age — the patient's age in their MIMIC anchor year,
+NOT their age at the prediction landmark, which the exported scenario data does not
+carry enough information to derive. Race is collapsed from admissions.csv ethnicity
+and keeps an explicit unknown/not-recorded group. See
+pkgs/data_analysis/patient_metadata.py for both rules and why they differ from
+demographics.py's.
+================================================================================
+
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - FOUR_FEATURES
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 9363 lab-event rows -> 1079 patients, 812 events (patient-level event rate 0.7525)
+test: 2304 lab-event rows -> 270 patients, 203 events (patient-level event rate 0.7519)
+IPCW censoring reference: the full training cohort (1079 patients), not a per-group one; evaluation capped at 4333.0 days (training follow-up 4333.0 days).
+
+Patient metadata join:
+  270 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.021 y, p90 4.349 y, max 10.068 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    269/270 patients have a recorded race; 1 retained as unknown; 15 have more than one recorded value across admissions; 15 admission rows carry declined/unobtainable/unknown.
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  <27                      n=2     events=2     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  27-54                    n=58    events=50    event_rate=0.8621
+  54-82                    n=186   events=136   event_rate=0.7312
+  82+                      n=24    events=15    event_rate=0.6250
+
+--- Sex as recorded in patients.csv ---
+  F                        n=113   events=90    event_rate=0.7965
+  M                        n=157   events=113   event_rate=0.7197
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  ASIAN                    n=19    events=16    event_rate=0.8421   [metrics not computed: needs >= 20 patients and >= 5 events]
+  BLACK                    n=70    events=56    event_rate=0.8000
+  HISPANIC/LATINO          n=22    events=14    event_rate=0.6364
+  MULTIPLE RACE/ETHNICITY  n=1     events=0     event_rate=0.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  OTHER                    n=2     events=2     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  SOUTH AMERICAN           n=1     events=1     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  UNKNOWN/NOT RECORDED     n=1     events=1     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  WHITE                    n=154   events=113   event_rate=0.7338
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+  [27-54] n=58 events=50
+    Cox                  c_index=0.5108 [0.4146, 0.6102]  brier=0.2577 [0.2077, 0.3073] [native]  auc=0.5348 [0.4054, 0.6735]
+    Dynamic DeepHit      c_index=0.863 [0.8026, 0.9163]  brier=0.1401 [0.0937, 0.1983] [native]  auc=0.9327 [0.8588, 0.9783]
+    Hazard Transformer   c_index=0.5388 [0.4515, 0.6267]  brier=0.282 [0.2103, 0.3544] [native]  auc=0.5386 [0.4026, 0.6758]
+    Logistic Hazard      c_index=0.406 [0.3107, 0.5105]  brier=0.3038 [0.2519, 0.3564] [native]  auc=0.3212 [0.1926, 0.4474]
+    RNN-Surv             c_index=0.4734 [0.3743, 0.572]  brier=0.5086 [0.4132, 0.603] [native]  auc=0.4361 [0.2954, 0.5783]
+    DeepSurv             c_index=0.4563 [0.3465, 0.5606]  brier=0.2633 [0.2422, 0.2849] [fitted-conversion]  auc=0.4455 [0.305, 0.5944]
+    GBSA                 c_index=0.5241 [0.4241, 0.6359]  brier=0.2819 [0.2234, 0.3382] [native]  auc=0.5133 [0.3761, 0.6525]
+    Survival RF          c_index=0.5227 [0.4223, 0.6248]  brier=0.2643 [0.2218, 0.3044] [native]  auc=0.5129 [0.3748, 0.6649]
+    Survival SVM         c_index=0.4948 [0.4026, 0.5887]  brier=0.274 [0.2263, 0.3193] [fitted-conversion]  auc=0.5104 [0.3798, 0.6491]
+    Weibull AFT          c_index=0.4878 [0.3915, 0.588]  brier=0.2606 [0.2076, 0.3136] [native]  auc=0.4954 [0.357, 0.6382]
+    KFRE                 c_index=0.5262 [0.4333, 0.6246]  brier=0.5416 [0.4229, 0.6542] [fitted-conversion]  auc=0.541 [0.4069, 0.6733]
+
+  [54-82] n=186 events=136
+    Cox                  c_index=0.5439 [0.4899, 0.6031]  brier=0.2526 [0.2275, 0.2845] [native]  auc=0.5456 [0.4714, 0.6273]
+    Dynamic DeepHit      c_index=0.8428 [0.8088, 0.8745]  brier=0.1178 [0.0942, 0.1442] [native]  auc=0.9583 [0.9286, 0.9757]
+    Hazard Transformer   c_index=0.5881 [0.5311, 0.6419]  brier=0.289 [0.2524, 0.3358] [native]  auc=0.653 [0.5706, 0.7283]
+    Logistic Hazard      c_index=0.5202 [0.4659, 0.5764]  brier=0.2868 [0.2481, 0.3244] [native]  auc=0.5217 [0.4441, 0.599]
+    RNN-Surv             c_index=0.5353 [0.48, 0.5937]  brier=0.4018 [0.3446, 0.4569] [native]  auc=0.521 [0.4394, 0.604]
+    DeepSurv             c_index=0.5404 [0.4783, 0.5957]  brier=0.2402 [0.2244, 0.2572] [fitted-conversion]  auc=0.5427 [0.4603, 0.6217]
+    GBSA                 c_index=0.5106 [0.4464, 0.5737]  brier=0.2735 [0.2421, 0.3077] [native]  auc=0.4996 [0.4169, 0.582]
+    Survival RF          c_index=0.5231 [0.4573, 0.5865]  brier=0.2533 [0.228, 0.2805] [native]  auc=0.5369 [0.4534, 0.6248]
+    Survival SVM         c_index=0.5446 [0.4861, 0.6067]  brier=0.246 [0.2246, 0.2676] [fitted-conversion]  auc=0.5481 [0.4638, 0.6315]
+    Weibull AFT          c_index=0.5421 [0.4843, 0.6011]  brier=0.2555 [0.2287, 0.2888] [native]  auc=0.5494 [0.4642, 0.6328]
+    KFRE                 c_index=0.5338 [0.4828, 0.5953]  brier=0.4115 [0.3487, 0.4728] [fitted-conversion]  auc=0.5363 [0.4593, 0.6187]
+
+  [82+] n=24 events=15
+    Cox                  c_index=0.5573 [0.3677, 0.7456]  brier=0.1999 [0.1375, 0.275] [native]  auc=0.5548 [0.3059, 0.791]
+    Dynamic DeepHit      c_index=0.9531 [0.8647, 1.0]  brier=0.0938 [0.0332, 0.1774] [native]  auc=0.9777 [0.8922, 1.0]
+    Hazard Transformer   c_index=0.5729 [0.3891, 0.7432]  brier=0.2123 [0.1252, 0.3187] [native]  auc=0.5933 [0.348, 0.7979]
+    Logistic Hazard      c_index=0.5312 [0.3671, 0.6964]  brier=0.2821 [0.184, 0.3851] [native]  auc=0.5354 [0.2953, 0.7663]
+    RNN-Surv             c_index=0.5729 [0.3836, 0.7598]  brier=0.4585 [0.2965, 0.5977] [native]  auc=0.5725 [0.3563, 0.7986]
+    DeepSurv             c_index=0.6094 [0.4141, 0.7929]  brier=0.2117 [0.1658, 0.256] [fitted-conversion]  auc=0.6074 [0.3882, 0.8126]
+    GBSA                 c_index=0.4479 [0.2599, 0.6312]  brier=0.2403 [0.1662, 0.3271] [native]  auc=0.4844 [0.248, 0.7282]
+    Survival RF          c_index=0.5104 [0.3099, 0.6989]  brier=0.223 [0.1592, 0.2902] [native]  auc=0.5205 [0.2908, 0.7501]
+    Survival SVM         c_index=0.5573 [0.377, 0.7264]  brier=0.2511 [0.18, 0.3261] [fitted-conversion]  auc=0.5685 [0.3221, 0.7925]
+    Weibull AFT          c_index=0.5208 [0.3276, 0.698]  brier=0.2002 [0.1364, 0.2776] [native]  auc=0.5172 [0.2701, 0.7491]
+    KFRE                 c_index=0.5469 [0.363, 0.7355]  brier=0.4815 [0.3049, 0.652] [fitted-conversion]  auc=0.541 [0.2881, 0.7884]
+
+=== Sex as recorded in patients.csv ===
+
+  [F] n=113 events=90
+    Cox                  c_index=0.5554 [0.482, 0.6284]  brier=0.2608 [0.2227, 0.2991] [native]  auc=0.56 [0.4546, 0.6596]
+    Dynamic DeepHit      c_index=0.8446 [0.7962, 0.8868]  brier=0.137 [0.1026, 0.1732] [native]  auc=0.947 [0.9016, 0.9708]
+    Hazard Transformer   c_index=0.605 [0.5366, 0.6685]  brier=0.297 [0.2434, 0.3528] [native]  auc=0.6703 [0.5658, 0.7623]
+    Logistic Hazard      c_index=0.4697 [0.4032, 0.5381]  brier=0.2994 [0.2508, 0.3473] [native]  auc=0.4541 [0.3531, 0.5531]
+    RNN-Surv             c_index=0.522 [0.4507, 0.5905]  brier=0.4168 [0.349, 0.4865] [native]  auc=0.5025 [0.4025, 0.6033]
+    DeepSurv             c_index=0.5357 [0.4615, 0.608]  brier=0.251 [0.2303, 0.2707] [fitted-conversion]  auc=0.5323 [0.4272, 0.6301]
+    GBSA                 c_index=0.5065 [0.4299, 0.5908]  brier=0.2895 [0.2453, 0.332] [native]  auc=0.5019 [0.4002, 0.6152]
+    Survival RF          c_index=0.5156 [0.438, 0.5918]  brier=0.2619 [0.2301, 0.2936] [native]  auc=0.5033 [0.4062, 0.6044]
+    Survival SVM         c_index=0.5406 [0.4631, 0.6179]  brier=0.2603 [0.2283, 0.2919] [fitted-conversion]  auc=0.5348 [0.4265, 0.6364]
+    Weibull AFT          c_index=0.5412 [0.4643, 0.6173]  brier=0.2653 [0.2247, 0.3066] [native]  auc=0.5383 [0.4269, 0.6418]
+    KFRE                 c_index=0.5412 [0.4709, 0.6163]  brier=0.4545 [0.3767, 0.5361] [fitted-conversion]  auc=0.5453 [0.445, 0.6475]
+
+  [M] n=157 events=113
+    Cox                  c_index=0.5291 [0.464, 0.5936]  brier=0.2389 [0.2075, 0.2708] [native]  auc=0.534 [0.4435, 0.6222]
+    Dynamic DeepHit      c_index=0.8635 [0.8304, 0.8955]  brier=0.107 [0.0836, 0.1324] [native]  auc=0.9603 [0.9316, 0.9767]
+    Hazard Transformer   c_index=0.5611 [0.4936, 0.6286]  brier=0.2666 [0.2232, 0.3115] [native]  auc=0.5961 [0.504, 0.6868]
+    Logistic Hazard      c_index=0.5128 [0.4485, 0.5812]  brier=0.2822 [0.2425, 0.3234] [native]  auc=0.4931 [0.4028, 0.5856]
+    RNN-Surv             c_index=0.5354 [0.4721, 0.5916]  brier=0.4436 [0.3827, 0.5013] [native]  auc=0.5131 [0.4226, 0.5971]
+    DeepSurv             c_index=0.5281 [0.4554, 0.5899]  brier=0.2366 [0.2174, 0.2539] [fitted-conversion]  auc=0.533 [0.4399, 0.6163]
+    GBSA                 c_index=0.5018 [0.4316, 0.5718]  brier=0.2601 [0.2256, 0.2962] [native]  auc=0.4934 [0.4037, 0.5835]
+    Survival RF          c_index=0.5438 [0.4732, 0.6113]  brier=0.2448 [0.2156, 0.2727] [native]  auc=0.5664 [0.4748, 0.6582]
+    Survival SVM         c_index=0.551 [0.4861, 0.6184]  brier=0.2445 [0.2189, 0.2685] [fitted-conversion]  auc=0.5624 [0.4753, 0.6465]
+    Weibull AFT          c_index=0.5481 [0.4826, 0.613]  brier=0.24 [0.2072, 0.2731] [native]  auc=0.5593 [0.4722, 0.6421]
+    KFRE                 c_index=0.5275 [0.4671, 0.5916]  brier=0.4349 [0.3651, 0.5044] [fitted-conversion]  auc=0.5337 [0.447, 0.6206]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [BLACK] n=70 events=56
+    Cox                  c_index=0.4541 [0.3593, 0.554]  brier=0.2788 [0.2326, 0.3285] [native]  auc=0.4558 [0.3183, 0.5882]
+    Dynamic DeepHit      c_index=0.8297 [0.7638, 0.8808]  brier=0.1455 [0.1019, 0.2026] [native]  auc=0.9429 [0.8802, 0.9783]
+    Hazard Transformer   c_index=0.556 [0.4709, 0.6421]  brier=0.3152 [0.2474, 0.3858] [native]  auc=0.6111 [0.4799, 0.7333]
+    Logistic Hazard      c_index=0.4658 [0.3669, 0.5711]  brier=0.3096 [0.2593, 0.368] [native]  auc=0.4712 [0.3383, 0.606]
+    RNN-Surv             c_index=0.5408 [0.4428, 0.637]  brier=0.4264 [0.3431, 0.5231] [native]  auc=0.5172 [0.3857, 0.6575]
+    DeepSurv             c_index=0.5879 [0.4924, 0.6771]  brier=0.2578 [0.2355, 0.2798] [fitted-conversion]  auc=0.5837 [0.456, 0.7062]
+    GBSA                 c_index=0.5068 [0.4039, 0.6026]  brier=0.2957 [0.2447, 0.3521] [native]  auc=0.51 [0.3804, 0.636]
+    Survival RF          c_index=0.5226 [0.4198, 0.6221]  brier=0.2836 [0.2426, 0.3252] [native]  auc=0.5215 [0.3912, 0.653]
+    Survival SVM         c_index=0.4947 [0.4035, 0.59]  brier=0.2886 [0.247, 0.3357] [fitted-conversion]  auc=0.4975 [0.3627, 0.6263]
+    Weibull AFT          c_index=0.4967 [0.4028, 0.5916]  brier=0.2815 [0.233, 0.333] [native]  auc=0.4936 [0.3527, 0.6304]
+    KFRE                 c_index=0.4445 [0.3494, 0.548]  brier=0.5359 [0.4299, 0.6529] [fitted-conversion]  auc=0.4444 [0.3119, 0.5753]
+
+  [HISPANIC/LATINO] n=22 events=14
+    Cox                  c_index=0.462 [0.2624, 0.6801]  brier=0.2087 [0.1412, 0.29] [native]  auc=0.473 [0.209, 0.7646]
+    Dynamic DeepHit      c_index=0.8797 [0.7656, 0.971]  brier=0.0867 [0.0368, 0.142] [native]  auc=0.9572 [0.8424, 1.0]
+    Hazard Transformer   c_index=0.5696 [0.388, 0.7501]  brier=0.2251 [0.1315, 0.3435] [native]  auc=0.6658 [0.4108, 0.8563]
+    Logistic Hazard      c_index=0.443 [0.2358, 0.6583]  brier=0.2332 [0.1447, 0.3421] [native]  auc=0.3481 [0.1219, 0.6438]
+    RNN-Surv             c_index=0.4241 [0.25, 0.6087]  brier=0.4055 [0.2466, 0.562] [native]  auc=0.3455 [0.1432, 0.6218]
+    DeepSurv             c_index=0.4494 [0.2721, 0.633]  brier=0.2113 [0.1606, 0.2598] [fitted-conversion]  auc=0.4152 [0.1873, 0.6825]
+    GBSA                 c_index=0.4747 [0.2701, 0.68]  brier=0.2205 [0.1518, 0.2974] [native]  auc=0.4668 [0.1949, 0.7144]
+    Survival RF          c_index=0.6013 [0.3725, 0.8263]  brier=0.202 [0.1345, 0.2773] [native]  auc=0.6644 [0.376, 0.9147]
+    Survival SVM         c_index=0.5253 [0.3046, 0.7501]  brier=0.1994 [0.1409, 0.2621] [fitted-conversion]  auc=0.576 [0.3168, 0.844]
+    Weibull AFT          c_index=0.462 [0.2657, 0.687]  brier=0.2108 [0.1388, 0.2961] [native]  auc=0.4941 [0.2398, 0.7743]
+    KFRE                 c_index=0.4747 [0.2761, 0.6952]  brier=0.3822 [0.2176, 0.5574] [fitted-conversion]  auc=0.5086 [0.2373, 0.7855]
+
+  [WHITE] n=154 events=113
+    Cox                  c_index=0.5846 [0.5234, 0.6518]  brier=0.2326 [0.2014, 0.2645] [native]  auc=0.6018 [0.5145, 0.693]
+    Dynamic DeepHit      c_index=0.866 [0.8263, 0.8985]  brier=0.1108 [0.0844, 0.1409] [native]  auc=0.9583 [0.9227, 0.9766]
+    Hazard Transformer   c_index=0.5856 [0.5239, 0.6573]  brier=0.2606 [0.2158, 0.3076] [native]  auc=0.6295 [0.5384, 0.7181]
+    Logistic Hazard      c_index=0.5212 [0.4559, 0.5835]  brier=0.2896 [0.2491, 0.3369] [native]  auc=0.5251 [0.4323, 0.6103]
+    RNN-Surv             c_index=0.5158 [0.4532, 0.5778]  brier=0.4326 [0.3655, 0.4937] [native]  auc=0.5121 [0.4271, 0.5973]
+    DeepSurv             c_index=0.5095 [0.4461, 0.5766]  brier=0.2338 [0.2149, 0.2512] [fitted-conversion]  auc=0.5232 [0.4365, 0.6158]
+    GBSA                 c_index=0.5095 [0.4372, 0.5798]  brier=0.2631 [0.2262, 0.3017] [native]  auc=0.4965 [0.4066, 0.5898]
+    Survival RF          c_index=0.5365 [0.4623, 0.6126]  brier=0.2401 [0.2115, 0.2673] [native]  auc=0.5392 [0.4472, 0.6347]
+    Survival SVM         c_index=0.5697 [0.5023, 0.6428]  brier=0.2386 [0.2151, 0.2634] [fitted-conversion]  auc=0.5733 [0.4862, 0.6648]
+    Weibull AFT          c_index=0.5611 [0.4909, 0.6355]  brier=0.2352 [0.2018, 0.2692] [native]  auc=0.5698 [0.4786, 0.6632]
+    KFRE                 c_index=0.5765 [0.516, 0.6414]  brier=0.4066 [0.3296, 0.4799] [fitted-conversion]  auc=0.5877 [0.4946, 0.6803]

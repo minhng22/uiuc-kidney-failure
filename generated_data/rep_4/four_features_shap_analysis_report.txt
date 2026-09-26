@@ -1,0 +1,96 @@
+FEATURE IMPORTANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2026-09-26 14:40:12
+Repetition: 4
+Scenario: four_features
+Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
+================================================================================
+
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - FOUR_FEATURES SCENARIO
+================================================================================
+
+Training samples: 9416
+Test samples: 2376
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=63.472, std=15.573
+  gender: mean=0.566, std=0.496
+  egfr: mean=60.109, std=34.729
+  uacr: mean=539.417, std=1252.508
+
+ANALYZING ALL MODELS FOR FOUR_FEATURES
+------------------------------------------------------------
+
+Analyzing COX model...
+  COX Feature Importance:
+    age: 0.0007 (coeff=-0.0007, HR=0.999)
+    gender: 0.0004 (coeff=0.0004, HR=1.000)
+    egfr: 0.0014 (coeff=-0.0014, HR=0.999)
+    uacr: 0.0000 (coeff=0.0000, HR=1.000)
+
+Analyzing DDH model...
+  DDH Feature Importance:
+    age: 0.2112
+    gender: 0.2620
+    egfr: 0.2714
+    uacr: 0.2554
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    age: 0.2773
+    gender: 0.4009
+    egfr: 0.2207
+    uacr: 0.1011
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    age: 0.2649
+    gender: 0.2835
+    egfr: 0.2056
+    uacr: 0.2460
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    age: 0.2954
+    gender: 0.2122
+    egfr: 0.2755
+    uacr: 0.2168
+
+Analyzing DEEPSURV model...
+  DEEPSURV Feature Importance:
+    age: 0.2691
+    gender: 0.2425
+    egfr: 0.2632
+    uacr: 0.2252
+
+Analyzing GBSA model...
+  GBSA Feature Importance:
+    age: 0.1775
+    gender: 0.0126
+    egfr: 0.4320
+    uacr: 0.3779
+
+Analyzing SRF model...
+  SRF Feature Importance:
+    age: 0.0442
+    gender: 0.0000
+    egfr: 0.0070
+    uacr: 0.0125
+
+Analyzing SURVIVAL_SVM model...
+  SURVIVAL_SVM Feature Importance:
+    age: 0.0033
+    gender: 0.0075
+    egfr: 0.0023
+    uacr: 0.0000
+
+Analyzing WEIBUL model...
+  WEIBUL Feature Importance:
+    age: 0.0046
+    gender: 0.0228
+    egfr: 0.0045
+    uacr: 0.0000
+Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_4/four_features_all_models_feature_importance.png
