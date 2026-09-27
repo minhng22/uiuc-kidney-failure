@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-09-26 19:53:08
+Generated on: 2026-09-27 02:24:22
 Repetition: 1
 Scenario: twenty_features_heterogeneous
 
@@ -64,41 +64,41 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [<27] n=75 events=74
-    Survival RF          c_index=0.461 [0.3814, 0.5481]  brier=0.2495 [0.2254, 0.2746] [native]  auc=0.4485 [0.3334, 0.5677]
+    Hazard Transformer   c_index=0.7769 [0.7203, 0.8312]  brier=0.2145 [0.1766, 0.255] [native]  auc=0.8768 [0.8023, 0.9288]
 
   [27-54] n=877 events=854
-    Survival RF          c_index=0.5162 [0.4933, 0.5383]  brier=0.2447 [0.2377, 0.2516] [native]  auc=0.5359 [0.5007, 0.569]
+    Hazard Transformer   c_index=0.7527 [0.7373, 0.7673]  brier=0.2292 [0.217, 0.2407] [native]  auc=0.8862 [0.8654, 0.9012]
 
   [54-82] n=3069 events=2794
-    Survival RF          c_index=0.5217 [0.5086, 0.5337]  brier=0.2392 [0.2349, 0.2434] [native]  auc=0.5324 [0.5127, 0.5505]
+    Hazard Transformer   c_index=0.7627 [0.7536, 0.7714]  brier=0.2207 [0.2139, 0.2269] [native]  auc=0.8841 [0.8712, 0.8913]
 
   [82+] n=1195 events=1048
-    Survival RF          c_index=0.5369 [0.5155, 0.5582]  brier=0.2106 [0.2046, 0.2165] [native]  auc=0.558 [0.527, 0.5864]
+    Hazard Transformer   c_index=0.7915 [0.7784, 0.8045]  brier=0.1979 [0.1877, 0.2086] [native]  auc=0.8952 [0.8784, 0.9084]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=2176 events=1986
-    Survival RF          c_index=0.5209 [0.5072, 0.5361]  brier=0.234 [0.229, 0.2391] [native]  auc=0.5332 [0.5108, 0.5546]
+    Hazard Transformer   c_index=0.7684 [0.7575, 0.7786]  brier=0.2109 [0.204, 0.2179] [native]  auc=0.8848 [0.8703, 0.8943]
 
   [M] n=3040 events=2784
-    Survival RF          c_index=0.5241 [0.5116, 0.5374]  brier=0.2335 [0.2291, 0.2375] [native]  auc=0.5391 [0.5203, 0.5579]
+    Hazard Transformer   c_index=0.7693 [0.761, 0.7779]  brier=0.221 [0.2143, 0.2273] [native]  auc=0.8905 [0.8787, 0.8979]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [ASIAN] n=150 events=142
-    Survival RF          c_index=0.5824 [0.527, 0.6409]  brier=0.2115 [0.1952, 0.2288] [native]  auc=0.6113 [0.5321, 0.6915]
+    Hazard Transformer   c_index=0.7361 [0.6939, 0.7757]  brier=0.2456 [0.2177, 0.276] [native]  auc=0.8557 [0.7936, 0.8969]
 
   [BLACK] n=754 events=701
-    Survival RF          c_index=0.4962 [0.4703, 0.5203]  brier=0.256 [0.2481, 0.2648] [native]  auc=0.5057 [0.4651, 0.5441]
+    Hazard Transformer   c_index=0.7332 [0.712, 0.7543]  brier=0.221 [0.2091, 0.2329] [native]  auc=0.8661 [0.8383, 0.886]
 
   [HISPANIC/LATINO] n=199 events=187
-    Survival RF          c_index=0.5318 [0.4862, 0.5817]  brier=0.241 [0.2259, 0.2564] [native]  auc=0.5399 [0.4691, 0.6154]
+    Hazard Transformer   c_index=0.7592 [0.7258, 0.7915]  brier=0.2386 [0.2155, 0.2626] [native]  auc=0.8763 [0.8352, 0.9086]
 
   [OTHER] n=123 events=106
-    Survival RF          c_index=0.5544 [0.4912, 0.6213]  brier=0.2208 [0.2008, 0.244] [native]  auc=0.5422 [0.4546, 0.6383]
+    Hazard Transformer   c_index=0.7567 [0.7096, 0.8019]  brier=0.2183 [0.1848, 0.253] [native]  auc=0.8395 [0.7737, 0.903]
 
   [UNKNOWN/NOT RECORDED] n=288 events=265
-    Survival RF          c_index=0.5155 [0.4696, 0.5603]  brier=0.1694 [0.1597, 0.18] [native]  auc=0.5769 [0.4984, 0.6636]
+    Hazard Transformer   c_index=0.7066 [0.6666, 0.7447]  brier=0.1625 [0.1415, 0.1831] [native]  auc=0.9036 [0.8599, 0.9357]
 
   [WHITE] n=3656 events=3327
-    Survival RF          c_index=0.5196 [0.5083, 0.5315]  brier=0.235 [0.2313, 0.2389] [native]  auc=0.5297 [0.5118, 0.5463]
+    Hazard Transformer   c_index=0.7662 [0.7577, 0.7741]  brier=0.2177 [0.212, 0.2236] [native]  auc=0.8843 [0.8716, 0.8903]

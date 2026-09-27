@@ -1,9 +1,9 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-09-26 19:41:00
+Generated on: 2026-09-27 02:09:47
 Repetition: 1
 Scenario: twenty_features_heterogeneous
-Models analyzed: srf
+Models analyzed: hazard_transformer
 ================================================================================
 
 ================================================================================
@@ -60,46 +60,47 @@ FEATURE OVERVIEW:
 ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
 ------------------------------------------------------------
 
-Analyzing SRF model...
-  SRF Feature Importance:
-    egfr: 0.0000
-    egfr_missing: 0.0005
-    potassium: 0.0004
-    potassium_missing: 0.0000
-    urea_nitrogen: 0.0000
-    urea_nitrogen_missing: 0.0000
-    sodium: 0.0002
-    sodium_missing: 0.0002
-    chloride: 0.0001
-    chloride_missing: 0.0000
-    bicarbonate: 0.0000
-    bicarbonate_missing: 0.0000
-    anion_gap: 0.0004
-    anion_gap_missing: 0.0000
-    hematocrit: 0.0022
-    hematocrit_missing: 0.0000
-    platelet_count: 0.0000
-    platelet_count_missing: 0.0002
-    hemoglobin: 0.0005
-    hemoglobin_missing: 0.0000
-    wbc: 0.0000
-    wbc_missing: 0.0000
-    mchc: 0.0000
-    mchc_missing: 0.0000
-    mch: 0.0000
-    mch_missing: 0.0000
-    rbc: 0.0000
-    rbc_missing: 0.0000
-    mcv: 0.0000
-    mcv_missing: 0.0000
-    rdw: 0.0000
-    rdw_missing: 0.0019
-    glucose: 0.0013
-    glucose_missing: 0.0010
-    calcium: 0.0036
-    calcium_missing: 0.0000
-    magnesium: 0.0003
-    magnesium_missing: 0.0002
-    phosphate: 0.0107
-    phosphate_missing: 0.0013
+Analyzing HAZARD_TRANSFORMER model...
+Error in gradient calculation: [enforce fail at alloc_cpu.cpp:117] err == 0. DefaultCPUAllocator: can't allocate memory: you tried to allocate 100466240000 bytes. Error code 12 (Cannot allocate memory)
+  HAZARD_TRANSFORMER Feature Importance:
+    egfr: 0.0493
+    egfr_missing: 0.0086
+    potassium: 0.0350
+    potassium_missing: 0.0064
+    urea_nitrogen: 0.0208
+    urea_nitrogen_missing: 0.0070
+    sodium: 0.0648
+    sodium_missing: 0.0072
+    chloride: 0.0545
+    chloride_missing: 0.0071
+    bicarbonate: 0.0767
+    bicarbonate_missing: 0.0066
+    anion_gap: 0.0515
+    anion_gap_missing: 0.0063
+    hematocrit: 0.0302
+    hematocrit_missing: 0.0069
+    platelet_count: 0.0273
+    platelet_count_missing: 0.0073
+    hemoglobin: 0.0293
+    hemoglobin_missing: 0.0059
+    wbc: 0.0482
+    wbc_missing: 0.0074
+    mchc: 0.0800
+    mchc_missing: 0.0088
+    mch: 0.0235
+    mch_missing: 0.0068
+    rbc: 0.0238
+    rbc_missing: 0.0074
+    mcv: 0.0392
+    mcv_missing: 0.0056
+    rdw: 0.0434
+    rdw_missing: 0.0073
+    glucose: 0.0199
+    glucose_missing: 0.0101
+    calcium: 0.0659
+    calcium_missing: 0.0090
+    magnesium: 0.0472
+    magnesium_missing: 0.0073
+    phosphate: 0.0239
+    phosphate_missing: 0.0066
 Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_all_models_feature_importance.png
