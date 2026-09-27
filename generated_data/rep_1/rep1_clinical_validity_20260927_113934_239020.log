@@ -1,0 +1,15 @@
+rep1 analyze: twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_1
+TRAIN twenty_features_heterogeneous/logistic_hazard: missing artifact /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_logistic_hazard_model.pt
+Using GPU: cuda:7 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+Training new model with Optuna optimization
+Running Optuna hyperparameter optimization
+[I 2026-09-27 11:39:58,645] A new study created in memory with name: no-name-6568913d-390e-4b75-8fbe-a164973aacb1
+Using GPU: cuda:6 (utilization=0%, free_mem=11260MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
