@@ -1,22 +1,8 @@
-SUBGROUP PERFORMANCE ANALYSIS REPORT
-================================================================================
-Generated on: 2026-09-28 04:08:12
-Repetition: 1
-Scenario: twenty_features_heterogeneous
-
-This reports model performance WITHIN demographic groups. It is not a fairness
-evaluation: no fairness criterion is defined or tested here, and a between-group
-difference in these numbers has causes (group size, event rate, follow-up length,
-measurement density, coding practice) that these numbers cannot separate.
-
-Age groups are bins of anchor_age — the patient's age in their MIMIC anchor year,
-NOT their age at the prediction landmark, which the exported scenario data does not
-carry enough information to derive. Race is collapsed from admissions.csv ethnicity
-and keeps an explicit unknown/not-recorded group. See
-pkgs/data_analysis/patient_metadata.py for both rules and why they differ from
-demographics.py's.
-================================================================================
-
+rep1 analyze: twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_1
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
 ================================================================================
 SUBGROUP PERFORMANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
 ================================================================================
@@ -32,6 +18,34 @@ Patient metadata join:
   Time from each patient's first lab record to their prediction landmark: median 0.343 y, p90 5.655 y, max 13.824 y — the landmark can sit this far from the anchor year the age is measured at.
   Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
     4928/5216 patients have a recorded race; 288 retained as unknown; 167 have more than one recorded value across admissions; 528 admission rows carry declined/unobtainable/unknown.
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5208900 rows/20864 subjects -> 20864 rows; test 1255828 rows/5216 subjects -> 5216 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5208900 rows/20864 subjects -> 20864 rows; test 1255828 rows/5216 subjects -> 5216 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5208900 rows/20864 subjects -> 20864 rows; test 1255828 rows/5216 subjects -> 5216 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5208900 rows/20864 subjects -> 20864 rows; test 1255828 rows/5216 subjects -> 5216 rows
 
 Group composition (patients / events / event proportion):
 
@@ -126,3 +140,5 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
     Logistic Hazard      c_index=0.5094 [0.498, 0.5218]  brier=0.2345 [0.2311, 0.2381] [native]  auc=0.528 [0.5112, 0.5459]
     RNN-Surv             c_index=0.5193 [0.5078, 0.5309]  brier=0.4804 [0.4672, 0.4922] [native]  auc=0.5236 [0.5066, 0.5404]
     DeepSurv             c_index=0.518 [0.5067, 0.5291]  brier=0.2306 [0.2276, 0.2338] [fitted-conversion]  auc=0.5317 [0.5136, 0.5473]
+Subgroup report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_subgroup_performance_report.txt
+COMPLETE

@@ -1,11 +1,4 @@
-FEATURE IMPORTANCE ANALYSIS REPORT
-================================================================================
-Generated on: 2026-09-28 03:32:28
-Repetition: 1
-Scenario: twenty_features_heterogeneous
-Models analyzed: logistic_hazard, rnn_surv, deepsurv
-================================================================================
-
+rep1 analyze: twenty_features_heterogeneous; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_1
 ================================================================================
 FEATURE IMPORTANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS SCENARIO
 ================================================================================
@@ -147,6 +140,11 @@ Analyzing RNN_SURV model...
     phosphate_missing: 0.0341
 
 Analyzing DEEPSURV model...
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1255828 and train 5208900
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5208900 rows/20864 subjects -> 20864 rows; test 1255828 rows/5216 subjects -> 5216 rows
   DEEPSURV Feature Importance:
     egfr: 0.0219
     egfr_missing: 0.0247
@@ -189,3 +187,5 @@ Analyzing DEEPSURV model...
     phosphate: 0.0907
     phosphate_missing: 0.0275
 Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_all_models_feature_importance.png
+Scenario report saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/twenty_features_heterogeneous_shap_analysis_report.txt
+COMPLETE

@@ -11,5 +11,5 @@ See params in pkgs/scripts/run_experiments.py
 To run this script in the background, do:
 
 ```bash
-nohup python -u -m pkgs.scripts.run_experiments analyze --reps 1 --models survival_svm weibul --scenarios twenty_features_heterogeneous > generated_data/run_experiments_rep_1_survivalsvm_weibul.log 2>&1 < /dev/null &
+nohup python -u -m pkgs.scripts.run_experiments analyze --reps 1 --models gbsa --scenarios twenty_features_heterogeneous > generated_data/run_experiments_rep_1_gbsa.log 2>&1 < /dev/null &
 ```
