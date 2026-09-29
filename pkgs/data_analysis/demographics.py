@@ -96,9 +96,10 @@ def age_statistics(patients_df):
         f"mean: {patients_df['anchor_age'].mean():.3f}, std: {patients_df['anchor_age'].std():.3f}, min: {patients_df['anchor_age'].min()}, max: {patients_df['anchor_age'].max()}"
     )
 
-    labels = ['<27', '27-54', '54-82', '82+']
+    labels = ['18-45', '46-65', '66-85', '>85']  # one per commons.age_bins interval
 
-    patients_df['age_group'] = pd.cut(patients_df['anchor_age'], bins=age_bins, labels=labels, right=False)
+    patients_df['age_group'] = pd.cut(patients_df['anchor_age'], bins=age_bins, labels=labels,
+                                      right=True, include_lowest=True)
 
     vc = patients_df['age_group'].value_counts()
     vp = round(vc / len(patients_df) * 100, 3)

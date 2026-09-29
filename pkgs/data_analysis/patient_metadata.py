@@ -41,7 +41,7 @@ import pandas as pd
 from pkgs.commons import patients_file_path, admissions_file_path, age_bins
 from pkgs.data_analysis.store import get_admission_df
 
-AGE_GROUP_LABELS = ['<27', '27-54', '54-82', '82+']
+AGE_GROUP_LABELS = ['18-45', '46-65', '66-85', '>85']  # one per commons.age_bins interval
 UNKNOWN_RACE = 'UNKNOWN/NOT RECORDED'
 _UNRECORDED_RACE_VALUES = ("PATIENT DECLINED TO ANSWER", "UNABLE TO OBTAIN", "UNKNOWN")
 
@@ -110,7 +110,7 @@ def patient_metadata(terminal):
     frame['race'] = frame['race'].fillna(UNKNOWN_RACE)
     frame['gender'] = frame['gender'].fillna('UNKNOWN')
     frame['age_group'] = pd.cut(frame['anchor_age'], bins=age_bins,
-                                labels=AGE_GROUP_LABELS, right=False)
+                                labels=AGE_GROUP_LABELS, right=True, include_lowest=True)
     frame['age_group'] = frame['age_group'].cat.add_categories(['UNKNOWN']).fillna('UNKNOWN')
     frame['years_from_first_record_to_landmark'] = frame['duration_in_days'] / 365.25
     # The analyzer indexes model predictions by this frame's positional index, so

@@ -309,4 +309,21 @@ esrd_patient_ids_path = f'{generate_data_path_latest_rep}/esrd_patient_ids.csv'
 ----------Others----------
 """
 
-age_bins = [0, 27, 54, 82, float('inf')]
+# Age groups for subgroup/demographic analysis, applied to patients.csv `anchor_age`
+# (integer years) with pd.cut(..., right=True, include_lowest=True): [18, 45],
+# (45, 65], (65, 85], (85, inf) = 18-45, 46-65, 66-85, >85 (labels in
+# patient_metadata.AGE_GROUP_LABELS and demographics.age_statistics). The same four
+# groups are used on MIMIC ICU data by:
+#   - Ozyurt, Feuerriegel & Zhang, "Contrastive Learning for Unsupervised Domain
+#     Adaptation of Time Series", ICLR 2023 (MIMIC-IV mortality; 20-45, 46-65, 66-85,
+#     85+), https://arxiv.org/abs/2206.06243 -- crediting Purushotham et al.,
+#     "Variational Recurrent Adversarial Deep Domain Adaptation", ICLR 2017.
+#   - Zhang, Ragab & Foo, "Domain Generalization via Selective Consistency
+#     Regularization for Time Series Classification", arXiv 2022 (MIMIC-III mortality;
+#     20-45, 46-65, 66-85, over 85), https://arxiv.org/abs/2206.07876
+# Deviation: their first group starts at 20, but MIMIC-IV anchor_age starts at 18, so
+# ages 18-19 fall in the first group here.
+# Replaced [0, 27, 54, 82] (no recorded source) on 2026-09-29; subgroup reports
+# generated before then use those bins.
+# MIMIC-IV has no patients under 18.
+age_bins = [18, 45, 65, 85, float('inf')]
