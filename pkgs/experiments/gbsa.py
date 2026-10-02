@@ -31,9 +31,12 @@ gbsa_model_path_dict = {
 }
 
 def c_idx_score_fn(y, risk_score):
+    # predict() returns a risk score (higher = earlier event), but lifelines'
+    # concordance_index expects higher = longer survival. Negate it, otherwise
+    # this returns 1 - C and the grid search keeps the least concordant model.
     events = np.array([item[0] for item in y])
     duration_in_days = np.array([item[1] for item in y])
-    return concordance_index(duration_in_days, risk_score, events)
+    return concordance_index(duration_in_days, -np.asarray(risk_score), events)
 
 def evaluate_model(gbsa, df, df_test):
     print('Evaluate on test data')
@@ -141,22 +144,31 @@ def run_scenario(scenario: ExperimentScenario):
         X = get_x_for_sckit_survival_model(df, scenario)
         y = get_y_for_sckit_survival_model(df)
 
+        # Reduced from 192 candidates (n_estimators 50/100/200/300, max_depth
+        # 3/5/10/15, learning_rate 0.01/0.1/0.2, min_samples_split 2/5/10/15):
+        # the full grid cost ~185 CPU-hours per scenario on rep 1 without a
+        # meaningful performance gain. Boosting uses shallow trees; with ~20k
+        # subjects, min_samples_split rarely binds at depth <= 5.
         param_grid = {
-            'n_estimators': [50, 100, 200, 300],
-            'max_depth': [3, 5, 10, 15],
-            'learning_rate': [0.01, 0.1, 0.2],
-            'min_samples_split': [2, 5, 10, 15],
+            'n_estimators': [100, 300],
+            'max_depth': [3, 5],
+            'learning_rate': [0.01, 0.1],
+            'min_samples_split': [2],
         }
 
         cv = KFold(n_splits=5, shuffle=True, random_state=42)
         scorer = make_scorer(c_idx_score_fn, greater_is_better=True)
+        # Parallel CV fits; same results as n_jobs=1. Shared host, so capped
+        # at 32 by default; override with CKD_GBSA_N_JOBS.
+        n_jobs = int(os.environ.get('CKD_GBSA_N_JOBS', '32'))
+        print(f'GridSearchCV n_jobs={n_jobs}')
 
         grid_search = GridSearchCV(
             estimator=GradientBoostingSurvivalAnalysis(verbose=0),
             param_grid=param_grid,
             scoring=scorer,
             cv=cv,
-            n_jobs=1,
+            n_jobs=n_jobs,
             verbose=2,
         )
 
