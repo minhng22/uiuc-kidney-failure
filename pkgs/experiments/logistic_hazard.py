@@ -119,8 +119,11 @@ def compute_c_index_from_surv(surv_df, durations, events):
     
     if len(risk_scores) == 0:
         return 0.5
-    
-    c_index = concordance_index(durations, risk_scores, events)
+
+    # risk_scores is higher = earlier event, but lifelines' concordance_index
+    # expects higher = longer survival. Negate it, otherwise this returns
+    # 1 - C and Optuna keeps the least concordant trial.
+    c_index = concordance_index(durations, -risk_scores, events)
     return c_index
 
 def c_idx(model, labtrans, test_dataset: LogisticHazardDataset, device, test=False):

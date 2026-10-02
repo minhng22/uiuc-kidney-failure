@@ -1,0 +1,42 @@
+rep3 train: four_features, eight_features; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_3
+RUN four_features/logistic_hazard
+Using GPU: cuda:3 (utilization=0%, free_mem=49068MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+Training new model with Optuna optimization
+Running Optuna hyperparameter optimization
+[I 2026-10-02 11:07:46,807] A new study created in memory with name: no-name-572290bc-3487-4dc2-a022-01d0b14abd71
+Using GPU: cuda:3 (utilization=0%, free_mem=49068MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+No existing model, saving current model
+[I 2026-10-02 11:07:51,338] Trial 0 finished with value: 0.5407160216184845 and parameters: {'num_nodes': 16, 'num_layers': 1, 'lr': 0.020394837677373732, 'batch_size': 64, 'dropout': 0.2454009874215342}. Best is trial 0 with value: 0.5407160216184845.
+Using GPU: cuda:6 (utilization=0%, free_mem=49068MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:91: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+Saved model C-index: 0.5407, Current trial C-index: 0.5424
+New model is better, saving current model
+[I 2026-10-02 11:07:53,038] Trial 1 finished with value: 0.5424208349958286 and parameters: {'num_nodes': 64, 'num_layers': 3, 'lr': 0.027836693034151195, 'batch_size': 256, 'dropout': 0.11350536053985755}. Best is trial 1 with value: 0.5424208349958286.
+Using GPU: cuda:3 (utilization=0%, free_mem=48714MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+/home/minhn2/uiuc-kidney-failure/pkgs/experiments/logistic_hazard.py:91: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  saved_net = torch.load(saved_path, map_location=device)
+Saved model C-index: 0.5424, Current trial C-index: 0.5443
+New model is better, saving current model
+[I 2026-10-02 11:07:54,479] Trial 2 finished with value: 0.5442707388733723 and parameters: {'num_nodes': 128, 'num_layers': 2, 'lr': 0.015412396475208708, 'batch_size': 256, 'dropout': 0.07054694431451142}. Best is trial 2 with value: 0.5442707388733723.
+Using GPU: cuda:7 (utilization=0%, free_mem=49068MiB)
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363

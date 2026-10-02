@@ -28,9 +28,12 @@ srf_model_path_dict = {
 }
 
 def c_idx_score_fn(y, risk_score):
+    # predict() returns a risk score (higher = earlier event), but lifelines'
+    # concordance_index expects higher = longer survival. Negate it, otherwise
+    # this returns 1 - C and the grid search keeps the least concordant model.
     events = np.array([item[0] for item in y])
     duration_in_days = np.array([item[1] for item in y])
-    return concordance_index(duration_in_days, risk_score, events)
+    return concordance_index(duration_in_days, -np.asarray(risk_score), events)
 
 # Data needs to be non-time-variant setup
 # non-time-variant model
