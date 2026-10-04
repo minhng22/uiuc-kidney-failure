@@ -1,0 +1,40 @@
+rep5 analyze: four_features, eight_features; output=/home/minhn2/uiuc-kidney-failure/generated_data/rep_5
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - FOUR_FEATURES
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 9474 lab-event rows -> 1079 patients, 812 events (patient-level event rate 0.7525)
+test: 2051 lab-event rows -> 270 patients, 203 events (patient-level event rate 0.7519)
+IPCW censoring reference: the full training cohort (1079 patients), not a per-group one; evaluation capped at 4333.0 days (training follow-up 4333.0 days).
+
+Patient metadata join:
+  270 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.025 y, p90 4.086 y, max 10.02 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    269/270 patients have a recorded race; 1 retained as unknown; 22 have more than one recorded value across admissions; 4 admission rows carry declined/unobtainable/unknown.
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9474 rows/1079 subjects -> 1079 rows; test 2051 rows/270 subjects -> 270 rows
+Loading model from /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_cox_model.dill
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9474 rows/1079 subjects -> 1079 rows; test 2051 rows/270 subjects -> 270 rows
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+Train data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /home/minhn2/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
