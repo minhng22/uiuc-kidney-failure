@@ -10,10 +10,10 @@ from pkgs.commons import (
     egfr_ti_survival_svm_model_path, four_features_survival_svm_model_path,
     eight_features_survival_svm_model_path, twenty_features_heterogeneous_survival_svm_model_path,
 )
-from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data, select_split
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
-from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, get_tv_rnn_model_features
+from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, get_tv_rnn_model_features, parse_external_validation_flag
 import dill
 
 # Path dict + scenario-aware run added for Stage 3's four/eight/
@@ -153,10 +153,14 @@ def run_ti_survival_svm_model():
 
     report_auc(data_train, data_test_filtered, risk_scores)
 
-def run_scenario(scenario: ExperimentScenario):
+def run_scenario(scenario: ExperimentScenario, external_validation=False):
     """Scenario-aware entry point for four_features/eight_features/
     twenty_features_heterogeneous."""
-    data_train, data_test, _ = get_last_observation_data(scenario)
+    data_train, data_test, data_external = get_last_observation_data(scenario)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        data_test = select_split(data_train, data_test, data_external, 'external_validation')
     features = get_tv_rnn_model_features(scenario)
     cols = features + ['duration_in_days', 'has_esrd']
     data_train = data_train[cols].copy()
@@ -207,7 +211,7 @@ def run_scenario(scenario: ExperimentScenario):
     report_auc(data_train, data_test_filtered, risk_scores)
 
 
-def run_all():
+def run_all(external_validation=False):
     """Run all Survival SVM experiments"""
     print("\nRunning non-time-variant Survival SVM model evaluation...")
     run_ti_survival_svm_model()
@@ -216,11 +220,12 @@ def run_all():
     print("Skipping TIME_VARIANT, HETEROGENEOUS, and EGFR_COMPONENTS scenarios")
 
     print("\nRunning FOUR_FEATURES Survival SVM model evaluation...")
-    run_scenario(ExperimentScenario.FOUR_FEATURES)
+    run_scenario(ExperimentScenario.FOUR_FEATURES, external_validation=external_validation)
     print("\nRunning EIGHT_FEATURES Survival SVM model evaluation...")
-    run_scenario(ExperimentScenario.EIGHT_FEATURES)
+    run_scenario(ExperimentScenario.EIGHT_FEATURES, external_validation=external_validation)
     print("\nRunning TWENTY_FEATURES_HETEROGENEOUS Survival SVM model evaluation...")
-    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS, external_validation=external_validation)
 
 if __name__ == "__main__":
-    run_all()
+    external_validation = parse_external_validation_flag()
+    run_all(external_validation=external_validation)

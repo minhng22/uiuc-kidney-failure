@@ -23,6 +23,9 @@ evaluation (each model's existing function controls reuse of saved models)::
     # (clinical_validity and subgroup; every saved file is prefixed external_validation_):
     python -m pkgs.scripts.run_experiments analyze --reps all --external-validation
 
+    # Each model's own evaluation on the external validation data instead of the test data:
+    python -m pkgs.scripts.run_experiments train --reps 1 --external-validation
+
     # Select a scenario and model subset on the mini-experiment repetition:
     python -m pkgs.scripts.run_experiments analyze --reps 99 --scenarios twenty_features_heterogeneous --models cox srf
 
@@ -53,7 +56,10 @@ Selection options:
   for "train".
 - --external-validation: score each rep's internal holdout set
   (<scenario>_external_validation_data.csv: 20% of patients, never used for
-  training or model selection) instead of the test set. Every saved file gets an
+  training or model selection) instead of the test set. For "train" it is passed
+  to every model's run function (e.g. run_cox_model(scenario, external_validation=True)),
+  which then evaluates on the external validation data instead of the test data.
+  Every saved file gets an
   external_validation_ prefix, e.g. external_validation_auc_comparison.png,
   external_validation_four_features_clinical_validity_report.txt and
   external_validation_rep1_clinical_validity_<timestamp>.log, so the test-set
@@ -183,7 +189,7 @@ def parse_args(argv=None):
     parser.add_argument("--analyses", nargs="+", choices=ANALYSES,
                         help="Analyses to run (default: all three; all but feature_importance with --external-validation)")
     parser.add_argument("--external-validation", action="store_true",
-                        help="Evaluate clinical_validity/subgroup on the internal holdout set instead of the test set")
+                        help="Evaluate on the internal holdout (external validation) set instead of the test set")
     parser.add_argument("--log-dir", type=Path,
                         help="Override the default generated_data/rep<N>/ log directory")
     parser.add_argument("--dry-run", action="store_true", help="Print subprocess commands without running them")
@@ -275,7 +281,8 @@ def run_worker(args):
                 try:
                     module = importlib.import_module(f"pkgs.experiments.{model}")
                     print(f"RUN {scenario}/{model}", flush=True)
-                    getattr(module, TRAIN_FUNCTIONS[model])(ExperimentScenario(scenario))
+                    getattr(module, TRAIN_FUNCTIONS[model])(ExperimentScenario(scenario),
+                                                            external_validation=args.external_validation)
                 except Exception:
                     traceback.print_exc()
                     failures.append(f"{scenario}/{model}")

@@ -10,10 +10,10 @@ from pkgs.commons import (
     egfr_ti_gbsa_model_path, four_features_gbsa_model_path,
     eight_features_gbsa_model_path, twenty_features_heterogeneous_gbsa_model_path,
 )
-from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data, select_split
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
-from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model, compute_brier_score_from_risk_scores, parse_external_validation_flag
 import dill
 
 # Path dict + scenario-aware run added for Stage 3's four/eight/
@@ -125,12 +125,16 @@ def run_gbsa():
     if brier_score is not None:
         print(f'Integrated Brier Score Test: {brier_score}')
     
-def run_scenario(scenario: ExperimentScenario):
+def run_scenario(scenario: ExperimentScenario, external_validation=False):
     """Scenario-aware entry point for four_features/eight_features/
     twenty_features_heterogeneous. See gbsa_model_path_dict's comment above
     for why get_last_observation_data() is used instead of the raw
     time-varying data."""
-    df, df_test, _ = get_last_observation_data(scenario)
+    df, df_test, data_external = get_last_observation_data(scenario)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        df_test = select_split(df, df_test, data_external, 'external_validation')
     model_path = gbsa_model_path_dict[scenario]
 
     trained_model = load_pkl_and_dill_model(model_path)
@@ -203,10 +207,11 @@ def joblib_to_dill():
             dill.dump(model, f, protocol=4)
 
 if __name__ == '__main__':
+    external_validation = parse_external_validation_flag()
     print("\nRunning FOUR_FEATURES GBSA model evaluation...")
-    run_scenario(ExperimentScenario.FOUR_FEATURES)
+    run_scenario(ExperimentScenario.FOUR_FEATURES, external_validation=external_validation)
     print("\nRunning EIGHT_FEATURES GBSA model evaluation...")
-    run_scenario(ExperimentScenario.EIGHT_FEATURES)
+    run_scenario(ExperimentScenario.EIGHT_FEATURES, external_validation=external_validation)
     print("\nRunning TWENTY_FEATURES_HETEROGENEOUS GBSA model evaluation...")
-    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS, external_validation=external_validation)
 

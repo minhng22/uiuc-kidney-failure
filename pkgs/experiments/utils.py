@@ -449,4 +449,14 @@ def get_device():
         device = torch.device(f"cuda:{gpu_id}")
         print(f"Using GPU: {device}")
         return device
-    
+
+
+def parse_external_validation_flag(argv=None):
+    """`python -m pkgs.experiments.<model> --external-validation` makes a module's
+    __main__ evaluate on the internal holdout (external validation data) instead of
+    the test data, the same switch run_experiments passes as external_validation=True."""
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--external-validation", action="store_true",
+                        help="Evaluate on the external validation data instead of the test data")
+    return parser.parse_known_args(argv)[0].external_validation

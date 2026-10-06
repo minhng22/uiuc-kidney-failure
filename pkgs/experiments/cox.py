@@ -4,10 +4,10 @@ from lifelines import CoxPHFitter, CoxTimeVaryingFitter
 from lifelines.utils import concordance_index
 
 from pkgs.commons import egfr_tv_cox_model_path, egfr_ti_cox_model_path, hg_cox_model_path, egfr_components_cox_model_path, fivelabms_cox_model_path, heterogen_impute_cox_model_path, ckd_fifty_features_heterogeneous_cox_model_path, four_features_cox_model_path, eight_features_cox_model_path, twenty_features_heterogeneous_cox_model_path, ckd_fifty_features_heterogeneous_train_data_path
-from pkgs.data_analysis.model_data_store import get_train_test_external_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, select_split
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
-from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores, get_tv_rnn_model_features
+from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores, get_tv_rnn_model_features, parse_external_validation_flag
 import dill
 
 
@@ -43,10 +43,14 @@ def get_cox_covariates(scenario: ExperimentScenario, df):
     assert not missing, f'{scenario}: covariates missing from data: {missing}'
     return features
 
-def run_cox_model(scenario: ExperimentScenario):
+def run_cox_model(scenario: ExperimentScenario, external_validation=False):
     assert scenario in [ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS, ExperimentScenario.HETEROGENEOUS_IMPUTE, ExperimentScenario.CKD_FIFTY_FEATURES_HETEROGENEOUS, ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES, ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS]
 
-    data_train, data_test, _ = get_train_test_external_data(scenario)
+    data_train, data_test, data_external = get_train_test_external_data(scenario)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        data_test = select_split(data_train, data_test, data_external, 'external_validation')
 
     model_path = get_model_path(scenario)
 
@@ -157,9 +161,10 @@ def joblib_to_dill():
                 dill.dump(model, f, protocol=4)
 
 if __name__ == "__main__":
+    external_validation = parse_external_validation_flag()
     print("\nRunning FOUR_FEATURES Cox model evaluation with time-dependent AUC...")
-    run_cox_model(ExperimentScenario.FOUR_FEATURES)
+    run_cox_model(ExperimentScenario.FOUR_FEATURES, external_validation=external_validation)
     print("\nRunning EIGHT_FEATURES Cox model evaluation with time-dependent AUC...")
-    run_cox_model(ExperimentScenario.EIGHT_FEATURES)
+    run_cox_model(ExperimentScenario.EIGHT_FEATURES, external_validation=external_validation)
     print("\nRunning TWENTY_FEATURES_HETEROGENEOUS Cox model evaluation with time-dependent AUC...")
-    run_cox_model(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+    run_cox_model(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS, external_validation=external_validation)

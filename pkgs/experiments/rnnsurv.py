@@ -4,8 +4,8 @@ from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
-from pkgs.data_analysis.model_data_store import get_train_test_external_data
-from pkgs.experiments.utils import (round_metric, ex_optuna,
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, select_split
+from pkgs.experiments.utils import (round_metric, ex_optuna, parse_external_validation_flag,
                                     get_tv_rnn_model_features,
                                     compute_brier_score_from_survival_probs)
 from pkgs.commons import (egfr_tv_rnn_surv_model_path, hg_rnn_surv_model_path, egfr_components_rnn_surv_model_path,
@@ -234,9 +234,13 @@ def score_model_train(model: RNNSurv, df, features, device):
     return c_index
 
 # Update the run function to use the device
-def run(scenario_name: ExperimentScenario):
+def run(scenario_name: ExperimentScenario, external_validation=False):
     device = get_device()
-    df, df_test, _ = get_train_test_external_data(scenario_name)
+    df, df_test, data_external = get_train_test_external_data(scenario_name)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        df_test = select_split(df, df_test, data_external, 'external_validation')
 
     model_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
@@ -294,6 +298,7 @@ def run(scenario_name: ExperimentScenario):
     report_prediction_auc(model, scenario_name, df, df_test)
 
 if __name__ == '__main__':
-    run(ExperimentScenario.FOUR_FEATURES)
-    run(ExperimentScenario.EIGHT_FEATURES)
-    run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+    external_validation = parse_external_validation_flag()
+    run(ExperimentScenario.FOUR_FEATURES, external_validation=external_validation)
+    run(ExperimentScenario.EIGHT_FEATURES, external_validation=external_validation)
+    run(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS, external_validation=external_validation)

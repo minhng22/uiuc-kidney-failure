@@ -14,25 +14,30 @@ import pandas as pd
 from lifelines.utils import concordance_index
 
 from pkgs.commons import generate_data_path_latest_rep
-from pkgs.data_analysis.model_data_store import get_train_test_external_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, select_split
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
-from pkgs.experiments.utils import round_metric, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import round_metric, compute_brier_score_from_risk_scores, parse_external_validation_flag
 from pkgs.models.kfre import compute_risk_scores
 
 
-def get_kfre_risk_scores_path(scenario: ExperimentScenario, years=2):
+def get_kfre_risk_scores_path(scenario: ExperimentScenario, years=2, external_validation=False):
     assert scenario in [ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES]
-    return f'{generate_data_path_latest_rep}/{scenario.value}_kfre_{years}yr_risk_scores.csv'
+    prefix = 'external_validation_' if external_validation else ''
+    return f'{generate_data_path_latest_rep}/{prefix}{scenario.value}_kfre_{years}yr_risk_scores.csv'
 
 
-def run_kfre_model(scenario: ExperimentScenario, years=2):
+def run_kfre_model(scenario: ExperimentScenario, years=2, external_validation=False):
     assert scenario in [ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES], \
         f"KFRE has no published equation for {scenario} (only 4-/8-variable)"
 
-    data_train, data_test, _ = get_train_test_external_data(scenario)
+    data_train, data_test, data_external = get_train_test_external_data(scenario)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        data_test = select_split(data_train, data_test, data_external, 'external_validation')
 
-    scores_path = get_kfre_risk_scores_path(scenario, years)
+    scores_path = get_kfre_risk_scores_path(scenario, years, external_validation)
     if os.path.exists(scores_path):
         print(f"Using cached KFRE risk scores: {scores_path}")
         cached = pd.read_csv(scores_path)
@@ -63,7 +68,8 @@ def run_kfre_model(scenario: ExperimentScenario, years=2):
 
 
 if __name__ == '__main__':
+    external_validation = parse_external_validation_flag()
     print("\nRunning FOUR_FEATURES KFRE (4-variable) evaluation...")
-    run_kfre_model(ExperimentScenario.FOUR_FEATURES)
+    run_kfre_model(ExperimentScenario.FOUR_FEATURES, external_validation=external_validation)
     print("\nRunning EIGHT_FEATURES KFRE (8-variable) evaluation...")
-    run_kfre_model(ExperimentScenario.EIGHT_FEATURES)
+    run_kfre_model(ExperimentScenario.EIGHT_FEATURES, external_validation=external_validation)

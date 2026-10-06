@@ -1,11 +1,11 @@
 import pandas as pd
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path, fivelabms_dynamic_deep_hit_model_path, ckd_fifty_features_heterogeneous_dynamic_deep_hit_model_path, four_features_dynamic_deep_hit_model_path, eight_features_dynamic_deep_hit_model_path, twenty_features_heterogeneous_dynamic_deep_hit_model_path, ckd_fifty_features_heterogeneous_train_data_path
-from pkgs.data_analysis.model_data_store import get_train_test_external_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, select_split
 from pkgs.models.dynamicdeephit import DynamicDeepHit, DynamicDeepHitDataset
 import torch
 from torch.utils.data import DataLoader
 
-from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss_pmf, compute_brier_score_from_risk_scores
+from pkgs.experiments.utils import ex_optuna, get_tv_rnn_model_features, combine_loss_pmf, compute_brier_score_from_risk_scores, parse_external_validation_flag
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_prediction_auc
 
@@ -249,9 +249,13 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
     return cindex
 
 # Update the run function to use the device
-def run(scenario_name: ExperimentScenario):
+def run(scenario_name: ExperimentScenario, external_validation=False):
     device = get_device()
-    df, df_test, _ = get_train_test_external_data(scenario_name)
+    df, df_test, data_external = get_train_test_external_data(scenario_name)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        df_test = select_split(df, df_test, data_external, 'external_validation')
 
     model_saved_path = model_saved_path_dict[scenario_name]
 
@@ -274,6 +278,7 @@ def run(scenario_name: ExperimentScenario):
     report_prediction_auc(model, scenario_name, df, df_test)
 
 if __name__ == '__main__':
+    external_validation = parse_external_validation_flag()
     # Per-scenario isolation: an uncaught exception in one scenario used to
     # abort the whole script, silently skipping every scenario after it
     # (observed at full Stage 3 scale: a four_features failure meant
@@ -282,7 +287,7 @@ if __name__ == '__main__':
     # run_rep.sh's own per-experiment failure tolerance.
     for scenario in (ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES, ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS):
         try:
-            run(scenario)
+            run(scenario, external_validation=external_validation)
         except Exception:
             import traceback
             print(f"✗ dynamic_deephit/{scenario.value} failed:")

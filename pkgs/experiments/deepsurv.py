@@ -8,8 +8,8 @@ from pkgs.commons import (
     egfr_ti_deepsurv_model_path, four_features_deepsurv_model_path,
     eight_features_deepsurv_model_path, twenty_features_heterogeneous_deepsurv_model_path,
 )
-from pkgs.experiments.utils import get_device
-from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
+from pkgs.experiments.utils import get_device, parse_external_validation_flag
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data, select_split
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.models.deepsurv import DeepSurv
@@ -258,7 +258,7 @@ def objective_scenario(trial, scenario: ExperimentScenario, df):
     return c_index
 
 
-def run_scenario(scenario: ExperimentScenario):
+def run_scenario(scenario: ExperimentScenario, external_validation=False):
     """Scenario-aware entry point for four_features/eight_features/
     twenty_features_heterogeneous -- uses get_last_observation_data()
     (one row per subject, their last/most-recent observation) since DeepSurv
@@ -267,7 +267,11 @@ def run_scenario(scenario: ExperimentScenario):
     only) is untouched."""
     device = get_device()
     features = get_tv_rnn_model_features(scenario)
-    df, df_test, _ = get_last_observation_data(scenario)
+    df, df_test, data_external = get_last_observation_data(scenario)
+    if external_validation:
+        # Evaluate on the internal holdout instead of the test set; training is unchanged.
+        print('Evaluating on external validation data instead of test data')
+        df_test = select_split(df, df_test, data_external, 'external_validation')
     saved_path = deepsurv_model_path_dict[scenario]
 
     if os.path.exists(saved_path):
@@ -294,11 +298,12 @@ def run_scenario(scenario: ExperimentScenario):
 
 
 if __name__ == '__main__':
+    external_validation = parse_external_validation_flag()
     run()
     print("\nRunning FOUR_FEATURES DeepSurv model evaluation...")
-    run_scenario(ExperimentScenario.FOUR_FEATURES)
+    run_scenario(ExperimentScenario.FOUR_FEATURES, external_validation=external_validation)
     print("\nRunning EIGHT_FEATURES DeepSurv model evaluation...")
-    run_scenario(ExperimentScenario.EIGHT_FEATURES)
+    run_scenario(ExperimentScenario.EIGHT_FEATURES, external_validation=external_validation)
     print("\nRunning TWENTY_FEATURES_HETEROGENEOUS DeepSurv model evaluation...")
-    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+    run_scenario(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS, external_validation=external_validation)
 
