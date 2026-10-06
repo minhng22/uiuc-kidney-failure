@@ -1,91 +1,93 @@
 \section{Results}\label{sec:results}
 
-All 160 model--scenario--run metric records are available across five runs: 11 models each for four/eight features and 10 for twenty features. Tables~\ref{tab:discrimination} and~\ref{tab:twenty} report mean (sample SD) on the fixed patient partition. Rep99 pilot results are excluded; SD measures run variation, not uncertainty across independent test cohorts.
+All 160 model--scenario--split results are available: 11 models each for four/eight features and 10 for twenty features, over five splits. The holdout holds 338, 134, and 6{,}521 patients per split.
 
 \subsection{Four and Eight Features}
 \begin{table}[t]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccc@{}}
+\setlength{\tabcolsep}{1.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\multicolumn{4}{c}{\textbf{Four features}} \\
-\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{IBS}$\downarrow$ & \textbf{Mean AUC}$\uparrow$ \\
+\multicolumn{5}{c}{\textbf{Four features}} \\
+\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{CI} & \textbf{IBS}$\downarrow$ & \textbf{AUC}$\uparrow$ \\
 \midrule
-Cox & 0.308 (0.000) & 0.531 (0.000) & 0.272 (0.000) \\
-Dynamic-DeepHit & \textbf{0.827 (0.011)} & \textbf{0.279 (0.018)} & \textbf{0.939 (0.017)} \\
-Hazard Transformer & 0.637 (0.001) & 0.409 (0.007) & 0.701 (0.002) \\
-Logistic Hazard & 0.551 (0.012) & 0.416 (0.006) & 0.567 (0.018) \\
-RNN-Surv & 0.522 (0.006) & 0.430 (0.011) & 0.526 (0.011) \\
-DeepSurv & 0.540 (0.020) & 0.463 (0.075) & 0.549 (0.023) \\
-GBSA & 0.518 (0.003) & 0.438 (0.008) & 0.530 (0.008) \\
-Survival RF & 0.532 (0.005) & 0.445 (0.003) & 0.543 (0.007) \\
-Survival SVM & 0.543 (0.000) & 0.417 (0.000) & 0.571 (0.000) \\
-Weibull AFT & 0.552 (0.000) & 0.414 (0.000) & 0.579 (0.000) \\
-KFRE & 0.539 (0.000) & 0.552 (0.000) & 0.553 (0.000) \\
+Cox & 0.550 (0.019) & $\pm$0.049 & 0.251 (0.004) & 0.561 (0.027) \\
+Dyn.-DeepHit & \textbf{0.852 (0.018)} & $\pm$0.028 & \textbf{0.131 (0.019)} & \textbf{0.947 (0.014)} \\
+Hazard Transf. & 0.595 (0.022) & $\pm$0.048 & 0.278 (0.018) & 0.651 (0.035) \\
+Logistic Haz. & 0.564 (0.011) & $\pm$0.047 & 0.249 (0.009) & 0.582 (0.016) \\
+RNN-Surv & 0.536 (0.019) & $\pm$0.048 & 0.392 (0.055) & 0.535 (0.029) \\
+DeepSurv & 0.508 (0.021) & $\pm$0.048 & 0.246 (0.005)$^{\dagger}$ & 0.502 (0.023) \\
+GBSA & 0.543 (0.026) & $\pm$0.048 & 0.248 (0.012) & 0.549 (0.029) \\
+Survival RF & 0.550 (0.020) & $\pm$0.048 & 0.244 (0.010) & 0.559 (0.027) \\
+Survival SVM & 0.551 (0.007) & $\pm$0.049 & 0.246 (0.004)$^{\dagger}$ & 0.560 (0.012) \\
+Weibull AFT & 0.550 (0.012) & $\pm$0.049 & 0.253 (0.003) & 0.559 (0.014) \\
+KFRE & 0.545 (0.022) & $\pm$0.049 & 0.433 (0.032)$^{\dagger}$ & 0.558 (0.031) \\
 \midrule
-\multicolumn{4}{c}{\textbf{Eight features}} \\
-\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{IBS}$\downarrow$ & \textbf{Mean AUC}$\uparrow$ \\
+\multicolumn{5}{c}{\textbf{Eight features}} \\
 \midrule
-Cox & 0.470 (0.000) & 0.578 (0.000) & 0.425 (0.000) \\
-Dynamic-DeepHit & \textbf{0.880 (0.009)} & \textbf{0.281 (0.024)} & \textbf{0.953 (0.009)} \\
-Hazard Transformer & 0.605 (0.039) & 0.529 (0.205) & 0.631 (0.049) \\
-Logistic Hazard & 0.521 (0.019) & 0.490 (0.016) & 0.500 (0.029) \\
-RNN-Surv & 0.531 (0.005) & 0.493 (0.005) & 0.590 (0.015) \\
-DeepSurv & 0.484 (0.014) & 0.555 (0.115) & 0.486 (0.022) \\
-GBSA & 0.541 (0.011) & 0.529 (0.014) & 0.559 (0.011) \\
-Survival RF & 0.522 (0.008) & 0.523 (0.007) & 0.539 (0.008) \\
-Survival SVM & 0.540 (0.000) & 0.488 (0.000) & 0.595 (0.000) \\
-Weibull AFT & 0.554 (0.000) & 0.485 (0.000) & 0.597 (0.000) \\
-KFRE & 0.539 (0.000) & 0.737 (0.000) & 0.579 (0.000) \\
+Cox & 0.548 (0.030) & $\pm$0.077 & 0.243 (0.069) & 0.555 (0.049) \\
+Dyn.-DeepHit & \textbf{0.826 (0.037)} & $\pm$0.046 & \textbf{0.138 (0.025)} & \textbf{0.920 (0.026)} \\
+Hazard Transf. & 0.524 (0.028) & $\pm$0.076 & 0.259 (0.055) & 0.542 (0.046) \\
+Logistic Haz. & 0.525 (0.025) & $\pm$0.079 & 0.249 (0.073) & 0.508 (0.074) \\
+RNN-Surv & 0.543 (0.017) & $\pm$0.076 & 0.303 (0.021) & 0.575 (0.058) \\
+DeepSurv & 0.536 (0.039) & $\pm$0.080 & 0.214 (0.042)$^{\dagger}$ & 0.523 (0.064) \\
+GBSA & 0.519 (0.041) & $\pm$0.078 & 0.240 (0.082) & 0.529 (0.059) \\
+Survival RF & 0.531 (0.032) & $\pm$0.080 & 0.219 (0.045) & 0.538 (0.044) \\
+Survival SVM & 0.501 (0.044) & $\pm$0.079 & 0.344 (0.205)$^{\dagger}$ & 0.492 (0.034) \\
+Weibull AFT & 0.531 (0.031) & $\pm$0.076 & 0.228 (0.058) & 0.547 (0.059) \\
+KFRE & 0.524 (0.024) & $\pm$0.077 & 0.530 (0.012)$^{\dagger}$ & 0.526 (0.041) \\
 \bottomrule
-\end{tabular}
-\caption{Mean (sample SD), five runs on a fixed split. IBS uses the common scalar-risk transformation. C-index spans follow-up; IBS/AUC summarize the two-year interval. Bold: best recorded mean. SD is run variability, not a confidence interval.}
+\end{tabular}%
+}
+\caption{Holdout performance, mean (SD) over five patient-level splits. CI: mean half-width of the within-split 95\% bootstrap interval for the C-index. $^{\dagger}$IBS via the training-fitted score-to-survival conversion; others use native survival probabilities. Bold: best mean.}
 \label{tab:discrimination}
 \end{table}
 
-Dynamic-DeepHit has the highest recorded C-index, 0.827 (0.011) and 0.880 (0.009), and mean AUC, 0.939 (0.017) and 0.953 (0.009), for four and eight features. KFRE has C-index 0.539 in both scenarios. Hazard Transformer follows at 0.637 (0.001) and 0.605 (0.039). The remaining non-Cox models cluster at 0.518--0.552 and 0.484--0.554. These descriptive comparisons do not establish equivalence or statistical superiority.
+Dynamic-DeepHit has the highest holdout C-index, 0.852 (0.018) and 0.826 (0.037), mean AUC, 0.947 and 0.920, and the lowest IBS for four and eight features (Table~\ref{tab:discrimination}). KFRE has C-index 0.545 and 0.524, and the other learned models span 0.508--0.595 and 0.501--0.548. Bootstrap half-widths are about 0.05 (four features) and 0.08 (eight features). Dynamic-DeepHit's paired C-index and AUC advantages over KFRE exclude zero in all five splits of both scenarios; Hazard Transformer's four-feature AUC advantage does so in five splits and its C-index advantage in three; for every other model the paired C-index interval includes zero in all but at most one split (Appendix Table~\ref{tab:paired}). Almost every learned model has a lower IBS than KFRE, reflecting KFRE's calibration in this cohort rather than better ranking. The four-to-eight-feature change lowers most models' C-index (Hazard Transformer $-$0.071, Dynamic-DeepHit $-$0.026, KFRE $-$0.021), but the cohorts differ, so this is not an isolated test of adding four measurements.
 
-Four-to-eight-feature changes are model-dependent: Dynamic-DeepHit +0.053, Cox +0.162, DeepSurv -0.056, and Hazard Transformer -0.032 in mean C-index; the other seven models change by 0.03 or less. The cohorts differ, so this is not an isolated test of adding four measurements. Cox remains below 0.5 (0.308/0.470); DeepSurv's eight-feature mean is also below 0.5.
-
-\subsection{Full Twenty-Feature Cohort}
+\subsection{Twenty-Feature Cohort}
 \begin{table}[t]
 \centering
 \scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccc@{}}
+\setlength{\tabcolsep}{1.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\multicolumn{4}{c}{\textbf{Twenty features (heterogeneous)}} \\
-\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{IBS}$\downarrow$ & \textbf{Mean AUC}$\uparrow$ \\
+\textbf{Model} & \textbf{C-index}$\uparrow$ & \textbf{CI} & \textbf{IBS}$\downarrow$ & \textbf{AUC}$\uparrow$ \\
 \midrule
-Cox & 0.457 (0.000) & 0.397 (0.000) & 0.433 (0.000) \\
-Dynamic-DeepHit & \textbf{0.856 (0.035)} & \textbf{0.248 (0.013)} & \textbf{0.946 (0.026)} \\
-Hazard Transformer & 0.717 (0.060) & 0.314 (0.032) & 0.802 (0.078) \\
-Logistic Hazard & 0.522 (0.005) & 0.374 (0.006) & 0.531 (0.026) \\
-RNN-Surv & 0.523 (0.001) & 0.376 (0.003) & 0.527 (0.001) \\
-DeepSurv & 0.533 (0.003) & 0.370 (0.001) & 0.539 (0.007) \\
-GBSA & 0.521 (0.000) & 0.371 (0.000) & 0.529 (0.000) \\
-Survival RF & 0.522 (0.001) & 0.372 (0.000) & 0.534 (0.001) \\
-Survival SVM & 0.513 (0.000) & 0.369 (0.000) & 0.540 (0.000) \\
-Weibull AFT & 0.525 (0.000) & 0.370 (0.000) & 0.546 (0.000) \\
+Cox & 0.473 (0.015) & $\pm$0.009 & 0.415 (0.009) & 0.474 (0.006) \\
+Dyn.-DeepHit & \textbf{0.869 (0.023)} & $\pm$0.004 & \textbf{0.100 (0.001)} & \textbf{0.979 (0.022)} \\
+Hazard Transf. & 0.762 (0.009) & $\pm$0.007 & 0.214 (0.004) & 0.877 (0.017) \\
+Logistic Haz. & 0.519 (0.014) & $\pm$0.009 & 0.238 (0.009) & 0.531 (0.017) \\
+RNN-Surv & 0.520 (0.016) & $\pm$0.010 & 0.494 (0.010) & 0.530 (0.008) \\
+DeepSurv & 0.527 (0.018) & $\pm$0.009 & 0.227 (0.006)$^{\dagger}$ & 0.543 (0.015) \\
+GBSA & 0.530 (0.019) & $\pm$0.007 & 0.229 (0.007) & 0.525 (0.022) \\
+Survival RF & 0.518 (0.013) & $\pm$0.009 & 0.234 (0.007) & 0.530 (0.011) \\
+Survival SVM & 0.509 (0.020) & $\pm$0.010 & 0.229 (0.006)$^{\dagger}$ & 0.529 (0.011) \\
+Weibull AFT & 0.518 (0.008) & $\pm$0.009 & 0.240 (0.007) & 0.533 (0.017) \\
 \bottomrule
-\end{tabular}
-\caption{Full twenty-feature cohort: mean (sample SD), five runs, 6{,}521 test patients. Metric definitions follow Table~\ref{tab:discrimination}.}
+\end{tabular}%
+}
+\caption{Twenty-feature holdout performance (6{,}521 patients per split). Columns as in Table~\ref{tab:discrimination}; no KFRE equation exists.}
 \label{tab:twenty}
 \end{table}
 
-The full cohort contains 32{,}601 patients and approximately 8.13 million lab-event rows. Dynamic-DeepHit leads at C-index 0.856 (0.035), mean AUC 0.946 (0.026), and transformed-score IBS 0.248 (0.013). Hazard Transformer reaches C-index 0.717 (0.060), replacing the earlier poor pilot result. The other non-Cox models span 0.513--0.533; Cox is 0.457. Cohort and representation differences prevent attribution to feature count alone.
+Dynamic-DeepHit leads at C-index 0.869 (0.023), AUC 0.979, and IBS 0.100, followed by Hazard Transformer at 0.762 (0.009) (Table~\ref{tab:twenty}). The two history-aware models are the only ones clearly above 0.53; Cox is below chance at 0.473. Half-widths of about 0.01 rule out holdout sampling as the explanation for these separations.
 
-\subsection{Importance and Calibration Diagnostics}
-Figure~\ref{fig:feature_importance_four} illustrates rep1 importance. eGFR ranks first for four neural models, whereas GBSA emphasizes uACR and eGFR similarly. Raw coefficients, permutation scores, and gradients use different scales; a uACR coefficient rounded to 0.0000 does not imply that the input was discarded. All five twenty-feature DDH/Transformer gradient analyses failed memory allocation; their fallback values are excluded from interpretation.
+\subsection{Calibration, Decision Curves, and Subgroups}
+KFRE underestimates risk in this event-rich cohort: at two years its predicted risk is $\leq$0.13 in nine of ten four-feature deciles against observed risks of 0.49--0.86, and its two-year Brier score is 0.572 (four) and 0.686 (eight), versus 0.157 and 0.130 for Dynamic-DeepHit. Dynamic-DeepHit's decile means broadly track observed risk; Hazard Transformer predicts a two-year risk of 1.0 for every patient despite ranking twenty-feature patients well.
+
+Because at least three-quarters of patients reach the labelled event, treat-all has high net benefit (four-feature two-year: 0.615 at threshold 0.05 to 0.269 at 0.50). Most learned models match it; KFRE (0.166--0.017) and the eGFR rules fall well below it. Only Dynamic-DeepHit exceeds treat-all, at four-feature thresholds of 0.40 (0.430 vs.\ 0.391) and 0.50 (0.390 vs.\ 0.269), marginally with eight features, and from 0.20 upward with twenty features; no model consistently does at five years.
+
+Dynamic-DeepHit's C-index lies within 0.84--0.87 (four), 0.81--0.84 (eight), and 0.80--0.90 (twenty features) across every evaluable age, sex, and race group, whereas KFRE's varies from 0.474 to 0.606 and is lower in Black (0.495) than White (0.574) patients (Appendix Table~\ref{tab:subgroup}). Several groups are small, and this is not a fairness evaluation.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/four_features_all_models_feature_importance.png}
-\caption{Four-feature importance diagnostics, rep1. Model-specific measures are not comparable across panels.}
+\caption{Four-feature importance diagnostics, split 1. Model-specific measures are not comparable across panels.}
 \label{fig:feature_importance_four}
 \end{figure}
 
-Native risk calibration varies across runs. For twenty-feature rep1, Dynamic-DeepHit's 2-year risk-group means are 0.166--0.187 versus observed risks of 0.431--0.998, despite strong discrimination. Hazard Transformer also produces constant or near-constant horizon probabilities. The reported IBS uses transformed scalar scores and does not evaluate these native probabilities directly.
-
-Decision-curve comparisons are withheld: model curves use patients, whereas treat-all/eGFR baselines use raw rows; the eGFR rule also uses a different threshold definition. The saved curves therefore do not establish clinical utility.
+Feature importance (Figure~\ref{fig:feature_importance_four}) differs by model and measure: GBSA ranks eGFR and uACR highest, Survival RF's permutation importance ranks eGFR first, and Dynamic-DeepHit's gradients are largest for sex. The twenty-feature gradient analyses for Dynamic-DeepHit and Hazard Transformer exceeded available memory and are not interpreted.

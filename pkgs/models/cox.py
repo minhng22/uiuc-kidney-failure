@@ -9,7 +9,7 @@ HazardTransformer.predictions()/DynamicDeepHit.predictions()/etc.
 import numpy as np
 
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_last_observation_data, select_split
 
 
 class CoxModel:
@@ -42,8 +42,8 @@ class CoxModel:
         Brier score. `split='train'` scores the training-set flattened
         frame instead (used to fit this model's own Breslow baseline
         hazard). Returns (risk_scores, durations, events, native_prob_fn)."""
-        df_train_flat, df_test_flat = get_last_observation_data(scenario)
-        df_flat = df_train_flat if split == 'train' else df_test_flat
+        df_train_flat, df_test_flat, df_holdout_flat = get_last_observation_data(scenario)
+        df_flat = select_split(df_train_flat, df_test_flat, df_holdout_flat, split)
         risk_scores = self.fitted_model.predict_partial_hazard(df_flat).values.flatten()
         native_prob_fn = self._native_prob_fn(risk_scores)
         return risk_scores, df_flat['duration_in_days'].values, df_flat['has_esrd'].values, native_prob_fn

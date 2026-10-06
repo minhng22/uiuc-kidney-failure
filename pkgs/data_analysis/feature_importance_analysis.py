@@ -406,7 +406,7 @@ class FeatureImportanceAnalyzer:
         # not the raw time-varying test_data every other model here uses --
         # swap it in so the importance sample actually matches training.
         if model_name in _FLAT_MODELS and scenario_name in _SCENARIO_ENUM_BY_NAME:
-            _, test_data = get_last_observation_data(_SCENARIO_ENUM_BY_NAME[scenario_name])
+            _, test_data, _ = get_last_observation_data(_SCENARIO_ENUM_BY_NAME[scenario_name])
 
         if model_name == 'cox':
             try:

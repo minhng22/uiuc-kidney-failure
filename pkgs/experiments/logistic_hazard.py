@@ -16,7 +16,7 @@ from pkgs.commons import (egfr_tv_logistic_hazard_model_path, hg_logistic_hazard
                           four_features_logistic_hazard_model_path, eight_features_logistic_hazard_model_path,
                           twenty_features_heterogeneous_logistic_hazard_model_path,
                           ckd_fifty_features_heterogeneous_train_data_path)
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_prediction_auc
 from pkgs.experiments.utils import ex_optuna, compute_brier_score_from_risk_scores
@@ -46,7 +46,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     batch_size = trial.suggest_categorical('batch_size', [32, 64, 128, 256])
     dropout = trial.suggest_float('dropout', 0.0, 0.5)
     
-    df, df_test = get_train_test_data(scenario_name)
+    df, df_test, _ = get_train_test_external_data(scenario_name)
     
     train_dataset = LogisticHazardDataset(df, scenario_name)
     x_train, durations_train, events_train = train_dataset.prepare_data_for_pycox()
@@ -166,7 +166,7 @@ def brier_score_evaluation(model, labtrans, test_dataset: LogisticHazardDataset,
 
 def run(scenario_name: ExperimentScenario):
     device = get_device()
-    df, df_test = get_train_test_data(scenario_name)
+    df, df_test, _ = get_train_test_external_data(scenario_name)
     
     model_saved_path = model_saved_path_dict[scenario_name]
     

@@ -8,7 +8,7 @@ from pkgs.commons import (
     egfr_ti_weibul_model_path, four_features_weibul_model_path,
     eight_features_weibul_model_path, twenty_features_heterogeneous_weibul_model_path,
 )
-from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import load_pkl_and_dill_model, compute_brier_score_from_risk_scores, get_tv_rnn_model_features
@@ -30,7 +30,7 @@ weibul_model_path_dict = {
 
 
 def run_ti():
-    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    df, df_test, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
 
     df['duration_in_days'] = df['duration_in_days'].replace(0, 1e-5)
     df_test['duration_in_days'] = df_test['duration_in_days'].replace(0, 1e-5)
@@ -69,7 +69,7 @@ def run_ti():
 def run_scenario(scenario: ExperimentScenario):
     """Scenario-aware entry point for four_features/eight_features/
     twenty_features_heterogeneous."""
-    df, df_test = get_last_observation_data(scenario)
+    df, df_test, _ = get_last_observation_data(scenario)
     features = get_tv_rnn_model_features(scenario)
     cols = features + ['duration_in_days', 'has_esrd']
     df = df[cols].copy()

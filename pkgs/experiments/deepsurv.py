@@ -9,7 +9,7 @@ from pkgs.commons import (
     eight_features_deepsurv_model_path, twenty_features_heterogeneous_deepsurv_model_path,
 )
 from pkgs.experiments.utils import get_device
-from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.models.deepsurv import DeepSurv
@@ -98,7 +98,7 @@ def objective(trial):
     duration_col = 'duration_in_days'
     event_col = 'has_esrd'
 
-    df, _ = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    df, _, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
 
     train_dataset = DeepSurvDataset(df, deep_surv_features, duration_col, event_col)
     
@@ -166,7 +166,7 @@ def objective(trial):
 
 def run():
     device = get_device()
-    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    df, df_test, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
 
     if os.path.exists(egfr_ti_deepsurv_model_path):
         print("Loading from saved weights")
@@ -267,7 +267,7 @@ def run_scenario(scenario: ExperimentScenario):
     only) is untouched."""
     device = get_device()
     features = get_tv_rnn_model_features(scenario)
-    df, df_test = get_last_observation_data(scenario)
+    df, df_test, _ = get_last_observation_data(scenario)
     saved_path = deepsurv_model_path_dict[scenario]
 
     if os.path.exists(saved_path):

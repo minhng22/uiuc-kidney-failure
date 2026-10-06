@@ -7,100 +7,91 @@ step is plain `bash`/`python`/`git`.
 ## What this is
 
 A benchmark paper comparing 10 survival models + the closed-form Kidney
-Failure Risk Equation (KFRE) across three MIMIC-IV feature-set scenarios
-(`four_features`, `eight_features`, `twenty_features_heterogeneous`). Same
-dataset/cohort lineage as `paper/submitted 2025`; different experiments and
-models. Full experiment design lives at repo root:
-[EXPERIMENT_PLAN.md](../../EXPERIMENT_PLAN.md) (don't edit — locked),
-[EXPERIMENT_PLAN_DETAILS.md](../../EXPERIMENT_PLAN_DETAILS.md) (the actual
-execution plan, read this first), [EXPERIMENT_STATUS.md](../../EXPERIMENT_STATUS.md)
-(live status — check this fresh, don't trust anything below past its
-"last known" framing).
+Failure Risk Equation (KFRE) across three MIMIC-IV v2.2 feature-set scenarios
+(`four_features`, `eight_features`, `twenty_features_heterogeneous`). Each
+scenario is split per patient 64/16/20 into train / test / internal holdout
+(`<scenario>_external_validation_data.csv`) with a different seed per rep
+(reps 1-5). The paper reports **holdout** performance: mean (SD) across the five
+splits, patient-bootstrap 95% intervals, paired differences vs KFRE,
+calibration, patient-level decision curves, and subgroup (age/sex/race)
+performance. Reporting follows TRIPOD+AI (S1 Checklist).
 
 **Read [CLAUDE.md](../../CLAUDE.md) at repo root before touching any
 background process or experiment file.** This repo is worked on by multiple
-agent sessions concurrently, sometimes on different hosts
-(`sunlab-serv-01/02/03.cs.illinois.edu` seen so far). Rules that matter most
-for paper work specifically: don't mark another session's row dead from a
-local `ps` check; verify a model's actual code before describing its
-architecture (comments lie); when you fix a bug, verify on rep99 before
-touching rep1-5.
+agent sessions concurrently, sometimes on different hosts.
+
+## STAND-IN NUMBERS -- replace before submission
+
+The 2026-10-05 update was written under two explicit assumptions from the
+user. Both are flagged in a comment block at the top of every `.tex` and in
+`results/performance_provenance.json`:
+
+1. **Holdout = test stand-in.** No `--external-validation` analysis has been
+   run yet. Every "holdout" number and figure is currently copied from the
+   test-set reports/PNGs. To replace:
+   `python -m pkgs.scripts.run_experiments analyze --reps all --external-validation`
+   (writes `generated_data/rep_<N>/external_validation_*`), then set
+   `EVAL_REPORT_PREFIX = "external_validation_"` in `scripts/aggregate_results.py`
+   and re-copy the figures from `generated_data/rep_1/external_validation_*.png`.
+2. **Synthetic twenty-feature reps 2-5.** Only rep 1 has twenty-feature
+   models. Reps 2-5 are rep 1 values x U[0.95, 1.05] (seeded per scenario/rep;
+   rows marked `provenance=synthetic_from_rep1`). Remove `SYNTHETIC_REPS` in
+   `scripts/aggregate_results.py` once the real reports exist.
+
+Also open before submission: the authors' own IRB determination (marked
+`AUTHOR TO CONFIRM` in each version's ethics text), and confirm that
+`hu2022locf_bias` (now carrying the correct metadata for arXiv 2204.05870,
+Gregorio et al.) is the intended LOCF citation.
+
+## Regenerating numbers and derived files
+
+```bash
+cd /home/minhn2/uiuc-kidney-failure
+python "paper/to submit 2026/scripts/aggregate_results.py"   # reports + CSVs -> results/*.csv|json
+python "paper/to submit 2026/scripts/latex_tables.py"        # prints LaTeX table rows to paste into PLOS
+python "paper/to submit 2026/scripts/plos_to_sections.py"    # PLOS -> sections/*.tex (SN) + sections/ml4h_appendix.tex
+```
+
+`aggregate_results.py` reads only saved reports and the rep_1 split CSVs (no
+model loading); it needs the project conda env (pandas + `pkgs` import for the
+cohort table).
 
 ## Which version is the live one
 
-**`paper content/plos_digital_health.tex` is the latest paper — treat it as
-the lead version.** `sn-article.tex` and `ml4h2026.tex` are the other two
-venue cuts, kept compiling but no longer the place new work lands first.
-
-The practical consequence: PLOS is a **single self-contained file** that
-duplicates section prose rather than `\input`-ing `sections/*.tex`, while the
-other two versions are assembled from those shared section files. So there is
-no single source of truth across all three, and edits do not propagate in
-either direction on their own. Whichever file you edit, hand-mirror the change
-into the others and recompile all three before calling the work done.
-
-This has already bitten once: the 2026-09-18 results update landed in
-`sections/*.tex` (and so in ML4H and SN) and in PLOS's *abstract*, but PLOS's
-body kept the superseded rep1/pilot text until it was hand-synced.
+**`paper content/plos_digital_health.tex` is the lead version.** Edit it
+first. Then:
+- `sections/introduction.tex`, `methods.tex`, `results.tex`, `discussion.tex`
+  (Springer, via `sn-article.tex`) and `sections/ml4h_appendix.tex` are
+  **generated** from it by `scripts/plos_to_sections.py`. Don't hand-edit
+  them; rerun the script.
+- `sections/ml4h_introduction.tex`, `ml4h_methods.tex`, `ml4h_results.tex`,
+  `ml4h_discussion.tex` are a condensed, **anonymized** hand-written cut (ML4H
+  is double-blind, 8-page cap excl. refs/appendix). Mirror PLOS changes into
+  them by hand and grep for identifying strings.
+- Table rows come from `scripts/latex_tables.py`; paste them into PLOS and the
+  ML4H tables rather than retyping numbers.
 
 ## Files in this directory
 
-- `paper content/plos_digital_health.tex` — **the lead version** (see above);
-  details under its bullet below.
-- `paper content/ml4h2026.tex` — **ML4H 2026 Proceedings-track** version.
-  Uses the `jmlr` class (`\documentclass[pmlr,twocolumn,10pt]{jmlr}`),
-  double-blind anonymized (`\author{Anonymous Author(s)}`, no institution/
-  repo links anywhere — grep for identifying strings before editing this
-  one). 5 pages of main content + refs + a 3-page appendix (well under
-  ML4H's 8-page cap excl. refs/appendix). Sections:
-  `sections/ml4h_introduction.tex`, `ml4h_methods.tex`, `ml4h_results.tex`,
-  `ml4h_discussion.tex`, `ml4h_appendix.tex`.
-- `paper content/sn-article.tex` — fuller **Springer Nature (`sn-jnl`
-  class)** version, single-column, real author names, much more detail
-  (full per-model architecture equations in the body, not pushed to an
-  appendix). Sections: `sections/introduction.tex`, `methods.tex`,
-  `results.tex`, `discussion.tex`. Shares those section files with
-  `ml4h2026.tex`; it was the original base PLOS was adapted from, but PLOS
-  has since become the lead version.
-- `paper content/plos_digital_health.tex` — **PLOS Digital Health** version,
-  **the latest/lead paper**, built from the official PLOS LaTeX template
-  (`documentclass[10pt,letterpaper]{article}`
-  with PLOS's own geometry/packages, not `sn-jnl`). Single self-contained file
-  (PLOS requires one `.tex`, no `\input`), originally adapted from
-  `sn-article.tex`'s
-  section content: unnumbered sections in PLOS's order (Abstract, Author
-  summary, Introduction, Materials and methods, Results, Discussion,
-  Supporting information, Acknowledgments, References), internal
-  `Section~\ref` cross-references converted to `\nameref` (sections are
-  unnumbered per PLOS style), `\citep`→`\cite` (Vancouver numeric via `cite`
-  package), figure/table captions kept inline but all `\includegraphics`
-  stripped — PLOS requires figures uploaded as separate files, not embedded
-  in the manuscript PDF. Real author names (non-anonymized, like
-  `sn-article.tex`). Uses `paper content/plos2025.bst` (official PLOS
-  BibTeX style) against the shared `sn-bibliography.bib`. Verified to
-  compile cleanly with tectonic (no undefined refs/citations); pre-existing
-  `sn-bibliography.bib` gaps surfaced by BibTeX (missing `journal` field on
-  `ishwaran2008random`, missing `author`/`publisher` on `hu2022locf_bias`,
-  conflicting `volume`/`number` on `lee2018deephit`) are latent issues in
-  the shared `.bib`, not introduced by this file — worth fixing before
-  actual submission but left untouched here since the file is shared with
-  the other two venue versions.
-
-  Because this file duplicates section prose rather than `\input`-ing it,
-  changes here do not reach `ml4h2026.tex`/`sn-article.tex` and vice versa —
-  see "Which version is the live one" above before editing either side.
-- `paper content/sn-bibliography.bib` — shared by all three versions.
-- `paper content/figs/` — PNGs pulled from `generated_data/rep1/*.png`
-  (comparison charts, feature-importance grids, calibration/decision-curve
-  plots). Re-copy from `generated_data/rep<N>/` if regenerating for a
-  different rep. Note that the current text references only
-  `four_features_all_models_feature_importance.png` and
-  `four_features_calibration_plot.png` (plus the eight-feature importance
-  grid as PLOS's S1 Fig); the decision-curve plots and the c-index
-  comparison chart are deliberately **not** referenced any more (net-benefit
-  claims were withdrawn), and the two
-  `twenty_features_heterogeneous_*` PNGs added on 2026-09-18 are not yet
-  cited by any version.
+- `paper content/plos_digital_health.tex` — **PLOS Digital Health**, lead
+  version. Single self-contained file (PLOS rule), figures not embedded (each
+  figure environment carries a `% FIGFILE: figs/...` marker naming the PNG to
+  upload). Portal-field text (funding, data availability, etc.) is in a
+  comment block after `\end{document}`.
+- `paper content/S1_Checklist_TRIPOD_AI.tex` — TRIPOD+AI checklist (S1
+  Checklist), item -> manuscript location. Update if PLOS section titles move.
+- `paper content/sn-article.tex` — Springer Nature (`sn-jnl`) version; title,
+  abstract, and declarations live here, body via `sections/*.tex`.
+- `paper content/ml4h2026.tex` — ML4H 2026 Proceedings version (`jmlr` class,
+  anonymized).
+- `paper content/sn-bibliography.bib` — shared by all versions.
+- `paper content/figs/` — rep_1 PNGs (currently test-set stand-ins, see above).
+- `results/` — `performance_per_run.csv` / `performance_summary.csv`
+  (discrimination, IBS, fixed-horizon Brier, bootstrap CI), `paired_vs_kfre.csv`,
+  `dca_summary.csv`, `subgroup_per_run.csv` / `subgroup_summary.csv` (S1/S2
+  Tables), `calibration_rep1.json`, `cohort_summary.json`,
+  `performance_provenance.json` (sources + stand-in flags).
+- `scripts/` — the three scripts above.
 - `drafts/` — compiled PDFs, named `<PaperTag>_<mmddhhmm><TZ>.pdf`. Keep
   producing new timestamped files here rather than overwriting; don't
   delete old ones without asking.
@@ -112,7 +103,7 @@ mkdir -p /tmp/texbin && cd /tmp/texbin
 curl -sL -o t.tar.gz "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.15.0/tectonic-0.15.0-x86_64-unknown-linux-musl.tar.gz"
 tar xzf t.tar.gz && chmod +x tectonic
 cd "/home/minhn2/uiuc-kidney-failure/paper/to submit 2026/paper content"
-/tmp/texbin/tectonic -X compile ml4h2026.tex   # or sn-article.tex, or plos_digital_health.tex
+/tmp/texbin/tectonic -X compile ml4h2026.tex   # or sn-article.tex, plos_digital_health.tex, S1_Checklist_TRIPOD_AI.tex
 # then copy the resulting .pdf into ../drafts/ with a fresh timestamp,
 # and delete the .aux/.log/.bbl/.blg/.out/.pdf build litter from this dir
 ```

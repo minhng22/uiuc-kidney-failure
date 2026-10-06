@@ -133,7 +133,7 @@ class SharedAUCTests(unittest.TestCase):
                      [0, 1, 1, 0, 1, 0, 0, 1])
         with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()) as log:
             artifact = Path(tmp) / 'cox.dill'
-            with patch.object(cox, 'get_train_test_data', return_value=(train, test)), \
+            with patch.object(cox, 'get_train_test_external_data', return_value=(train, test, None)), \
                     patch.object(cox, 'get_model_path', return_value=str(artifact)), \
                     patch.object(cox, 'report_auc', wraps=auc.report_auc) as report:
                 cox.run_cox_model(ExperimentScenario.FOUR_FEATURES)

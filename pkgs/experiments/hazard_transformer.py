@@ -1,7 +1,7 @@
 import math
 import pandas as pd
 from pkgs.commons import egfr_tv_hazard_transformer_model_path,  hg_hazard_transformer_model_path, egfr_components_hazard_transformer_model_path, fivelabms_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_hazard_transformer_model_path, four_features_hazard_transformer_model_path, eight_features_hazard_transformer_model_path, twenty_features_heterogeneous_hazard_transformer_model_path, ckd_fifty_features_heterogeneous_train_data_path
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data
 from pkgs.models.hazard_transformer import HazardTransformer, HazardTransformerDataset, custom_collate_fn
 import torch
 from torch.utils.data import DataLoader
@@ -81,7 +81,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
 
     print(f"Running trial {trial.number} for {scenario_name} on device {device}")
-    df, _ = get_train_test_data(scenario_name)
+    df, _, _ = get_train_test_external_data(scenario_name)
 
     dataset = HazardTransformerDataset(df, scenario_name)
     train_loader = DataLoader(dataset, shuffle=True, collate_fn=custom_collate_fn, batch_size=256)
@@ -207,7 +207,7 @@ def brier_score_evaluation(model: HazardTransformer, train_df, dataloader: DataL
 
 def run(scenario_name: ExperimentScenario):
     device = get_device()
-    df, df_test = get_train_test_data(scenario_name)
+    df, df_test, _ = get_train_test_external_data(scenario_name)
 
     model_saved_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_hazard_transformer_model_path,

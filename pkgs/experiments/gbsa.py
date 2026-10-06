@@ -10,7 +10,7 @@ from pkgs.commons import (
     egfr_ti_gbsa_model_path, four_features_gbsa_model_path,
     eight_features_gbsa_model_path, twenty_features_heterogeneous_gbsa_model_path,
 )
-from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import get_y_for_sckit_survival_model, round_metric, get_x_for_sckit_survival_model, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
@@ -60,7 +60,7 @@ def evaluate_model(gbsa, df, df_test):
 
 # non-time-variant model
 def run_gbsa():
-    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    df, df_test, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
 
     trained_model = load_pkl_and_dill_model(egfr_ti_gbsa_model_path)
     
@@ -69,7 +69,7 @@ def run_gbsa():
         gbsa = trained_model
     else:
         print('No existing model found. Starting hyperparameter tuning...')
-        df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+        df, df_test, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
     
         X = get_x_for_sckit_survival_model(df)
         y = get_y_for_sckit_survival_model(df)
@@ -130,7 +130,7 @@ def run_scenario(scenario: ExperimentScenario):
     twenty_features_heterogeneous. See gbsa_model_path_dict's comment above
     for why get_last_observation_data() is used instead of the raw
     time-varying data."""
-    df, df_test = get_last_observation_data(scenario)
+    df, df_test, _ = get_last_observation_data(scenario)
     model_path = gbsa_model_path_dict[scenario]
 
     trained_model = load_pkl_and_dill_model(model_path)

@@ -10,7 +10,7 @@ from pkgs.commons import (
     egfr_ti_survival_svm_model_path, four_features_survival_svm_model_path,
     eight_features_survival_svm_model_path, twenty_features_heterogeneous_survival_svm_model_path,
 )
-from pkgs.data_analysis.model_data_store import get_train_test_data, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import round_metric, load_pkl_and_dill_model, get_tv_rnn_model_features
@@ -84,7 +84,7 @@ def compute_brier_score(model, data_train, data_test, duration_col, event_col, t
 
 def run_ti_survival_svm_model():
     """Run Survival SVM model for non-time-variant scenario"""
-    data_train, data_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    data_train, data_test, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
     
     print(f"Train data path {data_train.attrs.get('path', 'N/A')}")
     print(f"Test data path {data_test.attrs.get('path', 'N/A')}")
@@ -156,7 +156,7 @@ def run_ti_survival_svm_model():
 def run_scenario(scenario: ExperimentScenario):
     """Scenario-aware entry point for four_features/eight_features/
     twenty_features_heterogeneous."""
-    data_train, data_test = get_last_observation_data(scenario)
+    data_train, data_test, _ = get_last_observation_data(scenario)
     features = get_tv_rnn_model_features(scenario)
     cols = features + ['duration_in_days', 'has_esrd']
     data_train = data_train[cols].copy()

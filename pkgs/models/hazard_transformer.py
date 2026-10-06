@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, select_split
 from pkgs.experiments.utils import get_tv_rnn_model_features
 
 class PositionalEncoding(nn.Module):
@@ -297,8 +297,8 @@ class HazardTransformer(nn.Module):
             raise ValueError(
                 "This Hazard Transformer checkpoint uses the obsolete sigmoid head; retrain it before analysis."
             )
-        df_train, df_test = get_train_test_data(scenario)
-        df = df_train if split == 'train' else df_test
+        df_train, df_test, df_holdout = get_train_test_external_data(scenario)
+        df = select_split(df_train, df_test, df_holdout, split)
         dataloader = DataLoader(HazardTransformerDataset(df, scenario), shuffle=False,
                                  collate_fn=custom_collate_fn, batch_size=256)
 

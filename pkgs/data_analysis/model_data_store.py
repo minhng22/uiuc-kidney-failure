@@ -275,8 +275,16 @@ def get_external_validation_data(scenario: ExperimentScenario):
 
 
 def get_train_test_external_data(scenario: ExperimentScenario):
-    """get_train_test_data() plus the held-out external validation set, as a 3-tuple."""
+    """get_train_test_data() plus the held-out external validation set, as a 3-tuple.
+
+    The third element is None when this rep/scenario has no holdout file (legacy
+    two-way reps such as rep99, and the pre-Stage-3 scenarios), so every model can
+    load through this one function. Training never uses the third element; it is
+    loaded here so train/test/holdout disjointness is checked on every load."""
     data_train, data_test = get_train_test_data(scenario)
+    if not has_external_validation_data(scenario):
+        print(f"No internal holdout set for {scenario} in this rep; holdout is None.")
+        return data_train, data_test, None
     data_external = get_external_validation_data(scenario)
 
     train_subjects = set(data_train['subject_id'].unique())
@@ -310,8 +318,12 @@ def get_last_observation_data(scenario: ExperimentScenario):
     FOUR_FEATURES/EIGHT_FEATURES/TWENTY_FEATURES_HETEROGENEOUS specifically
     (Stage 3's new scenarios), which is the only case this has been exercised
     against so far, but works for any get_train_test_data() scenario shaped
-    the same way."""
-    data_train, data_test = get_train_test_data(scenario)
+    the same way.
+
+    Returns (train_flat, test_flat, holdout_flat), mirroring
+    get_train_test_external_data(); holdout_flat is None when the rep has no
+    internal holdout set."""
+    data_train, data_test, data_holdout = get_train_test_external_data(scenario)
 
     def flatten(df):
         assert df.groupby('subject_id')['duration_in_days'].apply(lambda s: s.is_monotonic_increasing).all(), \
@@ -322,14 +334,38 @@ def get_last_observation_data(scenario: ExperimentScenario):
 
     train_flat = flatten(data_train)
     test_flat = flatten(data_test)
+    holdout_flat = flatten(data_holdout) if data_holdout is not None else None
 
     print(
         f'get_last_observation_data({scenario}): '
         f'train {len(data_train)} rows/{data_train["subject_id"].nunique()} subjects -> {len(train_flat)} rows; '
         f'test {len(data_test)} rows/{data_test["subject_id"].nunique()} subjects -> {len(test_flat)} rows'
+        + (f'; holdout {len(data_holdout)} rows/{data_holdout["subject_id"].nunique()} subjects -> '
+           f'{len(holdout_flat)} rows' if data_holdout is not None else '')
     )
 
-    return train_flat, test_flat
+    return train_flat, test_flat, holdout_flat
+
+
+EVALUATION_SPLITS = ('train', 'test', 'external_validation')
+
+
+def select_split(data_train, data_test, data_external, split):
+    """Pick one frame for a model's predictions(split=...): 'train' (Breslow
+    baseline fitting), 'test' (the reported test-set evaluation) or
+    'external_validation' (the internal holdout, never used for training or
+    model selection)."""
+    if split == 'train':
+        return data_train
+    if split == 'test':
+        return data_test
+    if split == 'external_validation':
+        if data_external is None:
+            raise FileNotFoundError(
+                "No internal holdout set in this rep; rebuild it with "
+                "`python -m pkgs.scripts.build_external_validation_reps`.")
+        return data_external
+    raise ValueError(f"Unknown split {split!r}; expected one of {EVALUATION_SPLITS}")
 
 def analyze_train_test_data():
     for scenario in [ExperimentScenario.NON_TIME_VARIANT, ExperimentScenario.TIME_VARIANT, ExperimentScenario.HETEROGENEOUS, ExperimentScenario.EGFR_COMPONENTS, ExperimentScenario.FIVELABMS]:

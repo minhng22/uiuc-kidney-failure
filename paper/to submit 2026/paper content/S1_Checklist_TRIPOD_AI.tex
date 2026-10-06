@@ -1,0 +1,71 @@
+% S1 Checklist for the PLOS Digital Health submission: TRIPOD+AI (Collins et al., BMJ 2024;385:e078378).
+% Section names refer to plos_digital_health.tex. Update if section titles change.
+\documentclass[9pt]{extarticle}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{longtable,booktabs,array}
+\usepackage[T1]{fontenc}
+\renewcommand{\arraystretch}{1.15}
+\begin{document}
+\noindent\textbf{S1 Checklist. TRIPOD+AI checklist} for ``Feature-set scaling for kidney failure prediction: development and internal validation of ten survival models against the Kidney Failure Risk Equation in MIMIC-IV.'' Items follow Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. BMJ 2024;385:e078378. ``Portal'' refers to the PLOS submission-form fields (funding, competing interests, data and code availability).
+
+\medskip
+\begin{longtable}{@{}p{0.07\textwidth}p{0.20\textwidth}p{0.66\textwidth}@{}}
+\toprule
+\textbf{Item} & \textbf{Topic} & \textbf{Where reported / response} \\
+\midrule
+\endhead
+1 & Title & Title: development and internal validation, kidney failure, MIMIC-IV. \\
+2 & Abstract & Abstract. \\
+3a & Background & Introduction, paragraphs 1--2. \\
+3b & Background & Introduction, paragraph 3: ranking hospitalized patients with CKD by risk of a recorded kidney-failure diagnosis, as an input to nephrology referral; research prototypes, not proposed for deployment. \\
+3c & Background & Introduction, paragraph 2 (race coefficient in eGFR equations; race-free CKD-EPI 2021 used); Methods, Subgroup performance. \\
+4 & Objectives & Introduction, paragraph 3 and contributions (development and internal validation; comparison with KFRE). \\
+5a & Data & Methods: Data source; Cohort. Development and evaluation data come from the same source (MIMIC-IV v2.2). \\
+5b & Data & Methods: Data source (admissions 2008--2019; dates shifted per patient); Table 1 (follow-up). \\
+6a & Participants & Methods: Data source (single centre, Beth Israel Deaconess Medical Center, Boston, USA; hospital and ICU records). \\
+6b & Participants & Methods: Cohort; Outcome definition; Four and eight features; Twenty features. \\
+6c & Participants & Methods: Cohort (no treatment information used as a predictor or for exclusion). \\
+7 & Data preparation & Methods: Four and eight features (matching rules, complete-case rows); Twenty features (value/missingness pairs); Resulting cohorts and data partitioning. Data quality was not assessed separately by sociodemographic group. \\
+8a & Outcome & Methods: Outcome definition (ICD codes, event time, difference from KFRE's endpoint; horizons of 2 and 5 years). \\
+8b & Outcome & Not applicable: outcome ascertained from diagnosis codes, without assessor interpretation. \\
+8c & Outcome & Methods: Outcome definition (no assessor blinding applies). \\
+9a & Predictors & Introduction (scenario list); Methods: Four and eight features (KFRE inputs); Twenty features (20 most frequently measured labs). \\
+9b & Predictors & Methods: Four and eight features (measurement timing relative to the anchor creatinine; uACR at or before the anchor; chemistry panel within $\pm$24 h); Twenty features. \\
+9c & Predictors & Not applicable: laboratory values and recorded demographics. \\
+10 & Sample size & Methods: Cohort size (no formal calculation; size fixed by data availability). \\
+11 & Missing data & Methods: Four and eight features (complete case); Twenty features (missingness indicators). \\
+12a & Analytical methods & Methods: Resulting cohorts and data partitioning (64/16/20 patient-level split, five seeds); Evaluation, Repetitions and aggregation. \\
+12b & Analytical methods & Methods: Twenty features (predictors on recorded scales); KFRE baseline (published transformations). \\
+12c & Analytical methods & Methods: Benchmarked models; Model training and optimization (hyperparameter search, selection criteria, validation data). \\
+12d & Analytical methods & Not applicable: single centre; no clustering by site. \\
+12e & Analytical methods & Methods: Evaluation (C-index, time-dependent AUC, integrated and fixed-horizon Brier scores, bootstrap intervals, calibration, decision curves, subgroup performance, feature importance). \\
+12f & Analytical methods & Not applicable: no model updating or recalibration (Model training and optimization). \\
+12g & Analytical methods & Methods: Evaluation, Prediction unit and Overall accuracy (native survival probabilities versus training-fitted conversion). \\
+13 & Class imbalance & Methods: Model training and optimization (no class-imbalance correction). \\
+14 & Fairness & Methods: Subgroup performance (performance within age, sex, and race groups; no fairness criterion defined or optimized); Discussion. \\
+15 & Model output & Methods: Evaluation (risk scores and survival probabilities; decision thresholds 0.05--0.50 examined in decision curves; no single classification threshold proposed). \\
+16 & Training vs evaluation & Methods: Resulting cohorts and data partitioning (holdout is a random, outcome-stratified split of the same cohort); Table 1. \\
+17 & Ethical approval & Methods: Ethics statement. \\
+18a & Funding & Portal: not applicable. \\
+18b & Conflicts of interest & Portal: none declared. \\
+18c & Protocol & No study protocol was prepared. \\
+18d & Registration & The study was not registered. \\
+18e & Data sharing & Methods: Data source; Portal (MIMIC-IV v2.2 via PhysioNet credentialed access, doi:10.13026/6mm1-ek67). \\
+18f & Code sharing & Portal: code available in the project repository. \\
+19 & Patient and public involvement & None. \\
+20a & Participants & Results: Participants; Table 1. \\
+20b & Participants & Table 1 (age, sex, eGFR, uACR, follow-up, events); complete-case cohorts have no missing predictor values. \\
+20c & Participants & Table 1 and Methods: Resulting cohorts and data partitioning (holdout drawn from the same pool, stratified on the event label). \\
+21 & Model development & Table 1 (train, test, and holdout patients; holdout events). \\
+22 & Model specification & Methods: KFRE baseline (full equations); Benchmarked models (architectures and hyperparameter ranges); code in the project repository. \\
+23a & Model performance & Results: Tables 2--5 (means across splits, bootstrap 95\% intervals, paired differences, subgroup performance); S1 and S2 Tables. \\
+23b & Model performance & Not applicable: single centre. \\
+24 & Model updating & Not applicable: no model updating. \\
+25 & Interpretation & Discussion. \\
+26 & Limitations & Discussion: Limitations. \\
+27a & Usability & Methods: Four and eight features (rows with missing inputs are excluded); Twenty features (missing values represented by indicators); Limitations. \\
+27b & Usability & Not applicable: research prototypes; no user interaction is specified (Introduction). \\
+27c & Usability & Discussion: Future work (external validation, prospective landmark, recalibration). \\
+\bottomrule
+\end{longtable}
+\end{document}

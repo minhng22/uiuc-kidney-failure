@@ -1,0 +1,4658 @@
+{
+ "four_features_rep1": {
+  "730": {
+   "models": {
+    "Cox": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.50792,
+     "0.3": 0.47277,
+     "0.4": 0.3849,
+     "0.5": 0.26188
+    },
+    "Dynamic DeepHit": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.48765,
+     "0.3": 0.42319,
+     "0.4": 0.39942,
+     "0.5": 0.3452
+    },
+    "Hazard Transformer": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.50792,
+     "0.3": 0.47277,
+     "0.4": 0.3849,
+     "0.5": 0.26188
+    },
+    "Logistic Hazard": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.50792,
+     "0.3": 0.47277,
+     "0.4": 0.3849,
+     "0.5": 0.26188
+    },
+    "RNN-Surv": {
+     "0.05": 0.58991,
+     "0.1": 0.52379,
+     "0.15": 0.35824,
+     "0.2": 0.1696,
+     "0.25": 0.01481,
+     "0.3": null,
+     "0.4": 0.0,
+     "0.5": 0.0
+    },
+    "DeepSurv": {
+     "0.05": 0.6122,
+     "0.1": 0.59086,
+     "0.15": 0.56701,
+     "0.2": 0.54018,
+     "0.25": 0.50977,
+     "0.3": 0.47502,
+     "0.4": 0.38814,
+     "0.5": 0.26662
+    },
+    "GBSA": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.50792,
+     "0.3": 0.47277,
+     "0.4": 0.3849,
+     "0.5": 0.24635
+    },
+    "Survival RF": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.50792,
+     "0.3": 0.47277,
+     "0.4": 0.3849,
+     "0.5": 0.26
+    },
+    "Survival SVM": {
+     "0.05": 0.6106,
+     "0.1": 0.59009,
+     "0.15": 0.56541,
+     "0.2": 0.53442,
+     "0.25": 0.49959,
+     "0.3": 0.46723,
+     "0.4": 0.36488,
+     "0.5": 0.22811
+    },
+    "Weibull AFT": {
+     "0.05": 0.61152,
+     "0.1": 0.58993,
+     "0.15": 0.56581,
+     "0.2": 0.53868,
+     "0.25": 0.50792,
+     "0.3": 0.47277,
+     "0.4": 0.3849,
+     "0.5": 0.26188
+    },
+    "KFRE": {
+     "0.05": 0.15777,
+     "0.1": 0.10954,
+     "0.15": 0.08462,
+     "0.2": 0.0489,
+     "0.25": 0.03308,
+     "0.3": 0.02179,
+     "0.4": 0.02071,
+     "0.5": 0.01111
+    }
+   },
+   "calibration": {
+    "Cox": [
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.7062,
+      "observed": 0.581
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7175,
+      "observed": 0.6244
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.7228,
+      "observed": 0.4636
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.7266,
+      "observed": 0.7178
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.73,
+      "observed": 0.6032
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.7331,
+      "observed": 0.5583
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7363,
+      "observed": 0.6104
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7404,
+      "observed": 0.7721
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.745,
+      "observed": 0.6527
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.755,
+      "observed": 0.7353
+     }
+    ],
+    "Dynamic DeepHit": [
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.2176,
+      "observed": 0.3212
+     },
+     {
+      "n": 27,
+      "events": 15,
+      "predicted": 0.2327,
+      "observed": 0.3182
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.2514,
+      "observed": 0.469
+     },
+     {
+      "n": 27,
+      "events": 14,
+      "predicted": 0.273,
+      "observed": 0.5189
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.3166,
+      "observed": 0.3701
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.4583,
+      "observed": 0.6975
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8528,
+      "observed": 0.9352
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8933,
+      "observed": 0.7968
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.928,
+      "observed": 0.8889
+     },
+     {
+      "n": 27,
+      "events": 25,
+      "predicted": 0.9283,
+      "observed": 0.9259
+     }
+    ],
+    "Hazard Transformer": [
+     {
+      "n": 40,
+      "events": 31,
+      "predicted": 1.0,
+      "observed": 0.7132
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 1.0,
+      "observed": 0.6402
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 1.0,
+      "observed": 0.6547
+     },
+     {
+      "n": 28,
+      "events": 18,
+      "predicted": 1.0,
+      "observed": 0.5359
+     },
+     {
+      "n": 43,
+      "events": 29,
+      "predicted": 1.0,
+      "observed": 0.6548
+     },
+     {
+      "n": 57,
+      "events": 45,
+      "predicted": 1.0,
+      "observed": 0.5572
+     },
+     {
+      "n": 30,
+      "events": 23,
+      "predicted": 1.0,
+      "observed": 0.6737
+     },
+     {
+      "n": 18,
+      "events": 15,
+      "predicted": 1.0,
+      "observed": 0.7222
+     }
+    ],
+    "Logistic Hazard": [
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.7337,
+      "observed": 0.5544
+     },
+     {
+      "n": 27,
+      "events": 16,
+      "predicted": 0.8002,
+      "observed": 0.4024
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8196,
+      "observed": 0.5891
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8351,
+      "observed": 0.656
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.8493,
+      "observed": 0.6061
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8683,
+      "observed": 0.569
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8869,
+      "observed": 0.6751
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.9103,
+      "observed": 0.7593
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.9265,
+      "observed": 0.6732
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.9518,
+      "observed": 0.8464
+     }
+    ],
+    "RNN-Surv": [
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0542,
+      "observed": 0.6743
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.1067,
+      "observed": 0.4575
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.1117,
+      "observed": 0.7079
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.1277,
+      "observed": 0.398
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.1516,
+      "observed": 0.6368
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.1729,
+      "observed": 0.548
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.1823,
+      "observed": 0.7085
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.1969,
+      "observed": 0.6007
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.2121,
+      "observed": 0.7851
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.2444,
+      "observed": 0.7667
+     }
+    ],
+    "DeepSurv": [
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.5243,
+      "observed": 0.649
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.5641,
+      "observed": 0.4942
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.5833,
+      "observed": 0.5852
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.6041,
+      "observed": 0.7901
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.6103,
+      "observed": 0.5111
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.6126,
+      "observed": 0.6543
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.6142,
+      "observed": 0.6146
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.6154,
+      "observed": 0.4602
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.6169,
+      "observed": 0.7059
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.6197,
+      "observed": 0.8541
+     }
+    ],
+    "GBSA": [
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.513,
+      "observed": 0.6071
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.5463,
+      "observed": 0.4791
+     },
+     {
+      "n": 29,
+      "events": 22,
+      "predicted": 0.5742,
+      "observed": 0.5898
+     },
+     {
+      "n": 25,
+      "events": 14,
+      "predicted": 0.5894,
+      "observed": 0.48
+     },
+     {
+      "n": 32,
+      "events": 26,
+      "predicted": 0.6055,
+      "observed": 0.6073
+     },
+     {
+      "n": 23,
+      "events": 16,
+      "predicted": 0.6124,
+      "observed": 0.5987
+     },
+     {
+      "n": 26,
+      "events": 21,
+      "predicted": 0.6202,
+      "observed": 0.7804
+     },
+     {
+      "n": 29,
+      "events": 24,
+      "predicted": 0.6284,
+      "observed": 0.6449
+     },
+     {
+      "n": 25,
+      "events": 21,
+      "predicted": 0.6352,
+      "observed": 0.7
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.692,
+      "observed": 0.7721
+     }
+    ],
+    "Survival RF": [
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.5129,
+      "observed": 0.4885
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.5522,
+      "observed": 0.5201
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.5682,
+      "observed": 0.5843
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.5778,
+      "observed": 0.6634
+     },
+     {
+      "n": 27,
+      "events": 15,
+      "predicted": 0.5895,
+      "observed": 0.4262
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.605,
+      "observed": 0.6598
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.6162,
+      "observed": 0.617
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.6285,
+      "observed": 0.7731
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.6437,
+      "observed": 0.7707
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.6972,
+      "observed": 0.7733
+     }
+    ],
+    "Survival SVM": [
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.3063,
+      "observed": 0.5486
+     },
+     {
+      "n": 27,
+      "events": 15,
+      "predicted": 0.4347,
+      "observed": 0.4112
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.4795,
+      "observed": 0.6951
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.515,
+      "observed": 0.5377
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.5614,
+      "observed": 0.6769
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.5989,
+      "observed": 0.5767
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.6335,
+      "observed": 0.7114
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.664,
+      "observed": 0.6543
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.704,
+      "observed": 0.8138
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.7774,
+      "observed": 0.6361
+     }
+    ],
+    "Weibull AFT": [
+     {
+      "n": 27,
+      "events": 16,
+      "predicted": 0.7103,
+      "observed": 0.3693
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7162,
+      "observed": 0.6106
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.7183,
+      "observed": 0.5977
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7205,
+      "observed": 0.5765
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7223,
+      "observed": 0.6365
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.724,
+      "observed": 0.7915
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.7256,
+      "observed": 0.6089
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.7276,
+      "observed": 0.6627
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.7307,
+      "observed": 0.808
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.736,
+      "observed": 0.6502
+     }
+    ],
+    "KFRE": [
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0,
+      "observed": 0.6315
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.0002,
+      "observed": 0.6082
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.0006,
+      "observed": 0.5203
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.0014,
+      "observed": 0.4898
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.0031,
+      "observed": 0.7939
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0063,
+      "observed": 0.5407
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.0158,
+      "observed": 0.6591
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0433,
+      "observed": 0.5893
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.1254,
+      "observed": 0.8586
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.5105,
+      "observed": 0.6234
+     }
+    ]
+   },
+   "treat_all": {
+    "0.05": 0.61152,
+    "0.1": 0.58993,
+    "0.15": 0.56581,
+    "0.2": 0.53868,
+    "0.25": 0.50792,
+    "0.3": 0.47277,
+    "0.4": 0.3849,
+    "0.5": 0.26188
+   },
+   "eGFR<30": {
+    "0.05": 0.16346,
+    "0.1": 0.15999,
+    "0.15": 0.15611,
+    "0.2": 0.15175,
+    "0.25": 0.1468,
+    "0.3": 0.14115,
+    "0.4": 0.12702,
+    "0.5": 0.10724
+   },
+   "eGFR<45": {
+    "0.05": 0.31591,
+    "0.1": 0.30733,
+    "0.15": 0.29774,
+    "0.2": 0.28695,
+    "0.25": 0.27473,
+    "0.3": 0.26075,
+    "0.4": 0.22582,
+    "0.5": 0.1769
+   }
+  },
+  "1825": {
+   "models": {
+    "Cox": {
+     "0.05": 0.8031,
+     "0.1": 0.79216,
+     "0.15": 0.77994,
+     "0.2": 0.76618,
+     "0.25": 0.7506,
+     "0.3": 0.73278,
+     "0.4": 0.68824,
+     "0.5": 0.62589
+    },
+    "Dynamic DeepHit": {
+     "0.05": 0.8031,
+     "0.1": 0.79216,
+     "0.15": 0.77994,
+     "0.2": 0.76618,
+     "0.25": 0.7506,
+     "0.3": 0.73278,
+     "0.4": 0.68824,
+     "0.5": 0.53874
+    },
+    "Hazard Transformer": {
+     "0.05": 0.8031,
+     "0.1": 0.79428,
+     "0.15": 0.75774,
+     "0.2": 0.7112,
+     "0.25": 0.69419,
+     "0.3": 0.65604,
+     "0.4": 0.60994,
+     "0.5": 0.5463
+    },
+    "Logistic Hazard": {
+     "0.05": 0.8031,
+     "0.1": 0.79216,
+     "0.15": 0.77994,
+     "0.2": 0.76618,
+     "0.25": 0.7506,
+     "0.3": 0.73278,
+     "0.4": 0.68824,
+     "0.5": 0.62589
+    },
+    "RNN-Surv": {
+     "0.05": 0.78262,
+     "0.1": 0.75288,
+     "0.15": 0.70301,
+     "0.2": 0.52516,
+     "0.25": 0.46384,
+     "0.3": 0.31462,
+     "0.4": 0.01481,
+     "0.5": 0.0
+    },
+    "DeepSurv": {
+     "0.05": 0.80491,
+     "0.1": 0.79428,
+     "0.15": 0.78239,
+     "0.2": 0.76902,
+     "0.25": 0.75387,
+     "0.3": 0.73656,
+     "0.4": 0.69327,
+     "0.5": 0.63266
+    },
+    "GBSA": {
+     "0.05": 0.8031,
+     "0.1": 0.79216,
+     "0.15": 0.77994,
+     "0.2": 0.76618,
+     "0.25": 0.7506,
+     "0.3": 0.73278,
+     "0.4": 0.68824,
+     "0.5": 0.62589
+    },
+    "Survival RF": {
+     "0.05": 0.8031,
+     "0.1": 0.79216,
+     "0.15": 0.77994,
+     "0.2": 0.76618,
+     "0.25": 0.7506,
+     "0.3": 0.73278,
+     "0.4": 0.68824,
+     "0.5": 0.62589
+    },
+    "Survival SVM": {
+     "0.05": 0.80081,
+     "0.1": 0.78995,
+     "0.15": 0.77684,
+     "0.2": 0.76335,
+     "0.25": 0.74592,
+     "0.3": 0.72856,
+     "0.4": 0.67518,
+     "0.5": 0.62934
+    },
+    "Weibull AFT": {
+     "0.05": 0.8031,
+     "0.1": 0.79216,
+     "0.15": 0.77994,
+     "0.2": 0.76618,
+     "0.25": 0.7506,
+     "0.3": 0.73278,
+     "0.4": 0.68824,
+     "0.5": 0.62589
+    },
+    "KFRE": {
+     "0.05": 0.29941,
+     "0.1": 0.2183,
+     "0.15": 0.18538,
+     "0.2": 0.17017,
+     "0.25": 0.15279,
+     "0.3": 0.12646,
+     "0.4": 0.08644,
+     "0.5": 0.05296
+    }
+   },
+   "calibration": {
+    "Cox": [
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8807,
+      "observed": 0.7127
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8886,
+      "observed": 0.7317
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.8921,
+      "observed": 0.6595
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.8947,
+      "observed": 0.8589
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.897,
+      "observed": 0.8661
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.8991,
+      "observed": 0.8037
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.9011,
+      "observed": 0.8539
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.9038,
+      "observed": 1.0
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.9067,
+      "observed": 0.8842
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.9129,
+      "observed": 0.8235
+     }
+    ],
+    "Dynamic DeepHit": [
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.4282,
+      "observed": 0.5152
+     },
+     {
+      "n": 27,
+      "events": 15,
+      "predicted": 0.4452,
+      "observed": 0.5833
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.4654,
+      "observed": 0.8203
+     },
+     {
+      "n": 27,
+      "events": 14,
+      "predicted": 0.4879,
+      "observed": 0.5991
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.53,
+      "observed": 0.79
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.6482,
+      "observed": 0.9481
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.9184,
+      "observed": 0.9352
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.9421,
+      "observed": 0.9323
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.9622,
+      "observed": 0.8889
+     },
+     {
+      "n": 27,
+      "events": 25,
+      "predicted": 0.9624,
+      "observed": 0.9259
+     }
+    ],
+    "Hazard Transformer": [
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.1704,
+      "observed": 0.7584
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.3763,
+      "observed": 0.674
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.6639,
+      "observed": 0.956
+     },
+     {
+      "n": 27,
+      "events": 16,
+      "predicted": 0.8471,
+      "observed": 0.6814
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.871,
+      "observed": 1.0
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.8726,
+      "observed": 0.6831
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8735,
+      "observed": 0.9248
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8746,
+      "observed": 0.7747
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8779,
+      "observed": 0.8519
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.9044,
+      "observed": 0.7603
+     }
+    ],
+    "Logistic Hazard": [
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.9621,
+      "observed": 0.6846
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.9887,
+      "observed": 0.7102
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.991,
+      "observed": 0.8815
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.993,
+      "observed": 0.7089
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.9948,
+      "observed": 0.8272
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.9966,
+      "observed": 0.9005
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.9975,
+      "observed": 0.8601
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.9984,
+      "observed": 0.679
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.9992,
+      "observed": 0.9475
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.9998,
+      "observed": 0.858
+     }
+    ],
+    "RNN-Surv": [
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0949,
+      "observed": 0.826
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.1727,
+      "observed": 0.678
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.1794,
+      "observed": 0.9034
+     },
+     {
+      "n": 27,
+      "events": 16,
+      "predicted": 0.2149,
+      "observed": 0.67
+     },
+     {
+      "n": 27,
+      "events": 17,
+      "predicted": 0.26,
+      "observed": 0.7196
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.2883,
+      "observed": 0.7782
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.3098,
+      "observed": 0.8513
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.3302,
+      "observed": 0.8824
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.3491,
+      "observed": 0.9134
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.3929,
+      "observed": 0.8354
+     }
+    ],
+    "DeepSurv": [
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.7255,
+      "observed": 0.8128
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.7728,
+      "observed": 0.8103
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.7903,
+      "observed": 0.8133
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8087,
+      "observed": 0.8426
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.814,
+      "observed": 0.6741
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8159,
+      "observed": 0.7119
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8173,
+      "observed": 0.8348
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8183,
+      "observed": 0.8037
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8196,
+      "observed": 0.8655
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.8219,
+      "observed": 0.8541
+     }
+    ],
+    "GBSA": [
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.7332,
+      "observed": 0.6071
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.7665,
+      "observed": 0.6875
+     },
+     {
+      "n": 29,
+      "events": 22,
+      "predicted": 0.7922,
+      "observed": 0.8975
+     },
+     {
+      "n": 25,
+      "events": 14,
+      "predicted": 0.8057,
+      "observed": 0.6831
+     },
+     {
+      "n": 32,
+      "events": 26,
+      "predicted": 0.8195,
+      "observed": 0.8504
+     },
+     {
+      "n": 23,
+      "events": 16,
+      "predicted": 0.8253,
+      "observed": 0.6656
+     },
+     {
+      "n": 26,
+      "events": 21,
+      "predicted": 0.8316,
+      "observed": 1.0
+     },
+     {
+      "n": 29,
+      "events": 24,
+      "predicted": 0.8383,
+      "observed": 0.931
+     },
+     {
+      "n": 25,
+      "events": 21,
+      "predicted": 0.8437,
+      "observed": 0.8
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8832,
+      "observed": 0.8291
+     }
+    ],
+    "Survival RF": [
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.7185,
+      "observed": 0.5897
+     },
+     {
+      "n": 27,
+      "events": 14,
+      "predicted": 0.7604,
+      "observed": 0.7693
+     },
+     {
+      "n": 27,
+      "events": 26,
+      "predicted": 0.7821,
+      "observed": 0.9537
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7898,
+      "observed": 0.7967
+     },
+     {
+      "n": 27,
+      "events": 15,
+      "predicted": 0.7997,
+      "observed": 0.7339
+     },
+     {
+      "n": 27,
+      "events": 18,
+      "predicted": 0.81,
+      "observed": 0.8123
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.8207,
+      "observed": 0.9049
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8276,
+      "observed": 0.8511
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.8358,
+      "observed": 0.8481
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8707,
+      "observed": 0.836
+     }
+    ],
+    "Survival SVM": [
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.4717,
+      "observed": 0.7134
+     },
+     {
+      "n": 27,
+      "events": 15,
+      "predicted": 0.6384,
+      "observed": 0.6184
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.688,
+      "observed": 0.8374
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.725,
+      "observed": 0.9201
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7702,
+      "observed": 0.8708
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.804,
+      "observed": 0.7178
+     },
+     {
+      "n": 27,
+      "events": 23,
+      "predicted": 0.8332,
+      "observed": 0.934
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.8571,
+      "observed": 0.7926
+     },
+     {
+      "n": 27,
+      "events": 24,
+      "predicted": 0.886,
+      "observed": 0.9302
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.93,
+      "observed": 0.7817
+     }
+    ],
+    "Weibull AFT": [
+     {
+      "n": 27,
+      "events": 16,
+      "predicted": 0.7758,
+      "observed": 0.5632
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7813,
+      "observed": 0.7663
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.7833,
+      "observed": 0.7989
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7853,
+      "observed": 0.7958
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.787,
+      "observed": 0.7577
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.7885,
+      "observed": 1.0
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.79,
+      "observed": 0.8859
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.7918,
+      "observed": 0.8554
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.7947,
+      "observed": 1.0
+     },
+     {
+      "n": 27,
+      "events": 21,
+      "predicted": 0.7996,
+      "observed": 0.7901
+     }
+    ],
+    "KFRE": [
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0001,
+      "observed": 0.7697
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.0006,
+      "observed": 0.7201
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.0018,
+      "observed": 0.6402
+     },
+     {
+      "n": 27,
+      "events": 19,
+      "predicted": 0.0044,
+      "observed": 0.7668
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.0095,
+      "observed": 0.9485
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.0196,
+      "observed": 0.7667
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.0486,
+      "observed": 1.0
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.1283,
+      "observed": 0.7947
+     },
+     {
+      "n": 27,
+      "events": 22,
+      "predicted": 0.338,
+      "observed": 0.9293
+     },
+     {
+      "n": 27,
+      "events": 20,
+      "predicted": 0.7877,
+      "observed": 0.7848
+     }
+    ]
+   },
+   "treat_all": {
+    "0.05": 0.8031,
+    "0.1": 0.79216,
+    "0.15": 0.77994,
+    "0.2": 0.76618,
+    "0.25": 0.7506,
+    "0.3": 0.73278,
+    "0.4": 0.68824,
+    "0.5": 0.62589
+   },
+   "eGFR<30": {
+    "0.05": 0.19469,
+    "0.1": 0.19296,
+    "0.15": 0.19102,
+    "0.2": 0.18884,
+    "0.25": 0.18637,
+    "0.3": 0.18354,
+    "0.4": 0.17647,
+    "0.5": 0.16658
+   },
+   "eGFR<45": {
+    "0.05": 0.40118,
+    "0.1": 0.39733,
+    "0.15": 0.39304,
+    "0.2": 0.3882,
+    "0.25": 0.38273,
+    "0.3": 0.37647,
+    "0.4": 0.36082,
+    "0.5": 0.33891
+   }
+  }
+ },
+ "eight_features_rep1": {
+  "730": {
+   "models": {
+    "Cox": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "Dynamic DeepHit": {
+     "0.05": 0.73858,
+     "0.1": 0.7318,
+     "0.15": 0.72208,
+     "0.2": 0.71257,
+     "0.25": 0.66875,
+     "0.3": 0.6491,
+     "0.4": 0.61113,
+     "0.5": 0.51556
+    },
+    "Hazard Transformer": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "Logistic Hazard": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "RNN-Surv": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.57649,
+     "0.5": 0.22833
+    },
+    "DeepSurv": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "GBSA": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "Survival RF": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "Survival SVM": {
+     "0.05": 0.51711,
+     "0.1": 0.41313,
+     "0.15": 0.35259,
+     "0.2": 0.28085,
+     "0.25": 0.23975,
+     "0.3": 0.19504,
+     "0.4": 0.15306,
+     "0.5": 0.11078
+    },
+    "Weibull AFT": {
+     "0.05": 0.73858,
+     "0.1": 0.72406,
+     "0.15": 0.70783,
+     "0.2": 0.68957,
+     "0.25": 0.66887,
+     "0.3": 0.64522,
+     "0.4": 0.58609,
+     "0.5": 0.50331
+    },
+    "KFRE": {
+     "0.05": 0.2897,
+     "0.1": 0.21783,
+     "0.15": 0.19612,
+     "0.2": 0.1732,
+     "0.25": 0.1211,
+     "0.3": 0.1021,
+     "0.4": 0.07477,
+     "0.5": 0.03738
+    }
+   },
+   "calibration": {
+    "Cox": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9064,
+      "observed": 0.7273
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9238,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.9296,
+      "observed": 0.5625
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9346,
+      "observed": 0.697
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9401,
+      "observed": 0.5636
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.9454,
+      "observed": 0.85
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9525,
+      "observed": 0.798
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9578,
+      "observed": 0.7
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9669,
+      "observed": 0.6591
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9801,
+      "observed": 1.0
+     }
+    ],
+    "Dynamic DeepHit": [
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.27,
+      "observed": 0.5
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.6477,
+      "observed": 0.2727
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.6951,
+      "observed": 0.4375
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8007,
+      "observed": 0.6104
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8856,
+      "observed": 0.798
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.944,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9734,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9794,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9831,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9875,
+      "observed": 1.0
+     }
+    ],
+    "Hazard Transformer": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 1.0,
+      "observed": 0.7922
+     },
+     {
+      "n": 13,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 0.8531
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 1.0,
+      "observed": 0.75
+     },
+     {
+      "n": 9,
+      "events": 7,
+      "predicted": 1.0,
+      "observed": 0.5556
+     },
+     {
+      "n": 18,
+      "events": 14,
+      "predicted": 1.0,
+      "observed": 0.7396
+     },
+     {
+      "n": 23,
+      "events": 17,
+      "predicted": 1.0,
+      "observed": 0.8614
+     },
+     {
+      "n": 14,
+      "events": 13,
+      "predicted": 1.0,
+      "observed": 0.6571
+     },
+     {
+      "n": 9,
+      "events": 6,
+      "predicted": 1.0,
+      "observed": 0.6759
+     }
+    ],
+    "Logistic Hazard": [
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9995,
+      "observed": 0.6591
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9998,
+      "observed": 0.7955
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9998,
+      "observed": 0.8
+     },
+     {
+      "n": 11,
+      "events": 5,
+      "predicted": 0.9998,
+      "observed": 0.6591
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9999,
+      "observed": 0.5455
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9999,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.9999,
+      "observed": 0.3636
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9999,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 1.0,
+      "observed": 0.6727
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 1.0,
+      "observed": 0.9091
+     }
+    ],
+    "RNN-Surv": [
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.4286,
+      "observed": 0.8636
+     },
+     {
+      "n": 15,
+      "events": 10,
+      "predicted": 0.4637,
+      "observed": 0.6444
+     },
+     {
+      "n": 6,
+      "events": 4,
+      "predicted": 0.4685,
+      "observed": 0.5556
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.4796,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.4947,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.5037,
+      "observed": 0.5
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.5174,
+      "observed": 0.642
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.5283,
+      "observed": 0.8
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.5406,
+      "observed": 0.7662
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.5704,
+      "observed": 0.8788
+     }
+    ],
+    "DeepSurv": [
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.8148,
+      "observed": 0.4805
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8367,
+      "observed": 0.5909
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.8379,
+      "observed": 0.6
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8391,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8397,
+      "observed": 0.8295
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.8402,
+      "observed": 0.75
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.8406,
+      "observed": 0.8182
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 0.8413,
+      "observed": 0.9
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.842,
+      "observed": 0.8961
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.8426,
+      "observed": 0.6182
+     }
+    ],
+    "GBSA": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8588,
+      "observed": 0.7273
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9903,
+      "observed": 0.8409
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9991,
+      "observed": 0.875
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9999,
+      "observed": 0.4909
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 1.0,
+      "observed": 0.6364
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 1.0,
+      "observed": 0.64
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 1.0,
+      "observed": 0.5455
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 1.0,
+      "observed": 0.8
+     },
+     {
+      "n": 22,
+      "events": 17,
+      "predicted": 1.0,
+      "observed": 0.8727
+     }
+    ],
+    "Survival RF": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.7457,
+      "observed": 0.6591
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.7801,
+      "observed": 0.642
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.7977,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.8123,
+      "observed": 0.8636
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.827,
+      "observed": 0.4545
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.8474,
+      "observed": 0.6571
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.861,
+      "observed": 0.8636
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.8904,
+      "observed": 0.6952
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9112,
+      "observed": 0.697
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9383,
+      "observed": 0.9091
+     }
+    ],
+    "Survival SVM": [
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0164,
+      "observed": 0.6818
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.0313,
+      "observed": 0.8442
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 0.0432,
+      "observed": 0.8
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.0665,
+      "observed": 0.7818
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.1185,
+      "observed": 0.8338
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.1998,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.3431,
+      "observed": 0.7273
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.616,
+      "observed": 0.8
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9649,
+      "observed": 0.8316
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.9994,
+      "observed": 0.4697
+     }
+    ],
+    "Weibull AFT": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8882,
+      "observed": 0.6182
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8945,
+      "observed": 0.7475
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.8978,
+      "observed": 0.7333
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9006,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9031,
+      "observed": 0.4545
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9058,
+      "observed": 0.7667
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9111,
+      "observed": 0.8295
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9135,
+      "observed": 0.7
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9178,
+      "observed": 0.7273
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9277,
+      "observed": 1.0
+     }
+    ],
+    "KFRE": [
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.0001,
+      "observed": 0.7955
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0008,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.0018,
+      "observed": 0.64
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.0032,
+      "observed": 0.6465
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0081,
+      "observed": 0.5455
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.0207,
+      "observed": 0.7
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0618,
+      "observed": 0.8977
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 0.1704,
+      "observed": 0.9
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.3928,
+      "observed": 0.8667
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.8392,
+      "observed": 0.5909
+     }
+    ]
+   },
+   "treat_all": {
+    "0.05": 0.73858,
+    "0.1": 0.72406,
+    "0.15": 0.70783,
+    "0.2": 0.68957,
+    "0.25": 0.66887,
+    "0.3": 0.64522,
+    "0.4": 0.58609,
+    "0.5": 0.50331
+   },
+   "eGFR<30": {
+    "0.05": 0.30406,
+    "0.1": 0.30071,
+    "0.15": 0.29696,
+    "0.2": 0.29273,
+    "0.25": 0.28795,
+    "0.3": 0.28248,
+    "0.4": 0.26882,
+    "0.5": 0.24968
+   },
+   "eGFR<45": {
+    "0.05": 0.4152,
+    "0.1": 0.40712,
+    "0.15": 0.39808,
+    "0.2": 0.38791,
+    "0.25": 0.37639,
+    "0.3": 0.36322,
+    "0.4": 0.3303,
+    "0.5": 0.28421
+   }
+  },
+  "1825": {
+   "models": {
+    "Cox": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "Dynamic DeepHit": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91192,
+     "0.3": 0.9063,
+     "0.4": 0.88164,
+     "0.5": 0.85501
+    },
+    "Hazard Transformer": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "Logistic Hazard": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "RNN-Surv": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "DeepSurv": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "GBSA": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "Survival RF": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "Survival SVM": {
+     "0.05": 0.90508,
+     "0.1": 0.79355,
+     "0.15": 0.6849,
+     "0.2": 0.62254,
+     "0.25": 0.53793,
+     "0.3": 0.50803,
+     "0.4": 0.46168,
+     "0.5": 0.39508
+    },
+    "Weibull AFT": {
+     "0.05": 0.93474,
+     "0.1": 0.93111,
+     "0.15": 0.92706,
+     "0.2": 0.9225,
+     "0.25": 0.91733,
+     "0.3": 0.91143,
+     "0.4": 0.89666,
+     "0.5": 0.876
+    },
+    "KFRE": {
+     "0.05": 0.42421,
+     "0.1": 0.38616,
+     "0.15": 0.33105,
+     "0.2": 0.30965,
+     "0.25": 0.25707,
+     "0.3": 0.2435,
+     "0.4": 0.1688,
+     "0.5": 0.14067
+    }
+   },
+   "calibration": {
+    "Cox": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9502,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9617,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.9653,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9684,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9718,
+      "observed": 0.7091
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.9749,
+      "observed": 0.85
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9789,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9819,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9866,
+      "observed": 0.7727
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9929,
+      "observed": 1.0
+     }
+    ],
+    "Dynamic DeepHit": [
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.5803,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8042,
+      "observed": 0.8485
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.8423,
+      "observed": 0.8714
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9233,
+      "observed": 0.8052
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9598,
+      "observed": 0.798
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.9805,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9905,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9926,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9939,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9954,
+      "observed": 1.0
+     }
+    ],
+    "Hazard Transformer": [
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.7957,
+      "observed": 0.8864
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8578,
+      "observed": 0.7273
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.8707,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8841,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8945,
+      "observed": 0.7879
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.904,
+      "observed": 0.8286
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.915,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9219,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.9384,
+      "observed": 0.8636
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9584,
+      "observed": 1.0
+     }
+    ],
+    "Logistic Hazard": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 1.0,
+      "observed": 0.8052
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 1.0,
+      "observed": 0.6818
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 0.9
+     },
+     {
+      "n": 11,
+      "events": 5,
+      "predicted": 1.0,
+      "observed": 0.4886
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 0.7818
+     }
+    ],
+    "RNN-Surv": [
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.631,
+      "observed": 1.0
+     },
+     {
+      "n": 12,
+      "events": 6,
+      "predicted": 0.6466,
+      "observed": 0.5625
+     },
+     {
+      "n": 9,
+      "events": 7,
+      "predicted": 0.6485,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.6544,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.6618,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.6679,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.6794,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.6858,
+      "observed": 0.7333
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.6921,
+      "observed": 0.7818
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.7089,
+      "observed": 0.899
+     }
+    ],
+    "DeepSurv": [
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.8965,
+      "observed": 0.7403
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.913,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.9139,
+      "observed": 0.6
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9147,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9152,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9155,
+      "observed": 0.875
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9158,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 0.9163,
+      "observed": 0.9
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.9168,
+      "observed": 0.8961
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9172,
+      "observed": 1.0
+     }
+    ],
+    "GBSA": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9922,
+      "observed": 0.7273
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 1.0,
+      "observed": 0.8409
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 1.0,
+      "observed": 0.8303
+     },
+     {
+      "n": 64,
+      "events": 51,
+      "predicted": 1.0,
+      "observed": 0.9373
+     }
+    ],
+    "Survival RF": [
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.8034,
+      "observed": 0.7818
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8436,
+      "observed": 0.7273
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.8656,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.8798,
+      "observed": 0.8586
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9022,
+      "observed": 0.7922
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9198,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.9328,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 9,
+      "predicted": 0.9446,
+      "observed": 0.76
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.9624,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.9748,
+      "observed": 0.9091
+     }
+    ],
+    "Survival SVM": [
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0551,
+      "observed": 0.8939
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.1032,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 0.1403,
+      "observed": 0.9
+     },
+     {
+      "n": 11,
+      "events": 9,
+      "predicted": 0.21,
+      "observed": 0.8909
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.3487,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.5322,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.752,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.9532,
+      "observed": 0.8
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9998,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 1.0,
+      "observed": 0.7348
+     }
+    ],
+    "Weibull AFT": [
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9267,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9316,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.9342,
+      "observed": 0.7333
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9363,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.9382,
+      "observed": 0.7273
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.9403,
+      "observed": 0.8833
+     },
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.9443,
+      "observed": 0.8295
+     },
+     {
+      "n": 10,
+      "events": 8,
+      "predicted": 0.946,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9493,
+      "observed": 0.9091
+     },
+     {
+      "n": 11,
+      "events": 11,
+      "predicted": 0.9564,
+      "observed": 1.0
+     }
+    ],
+    "KFRE": [
+     {
+      "n": 11,
+      "events": 7,
+      "predicted": 0.0004,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0025,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 7,
+      "predicted": 0.0057,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.0104,
+      "observed": 0.8232
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.0261,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 6,
+      "predicted": 0.0657,
+      "observed": 0.7
+     },
+     {
+      "n": 11,
+      "events": 10,
+      "predicted": 0.1867,
+      "observed": 1.0
+     },
+     {
+      "n": 10,
+      "events": 10,
+      "predicted": 0.4464,
+      "observed": 1.0
+     },
+     {
+      "n": 11,
+      "events": 8,
+      "predicted": 0.7824,
+      "observed": 0.8667
+     },
+     {
+      "n": 11,
+      "events": 6,
+      "predicted": 0.9904,
+      "observed": 0.5909
+     }
+    ]
+   },
+   "treat_all": {
+    "0.05": 0.93474,
+    "0.1": 0.93111,
+    "0.15": 0.92706,
+    "0.2": 0.9225,
+    "0.25": 0.91733,
+    "0.3": 0.91143,
+    "0.4": 0.89666,
+    "0.5": 0.876
+   },
+   "eGFR<30": {
+    "0.05": 0.30406,
+    "0.1": 0.30071,
+    "0.15": 0.29696,
+    "0.2": 0.29273,
+    "0.25": 0.28795,
+    "0.3": 0.28248,
+    "0.4": 0.26882,
+    "0.5": 0.24968
+   },
+   "eGFR<45": {
+    "0.05": 0.51358,
+    "0.1": 0.51096,
+    "0.15": 0.50803,
+    "0.2": 0.50474,
+    "0.25": 0.501,
+    "0.3": 0.49673,
+    "0.4": 0.48607,
+    "0.5": 0.47113
+   }
+  }
+ },
+ "twenty_features_heterogeneous_rep1": {
+  "730": {
+   "models": {
+    "Cox": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66372,
+     "0.2": 0.6427,
+     "0.25": 0.61888,
+     "0.3": 0.59166,
+     "0.4": 0.52361,
+     "0.5": 0.42833
+    },
+    "Dynamic DeepHit": {
+     "0.05": 0.69912,
+     "0.1": 0.68356,
+     "0.15": 0.66917,
+     "0.2": 0.65734,
+     "0.25": 0.64247,
+     "0.3": 0.62908,
+     "0.4": 0.60188,
+     "0.5": 0.55811
+    },
+    "Hazard Transformer": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66372,
+     "0.2": 0.6427,
+     "0.25": 0.61888,
+     "0.3": 0.59166,
+     "0.4": 0.52361,
+     "0.5": 0.42833
+    },
+    "Logistic Hazard": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66372,
+     "0.2": 0.6427,
+     "0.25": 0.61888,
+     "0.3": 0.59166,
+     "0.4": 0.52361,
+     "0.5": 0.42833
+    },
+    "RNN-Surv": {
+     "0.05": 0.69819,
+     "0.1": 0.36333,
+     "0.15": 0.08934,
+     "0.2": 0.02659,
+     "0.25": null,
+     "0.3": 0.0,
+     "0.4": 0.0,
+     "0.5": 0.0
+    },
+    "DeepSurv": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66377,
+     "0.2": 0.64276,
+     "0.25": 0.61878,
+     "0.3": 0.59159,
+     "0.4": 0.52408,
+     "0.5": 0.42928
+    },
+    "GBSA": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66372,
+     "0.2": 0.6427,
+     "0.25": 0.61888,
+     "0.3": 0.59166,
+     "0.4": 0.52341,
+     "0.5": 0.42939
+    },
+    "Survival RF": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66353,
+     "0.2": 0.64251,
+     "0.25": 0.6185,
+     "0.3": 0.59144,
+     "0.4": 0.52417,
+     "0.5": 0.42801
+    },
+    "Survival SVM": {
+     "0.05": 0.69873,
+     "0.1": 0.68201,
+     "0.15": 0.66333,
+     "0.2": 0.64231,
+     "0.25": 0.61855,
+     "0.3": 0.59146,
+     "0.4": 0.52333,
+     "0.5": 0.42825
+    },
+    "Weibull AFT": {
+     "0.05": 0.69912,
+     "0.1": 0.6824,
+     "0.15": 0.66372,
+     "0.2": 0.6427,
+     "0.25": 0.61888,
+     "0.3": 0.59166,
+     "0.4": 0.52361,
+     "0.5": 0.42833
+    }
+   },
+   "calibration": {
+    "Cox": [
+     {
+      "n": 556,
+      "events": 538,
+      "predicted": 1.0,
+      "observed": 0.783
+     },
+     {
+      "n": 558,
+      "events": 523,
+      "predicted": 1.0,
+      "observed": 0.7158
+     },
+     {
+      "n": 491,
+      "events": 445,
+      "predicted": 1.0,
+      "observed": 0.7077
+     },
+     {
+      "n": 513,
+      "events": 460,
+      "predicted": 1.0,
+      "observed": 0.7298
+     },
+     {
+      "n": 504,
+      "events": 440,
+      "predicted": 1.0,
+      "observed": 0.6908
+     },
+     {
+      "n": 515,
+      "events": 485,
+      "predicted": 1.0,
+      "observed": 0.6865
+     },
+     {
+      "n": 537,
+      "events": 524,
+      "predicted": 1.0,
+      "observed": 0.74
+     },
+     {
+      "n": 505,
+      "events": 482,
+      "predicted": 1.0,
+      "observed": 0.7395
+     },
+     {
+      "n": 516,
+      "events": 454,
+      "predicted": 1.0,
+      "observed": 0.6972
+     },
+     {
+      "n": 521,
+      "events": 419,
+      "predicted": 1.0,
+      "observed": 0.642
+     }
+    ],
+    "Dynamic DeepHit": [
+     {
+      "n": 522,
+      "events": 451,
+      "predicted": 0.1962,
+      "observed": 0.0788
+     },
+     {
+      "n": 522,
+      "events": 473,
+      "predicted": 0.4132,
+      "observed": 0.3352
+     },
+     {
+      "n": 521,
+      "events": 457,
+      "predicted": 0.5994,
+      "observed": 0.5468
+     },
+     {
+      "n": 522,
+      "events": 447,
+      "predicted": 0.7528,
+      "observed": 0.6753
+     },
+     {
+      "n": 521,
+      "events": 454,
+      "predicted": 0.8568,
+      "observed": 0.7723
+     },
+     {
+      "n": 522,
+      "events": 459,
+      "predicted": 0.9224,
+      "observed": 0.8917
+     },
+     {
+      "n": 521,
+      "events": 480,
+      "predicted": 0.9842,
+      "observed": 0.9587
+     },
+     {
+      "n": 522,
+      "events": 514,
+      "predicted": 0.9999,
+      "observed": 0.9957
+     },
+     {
+      "n": 536,
+      "events": 531,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 507,
+      "events": 504,
+      "predicted": 1.0,
+      "observed": 1.0
+     }
+    ],
+    "Hazard Transformer": [
+     {
+      "n": 588,
+      "events": 539,
+      "predicted": 1.0,
+      "observed": 0.8006
+     },
+     {
+      "n": 602,
+      "events": 546,
+      "predicted": 1.0,
+      "observed": 0.6809
+     },
+     {
+      "n": 885,
+      "events": 790,
+      "predicted": 1.0,
+      "observed": 0.6675
+     },
+     {
+      "n": 1523,
+      "events": 1391,
+      "predicted": 1.0,
+      "observed": 0.6679
+     },
+     {
+      "n": 1210,
+      "events": 1113,
+      "predicted": 1.0,
+      "observed": 0.739
+     },
+     {
+      "n": 408,
+      "events": 391,
+      "predicted": 1.0,
+      "observed": 0.8455
+     }
+    ],
+    "Logistic Hazard": [
+     {
+      "n": 522,
+      "events": 451,
+      "predicted": 0.6851,
+      "observed": 0.6652
+     },
+     {
+      "n": 529,
+      "events": 510,
+      "predicted": 0.6991,
+      "observed": 0.7309
+     },
+     {
+      "n": 515,
+      "events": 502,
+      "predicted": 0.6992,
+      "observed": 0.709
+     },
+     {
+      "n": 525,
+      "events": 450,
+      "predicted": 0.7014,
+      "observed": 0.6919
+     },
+     {
+      "n": 572,
+      "events": 495,
+      "predicted": 0.7196,
+      "observed": 0.6805
+     },
+     {
+      "n": 526,
+      "events": 478,
+      "predicted": 0.7226,
+      "observed": 0.7201
+     },
+     {
+      "n": 562,
+      "events": 506,
+      "predicted": 0.7237,
+      "observed": 0.7141
+     },
+     {
+      "n": 505,
+      "events": 462,
+      "predicted": 0.7263,
+      "observed": 0.7045
+     },
+     {
+      "n": 443,
+      "events": 425,
+      "predicted": 0.7319,
+      "observed": 0.732
+     },
+     {
+      "n": 517,
+      "events": 491,
+      "predicted": 0.7729,
+      "observed": 0.7995
+     }
+    ],
+    "RNN-Surv": [
+     {
+      "n": 527,
+      "events": 459,
+      "predicted": 0.0786,
+      "observed": 0.6981
+     },
+     {
+      "n": 536,
+      "events": 469,
+      "predicted": 0.0818,
+      "observed": 0.7125
+     },
+     {
+      "n": 525,
+      "events": 478,
+      "predicted": 0.0865,
+      "observed": 0.7048
+     },
+     {
+      "n": 500,
+      "events": 447,
+      "predicted": 0.0928,
+      "observed": 0.7183
+     },
+     {
+      "n": 521,
+      "events": 455,
+      "predicted": 0.0988,
+      "observed": 0.6898
+     },
+     {
+      "n": 522,
+      "events": 467,
+      "predicted": 0.1054,
+      "observed": 0.6911
+     },
+     {
+      "n": 523,
+      "events": 489,
+      "predicted": 0.1172,
+      "observed": 0.732
+     },
+     {
+      "n": 525,
+      "events": 511,
+      "predicted": 0.1302,
+      "observed": 0.708
+     },
+     {
+      "n": 520,
+      "events": 497,
+      "predicted": 0.1421,
+      "observed": 0.7127
+     },
+     {
+      "n": 517,
+      "events": 498,
+      "predicted": 0.1908,
+      "observed": 0.7776
+     }
+    ],
+    "DeepSurv": [
+     {
+      "n": 525,
+      "events": 409,
+      "predicted": 0.6469,
+      "observed": 0.6065
+     },
+     {
+      "n": 519,
+      "events": 480,
+      "predicted": 0.7009,
+      "observed": 0.7366
+     },
+     {
+      "n": 528,
+      "events": 509,
+      "predicted": 0.7049,
+      "observed": 0.7312
+     },
+     {
+      "n": 515,
+      "events": 498,
+      "predicted": 0.7052,
+      "observed": 0.695
+     },
+     {
+      "n": 578,
+      "events": 528,
+      "predicted": 0.7058,
+      "observed": 0.7211
+     },
+     {
+      "n": 472,
+      "events": 426,
+      "predicted": 0.7059,
+      "observed": 0.7074
+     },
+     {
+      "n": 535,
+      "events": 479,
+      "predicted": 0.7061,
+      "observed": 0.6883
+     },
+     {
+      "n": 513,
+      "events": 461,
+      "predicted": 0.7065,
+      "observed": 0.712
+     },
+     {
+      "n": 529,
+      "events": 503,
+      "predicted": 0.7079,
+      "observed": 0.74
+     },
+     {
+      "n": 502,
+      "events": 477,
+      "predicted": 0.7398,
+      "observed": 0.8011
+     }
+    ],
+    "GBSA": [
+     {
+      "n": 531,
+      "events": 421,
+      "predicted": 0.6732,
+      "observed": 0.6349
+     },
+     {
+      "n": 4027,
+      "events": 3719,
+      "predicted": 0.6995,
+      "observed": 0.7115
+     },
+     {
+      "n": 144,
+      "events": 138,
+      "predicted": 0.7242,
+      "observed": 0.7819
+     },
+     {
+      "n": 514,
+      "events": 492,
+      "predicted": 0.7625,
+      "observed": 0.7959
+     }
+    ],
+    "Survival RF": [
+     {
+      "n": 523,
+      "events": 454,
+      "predicted": 0.5714,
+      "observed": 0.6677
+     },
+     {
+      "n": 524,
+      "events": 466,
+      "predicted": 0.6676,
+      "observed": 0.6946
+     },
+     {
+      "n": 563,
+      "events": 511,
+      "predicted": 0.6841,
+      "observed": 0.7279
+     },
+     {
+      "n": 500,
+      "events": 466,
+      "predicted": 0.6907,
+      "observed": 0.7153
+     },
+     {
+      "n": 523,
+      "events": 482,
+      "predicted": 0.6981,
+      "observed": 0.7236
+     },
+     {
+      "n": 513,
+      "events": 449,
+      "predicted": 0.7081,
+      "observed": 0.7134
+     },
+     {
+      "n": 518,
+      "events": 491,
+      "predicted": 0.7222,
+      "observed": 0.7122
+     },
+     {
+      "n": 509,
+      "events": 468,
+      "predicted": 0.7342,
+      "observed": 0.7136
+     },
+     {
+      "n": 521,
+      "events": 494,
+      "predicted": 0.7633,
+      "observed": 0.737
+     },
+     {
+      "n": 522,
+      "events": 489,
+      "predicted": 0.8533,
+      "observed": 0.7395
+     }
+    ],
+    "Survival SVM": [
+     {
+      "n": 528,
+      "events": 469,
+      "predicted": 0.6097,
+      "observed": 0.6993
+     },
+     {
+      "n": 516,
+      "events": 499,
+      "predicted": 0.6282,
+      "observed": 0.7307
+     },
+     {
+      "n": 521,
+      "events": 506,
+      "predicted": 0.6366,
+      "observed": 0.7011
+     },
+     {
+      "n": 581,
+      "events": 534,
+      "predicted": 0.6919,
+      "observed": 0.7048
+     },
+     {
+      "n": 565,
+      "events": 480,
+      "predicted": 0.7135,
+      "observed": 0.6811
+     },
+     {
+      "n": 477,
+      "events": 419,
+      "predicted": 0.7212,
+      "observed": 0.6979
+     },
+     {
+      "n": 479,
+      "events": 417,
+      "predicted": 0.7274,
+      "observed": 0.6844
+     },
+     {
+      "n": 544,
+      "events": 494,
+      "predicted": 0.735,
+      "observed": 0.715
+     },
+     {
+      "n": 492,
+      "events": 473,
+      "predicted": 0.7487,
+      "observed": 0.7441
+     },
+     {
+      "n": 513,
+      "events": 479,
+      "predicted": 0.796,
+      "observed": 0.7866
+     }
+    ],
+    "Weibull AFT": [
+     {
+      "n": 533,
+      "events": 422,
+      "predicted": 0.7287,
+      "observed": 0.646
+     },
+     {
+      "n": 521,
+      "events": 471,
+      "predicted": 0.7599,
+      "observed": 0.6934
+     },
+     {
+      "n": 514,
+      "events": 496,
+      "predicted": 0.7633,
+      "observed": 0.7316
+     },
+     {
+      "n": 519,
+      "events": 505,
+      "predicted": 0.7634,
+      "observed": 0.7085
+     },
+     {
+      "n": 597,
+      "events": 562,
+      "predicted": 0.7728,
+      "observed": 0.728
+     },
+     {
+      "n": 521,
+      "events": 445,
+      "predicted": 0.7779,
+      "observed": 0.682
+     },
+     {
+      "n": 500,
+      "events": 450,
+      "predicted": 0.7792,
+      "observed": 0.7214
+     },
+     {
+      "n": 526,
+      "events": 478,
+      "predicted": 0.7805,
+      "observed": 0.7119
+     },
+     {
+      "n": 471,
+      "events": 452,
+      "predicted": 0.7824,
+      "observed": 0.7302
+     },
+     {
+      "n": 514,
+      "events": 489,
+      "predicted": 0.7892,
+      "observed": 0.7882
+     }
+    ]
+   },
+   "treat_all": {
+    "0.05": 0.69912,
+    "0.1": 0.6824,
+    "0.15": 0.66372,
+    "0.2": 0.6427,
+    "0.25": 0.61888,
+    "0.3": 0.59166,
+    "0.4": 0.52361,
+    "0.5": 0.42833
+   },
+   "eGFR<30": {
+    "0.05": 0.17535,
+    "0.1": 0.17216,
+    "0.15": 0.1686,
+    "0.2": 0.16459,
+    "0.25": 0.16005,
+    "0.3": 0.15486,
+    "0.4": 0.14189,
+    "0.5": 0.12372
+   },
+   "eGFR<45": {
+    "0.05": 0.35421,
+    "0.1": 0.34691,
+    "0.15": 0.33875,
+    "0.2": 0.32958,
+    "0.25": 0.31918,
+    "0.3": 0.30729,
+    "0.4": 0.27757,
+    "0.5": 0.23596
+   }
+  },
+  "1825": {
+   "models": {
+    "Cox": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81849,
+     "0.25": 0.80639,
+     "0.3": 0.79256,
+     "0.4": 0.75798,
+     "0.5": 0.70958
+    },
+    "Dynamic DeepHit": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81849,
+     "0.25": 0.80639,
+     "0.3": 0.79256,
+     "0.4": 0.76768,
+     "0.5": 0.74008
+    },
+    "Hazard Transformer": {
+     "0.05": 0.84695,
+     "0.1": 0.8376,
+     "0.15": 0.82548,
+     "0.2": 0.81297,
+     "0.25": 0.79586,
+     "0.3": 0.77908,
+     "0.4": 0.72517,
+     "0.5": 0.65597
+    },
+    "Logistic Hazard": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81849,
+     "0.25": 0.80639,
+     "0.3": 0.79256,
+     "0.4": 0.75798,
+     "0.5": 0.70958
+    },
+    "RNN-Surv": {
+     "0.05": 0.84695,
+     "0.1": 0.83753,
+     "0.15": 0.43953,
+     "0.2": 0.15375,
+     "0.25": 0.06008,
+     "0.3": 0.00391,
+     "0.4": 0.0,
+     "0.5": 0.0
+    },
+    "DeepSurv": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81828,
+     "0.25": 0.80618,
+     "0.3": 0.79235,
+     "0.4": 0.7574,
+     "0.5": 0.70943
+    },
+    "GBSA": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81849,
+     "0.25": 0.80639,
+     "0.3": 0.79256,
+     "0.4": 0.75798,
+     "0.5": 0.70958
+    },
+    "Survival RF": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81849,
+     "0.25": 0.806,
+     "0.3": 0.79194,
+     "0.4": 0.75774,
+     "0.5": 0.70974
+    },
+    "Survival SVM": {
+     "0.05": 0.84676,
+     "0.1": 0.83827,
+     "0.15": 0.82878,
+     "0.2": 0.8181,
+     "0.25": 0.806,
+     "0.3": 0.79217,
+     "0.4": 0.75767,
+     "0.5": 0.7095
+    },
+    "Weibull AFT": {
+     "0.05": 0.84715,
+     "0.1": 0.83865,
+     "0.15": 0.82916,
+     "0.2": 0.81849,
+     "0.25": 0.80639,
+     "0.3": 0.79256,
+     "0.4": 0.75798,
+     "0.5": 0.70958
+    }
+   },
+   "calibration": {
+    "Cox": [
+     {
+      "n": 556,
+      "events": 538,
+      "predicted": 1.0,
+      "observed": 0.8669
+     },
+     {
+      "n": 558,
+      "events": 523,
+      "predicted": 1.0,
+      "observed": 0.8439
+     },
+     {
+      "n": 491,
+      "events": 445,
+      "predicted": 1.0,
+      "observed": 0.8382
+     },
+     {
+      "n": 513,
+      "events": 460,
+      "predicted": 1.0,
+      "observed": 0.8332
+     },
+     {
+      "n": 504,
+      "events": 440,
+      "predicted": 1.0,
+      "observed": 0.8328
+     },
+     {
+      "n": 522,
+      "events": 492,
+      "predicted": 1.0,
+      "observed": 0.874
+     },
+     {
+      "n": 2072,
+      "events": 1872,
+      "predicted": 1.0,
+      "observed": 0.8652
+     }
+    ],
+    "Dynamic DeepHit": [
+     {
+      "n": 522,
+      "events": 453,
+      "predicted": 0.5258,
+      "observed": 0.3538
+     },
+     {
+      "n": 522,
+      "events": 469,
+      "predicted": 0.7542,
+      "observed": 0.7304
+     },
+     {
+      "n": 521,
+      "events": 455,
+      "predicted": 0.8544,
+      "observed": 0.8105
+     },
+     {
+      "n": 522,
+      "events": 447,
+      "predicted": 0.915,
+      "observed": 0.8695
+     },
+     {
+      "n": 521,
+      "events": 456,
+      "predicted": 0.9522,
+      "observed": 0.9174
+     },
+     {
+      "n": 522,
+      "events": 461,
+      "predicted": 0.9747,
+      "observed": 0.9724
+     },
+     {
+      "n": 521,
+      "events": 480,
+      "predicted": 0.995,
+      "observed": 0.9794
+     },
+     {
+      "n": 535,
+      "events": 527,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 558,
+      "events": 552,
+      "predicted": 1.0,
+      "observed": 1.0
+     },
+     {
+      "n": 472,
+      "events": 470,
+      "predicted": 1.0,
+      "observed": 1.0
+     }
+    ],
+    "Hazard Transformer": [
+     {
+      "n": 522,
+      "events": 489,
+      "predicted": 0.3218,
+      "observed": 0.6757
+     },
+     {
+      "n": 522,
+      "events": 464,
+      "predicted": 0.4938,
+      "observed": 0.7097
+     },
+     {
+      "n": 521,
+      "events": 460,
+      "predicted": 0.6179,
+      "observed": 0.7825
+     },
+     {
+      "n": 522,
+      "events": 465,
+      "predicted": 0.7515,
+      "observed": 0.7873
+     },
+     {
+      "n": 521,
+      "events": 447,
+      "predicted": 0.88,
+      "observed": 0.8063
+     },
+     {
+      "n": 522,
+      "events": 458,
+      "predicted": 0.9506,
+      "observed": 0.9138
+     },
+     {
+      "n": 521,
+      "events": 475,
+      "predicted": 0.9925,
+      "observed": 0.9394
+     },
+     {
+      "n": 522,
+      "events": 485,
+      "predicted": 0.9999,
+      "observed": 0.9778
+     },
+     {
+      "n": 521,
+      "events": 511,
+      "predicted": 1.0,
+      "observed": 0.9955
+     },
+     {
+      "n": 522,
+      "events": 516,
+      "predicted": 1.0,
+      "observed": 0.9899
+     }
+    ],
+    "Logistic Hazard": [
+     {
+      "n": 537,
+      "events": 430,
+      "predicted": 0.8277,
+      "observed": 0.8095
+     },
+     {
+      "n": 507,
+      "events": 479,
+      "predicted": 0.8582,
+      "observed": 0.8455
+     },
+     {
+      "n": 523,
+      "events": 504,
+      "predicted": 0.8602,
+      "observed": 0.8861
+     },
+     {
+      "n": 523,
+      "events": 486,
+      "predicted": 0.8602,
+      "observed": 0.864
+     },
+     {
+      "n": 594,
+      "events": 530,
+      "predicted": 0.8661,
+      "observed": 0.8416
+     },
+     {
+      "n": 468,
+      "events": 423,
+      "predicted": 0.8674,
+      "observed": 0.8709
+     },
+     {
+      "n": 599,
+      "events": 540,
+      "predicted": 0.8684,
+      "observed": 0.8401
+     },
+     {
+      "n": 507,
+      "events": 462,
+      "predicted": 0.871,
+      "observed": 0.8331
+     },
+     {
+      "n": 445,
+      "events": 429,
+      "predicted": 0.8762,
+      "observed": 0.8584
+     },
+     {
+      "n": 513,
+      "events": 487,
+      "predicted": 0.9081,
+      "observed": 0.8985
+     }
+    ],
+    "RNN-Surv": [
+     {
+      "n": 527,
+      "events": 458,
+      "predicted": 0.1221,
+      "observed": 0.8431
+     },
+     {
+      "n": 557,
+      "events": 489,
+      "predicted": 0.1264,
+      "observed": 0.8478
+     },
+     {
+      "n": 501,
+      "events": 456,
+      "predicted": 0.132,
+      "observed": 0.8448
+     },
+     {
+      "n": 507,
+      "events": 446,
+      "predicted": 0.1401,
+      "observed": 0.8494
+     },
+     {
+      "n": 530,
+      "events": 470,
+      "predicted": 0.1481,
+      "observed": 0.8603
+     },
+     {
+      "n": 510,
+      "events": 458,
+      "predicted": 0.1562,
+      "observed": 0.8261
+     },
+     {
+      "n": 550,
+      "events": 514,
+      "predicted": 0.1726,
+      "observed": 0.8594
+     },
+     {
+      "n": 491,
+      "events": 481,
+      "predicted": 0.1912,
+      "observed": 0.8962
+     },
+     {
+      "n": 526,
+      "events": 500,
+      "predicted": 0.208,
+      "observed": 0.8517
+     },
+     {
+      "n": 517,
+      "events": 498,
+      "predicted": 0.2649,
+      "observed": 0.8695
+     }
+    ],
+    "DeepSurv": [
+     {
+      "n": 525,
+      "events": 409,
+      "predicted": 0.8044,
+      "observed": 0.774
+     },
+     {
+      "n": 519,
+      "events": 480,
+      "predicted": 0.8521,
+      "observed": 0.8892
+     },
+     {
+      "n": 528,
+      "events": 509,
+      "predicted": 0.8552,
+      "observed": 0.8794
+     },
+     {
+      "n": 515,
+      "events": 498,
+      "predicted": 0.8555,
+      "observed": 0.8757
+     },
+     {
+      "n": 578,
+      "events": 528,
+      "predicted": 0.856,
+      "observed": 0.846
+     },
+     {
+      "n": 472,
+      "events": 426,
+      "predicted": 0.856,
+      "observed": 0.8238
+     },
+     {
+      "n": 535,
+      "events": 479,
+      "predicted": 0.8561,
+      "observed": 0.8256
+     },
+     {
+      "n": 513,
+      "events": 461,
+      "predicted": 0.8564,
+      "observed": 0.8459
+     },
+     {
+      "n": 529,
+      "events": 503,
+      "predicted": 0.8576,
+      "observed": 0.877
+     },
+     {
+      "n": 502,
+      "events": 477,
+      "predicted": 0.8812,
+      "observed": 0.8988
+     }
+    ],
+    "GBSA": [
+     {
+      "n": 531,
+      "events": 421,
+      "predicted": 0.8289,
+      "observed": 0.7903
+     },
+     {
+      "n": 4027,
+      "events": 3719,
+      "predicted": 0.8513,
+      "observed": 0.8567
+     },
+     {
+      "n": 144,
+      "events": 138,
+      "predicted": 0.8702,
+      "observed": 0.8619
+     },
+     {
+      "n": 514,
+      "events": 492,
+      "predicted": 0.8972,
+      "observed": 0.8998
+     }
+    ],
+    "Survival RF": [
+     {
+      "n": 524,
+      "events": 435,
+      "predicted": 0.7318,
+      "observed": 0.8317
+     },
+     {
+      "n": 546,
+      "events": 507,
+      "predicted": 0.8274,
+      "observed": 0.8515
+     },
+     {
+      "n": 498,
+      "events": 449,
+      "predicted": 0.8334,
+      "observed": 0.8579
+     },
+     {
+      "n": 519,
+      "events": 466,
+      "predicted": 0.8411,
+      "observed": 0.8196
+     },
+     {
+      "n": 524,
+      "events": 486,
+      "predicted": 0.8506,
+      "observed": 0.8727
+     },
+     {
+      "n": 570,
+      "events": 514,
+      "predicted": 0.8563,
+      "observed": 0.8391
+     },
+     {
+      "n": 482,
+      "events": 443,
+      "predicted": 0.8638,
+      "observed": 0.8369
+     },
+     {
+      "n": 513,
+      "events": 485,
+      "predicted": 0.8796,
+      "observed": 0.8524
+     },
+     {
+      "n": 518,
+      "events": 496,
+      "predicted": 0.9038,
+      "observed": 0.8962
+     },
+     {
+      "n": 522,
+      "events": 489,
+      "predicted": 0.955,
+      "observed": 0.8923
+     }
+    ],
+    "Survival SVM": [
+     {
+      "n": 528,
+      "events": 469,
+      "predicted": 0.773,
+      "observed": 0.8597
+     },
+     {
+      "n": 516,
+      "events": 499,
+      "predicted": 0.7916,
+      "observed": 0.8805
+     },
+     {
+      "n": 521,
+      "events": 506,
+      "predicted": 0.7991,
+      "observed": 0.8706
+     },
+     {
+      "n": 581,
+      "events": 534,
+      "predicted": 0.8452,
+      "observed": 0.8621
+     },
+     {
+      "n": 565,
+      "events": 480,
+      "predicted": 0.8621,
+      "observed": 0.8101
+     },
+     {
+      "n": 477,
+      "events": 419,
+      "predicted": 0.868,
+      "observed": 0.8207
+     },
+     {
+      "n": 479,
+      "events": 417,
+      "predicted": 0.8727,
+      "observed": 0.8406
+     },
+     {
+      "n": 544,
+      "events": 494,
+      "predicted": 0.8782,
+      "observed": 0.8432
+     },
+     {
+      "n": 492,
+      "events": 473,
+      "predicted": 0.888,
+      "observed": 0.8596
+     },
+     {
+      "n": 513,
+      "events": 479,
+      "predicted": 0.9189,
+      "observed": 0.8945
+     }
+    ],
+    "Weibull AFT": [
+     {
+      "n": 533,
+      "events": 422,
+      "predicted": 0.8042,
+      "observed": 0.8103
+     },
+     {
+      "n": 521,
+      "events": 471,
+      "predicted": 0.8322,
+      "observed": 0.8533
+     },
+     {
+      "n": 514,
+      "events": 496,
+      "predicted": 0.8352,
+      "observed": 0.8799
+     },
+     {
+      "n": 519,
+      "events": 505,
+      "predicted": 0.8353,
+      "observed": 0.8792
+     },
+     {
+      "n": 597,
+      "events": 562,
+      "predicted": 0.8435,
+      "observed": 0.8751
+     },
+     {
+      "n": 521,
+      "events": 445,
+      "predicted": 0.8479,
+      "observed": 0.8132
+     },
+     {
+      "n": 500,
+      "events": 450,
+      "predicted": 0.8489,
+      "observed": 0.8396
+     },
+     {
+      "n": 526,
+      "events": 478,
+      "predicted": 0.85,
+      "observed": 0.8411
+     },
+     {
+      "n": 471,
+      "events": 452,
+      "predicted": 0.8517,
+      "observed": 0.8509
+     },
+     {
+      "n": 514,
+      "events": 489,
+      "predicted": 0.8574,
+      "observed": 0.8936
+     }
+    ]
+   },
+   "treat_all": {
+    "0.05": 0.84715,
+    "0.1": 0.83865,
+    "0.15": 0.82916,
+    "0.2": 0.81849,
+    "0.25": 0.80639,
+    "0.3": 0.79256,
+    "0.4": 0.75798,
+    "0.5": 0.70958
+   },
+   "eGFR<30": {
+    "0.05": 0.20631,
+    "0.1": 0.20484,
+    "0.15": 0.2032,
+    "0.2": 0.20136,
+    "0.25": 0.19927,
+    "0.3": 0.19688,
+    "0.4": 0.1909,
+    "0.5": 0.18254
+   },
+   "eGFR<45": {
+    "0.05": 0.42186,
+    "0.1": 0.41832,
+    "0.15": 0.41436,
+    "0.2": 0.40991,
+    "0.25": 0.40486,
+    "0.3": 0.39909,
+    "0.4": 0.38467,
+    "0.5": 0.36449
+   }
+  }
+ }
+}

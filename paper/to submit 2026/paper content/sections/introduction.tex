@@ -1,23 +1,27 @@
+% GENERATED from plos_digital_health.tex by scripts/plos_to_sections.py -- edit the PLOS
+% file and rerun the script rather than editing this file directly.
+
 \section{Introduction}\label{Intro}
 
 Chronic kidney disease (CKD) affects over 1 in 7 Americans \citep{CDC2023CKD} and can progress to end-stage renal disease (ESRD), which carries a five-year survival rate below 50\%. Early identification of patients at high risk of progression is critical for timely nephrology referral, dialysis-access planning, and transplant work-up \citep{levin2011early_detection}. The clinical standard for this task is the Kidney Failure Risk Equation (KFRE) \citep{tangri2011predicting}, a closed-form Cox model built from as few as four routinely collected variables (age, sex, estimated glomerular filtration rate (eGFR), and urine albumin-to-creatinine ratio (uACR)) or, in its extended form, eight variables (adding serum calcium, phosphate, bicarbonate, and albumin). KFRE has been externally validated across 31 cohorts spanning more than 700,000 patients \citep{tangri2016multinational} and is now embedded in clinical guidelines \citep{major2019kfre_external_validation}.
 
-Modern EHR resources and flexible survival models motivate comparison with KFRE under different input representations. A broader laboratory panel may provide useful information, but its availability also changes which patients can be included and how their histories are represented. Separating these effects requires care when interpreting comparisons across feature sets.
+Modern EHR resources and flexible survival models motivate comparison with KFRE under different input representations. A broader laboratory panel may provide useful information, but its availability also changes which patients can be included and how their histories are represented \citep{ghosh2023machine_nomogram,kdigo2024}. Separating these effects requires care when interpreting comparisons across feature sets. Kidney failure risk and its measurement also differ across demographic groups: eGFR equations historically included a race coefficient, which the CKD-EPI 2021 equation used here removes \citep{inker2021ckdepi}, so performance should be examined within groups rather than only overall.
 
-We benchmark ten learned survival models in three MIMIC-IV-derived scenarios, adding the published KFRE equation to the four- and eight-feature scenarios (11 models there):
+The intended use we study is ranking hospitalized patients with CKD by their risk of a recorded kidney-failure diagnosis, as an input to nephrology referral. The models are research prototypes evaluated retrospectively; none is proposed for deployment. We benchmark ten learned survival models in three MIMIC-IV-derived \citep{johnson2023mimic_ehr} scenarios, adding the published KFRE equation to the four- and eight-feature scenarios (11 models there):
+
 \begin{itemize}
     \item \textbf{Four features}: age, sex, eGFR, and uACR, matching KFRE's four-variable inputs.
     \item \textbf{Eight features}: the four inputs plus calcium, phosphate, bicarbonate, and serum albumin, matching KFRE's eight-variable inputs.
     \item \textbf{Twenty features (heterogeneous)}: 20 frequently measured laboratory variables, each represented by a value and missingness flag, with one row per laboratory event and no published KFRE analogue.
 \end{itemize}
-The scenarios share a source population but have different extracted cohorts: 2{,}809, 1{,}213, and 32{,}601 patients, respectively. They are therefore comparisons of feature/representation/cohort combinations, not a nested feature-count experiment on a fixed population. Within each scenario, the same patient partition is used across model runs.
 
-Constructing the four- and eight-feature scenarios requires merging asynchronous measurements around creatinine anchors while retaining repeated rows (Section~\ref{sec:cohort}). Nearest-value matching increases laboratory completeness but can include measurements after an anchor, so this construction is retrospective.
+The scenarios share a source population but have different extracted cohorts: 1{,}687, 666, and 32{,}601 patients, respectively. They are therefore comparisons of feature/representation/cohort combinations, not a nested feature-count experiment on a fixed population. The four- and eight-feature scenarios combine asynchronously measured inputs around each creatinine measurement: uACR is taken from the latest measurement at or before that creatinine, and the chemistry panel from the same draw window (Section~\ref{sec:cohort}).
 
 Our contributions are:
 \begin{itemize}
-    \item A documented cohort-construction procedure for combining asynchronously measured KFRE inputs, with explicit matching rules and cohort attrition.
-    \item A completed comparison of ten learned models across all three scenarios, plus KFRE where applicable, reporting mean and sample SD across five runs on the same patient partition (Section~\ref{sec:results}).
-    \item A common patient-level prediction unit, with explicit distinctions between final-row and full-history inputs and between native calibration probabilities and score-derived IBS.
-    \item An account of evaluation limitations, including cohort differences, test-informed LogisticHazard selection, raw-row censoring references, and unmatched decision-curve comparators. These delimit the conclusions that can be drawn from the observed rankings (Section~\ref{sec:limitations}).
+    \item A documented cohort-construction procedure for combining asynchronously measured KFRE inputs, with explicit matching rules and cohort attrition (Section~\ref{sec:cohort}).
+    \item A comparison of ten learned models and KFRE across five patient-level splits, evaluated on an internal holdout that no model saw during training or selection, with patient-bootstrap confidence intervals and paired comparisons against KFRE (Section~\ref{sec:results}).
+    \item A patient-level evaluation protocol: one terminal outcome per patient for censoring weights, each model's own survival probabilities where it provides them, and decision curves in which every strategy is scored on the same patients and thresholds (Section~\ref{sec:eval}).
+    \item Model performance within age, sex, and race groups, and an account of the limitations that bound the conclusions (Section~\ref{sec:limitations}).
 \end{itemize}
+Reporting follows the TRIPOD+AI statement \citep{collins2024tripodai}; the completed checklist is provided in the TRIPOD+AI checklist in the Supplementary Information.

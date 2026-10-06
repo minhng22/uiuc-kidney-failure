@@ -1,6 +1,6 @@
 import pandas as pd
 from pkgs.commons import egfr_tv_dynamic_deep_hit_model_path, hg_dynamic_deep_hit_model_path, egfr_components_dynamic_deep_hit_model_path, fivelabms_dynamic_deep_hit_model_path, ckd_fifty_features_heterogeneous_dynamic_deep_hit_model_path, four_features_dynamic_deep_hit_model_path, eight_features_dynamic_deep_hit_model_path, twenty_features_heterogeneous_dynamic_deep_hit_model_path, ckd_fifty_features_heterogeneous_train_data_path
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data
 from pkgs.models.dynamicdeephit import DynamicDeepHit, DynamicDeepHitDataset
 import torch
 from torch.utils.data import DataLoader
@@ -31,7 +31,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     device = get_device()
 
     print(f"Running trial {trial.number} for {scenario_name} on device {device}")
-    df, _ = get_train_test_data(scenario_name)
+    df, _, _ = get_train_test_external_data(scenario_name)
 
     dataset = DynamicDeepHitDataset(df, scenario_name)
     # batch_size reduced from 256 -> 16: with this scenario's max patient
@@ -251,7 +251,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
     device = get_device()
-    df, df_test = get_train_test_data(scenario_name)
+    df, df_test, _ = get_train_test_external_data(scenario_name)
 
     model_saved_path = model_saved_path_dict[scenario_name]
 

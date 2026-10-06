@@ -32,7 +32,7 @@ is the correct choice here.
 """
 import numpy as np
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_last_observation_data, select_split
 
 # S0(t): Original column, eAppendix 2, Tangri et al. 2016 JAMA - see module docstring.
 S0_4VAR = {2: 0.9750, 5: 0.9240}
@@ -144,8 +144,8 @@ class KFREModel:
         df_test row (the row-per-lab-event frame) and so isn't positionally
         aligned with this flattened frame. Returns
         (risk_scores, durations, events, native_prob_fn)."""
-        df_train_flat, df_test_flat = get_last_observation_data(self.scenario)
-        df_flat = df_train_flat if split == 'train' else df_test_flat
+        df_train_flat, df_test_flat, df_holdout_flat = get_last_observation_data(self.scenario)
+        df_flat = select_split(df_train_flat, df_test_flat, df_holdout_flat, split)
         risk_scores_2yr = compute_risk_scores(self.scenario, df_flat, years=2)
         risk_scores_5yr = compute_risk_scores(self.scenario, df_flat, years=5)
 

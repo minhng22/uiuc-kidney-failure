@@ -5,7 +5,7 @@ below gives it the same "model layer" home the neural-net models have.
 import numpy as np
 
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_last_observation_data, select_split
 from pkgs.experiments.utils import get_tv_rnn_model_features
 
 
@@ -33,8 +33,8 @@ class WeibulModel:
         uses: `-predicted_survival_times`) to get "higher=riskier". Returns
         (risk_scores, durations, events, native_prob_fn) -- see
         _native_prob_fn below."""
-        df_train_flat, df_test_flat = get_last_observation_data(scenario)
-        df_flat = df_train_flat if split == 'train' else df_test_flat
+        df_train_flat, df_test_flat, df_holdout_flat = get_last_observation_data(scenario)
+        df_flat = select_split(df_train_flat, df_test_flat, df_holdout_flat, split)
         features = get_tv_rnn_model_features(scenario)
         cols = features + ['duration_in_days', 'has_esrd']
         df_flat_selected = df_flat[cols].copy()

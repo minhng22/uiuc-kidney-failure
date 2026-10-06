@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from lifelines.utils import concordance_index
 
 from pkgs.models.rnnsurv import RNNSurv
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data
 from pkgs.experiments.utils import (round_metric, ex_optuna,
                                     get_tv_rnn_model_features,
                                     compute_brier_score_from_survival_probs)
@@ -82,7 +82,7 @@ def objective(trial, scenario_name: ExperimentScenario):
     num_time_intervals = trial.suggest_int('num_time_intervals', 10, 50)
     rnn_surv_features = get_tv_rnn_model_features(scenario_name)
 
-    df, _ = get_train_test_data(scenario_name)
+    df, _, _ = get_train_test_external_data(scenario_name)
     
     model_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,
@@ -236,7 +236,7 @@ def score_model_train(model: RNNSurv, df, features, device):
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario):
     device = get_device()
-    df, df_test = get_train_test_data(scenario_name)
+    df, df_test, _ = get_train_test_external_data(scenario_name)
 
     model_path_dict = {
         ExperimentScenario.TIME_VARIANT: egfr_tv_rnn_surv_model_path,

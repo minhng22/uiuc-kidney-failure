@@ -12,7 +12,7 @@ from pkgs.commons import (
     egfr_ti_srf_model_path, four_features_srf_model_path,
     eight_features_srf_model_path, twenty_features_heterogeneous_srf_model_path,
 )
-from pkgs.data_analysis.model_data_store import get_train_test_data, sample, get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data, sample, get_last_observation_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import get_x_for_sckit_survival_model, get_y_for_sckit_survival_model, round_metric, load_pkl_and_dill_model, compute_brier_score_from_risk_scores
@@ -38,7 +38,7 @@ def c_idx_score_fn(y, risk_score):
 # Data needs to be non-time-variant setup
 # non-time-variant model
 def run_survival_rf():
-    df, df_test = get_train_test_data(ExperimentScenario.NON_TIME_VARIANT)
+    df, df_test, _ = get_train_test_external_data(ExperimentScenario.NON_TIME_VARIANT)
 
     trained_model = load_pkl_and_dill_model(egfr_ti_srf_model_path)
 
@@ -104,7 +104,7 @@ def evaluate_model(rsf, df, df_test):
 def run_scenario(scenario: ExperimentScenario):
     """Scenario-aware entry point for four_features/eight_features/
     twenty_features_heterogeneous."""
-    df, df_test = get_last_observation_data(scenario)
+    df, df_test, _ = get_last_observation_data(scenario)
     model_path = srf_model_path_dict[scenario]
 
     trained_model = load_pkl_and_dill_model(model_path)

@@ -19,6 +19,10 @@ evaluation (each model's existing function controls reuse of saved models)::
     # Subgroup performance (age/sex/race), PAPER_GAPS_EXPERIMENT_PLAN.md Gap 12:
     python -m pkgs.scripts.run_experiments analyze --reps 2 3 --analyses subgroup
 
+    # Same evaluation on the internal holdout set instead of the test set
+    # (clinical_validity and subgroup; every saved file is prefixed external_validation_):
+    python -m pkgs.scripts.run_experiments analyze --reps all --external-validation
+
     # Select a scenario and model subset on the mini-experiment repetition:
     python -m pkgs.scripts.run_experiments analyze --reps 99 --scenarios twenty_features_heterogeneous --models cox srf
 
@@ -43,9 +47,17 @@ Selection options:
   training/clinical validity. Use dynamic_deephit/rnnsurv on the CLI, even
   though analysis reports use ddh/rnn_surv internally.
 - --analyses: clinical_validity, feature_importance, subgroup.
-  All three run by default for "analyze".
+  All three run by default for "analyze" (clinical_validity and subgroup with
+  --external-validation, since feature importance does not score a split).
   Explicit selections run only those tasks. This option does not select anything
   for "train".
+- --external-validation: score each rep's internal holdout set
+  (<scenario>_external_validation_data.csv: 20% of patients, never used for
+  training or model selection) instead of the test set. Every saved file gets an
+  external_validation_ prefix, e.g. external_validation_auc_comparison.png,
+  external_validation_four_features_clinical_validity_report.txt and
+  external_validation_rep1_clinical_validity_<timestamp>.log, so the test-set
+  outputs are left untouched.
 - Production data/artifacts/logs use generated_data/rep_1/ through rep_5/;
   rep99 and rep100 retain their existing names.
 - Logs default to the repetition directory as rep<N>_<task>_<timestamp>.log.
@@ -169,8 +181,9 @@ def parse_args(argv=None):
     parser.add_argument("--models", nargs="+", choices=TRAIN_FUNCTIONS,
                         help="Model subset; defaults to all applicable models")
     parser.add_argument("--analyses", nargs="+", choices=ANALYSES,
-                        default=list(ANALYSES),
-                        help="Analyses to run (default: all three)")
+                        help="Analyses to run (default: all three; all but feature_importance with --external-validation)")
+    parser.add_argument("--external-validation", action="store_true",
+                        help="Evaluate clinical_validity/subgroup on the internal holdout set instead of the test set")
     parser.add_argument("--log-dir", type=Path,
                         help="Override the default generated_data/rep<N>/ log directory")
     parser.add_argument("--dry-run", action="store_true", help="Print subprocess commands without running them")
@@ -186,6 +199,10 @@ def parse_args(argv=None):
         except ValueError:
             parser.error("--reps must be positive integers, or 'all' by itself")
     args.scenarios = list(dict.fromkeys(args.scenarios))
+    if args.analyses is None:
+        args.analyses = [a for a in ANALYSES if not args.external_validation or a != "feature_importance"]
+    elif args.external_validation and "feature_importance" in args.analyses:
+        parser.error("--external-validation applies to clinical_validity and subgroup only")
     args.analyses = list(dict.fromkeys(args.analyses))
     if args.models:
         args.models = list(dict.fromkeys(args.models))
@@ -205,13 +222,14 @@ def run_worker(args):
     output_dir = Path(generate_data_path_latest_rep)
     print(f"rep{args.reps[0]} {args.action}: {', '.join(args.scenarios)}; output={output_dir}", flush=True)
     analyzer = None
+    eval_split = "external_validation" if args.external_validation else "test"
     if args.action == "analyze":
         if args.analyses == ["clinical_validity"]:
             from pkgs.data_analysis.clinical_validity_analysis import ClinicalValidityAnalyzer
-            analyzer = ClinicalValidityAnalyzer(output_dir)
+            analyzer = ClinicalValidityAnalyzer(output_dir, split=eval_split)
         elif args.analyses == ["subgroup"]:
             from pkgs.data_analysis.subgroup_analysis import SubgroupAnalyzer
-            analyzer = SubgroupAnalyzer(output_dir)
+            analyzer = SubgroupAnalyzer(output_dir, split=eval_split)
         elif args.analyses == ["feature_importance"]:
             from pkgs.data_analysis.feature_importance_analysis import FeatureImportanceAnalyzer
             analyzer = FeatureImportanceAnalyzer("_".join(args.scenarios), output_dir)
@@ -226,8 +244,9 @@ def run_worker(args):
     failures = []
     for scenario in args.scenarios:
         # get_train_test_data otherwise falls back to raw-data extraction.
+        required = ("train", "test") + (("external_validation",) if args.external_validation else ())
         missing = [str(output_dir / f"{scenario}_{split}_data.csv")
-                   for split in ("train", "test")
+                   for split in required
                    if not (output_dir / f"{scenario}_{split}_data.csv").is_file()]
         if missing:
             print(f"FAILED {scenario}: missing existing data: {', '.join(missing)}", flush=True)
@@ -278,9 +297,12 @@ def run_rep(args, rep, stamp):
                 command.extend(["--models", *args.models])
             if args.action == "analyze":
                 command.extend(["--analyses", task])
+                if args.external_validation:
+                    command.append("--external-validation")
             print(shlex.join(command), flush=True)
             log_dir = args.log_dir if args.log_dir is not None else ROOT / "generated_data" / repetition_directory_name(rep)
-            log = log_dir / f"rep{rep}_{task}_{stamp}.log"
+            prefix = "external_validation_" if args.external_validation else ""
+            log = log_dir / f"{prefix}rep{rep}_{task}_{stamp}.log"
             print(f"Log: {log.resolve()}", flush=True)
             if args.dry_run:
                 continue

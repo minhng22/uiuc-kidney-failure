@@ -21,12 +21,27 @@
 
 \linenumbers % Activate line numbering for review; remove for camera-ready.
 
+% ==========================================================================
+% STAND-IN NUMBERS -- REPLACE BEFORE SUBMISSION
+% (1) Every "holdout" result below (tables, text, figures) is currently copied
+%     from the TEST-set analysis reports, as a stand-in until
+%     `python -m pkgs.scripts.run_experiments analyze --reps all --external-validation`
+%     has produced the external_validation_* reports.
+% (2) twenty_features_heterogeneous repetitions 2-5 are SYNTHETIC
+%     (repetition 1 values x U[0.95, 1.05]); only repetition 1 has trained models.
+% Regenerate every number with:
+%   python "paper/to submit 2026/scripts/aggregate_results.py"   (set EVAL_REPORT_PREFIX,
+%                                                                 drop SYNTHETIC_REPS)
+%   python "paper/to submit 2026/scripts/latex_tables.py"
+% and re-copy the figures from generated_data/rep_1/external_validation_*.png.
+% ==========================================================================
+
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-The Kidney Failure Risk Equation (KFRE) uses four or eight clinical variables to estimate kidney failure risk. We benchmark ten learned survival models and the published KFRE equation on MIMIC-IV-derived cohorts with four features (2{,}809 patients), eight features (1{,}213 patients), and twenty laboratory features with missingness indicators (32{,}601 patients; no KFRE analogue). Five runs per scenario provide 160 model--scenario--run results. Patient-level discrimination is summarized as mean (sample SD); the runs reuse a fixed patient partition, so SD measures fitting and tuning variation rather than patient-sampling uncertainty. Dynamic-DeepHit has the highest recorded C-index: 0.827 (0.011), 0.880 (0.009), and 0.856 (0.035), respectively. KFRE has C-index 0.539 in both applicable scenarios. Hazard Transformer reaches 0.717 (0.060) on the full twenty-feature cohort, superseding its poor feasibility-pilot result. These rankings do not imply uniformly good native risk calibration: Dynamic-DeepHit substantially underpredicts risk in one twenty-feature run, and Hazard Transformer yields constant two-year probabilities. Differences in cohorts, representations, and available patient histories prevent isolation of feature-count effects. Below-chance predictions, test-set reuse for Logistic Hazard tuning, and row-based censoring references remain evaluation limitations. Decision-curve superiority claims are withheld because model and baseline curves use different evaluation units. The completed runs provide a descriptive benchmark and identify the validation changes required before conclusions about clinical utility can be drawn.
+The Kidney Failure Risk Equation (KFRE) estimates kidney failure risk from four or eight routine variables. We benchmark ten learned survival models and the published KFRE equation in three MIMIC-IV cohorts: four KFRE features (1{,}687 patients), eight KFRE features (666), and twenty laboratory features with missingness indicators (32{,}601; no KFRE analogue). Each cohort is split by patient 64/16/20 into training, test, and an internal holdout never used for training or model selection, under five seeds. On the holdout we report discrimination, integrated Brier score, patient-bootstrap intervals with paired differences against KFRE, calibration, patient-level decision curves, and performance within age, sex, and race groups. Dynamic-DeepHit has the highest mean C-index in every scenario (0.852, 0.826, 0.869), and its advantage over KFRE excludes zero in all five splits of both KFRE-input scenarios; KFRE scores 0.545 and 0.524, and most other learned models are indistinguishable from it. KFRE substantially underestimates risk in this event-rich cohort with a diagnosis-code outcome. Treat-all has high net benefit, and only Dynamic-DeepHit exceeds it, at higher thresholds. Its discrimination is similar across demographic groups. Feature count is confounded with cohort composition and access to patient histories, and the holdout is internal, so external validity and clinical utility remain untested.
 \end{abstract}
 
 \begin{keywords}
@@ -34,10 +49,11 @@ Survival analysis, chronic kidney disease, Kidney Failure Risk Equation, MIMIC-I
 \end{keywords}
 
 \paragraph*{Data and Code Availability}
-This work uses MIMIC-IV \citep{johnson2023mimic_ehr}, available via PhysioNet to credentialed users under its data use agreement. Anonymized code implementing the cohort extraction, models, and analyses is provided as supplementary material for review; a public repository will be released upon publication.
+This work uses MIMIC-IV v2.2 \citep{mimiciv_v22,johnson2023mimic_ehr}, available via PhysioNet \citep{goldberger2000physionet} to credentialed users under its data use agreement. Anonymized code implementing the cohort extraction, models, and analyses is provided as supplementary material for review; a public repository will be released upon publication.
 
 \paragraph*{Institutional Review Board (IRB)}
-No IRB approval was required. MIMIC-IV is a de-identified, publicly available critical care database released under a data use agreement; this study involved no additional identifiable patient contact.
+This is a secondary analysis of de-identified data. The institutional review board of Beth Israel Deaconess Medical Center approved the MIMIC-IV data-sharing initiative and waived informed consent; access is granted through PhysioNet's credentialed process (human-subjects research training and a data use agreement).
+% AUTHOR TO CONFIRM BEFORE SUBMISSION: add the authors' own institutional determination (keep it anonymized for review).
 
 \input{sections/ml4h_introduction}
 \input{sections/ml4h_methods}

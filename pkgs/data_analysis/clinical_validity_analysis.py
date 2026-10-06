@@ -803,7 +803,16 @@ def discrimination_metrics(y_train, train_max, risk_scores, durations, events, b
 
 
 class ClinicalValidityAnalyzer:
-    def __init__(self, output_dir):
+    def __init__(self, output_dir, split='test'):
+        # split='external_validation' scores the internal holdout set (20% of
+        # patients, never used for training or model selection) instead of the
+        # test set, and prefixes every saved file with 'external_validation_' so
+        # neither run overwrites the other's reports or charts.
+        if split not in ('test', 'external_validation'):
+            raise ValueError(f"split must be 'test' or 'external_validation', got {split!r}")
+        self.split = split
+        self.split_label = 'test' if split == 'test' else 'holdout'
+        self.file_prefix = '' if split == 'test' else f'{split}_'
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True, parents=True)
         self.current_scenario = None
@@ -867,13 +876,15 @@ class ClinicalValidityAnalyzer:
         'survival_svm': SurvivalSVMModel, 'weibul': WeibulModel,
     }
 
-    def _get_predictions(self, model_name, model_path, scenario, split='test'):
+    def _get_predictions(self, model_name, model_path, scenario, split=None):
         """Loads the model file, wraps it in its own class from pkgs/models/
         where one is needed, and calls that model's own
         predictions(scenario, split=split). Every model now fetches its own
         data and does its own forward-pass/predict() interpretation (per
         Stage 2.2's model-layer refactor -- see pkgs/models/cox.py's module
-        docstring) -- this method is pure dispatch, no domain logic."""
+        docstring) -- this method is pure dispatch, no domain logic. split=None
+        means this analyzer's evaluation split (test or external_validation)."""
+        split = self.split if split is None else split
         if model_name in self._SKLEARN_STYLE_MODEL_CLASSES:
             model = load_pkl_and_dill_model(model_path)
             if model is None:
@@ -930,7 +941,7 @@ class ClinicalValidityAnalyzer:
         test_check = verify_patient_outcomes(df_test, test_terminal)
 
         self.log("Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).")
-        for split_name, check in (('train', train_check), ('test', test_check)):
+        for split_name, check in (('train', train_check), (self.split_label, test_check)):
             self.log(f"  {split_name}: {check['n_rows']} lab-event rows -> {check['n_patients']} patients; "
                      f"event rate {check['row_event_rate']:.4f} (row-level) vs "
                      f"{check['patient_event_rate']:.4f} (patient-level, {check['n_events']} events)")
@@ -949,9 +960,9 @@ class ClinicalValidityAnalyzer:
         horizons = [h for h in DEFAULT_HORIZONS_DAYS if h < max_followup]
         if not horizons:
             horizons = [max_followup * 0.5]
-        self.log(f"Max test follow-up: {max_followup:.1f} days. Horizons used: {horizons}")
+        self.log(f"Max {self.split_label} follow-up: {max_followup:.1f} days. Horizons used: {horizons}")
         self.log(f"Training-set max follow-up: {train_observed_max:.1f} days; IPCW evaluation capped at "
-                 f"{train_max:.1f} days (censoring distribution support). Test patients followed past "
+                 f"{train_max:.1f} days (censoring distribution support). {self.split_label.capitalize()} patients followed past "
                  "the cap are administratively censored there.")
         self.log("")
 
@@ -1165,7 +1176,7 @@ class ClinicalValidityAnalyzer:
                     self.log(f"Integrated Brier score (0-{horizon:.0f}d): {brier['value']} "
                              f"[{brier['source']}]")
                     if brier['n_censored_at_train_max']:
-                        self.log(f"  ({brier['n_censored_at_train_max']} test patients "
+                        self.log(f"  ({brier['n_censored_at_train_max']} {self.split_label} patients "
                                  f"administratively censored at the training-set max follow-up)")
                 except Exception as e:
                     self.log(f"  Error computing Brier score: {e}")
@@ -1225,10 +1236,10 @@ class ClinicalValidityAnalyzer:
         auc_times = bootstrap_ci.bootstrap_auc_grid(auc_max)
 
         self.log(f"\n{'=' * 80}")
-        self.log(f"BOOTSTRAP UNCERTAINTY — {n_bootstrap} resamples of the {n_patients} test patients, "
+        self.log(f"BOOTSTRAP UNCERTAINTY — {n_bootstrap} resamples of the {n_patients} {self.split_label} patients, "
                  "95% percentile intervals (Gap 3)")
         self.log("=" * 80)
-        self.log("Only test patients are resampled; the training-set censoring reference is held "
+        self.log(f"Only {self.split_label} patients are resampled; the training-set censoring reference is held "
                  "fixed (see pkgs/data_analysis/bootstrap_ci.py for why).")
         self.log("C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. "
                  "Numerically constant rankings are withheld from points, intervals and paired differences.")
@@ -1361,7 +1372,7 @@ class ClinicalValidityAnalyzer:
                         ax.set_xlabel('Predicted', fontsize=9)
 
             plt.tight_layout()
-            output_path = self.output_dir / f'{scenario_name}_calibration_plot.png'
+            output_path = self.output_dir / f'{self.file_prefix}{scenario_name}_calibration_plot.png'
             plt.savefig(output_path, dpi=300, bbox_inches='tight')
             plt.close(fig)
             self.log(f"Calibration plot saved to: {output_path}")
@@ -1419,7 +1430,7 @@ class ClinicalValidityAnalyzer:
                 ax.legend(fontsize=7)
 
             plt.tight_layout()
-            output_path = self.output_dir / f'{scenario_name}_decision_curve_plot.png'
+            output_path = self.output_dir / f'{self.file_prefix}{scenario_name}_decision_curve_plot.png'
             plt.savefig(output_path, dpi=300, bbox_inches='tight')
             plt.close(fig)
             self.log(f"Decision curve plot saved to: {output_path}")
@@ -1435,12 +1446,13 @@ class ClinicalValidityAnalyzer:
             f"Generated on: {timestamp}",
             f"Repetition: {current_rep}",
             f"Scenario: {scenario_name}",
+            f"Evaluation split: {self.split_description()}",
             "Competing-risk analysis (death before ESRD) not included — raised and declined",
             "(2026-08-23); see EXPERIMENT_PLAN_DETAILS.md Stage 2.1 for why.",
             "=" * 80,
             "",
         ]
-        report_path = self.output_dir / f'{scenario_name}_clinical_validity_report.txt'
+        report_path = self.output_dir / f'{self.file_prefix}{scenario_name}_clinical_validity_report.txt'
         with open(report_path, 'w') as f:
             f.write('\n'.join(header + lines))
         print(f"Scenario report saved to: {report_path}")
@@ -1492,23 +1504,34 @@ class ClinicalValidityAnalyzer:
             ax.axhline(0.0, color='black', linewidth=0.8)
 
             plt.tight_layout()
-            output_path = self.output_dir / filename
+            output_path = self.output_dir / f'{self.file_prefix}{filename}'
             plt.savefig(output_path, dpi=300, bbox_inches='tight')
             plt.close(fig)
             print(f"Metrics comparison chart saved to: {output_path}")
 
+    def split_description(self):
+        if self.split == 'external_validation':
+            return ("internal holdout (20% of the patient pool, disjoint from train/test, "
+                    "never used for training or model selection)")
+        return "test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)"
+
+    def _train_and_evaluation_frames(self, scenario_enum):
+        """Training frame (censoring reference, Breslow baselines) plus the
+        frame this analyzer scores: the test set or the internal holdout
+        (external_validation)."""
+        from pkgs.data_analysis.model_data_store import get_train_test_external_data, select_split
+        df_train, df_test, df_external = get_train_test_external_data(scenario_enum)
+        return df_train, select_split(df_train, df_test, df_external, self.split)
+
     def analyze_four_features(self):
-        from pkgs.data_analysis.model_data_store import get_train_test_data
-        df_train, df_test = get_train_test_data(ExperimentScenario.FOUR_FEATURES)
-        self.analyze_scenario('four_features', ExperimentScenario.FOUR_FEATURES, df_train, df_test)
+        df_train, df_eval = self._train_and_evaluation_frames(ExperimentScenario.FOUR_FEATURES)
+        self.analyze_scenario('four_features', ExperimentScenario.FOUR_FEATURES, df_train, df_eval)
 
     def analyze_eight_features(self):
-        from pkgs.data_analysis.model_data_store import get_train_test_data
-        df_train, df_test = get_train_test_data(ExperimentScenario.EIGHT_FEATURES)
-        self.analyze_scenario('eight_features', ExperimentScenario.EIGHT_FEATURES, df_train, df_test)
+        df_train, df_eval = self._train_and_evaluation_frames(ExperimentScenario.EIGHT_FEATURES)
+        self.analyze_scenario('eight_features', ExperimentScenario.EIGHT_FEATURES, df_train, df_eval)
 
     def analyze_twenty_features(self):
-        from pkgs.data_analysis.model_data_store import get_train_test_data
-        df_train, df_test = get_train_test_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
+        df_train, df_eval = self._train_and_evaluation_frames(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS)
         self.analyze_scenario('twenty_features_heterogeneous', ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS,
-                               df_train, df_test)
+                               df_train, df_eval)

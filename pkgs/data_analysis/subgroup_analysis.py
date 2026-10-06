@@ -99,7 +99,7 @@ class SubgroupAnalyzer(ClinicalValidityAnalyzer):
         test_terminal = patient_level_outcomes(df_test)
         train_check = verify_patient_outcomes(df_train, train_terminal)
         test_check = verify_patient_outcomes(df_test, test_terminal)
-        for split_name, check in (('train', train_check), ('test', test_check)):
+        for split_name, check in (('train', train_check), (self.split_label, test_check)):
             self.log(f"{split_name}: {check['n_rows']} lab-event rows -> {check['n_patients']} patients, "
                      f"{check['n_events']} events (patient-level event rate "
                      f"{check['patient_event_rate']:.4f})")
@@ -296,6 +296,7 @@ class SubgroupAnalyzer(ClinicalValidityAnalyzer):
             f"Generated on: {timestamp}",
             f"Repetition: {current_rep}",
             f"Scenario: {scenario_name}",
+            f"Evaluation split: {self.split_description()}",
             "",
             "This reports model performance WITHIN demographic groups. It is not a fairness",
             "evaluation: no fairness criterion is defined or tested here, and a between-group",
@@ -311,7 +312,7 @@ class SubgroupAnalyzer(ClinicalValidityAnalyzer):
             "=" * 80,
             "",
         ]
-        report_path = self.output_dir / f'{scenario_name}_subgroup_performance_report.txt'
+        report_path = self.output_dir / f'{self.file_prefix}{scenario_name}_subgroup_performance_report.txt'
         with open(report_path, 'w') as f:
             f.write('\n'.join(header + lines))
         print(f"Subgroup report saved to: {report_path}")

@@ -14,7 +14,7 @@ import pandas as pd
 from lifelines.utils import concordance_index
 
 from pkgs.commons import generate_data_path_latest_rep
-from pkgs.data_analysis.model_data_store import get_train_test_data
+from pkgs.data_analysis.model_data_store import get_train_test_external_data
 from pkgs.data_analysis.types import ExperimentScenario
 from pkgs.data_analysis.auc_evaluation import report_auc
 from pkgs.experiments.utils import round_metric, compute_brier_score_from_risk_scores
@@ -30,7 +30,7 @@ def run_kfre_model(scenario: ExperimentScenario, years=2):
     assert scenario in [ExperimentScenario.FOUR_FEATURES, ExperimentScenario.EIGHT_FEATURES], \
         f"KFRE has no published equation for {scenario} (only 4-/8-variable)"
 
-    data_train, data_test = get_train_test_data(scenario)
+    data_train, data_test, _ = get_train_test_external_data(scenario)
 
     scores_path = get_kfre_risk_scores_path(scenario, years)
     if os.path.exists(scores_path):

@@ -1,5 +1,14 @@
 ## TODO For PLOS submission
 
+**Status 2026-10-05:** TODO 1 (TRIPOD+AI checklist written as S1 Checklist;
+manuscript gaps it exposed were filled: intended use, data dates/setting,
+sample size, class imbalance, fairness scope, model output), TODO 2 (ethics
+statement in Methods from verified MIMIC-IV/PhysioNet facts; MIMIC-IV v2.2 DOI
+10.13026/6mm1-ek67 cited; data-availability text in the portal block) and
+TODO 3 (IBS wording in Methods > Evaluation) are done, as is the bibliography
+cleanup. Still open: the authors' own IRB determination (`AUTHOR TO CONFIRM`
+comments), and the stand-in numbers listed in README.md.
+
 
 **TODO 1 — reporting improvement for the survival-prediction benchmark**
 - Relevant — TRIPOD+AI applies because the hazard and survival models are evaluated for individual prognostic prediction, rather than solely for associations or hazard ratios. Its scope includes both regression and machine learning ([official scope](https://www.tripod-statement.org/scope/)).

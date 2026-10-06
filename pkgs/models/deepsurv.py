@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_last_observation_data, select_split
 from pkgs.experiments.utils import get_tv_rnn_model_features
 
 class DeepSurv(nn.Module):
@@ -39,8 +39,8 @@ class DeepSurv(nn.Module):
         convention directly, no transform needed. Returns
         (risk_scores, durations, events, None) -- this model has no native
         per-horizon output."""
-        df_train_flat, df_test_flat = get_last_observation_data(scenario)
-        df_flat = df_train_flat if split == 'train' else df_test_flat
+        df_train_flat, df_test_flat, df_holdout_flat = get_last_observation_data(scenario)
+        df_flat = select_split(df_train_flat, df_test_flat, df_holdout_flat, split)
         features = get_tv_rnn_model_features(scenario)
         X = torch.tensor(df_flat[features].values, dtype=torch.float32)
 

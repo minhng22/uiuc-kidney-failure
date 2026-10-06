@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from pkgs.data_analysis.types import ExperimentScenario
-from pkgs.data_analysis.model_data_store import get_last_observation_data
+from pkgs.data_analysis.model_data_store import get_last_observation_data, select_split
 from pkgs.experiments.utils import get_tv_rnn_model_features
 
 class RNNSurv(nn.Module):
@@ -89,8 +89,8 @@ class RNNSurv(nn.Module):
             raise ValueError(
                 "This RNN-Surv checkpoint uses the obsolete sigmoid head; retrain it before analysis."
             )
-        df_train_flat, df_test_flat = get_last_observation_data(scenario)
-        df_flat = df_train_flat if split == 'train' else df_test_flat
+        df_train_flat, df_test_flat, df_holdout_flat = get_last_observation_data(scenario)
+        df_flat = select_split(df_train_flat, df_test_flat, df_holdout_flat, split)
         durations = df_flat['duration_in_days'].values
         events = df_flat['has_esrd'].values
         features = get_tv_rnn_model_features(scenario)

@@ -1,51 +1,52 @@
 \section{Methods}\label{sec:methods}
 
-\textbf{Problem formulation.} We frame progression to ESRD as right-censored time-to-event estimation. Each covariate row $\boldsymbol{x}_i\in\mathbb{R}^d$ is paired with a duration $t_i\in\mathbb{R}^+$ and event indicator $e_i\in\{0,1\}$. Patient histories are stored in a counting-process (\texttt{start}, \texttt{stop}) format, supporting time-varying Cox fitting, snapshot-based KFRE prediction, and sequence models consuming a patient's full row history (Dynamic-DeepHit, Hazard Transformer).
+\textbf{Problem formulation.} We frame progression to ESRD as right-censored time-to-event estimation. Each covariate row $\boldsymbol{x}_i\in\mathbb{R}^d$ is paired with a duration $t_i\in\mathbb{R}^+$ and event indicator $e_i\in\{0,1\}$. Patient histories are stored in a counting-process (\texttt{start}, \texttt{stop}) format, supporting time-varying Cox fitting, snapshot-based KFRE prediction, and sequence models consuming a patient's full row history (Dynamic-DeepHit, Hazard Transformer). Durations are measured from each patient's first extracted laboratory record.
 
 \subsection{Cohort} \label{sec:cohort}
-The source population is 34{,}332 MIMIC-IV patients meeting a CKD stage 3--5 or ESRD diagnosis-code criterion (57.2\% male, mean age 67.8, SD 16.1).
+The data are MIMIC-IV v2.2 \citep{mimiciv_v22,johnson2023mimic_ehr}, de-identified records from one academic medical centre (2008--2019). The source population is 34{,}332 patients meeting a CKD stage 3--5 or ESRD diagnosis-code criterion (57.2\% male, mean age 67.8, SD 16.1).
 
-\textbf{Outcome definition.}\label{sec:outcome} The labelled event is an acute or unspecified kidney-failure diagnosis code (ICD-10 N17.0--N17.9, N19; ICD-9 584.5--584.9) in a patient who also carries a CKD stage 3--5 code, dated to the admission that recorded it and resolved to the calendar day. End-stage-renal-disease codes (ICD-10 N18.6; ICD-9 585.6) and dialysis/transplant-status codes are not part of it. KFRE's endpoint is instead the initiation of maintenance dialysis or preemptive transplantation \citep{tangri2011predicting,tangri2016multinational}, so part of any KFRE calibration gap reported here is definitional. For brevity the rest of this paper writes \emph{ESRD} for this labelled event; it should be read throughout as the diagnosis-code definition given here, not as end-stage renal disease established by dialysis or transplantation. Label-positive and label-negative patients are also drawn separately, making the 83--92\% label-positive proportion a parameter of that draw rather than an incidence comparable to KFRE's cohorts; and the learned models are fitted to this cohort while KFRE is applied without refitting.
+\textbf{Outcome definition.}\label{sec:outcome} The labelled event is an acute or unspecified kidney-failure diagnosis code (ICD-10 N17.0--N17.9, N19; ICD-9 584.5--584.9) in a patient who also carries a CKD stage 3--5 code, dated to the admission that recorded it and resolved to the calendar day. End-stage-renal-disease codes (ICD-10 N18.6; ICD-9 585.6) and dialysis/transplant-status codes are not part of it. KFRE's endpoint is instead the initiation of maintenance dialysis or preemptive transplantation \citep{tangri2011predicting,tangri2016multinational}, so part of any KFRE calibration gap reported here is definitional. We write \emph{ESRD} for this labelled event throughout. Label-positive and label-negative patients are drawn separately, making the 75--92\% label-positive proportion a parameter of that draw rather than an incidence comparable to KFRE's cohorts; and the learned models are fitted to this cohort while KFRE is applied without refitting.
 
-\textbf{Four/eight\_features (KFRE-comparable).} KFRE's inputs come from separate, asynchronously-ordered labs (creatinine, urine albumin/creatinine, and for the 8-variable form, a chemistry panel), so assembling complete covariate rows required a merge design (full derivation and literature citations in Appendix~\ref{app:cohort}): each row anchors on one creatinine draw (eGFR computed at that instant via CKD-EPI 2021); calcium/phosphate/bicarbonate/albumin are matched to the nearest value within $\pm$24h (following APACHE II's precedent for a concurrent chemistry-panel snapshot); uACR is matched to the nearest value across the patient's whole history (loosened from a same-admission bound after that bound caused 96.5\% cohort attrition with outcome-rate skew); rows missing a required lab are dropped, not imputed. This keeps four\_features/eight\_features complete-case and time-varying (one row per qualifying creatinine draw), with scenario-specific cohort selection. Matching is retrospective and can include measurements after the creatinine anchor.
+\textbf{Four/eight\_features (KFRE-comparable).} Each row anchors on one creatinine draw (eGFR computed at that instant via CKD-EPI 2021). Calcium, phosphate, bicarbonate, and albumin are matched to the nearest value within $\pm$24h in the same admission: they are ordered on the same chemistry panel as creatinine, their recorded times differ mainly by assay turnaround, and the window reconstructs the single-visit snapshot a clinician would use for the 8-variable KFRE (following APACHE II's 24-hour snapshot convention \citep{knaus1985apacheii}). uACR, a separately ordered urine test that rises with progression, is taken from the latest measurement at or before the anchor across the patient's whole prior history, so no later value is used. Rows missing a required lab are dropped, so these scenarios are complete-case (Appendix~\ref{app:cohort}).
 
-\textbf{Twenty\_features (heterogeneous).} We select the 20 most frequently measured labs for this cohort, each represented as a (value, missingness-flag) pair (40 columns), one row per lab event, no cross-lab merge — a broader sparse-input scenario that also changes cohort eligibility and representation, rather than isolating feature count.
+\textbf{Twenty\_features (heterogeneous).} The 20 most frequently measured labs are each represented as a (value, missingness-flag) pair (40 columns), one row per lab event, no cross-lab merge, a broader sparse-input scenario that also changes cohort eligibility and representation.
 
-Table~\ref{tab:cohort_flow} reports the distinct extracted cohorts. The eight-feature cohort (1{,}213 patients, 1{,}032 events) is the smallest; these full-cohort counts do not establish training-sample adequacy for all architectures.
+\textbf{Partitioning.} Each scenario's patients are split 64/16/20 into training, test, and internal holdout sets, by patient and stratified on the event label, under five different seeds. The holdout is never used for fitting, tuning, early stopping, or model selection; all reported performance is measured on it. Table~\ref{tab:cohort_flow} summarizes the cohorts.
 
 \begin{table}[t]
 \centering
 \scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 & \textbf{Source} & \textbf{four} & \textbf{eight} & \textbf{twenty} \\
 \midrule
-Patients & 34,332 & 2,809 & 1,213 & 32,601 \\
-Records & 74,197 & 26,829 & 5,407 & 8.13M \\
-\% male & 57.2 & 58.3 & 60.4 & 57.1 \\
-Age, yrs (SD) & 67.8 (16.1) & 63.9 (15.1) & 62.1 (15.4) & 67.8 (16.1) \\
-ESRD, \% & 91.9 & 83.5 & 85.1 & 91.5 \\
-Train/test pts & --- & 2247/562 & 970/243 & 26080/6521 \\
+Patients & 34,332 & 1,687 & 666 & 32,601 \\
+Records & 74,197 & 14,543 & 2,529 & 8.13M \\
+\% male & 57.2 & 57.1 & 57.4 & 57.1 \\
+Age, yrs (SD) & 67.8 (16.1) & 65.6 (14.7) & 64.5 (15.3) & 67.8 (16.1) \\
+ESRD, \% & 91.9 & 75.2 & 76.9 & 91.5 \\
+Train/test/holdout & --- & 1079/270/338 & 425/107/134 & 20864/5216/6521 \\
 \bottomrule
-\end{tabular}
-\caption{Cohort flow: source population vs.\ each scenario's final cohort.}
+\end{tabular}%
+}
+\caption{Cohort flow: source population vs.\ each scenario's final cohort. Split counts are for repetition 1.}
 \label{tab:cohort_flow}
 \end{table}
 
 \subsection{KFRE Baseline} \label{sec:kfre}
 For four/eight\_features we add KFRE as a non-trained benchmark: $\mathrm{Risk}(t)=1-S_0(t)^{\exp(L)}$, $S_0$(2yr)$=0.9750$ (four variables) or $0.9780$ (eight variables) \citep{tangri2016multinational}, with
 \begin{align}
-L_4 &= -0.2201(\tfrac{\text{age}}{10}{-}7.036) + 0.2467(\text{male}{-}0.5642) \nonumber \\
-&\ \ -0.5567(\tfrac{\text{eGFR}}{5}{-}7.222) + 0.4510(\ln(\text{uACR}){-}5.137)
+L_4 &= -0.2201(\tfrac{\text{age}}{10}{-}7.036) \nonumber \\
+&\ \ + 0.2467(\text{male}{-}0.5642) \nonumber \\
+&\ \ -0.5567(\tfrac{\text{eGFR}}{5}{-}7.222) \nonumber \\
+&\ \ + 0.4510(\ln(\text{uACR}){-}5.137)
 \end{align}
-for the 4-variable form and an analogous 8-term $L_8$ (adding albumin, phosphate, bicarbonate, calcium terms) for the 8-variable form \citep{tangri2011predicting} (full coefficients in Appendix~\ref{app:kfre}).
+for the 4-variable form and an analogous 8-term $L_8$ for the 8-variable form \citep{tangri2011predicting} (full coefficients in Appendix~\ref{app:kfre}).
 
 \subsection{Benchmarked Models} \label{sec:models}
-We benchmark 10 learned models per scenario, plus KFRE on four/eight\_features only (11 total there): \textbf{Cox} (\texttt{lifelines}' \texttt{CoxTimeVaryingFitter}, fit directly on the counting-process rows) and \textbf{Weibull AFT} \citep{cox1972regression,anderson1991nonproportional_weibull,davidson2019lifelines}; the neural models \textbf{DeepSurv} \citep{katzman2018deepsurv}, \textbf{Dynamic-DeepHit} \citep{lee2020dynamicdeephit,lee2018deephit}, \textbf{RNN-Surv} (LSTM-based) \citep{giunchiglia2018rnn_surv}, \textbf{LogisticHazard} (\texttt{pycox}'s off-the-shelf discrete-time hazard model), and \textbf{Hazard Transformer} \citep{hazard_transformer,vaswani2017attention}; and the ensembles \textbf{GBSA} \citep{chen2013gradient_GBSA}, \textbf{Random Survival Forest} \citep{pickett2021random_survival_forests,ishwaran2008random}, and \textbf{FastSurvivalSVM}, via \texttt{scikit-survival} \citep{polsterl2020sksurv}. Every architecture's exact structural form, loss, and tuned hyperparameter range — verified directly against the model implementations, not restated from a fixed reference configuration — is given in Appendix~\ref{app:models}; neural models use 10-trial Optuna searches, GBSA/SRF use grid search, and FastSurvivalSVM/Cox/Weibull AFT use fixed hyperparameters. Neural selection is based on training C-index except LogisticHazard, which uses the designated test partition for validation and trial/checkpoint selection; its test result is therefore subject to model-selection leakage (Appendix~\ref{app:models}).
+We benchmark 10 learned models per scenario, plus KFRE on four/eight\_features only: \textbf{Cox} (\texttt{lifelines}' \texttt{CoxTimeVaryingFitter} on the counting-process rows) and \textbf{Weibull AFT} \citep{cox1972regression,anderson1991nonproportional_weibull,davidson2019lifelines}; the neural models \textbf{DeepSurv} \citep{katzman2018deepsurv}, \textbf{Dynamic-DeepHit} \citep{lee2020dynamicdeephit,lee2018deephit}, \textbf{RNN-Surv} (LSTM-based) \citep{giunchiglia2018rnn_surv}, \textbf{LogisticHazard} (\texttt{pycox}), and \textbf{Hazard Transformer} \citep{hazard_transformer,vaswani2017attention}; and the ensembles \textbf{GBSA} \citep{chen2013gradient_GBSA}, \textbf{Random Survival Forest} \citep{pickett2021random_survival_forests,ishwaran2008random}, and \textbf{FastSurvivalSVM}, via \texttt{scikit-survival} \citep{polsterl2020sksurv}. Architectures, losses, and tuned hyperparameter ranges are in Appendix~\ref{app:models}. Neural models use 10-trial Optuna searches selected on training C-index, except LogisticHazard, which uses the test set as validation data; GBSA/SRF use five-fold grid search within the training set; FastSurvivalSVM, Cox, and Weibull AFT use fixed hyperparameters. No model sees the holdout before evaluation.
 
 \subsection{Evaluation} \label{sec:eval}
-All three scenarios are reported across five runs on the same 80/20 patient-ID partition (\texttt{random\_state=42}), as mean $\pm$ sample SD ($n=5$). These SDs quantify run-to-run variation, not independent-cohort uncertainty. Every model yields one prediction per patient, but snapshot models use final rows while Dynamic-DeepHit and Hazard Transformer use full histories. Follow-up remains anchored to the first lab rather than a prospective prediction landmark.
-
-Harrell's C-index uses full available follow-up. Mean cumulative/dynamic AUC evaluates model-specific scalar scores daily over days 1--728; IBS integrates over 50 times from days 1--730. IBS uses a training-fitted, shifted-score Breslow-style survival conversion for every model, including KFRE, rather than native probabilities. IBS/AUC censoring weights use raw training rows, a remaining mismatch with patient-level test predictions (Appendix~\ref{app:evaluation}).
-
-Calibration at two and five years uses native probabilities when supported and the score conversion otherwise, with Kaplan--Meier risk per decile. Generated decision curves \citep{vickers2006decisioncurve} compare patient-level model outputs with raw-row treat-all/eGFR baselines and inconsistent eGFR decision thresholds; they cannot support clinical-utility comparisons. Competing mortality was not modeled. Full definitions and limitations appear in Appendix~\ref{app:evaluation}.
+We report mean (SD) across the five splits of holdout performance. Every model yields one prediction per patient, scored against one terminal outcome per patient; snapshot models use final rows while Dynamic-DeepHit and Hazard Transformer use full histories. Harrell's C-index uses full follow-up; mean cumulative/dynamic AUC uses a daily grid before day 730. The integrated Brier score (IBS) is computed over days 1--730 (lower is better), with Kaplan--Meier censoring weights from one outcome per training patient, from each model's own survival function where available (a training-fitted score-to-survival conversion otherwise, marked in the tables). Within each split, 1{,}000 patient-bootstrap resamples of the holdout give 95\% percentile intervals and paired differences against KFRE. Calibration compares predicted and Kaplan--Meier-observed risk by decile at two and five years. Decision curves \citep{vickers2006decisioncurve} score every model, treat-all, and eGFR $<$30/$<$45 referral rules (one decision per patient) on the same patients and thresholds (0.05--0.50). Subgroup performance is computed within age, sex, and race groups with at least 20 patients and 5 events. Full definitions are in Appendix~\ref{app:evaluation}.
