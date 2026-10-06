@@ -38,6 +38,13 @@ user. Both are flagged in a comment block at the top of every `.tex` and in
    rows marked `provenance=synthetic_from_rep1`). Remove `SYNTHETIC_REPS` in
    `scripts/aggregate_results.py` once the real reports exist.
 
+3. **Synthetic test-vs-holdout consistency check.** The "Test-set versus
+   holdout consistency" subsection, its table, and S3 Table use synthetic
+   holdout values (test value + bootstrap-scale sampling noise, no optimism
+   built in for any model). `aggregate_results.py` switches to the real
+   `external_validation_*` reports automatically once they exist for every
+   rep; then regenerate the table rows and rewrite that subsection's sentence.
+
 Also open before submission: the authors' own IRB determination (marked
 `AUTHOR TO CONFIRM` in each version's ethics text), and confirm that
 `hu2022locf_bias` (now carrying the correct metadata for arXiv 2204.05870,
@@ -89,7 +96,7 @@ first. Then:
 - `results/` — `performance_per_run.csv` / `performance_summary.csv`
   (discrimination, IBS, fixed-horizon Brier, bootstrap CI), `paired_vs_kfre.csv`,
   `dca_summary.csv`, `subgroup_per_run.csv` / `subgroup_summary.csv` (S1/S2
-  Tables), `calibration_rep1.json`, `cohort_summary.json`,
+  Tables), `test_vs_holdout.csv` / `test_vs_holdout_summary.csv` (S3 Table), `calibration_rep1.json`, `cohort_summary.json`,
   `performance_provenance.json` (sources + stand-in flags).
 - `scripts/` — the three scripts above.
 - `drafts/` — compiled PDFs, named `<PaperTag>_<mmddhhmm><TZ>.pdf`. Keep

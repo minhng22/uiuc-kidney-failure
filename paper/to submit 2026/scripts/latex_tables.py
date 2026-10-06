@@ -93,6 +93,33 @@ def subgroup_rows():
     return "\n".join(out)
 
 
+def consistency_rows():
+    """Holdout minus test-set estimate, mean over splits, with the number of splits whose
+    95% difference interval excluded zero."""
+    rows = read("test_vs_holdout_summary.csv")
+    out = []
+    for m in MODEL_ORDER:
+        cells = []
+        for scenario in ("four_features", "eight_features", "twenty_features_heterogeneous"):
+            for metric in ("c_index", "brier"):
+                r = next((x for x in rows if x["scenario"] == scenario and x["model"] == m
+                          and x["metric"] == metric), None)
+                if r is None:
+                    cells.append("--")
+                    continue
+                diff = float(r["difference_mean"])
+                if round(diff, 3) == 0:
+                    diff = 0.0  # no "-0.000"
+                cell = f"{diff:+.3f} ({r['reps_excluding_zero']}/{r['n_reps']})"
+                cells.append(cell.replace("-", "$-$", 1) if diff < 0 else cell)
+        out.append(f"{DISPLAY.get(m, m)} & " + " & ".join(cells) + " \\\\")
+    per_run = read("test_vs_holdout.csv")
+    excluded = sum(r["excludes_zero"] == "True" for r in per_run)
+    out.append(f"% {excluded} of {len(per_run)} model-scenario-split-metric comparisons exclude zero; "
+               f"provenance={sorted({r['provenance'] for r in per_run})}")
+    return "\n".join(out)
+
+
 def cohort_rows():
     c = json.loads((RESULTS / "cohort_summary.json").read_text())
     days = 365.25
@@ -135,5 +162,6 @@ if __name__ == "__main__":
                         ("FOUR", discrimination_rows("four_features")),
                         ("EIGHT", discrimination_rows("eight_features")),
                         ("TWENTY", discrimination_rows("twenty_features_heterogeneous")),
-                        ("PAIRED", paired_rows()), ("SUBGROUP", subgroup_rows())):
+                        ("PAIRED", paired_rows()), ("SUBGROUP", subgroup_rows()),
+                        ("CONSISTENCY", consistency_rows())):
         print(f"% ---- {title} ----\n{body}\n")

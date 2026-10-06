@@ -82,6 +82,8 @@ The neural models use 10-trial Optuna searches per scenario, maximizing the impl
 
 \textbf{Uncertainty.} Within each repetition, the holdout patients are resampled with replacement 1{,}000 times, and 95\% percentile intervals are reported for the C-index, IBS, and mean AUC. Predictions are computed once and re-indexed for each resample; the training-set censoring reference is held fixed, so intervals describe holdout-sampling uncertainty, not uncertainty in the fitted models. For the bootstrap, the AUC is evaluated on a 25-point grid spanning the same window, which reproduces the daily-grid mean to within 0.001. Paired differences against KFRE, and against the best model by C-index, are computed on the same resamples, so they account for the correlation between two models scored on the same patients. An interval excluding zero is reported as such; these are not multiplicity-adjusted hypothesis tests across the model set.
 
+\textbf{Test-set versus holdout consistency.} Only LogisticHazard uses the test set during model selection; for every other model the test set, like the holdout, is an untouched random sample of the same patients, so the two estimates should differ only by sampling. As a check for leakage or pipeline errors, within each split we compare each model's test-set and holdout estimates of the C-index, IBS, and mean AUC. Because the two sets contain different patients, their errors are independent, and the 95\% interval of the holdout-minus-test difference $\Delta$ is $\Delta \pm 1.96\sqrt{\mathrm{SE}_{\mathrm{test}}^2+\mathrm{SE}_{\mathrm{holdout}}^2}$, with each standard error derived from that set's bootstrap interval.
+
 \textbf{Calibration.} Calibration compares mean predicted risk with Kaplan--Meier-observed risk within deciles of predicted risk at 730 and 1{,}825 days. It uses each model's native horizon probabilities where supported and the training-fitted conversion above otherwise; KFRE calibration uses the published equation's risks directly.
 
 \textbf{Decision curves.} Net benefit \citep{vickers2006decisioncurve} is computed at risk thresholds of 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, and 0.50 for two- and five-year horizons, with the event probability among patients flagged at each threshold estimated by Kaplan--Meier so that censoring before the horizon does not bias it. Every strategy is evaluated on the same holdout patients and patient-level outcomes: each model, treat-all, treat-none, and two eGFR referral rules (eGFR $<$30 and $<$45~mL/min/1.73\,m$^2$), which make one decision per patient from the most recent measured eGFR at or before that patient's prediction landmark and are scored at the same thresholds as the models. Patients without a finite prediction from every displayed model, or without a measured eGFR, are excluded from all strategies alike.
@@ -148,6 +150,35 @@ Unknown/not recorded & -- & -- & -- & -- & 0.800 & 0.720 \\
 \end{tabular}
 \caption{{\bf Holdout C-index within demographic groups.} Mean across the repetitions in which the group met the minimum size (at least 20 patients and 5 events in the holdout); a superscript gives the number of repetitions when fewer than five, and ``--'' marks groups that never met it. DDH, Dynamic-DeepHit; HT, Hazard Transformer. Age is MIMIC-IV \texttt{anchor\_age}, not age at the prediction landmark. All models, IBS, AUC, and per-repetition intervals are in the released per-split results files.}
 \label{tab:subgroup}
+\end{table*}
+
+\begin{table*}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{Four features}} & \multicolumn{2}{c}{\textbf{Eight features}} & \multicolumn{2}{c}{\textbf{Twenty features}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+\textbf{Model} & \textbf{$\Delta$C-index} & \textbf{$\Delta$IBS} & \textbf{$\Delta$C-index} & \textbf{$\Delta$IBS} & \textbf{$\Delta$C-index} & \textbf{$\Delta$IBS} \\
+\midrule
+Cox & +0.010 (0/5) & +0.001 (0/5) & +0.027 (0/5) & $-$0.003 (0/5) & +0.001 (0/5) & $-$0.003 (0/5) \\
+Dynamic-DeepHit & +0.003 (0/5) & +0.003 (0/5) & $-$0.005 (0/5) & +0.005 (0/5) & $-$0.002 (0/5) & $-$0.002 (0/5) \\
+Hazard Transformer & +0.013 (0/5) & $-$0.009 (0/5) & +0.012 (0/5) & $-$0.009 (0/5) & $-$0.001 (0/5) & +0.001 (1/5) \\
+Logistic Hazard & +0.011 (0/5) & +0.003 (1/5) & +0.008 (0/5) & +0.035 (0/5) & +0.000 (0/5) & $-$0.001 (0/5) \\
+RNN-Surv & $-$0.013 (0/5) & $-$0.010 (0/5) & $-$0.016 (0/5) & +0.000 (0/5) & $-$0.002 (0/5) & +0.001 (0/5) \\
+DeepSurv & +0.010 (0/5) & $-$0.001 (0/5) & $-$0.022 (0/5) & +0.000 (0/5) & +0.001 (0/5) & +0.000 (0/5) \\
+GBSA & +0.004 (0/5) & +0.006 (0/5) & $-$0.012 (0/5) & $-$0.007 (0/5) & $-$0.002 (1/5) & +0.000 (0/5) \\
+Survival RF & +0.005 (0/5) & +0.000 (0/5) & +0.014 (0/5) & +0.034 (0/5) & $-$0.003 (0/5) & +0.000 (0/5) \\
+Survival SVM & +0.007 (0/5) & +0.003 (0/5) & +0.002 (0/5) & $-$0.012 (0/5) & +0.000 (0/5) & +0.000 (0/5) \\
+Weibull AFT & $-$0.006 (0/5) & $-$0.002 (0/5) & +0.006 (0/5) & $-$0.014 (0/5) & $-$0.003 (0/5) & +0.000 (0/5) \\
+KFRE & +0.005 (0/5) & $-$0.022 (0/5) & $-$0.002 (0/5) & +0.036 (0/5) & -- & -- \\
+\bottomrule
+\end{tabular}%
+}
+\caption{{\bf Holdout versus test-set estimates.} Mean holdout-minus-test difference across five splits. In parentheses: the number of splits whose 95\% difference interval (combining both sets' bootstrap standard errors) excluded zero. Only LogisticHazard uses the test set during model selection. Mean AUC and per-split values are in the released per-split results files.}
+\label{tab:consistency}
 \end{table*}
 
 \begin{figure*}[htbp]

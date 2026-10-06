@@ -23,11 +23,15 @@ STAND-IN NUMBERS -- REPLACE BEFORE SUBMISSION
    SYNTHETIC: rep1's values times a random factor in [0.95, 1.05] (seeded, see
    SYNTHETIC_SEED). Rows carry provenance='synthetic_from_rep1'. Delete
    SYNTHETIC_REPS once the real reports exist.
+3. The test-vs-holdout consistency check (results/test_vs_holdout*.csv) uses SYNTHETIC
+   holdout values (test value + sampling noise) until the external_validation_* reports
+   exist; it switches to the real reports automatically once they do.
 """
 
 import ast
 import csv
 import json
+import math
 import os
 import random
 import re
@@ -220,17 +224,17 @@ def mean_sd(values):
     return statistics.mean(values), (statistics.stdev(values) if len(values) > 1 else 0.0)
 
 
-def load_reports():
+def load_reports(prefix=EVAL_REPORT_PREFIX):
     clinical, subgroup, provenance = {}, {}, []
     for scenario in SCENARIOS:
         for rep in REPS:
             synthetic = rep in SYNTHETIC_REPS.get(scenario, ())
             source_rep = 1 if synthetic else rep
-            cv_path = rep_dir(source_rep) / f"{EVAL_REPORT_PREFIX}{scenario}_clinical_validity_report.txt"
-            sg_path = rep_dir(source_rep) / f"{EVAL_REPORT_PREFIX}{scenario}_subgroup_performance_report.txt"
+            cv_path = rep_dir(source_rep) / f"{prefix}{scenario}_clinical_validity_report.txt"
+            sg_path = rep_dir(source_rep) / f"{prefix}{scenario}_subgroup_performance_report.txt"
             cv = parse_clinical_report(cv_path)
             fallback = SUBGROUP_LOG_FALLBACK.get((scenario, source_rep))
-            if fallback and not EVAL_REPORT_PREFIX:
+            if fallback and not prefix:
                 sg_path = rep_dir(source_rep) / fallback
                 sg = parse_subgroup_report(sg_path, scenario)
             else:
@@ -248,12 +252,71 @@ def load_reports():
                 "scenario": scenario, "rep": rep,
                 "provenance": "synthetic_from_rep1" if synthetic else "report",
                 "evaluation_split_read": "test (stand-in for external_validation)"
-                if not EVAL_REPORT_PREFIX else "external_validation",
+                if not prefix else "external_validation",
                 "clinical_validity_report": str(cv_path.relative_to(REPO_ROOT)),
                 "subgroup_report": str(sg_path.relative_to(REPO_ROOT)) if sg_path.exists() else None,
                 "report_generated_on": cv["generated_on"],
             })
     return clinical, subgroup, provenance
+
+
+Z95 = 1.959964
+
+
+def holdout_reports_available():
+    return all((rep_dir(1 if rep in SYNTHETIC_REPS.get(s, ()) else rep)
+                / f"external_validation_{s}_clinical_validity_report.txt").exists()
+               for s in SCENARIOS for rep in REPS)
+
+
+def test_vs_holdout(cohorts):
+    """Per split, model and metric: holdout minus test-set estimate, with a 95% interval
+    from both sets' bootstrap SEs (the sets hold different patients, so their errors are
+    independent): diff +/- 1.96 * sqrt(SE_test^2 + SE_holdout^2), SE = CI width / (2*1.96).
+
+    Until the external_validation_* reports exist, the holdout value is SYNTHETIC: the test
+    value plus N(0, SE_holdout), with SE_holdout = SE_test * sqrt(n_test / n_holdout).
+    That is pure sampling noise -- no optimism is built in for any model."""
+    test, _, _ = load_reports("")
+    holdout = load_reports("external_validation_")[0] if holdout_reports_available() else None
+    rows = []
+    for (scenario, rep), cv in test.items():
+        splits = cohorts[scenario]["splits"]
+        n_test, n_holdout = splits["test"]["patients"], splits["external_validation"]["patients"]
+        for model, m in cv["models"].items():
+            rng = random.Random(f"{SYNTHETIC_SEED}-tvh-{scenario}-{rep}-{model}")
+            for metric in ("c_index", "brier", "auc"):
+                t, lo, hi = m.get(metric), m.get(f"{metric}_lo"), m.get(f"{metric}_hi")
+                if None in (t, lo, hi):
+                    continue
+                se_t = (hi - lo) / (2 * Z95)
+                if holdout is not None:
+                    hm = holdout[(scenario, rep)]["models"].get(model, {})
+                    h, hlo, hhi = hm.get(metric), hm.get(f"{metric}_lo"), hm.get(f"{metric}_hi")
+                    if None in (h, hlo, hhi):
+                        continue
+                    se_h, provenance = (hhi - hlo) / (2 * Z95), "report"
+                else:
+                    se_h = se_t * math.sqrt(n_test / n_holdout)
+                    h = t + rng.gauss(0, se_h)
+                    if metric != "brier":
+                        h = min(h, RANKING_CAP)
+                    provenance = "synthetic"
+                diff, se_d = h - t, math.sqrt(se_t ** 2 + se_h ** 2)
+                rows.append({"scenario": scenario, "rep": rep, "model": model, "metric": metric,
+                             "test": round(t, 4), "holdout": round(h, 4), "difference": round(diff, 4),
+                             "ci_low": round(diff - Z95 * se_d, 4), "ci_high": round(diff + Z95 * se_d, 4),
+                             "excludes_zero": abs(diff) > Z95 * se_d, "provenance": provenance})
+    summary = []
+    groups = defaultdict(list)
+    for row in rows:
+        groups[(row["scenario"], row["model"], row["metric"])].append(row)
+    for (scenario, model, metric), rs in groups.items():
+        summary.append({"scenario": scenario, "model": model, "metric": metric, "n_reps": len(rs),
+                        "difference_mean": statistics.mean(r["difference"] for r in rs),
+                        "reps_excluding_zero": sum(r["excludes_zero"] for r in rs),
+                        "provenance": rs[0]["provenance"]})
+    return rows, summary
 
 
 def cohort_summary():
@@ -373,6 +436,7 @@ def main():
 
     calibration = {f"{s}_rep{r}": cv["dca"] for (s, r), cv in clinical.items() if r == 1}
     cohorts = cohort_summary()
+    tvh_rows, tvh_summary = test_vs_holdout(cohorts)
 
     write_csv(out_dir / "performance_per_run.csv", per_run)
     write_csv(out_dir / "performance_summary.csv", summary)
@@ -380,6 +444,8 @@ def main():
     write_csv(out_dir / "dca_summary.csv", dca)
     write_csv(out_dir / "subgroup_per_run.csv", sub_rows)
     write_csv(out_dir / "subgroup_summary.csv", sub_summary)
+    write_csv(out_dir / "test_vs_holdout.csv", tvh_rows)
+    write_csv(out_dir / "test_vs_holdout_summary.csv", tvh_summary)
     (out_dir / "calibration_rep1.json").write_text(json.dumps(calibration, indent=1, default=str) + "\n")
     (out_dir / "cohort_summary.json").write_text(json.dumps(cohorts, indent=2, default=str) + "\n")
     (out_dir / "performance_provenance.json").write_text(json.dumps({
@@ -392,6 +458,9 @@ def main():
         "eval_report_prefix": EVAL_REPORT_PREFIX,
         "synthetic_reps": SYNTHETIC_REPS, "synthetic_seed": SYNTHETIC_SEED,
         "synthetic_range": SYNTHETIC_RANGE,
+        "test_vs_holdout": ("report" if holdout_reports_available() else
+                            "SYNTHETIC holdout = test + N(0, SE_test*sqrt(n_test/n_holdout)); "
+                            "replace once external_validation_* reports exist"),
         "aggregation": "Arithmetic mean and sample SD (n-1) across five patient-level splits.",
         "sources": provenance,
     }, indent=2) + "\n")

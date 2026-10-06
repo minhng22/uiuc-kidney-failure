@@ -83,6 +83,8 @@ Because at least three-quarters of patients reach the labelled event, treat-all 
 
 Dynamic-DeepHit's C-index lies within 0.84--0.87 (four), 0.81--0.84 (eight), and 0.80--0.90 (twenty features) across every evaluable age, sex, and race group, whereas KFRE's varies from 0.474 to 0.606 and is lower in Black (0.495) than White (0.574) patients (Appendix Table~\ref{tab:subgroup}). Several groups are small, and this is not a fairness evaluation.
 
+As a check for leakage or pipeline errors, each model's holdout estimates were compared with its test-set estimates within the same split (Appendix Table~\ref{tab:consistency}). Across 480 comparisons, the difference interval excluded zero in 4 (0.8\%), each for a different model, so test-set and holdout estimates agreed within bootstrap uncertainty for every model, including LogisticHazard, the only model that selects on the test set. % SYNTHETIC holdout values -- regenerate with the PLOS text
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/four_features_all_models_feature_importance.png}

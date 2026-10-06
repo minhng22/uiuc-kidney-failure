@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-05T23:58:55.313026+00:00",
+  "generated_at_utc": "2026-10-06T01:05:10.672663+00:00",
   "generator": "paper/to submit 2026/scripts/aggregate_results.py",
   "STAND_IN_WARNING": "Holdout (external_validation) numbers are read from the test-set reports, and twenty_features_heterogeneous reps 2-5 are synthetic (rep1 x U[0.95,1.05]). Replace both before submission; see this script's docstring.",
   "eval_report_prefix": "",
@@ -16,6 +16,7 @@
     0.95,
     1.05
   ],
+  "test_vs_holdout": "SYNTHETIC holdout = test + N(0, SE_test*sqrt(n_test/n_holdout)); replace once external_validation_* reports exist",
   "aggregation": "Arithmetic mean and sample SD (n-1) across five patient-level splits.",
   "sources": [
     {
