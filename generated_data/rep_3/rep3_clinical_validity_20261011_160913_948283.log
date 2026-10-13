@@ -1,0 +1,1237 @@
+rep3 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 9363 lab-event rows -> 1079 patients; event rate 0.1149 (row-level) vs 0.7525 (patient-level, 812 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 2304 lab-event rows -> 270 patients; event rate 0.1280 (row-level) vs 0.7519 (patient-level, 203 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 3677.3 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4333.0 days; IPCW evaluation capped at 4333.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2304/2304 rows with a real eGFR measurement.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+
+Patient-level alignment check (Gap 5a):
+  OK   Hazard Transformer: aligned to 270 patient-level terminal outcomes (201 durations differ by up to 0.996528 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Hazard Transformer: c_index=0.5776 brier=0.27932 (native) auc=0.6265
+    fitted-conversion Brier for the same model/window: 0.25291 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.35457
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Hazard Transformer   0.5776 [0.5283, 0.6263]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Hazard Transformer   0.2793 [0.2455, 0.3157]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Hazard Transformer   0.6265 [0.5555, 0.6917]  (n=1000)
+
+Paired differences vs. best model by C-index (Hazard Transformer), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.634, 0.1: 0.61367, 0.15: 0.59094, 0.2: 0.56538, 0.25: 0.5364, 0.3: 0.50329, 0.4: 0.4205, 0.5: 0.3046}
+  (for contrast, the superseded row-level treat-all over 2304 lab rows: {0.05: 0.10363, 0.1: 0.05383, 0.15: -0.00183, 0.2: -0.06444, 0.25: -0.1354, 0.3: -0.2165, 0.4: -0.41926, 0.5: -0.70311})
+eGFR<30 referral rule (270 patients): flags 76 (0.2815), TP rate 0.18509, FP rate 0.09639
+  net benefit across the model thresholds: {0.05: 0.18001, 0.1: 0.17438, 0.15: 0.16808, 0.2: 0.16099, 0.25: 0.15295, 0.3: 0.14377, 0.4: 0.12082, 0.5: 0.08869}
+eGFR<45 referral rule (270 patients): flags 151 (0.5593), TP rate 0.36516, FP rate 0.1941
+  net benefit across the model thresholds: {0.05: 0.35494, 0.1: 0.34359, 0.15: 0.3309, 0.2: 0.31663, 0.25: 0.30045, 0.3: 0.28197, 0.4: 0.23575, 0.5: 0.17105}
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  42 events= 30 predicted=1.0000 observed(KM)=0.5515
+  n=  20 events= 16 predicted=1.0000 observed(KM)=0.7671
+  n=  32 events= 26 predicted=1.0000 observed(KM)=0.6765
+  n=  29 events= 23 predicted=1.0000 observed(KM)=0.7325
+  n=  51 events= 34 predicted=1.0000 observed(KM)=0.5716
+  n=  61 events= 49 predicted=1.0000 observed(KM)=0.6279
+  n=  28 events= 21 predicted=1.0000 observed(KM)=0.7567
+  n=   7 events=  4 predicted=1.0000 observed(KM)=0.7321
+Integrated Brier score (0-730d): 0.27932 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.634  treat_all=0.634  treat_none=0.0
+  pt=0.10  model=0.61367  treat_all=0.61367  treat_none=0.0
+  pt=0.15  model=0.59094  treat_all=0.59094  treat_none=0.0
+  pt=0.20  model=0.56538  treat_all=0.56538  treat_none=0.0
+  pt=0.25  model=0.5364  treat_all=0.5364  treat_none=0.0
+  pt=0.30  model=0.50329  treat_all=0.50329  treat_none=0.0
+  pt=0.40  model=0.4205  treat_all=0.4205  treat_none=0.0
+  pt=0.50  model=0.3046  treat_all=0.3046  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.83696, 0.1: 0.8279, 0.15: 0.81778, 0.2: 0.80639, 0.25: 0.79349, 0.3: 0.77873, 0.4: 0.74186, 0.5: 0.69023}
+  (for contrast, the superseded row-level treat-all over 2304 lab rows: {0.05: 0.23547, 0.1: 0.19299, 0.15: 0.14552, 0.2: 0.09212, 0.25: 0.03159, 0.3: -0.03758, 0.4: -0.21051, 0.5: -0.45261})
+eGFR<30 referral rule (270 patients): flags 76 (0.2815), TP rate 0.24993, FP rate 0.03155
+  net benefit across the model thresholds: {0.05: 0.24827, 0.1: 0.24643, 0.15: 0.24437, 0.2: 0.24205, 0.25: 0.23942, 0.3: 0.23641, 0.4: 0.2289, 0.5: 0.21839}
+eGFR<45 referral rule (270 patients): flags 151 (0.5593), TP rate 0.47999, FP rate 0.07927
+  net benefit across the model thresholds: {0.05: 0.47582, 0.1: 0.47119, 0.15: 0.466, 0.2: 0.46018, 0.25: 0.45357, 0.3: 0.44602, 0.4: 0.42715, 0.5: 0.40073}
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 22 predicted=0.2393 observed(KM)=0.8574
+  n=  27 events= 15 predicted=0.6856 observed(KM)=0.7065
+  n=  27 events= 18 predicted=0.8009 observed(KM)=0.8243
+  n=  27 events= 18 predicted=0.8214 observed(KM)=0.6898
+  n=  27 events= 25 predicted=0.8327 observed(KM)=0.9138
+  n=  27 events= 21 predicted=0.8453 observed(KM)=0.8026
+  n=  27 events= 18 predicted=0.8525 observed(KM)=0.8382
+  n=  27 events= 22 predicted=0.8667 observed(KM)=1.0
+  n=  27 events= 20 predicted=0.9126 observed(KM)=0.8441
+  n=  27 events= 24 predicted=0.9396 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.23074 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.81923  treat_all=0.83696  treat_none=0.0
+  pt=0.10  model=0.81021  treat_all=0.8279  treat_none=0.0
+  pt=0.15  model=0.79563  treat_all=0.81778  treat_none=0.0
+  pt=0.20  model=0.77976  treat_all=0.80639  treat_none=0.0
+  pt=0.25  model=0.75537  treat_all=0.79349  treat_none=0.0
+  pt=0.30  model=0.72002  treat_all=0.77873  treat_none=0.0
+  pt=0.40  model=0.6755  treat_all=0.74186  treat_none=0.0
+  pt=0.50  model=0.62247  treat_all=0.69023  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_clinical_validity_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 1498 lab-event rows -> 425 patients; event rate 0.3284 (row-level) vs 0.7694 (patient-level, 327 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 416 lab-event rows -> 107 patients; event rate 0.2740 (row-level) vs 0.7664 (patient-level, 82 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 2538.3 days. Horizons used: [730, 1825]
+Training-set max follow-up: 3164.4 days; IPCW evaluation capped at 3164.4 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 107/107 patients have one (0 excluded, no measured eGFR); selected from 416/416 rows with a real eGFR measurement.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+
+Patient-level alignment check (Gap 5a):
+  OK   Hazard Transformer: aligned to 107 patient-level terminal outcomes (78 durations differ by up to 0.989583 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Hazard Transformer: c_index=0.5343 brier=0.26324 (native) auc=0.5863
+    fitted-conversion Brier for the same model/window: 0.21762 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.23103
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 107 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Hazard Transformer   0.5343 [0.4503, 0.6154]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Hazard Transformer   0.2632 [0.1785, 0.364]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Hazard Transformer   0.5863 [0.4731, 0.6984]  (n=1000)
+
+Paired differences vs. best model by C-index (Hazard Transformer), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.75332, 0.1: 0.73961, 0.15: 0.7243, 0.2: 0.70707, 0.25: 0.68754, 0.3: 0.66522, 0.4: 0.60942, 0.5: 0.5313}
+  (for contrast, the superseded row-level treat-all over 416 lab rows: {0.05: 0.36892, 0.1: 0.33386, 0.15: 0.29468, 0.2: 0.2506, 0.25: 0.20064, 0.3: 0.14354, 0.4: 0.0008, 0.5: -0.19905})
+eGFR<30 referral rule (107 patients): flags 35 (0.3271), TP rate 0.23043, FP rate 0.09668
+  net benefit across the model thresholds: {0.05: 0.22534, 0.1: 0.21968, 0.15: 0.21337, 0.2: 0.20626, 0.25: 0.1982, 0.3: 0.18899, 0.4: 0.16597, 0.5: 0.13375}
+eGFR<45 referral rule (107 patients): flags 58 (0.5421), TP rate 0.43236, FP rate 0.10969
+  net benefit across the model thresholds: {0.05: 0.42659, 0.1: 0.42018, 0.15: 0.41301, 0.2: 0.40494, 0.25: 0.3958, 0.3: 0.38535, 0.4: 0.35924, 0.5: 0.32267}
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n=  11 events= 10 predicted=1.0000 observed(KM)=0.7818
+  n=  11 events=  7 predicted=1.0000 observed(KM)=0.6364
+  n=  14 events= 12 predicted=1.0000 observed(KM)=0.8996
+  n=   8 events=  6 predicted=1.0000 observed(KM)=0.5312
+  n=  10 events=  7 predicted=1.0000 observed(KM)=0.75
+  n=  10 events=  7 predicted=1.0000 observed(KM)=0.6889
+  n=  18 events= 15 predicted=1.0000 observed(KM)=0.7569
+  n=   3 events=  2 predicted=1.0000 observed(KM)=0.6667
+  n=  15 events= 11 predicted=1.0000 observed(KM)=0.8833
+  n=   7 events=  5 predicted=1.0000 observed(KM)=0.7143
+Integrated Brier score (0-730d): 0.26324 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.75332  treat_all=0.75332  treat_none=0.0
+  pt=0.10  model=0.73961  treat_all=0.73961  treat_none=0.0
+  pt=0.15  model=0.7243  treat_all=0.7243  treat_none=0.0
+  pt=0.20  model=0.70707  treat_all=0.70707  treat_none=0.0
+  pt=0.25  model=0.68754  treat_all=0.68754  treat_none=0.0
+  pt=0.30  model=0.66522  treat_all=0.66522  treat_none=0.0
+  pt=0.40  model=0.60942  treat_all=0.60942  treat_none=0.0
+  pt=0.50  model=0.5313  treat_all=0.5313  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.93023, 0.1: 0.92636, 0.15: 0.92202, 0.2: 0.91715, 0.25: 0.91163, 0.3: 0.90531, 0.4: 0.88953, 0.5: 0.86744}
+  (for contrast, the superseded row-level treat-all over 416 lab rows: {0.05: 0.71744, 0.1: 0.70174, 0.15: 0.6842, 0.2: 0.66446, 0.25: 0.64209, 0.3: 0.61653, 0.4: 0.55261, 0.5: 0.46314})
+eGFR<30 referral rule (107 patients): flags 35 (0.3271), TP rate 0.27876, FP rate 0.04834
+  net benefit across the model thresholds: {0.05: 0.27622, 0.1: 0.27339, 0.15: 0.27023, 0.2: 0.26668, 0.25: 0.26265, 0.3: 0.25805, 0.4: 0.24654, 0.5: 0.23043}
+eGFR<45 referral rule (107 patients): flags 58 (0.5421), TP rate 0.48721, FP rate 0.05485
+  net benefit across the model thresholds: {0.05: 0.48432, 0.1: 0.48112, 0.15: 0.47753, 0.2: 0.4735, 0.25: 0.46893, 0.3: 0.4637, 0.4: 0.45065, 0.5: 0.43236}
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events= 10 predicted=0.6692 observed(KM)=0.8939
+  n=  11 events=  8 predicted=0.8020 observed(KM)=0.7576
+  n=  10 events=  6 predicted=0.8597 observed(KM)=1.0
+  n=  11 events= 11 predicted=0.8919 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9168 observed(KM)=0.9091
+  n=  10 events=  8 predicted=0.9317 observed(KM)=1.0
+  n=  11 events=  8 predicted=0.9449 observed(KM)=1.0
+  n=  10 events=  5 predicted=0.9494 observed(KM)=0.7
+  n=  11 events=  9 predicted=0.9502 observed(KM)=1.0
+  n=  11 events=  7 predicted=0.9537 observed(KM)=0.7727
+Integrated Brier score (0-1825d): 0.14705 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.93023  treat_all=0.93023  treat_none=0.0
+  pt=0.10  model=0.92636  treat_all=0.92636  treat_none=0.0
+  pt=0.15  model=0.92202  treat_all=0.92202  treat_none=0.0
+  pt=0.20  model=0.91715  treat_all=0.91715  treat_none=0.0
+  pt=0.25  model=0.91163  treat_all=0.91163  treat_none=0.0
+  pt=0.30  model=0.90531  treat_all=0.90531  treat_none=0.0
+  pt=0.40  model=0.88953  treat_all=0.88953  treat_none=0.0
+  pt=0.50  model=0.861  treat_all=0.86744  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_clinical_validity_report.txt
+TRAIN twenty_features_heterogeneous/hazard_transformer: missing artifact /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_hazard_transformer_model.pt
+CUDA not available, using CPU
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Running Optuna hyperparameter optimization
+[I 2026-10-11 16:09:31,309] A new study created in memory with name: no-name-f85ae16e-d1f7-4cdc-980b-396b95aeecfc
+CUDA not available, using CPU
+Running trial 0 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 3.878189552121046
+Epoch 2/50
+Average Loss: 3.7914800178713914
+Epoch 3/50
+Average Loss: 3.7947752068682417
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 3.7879340038066958
+Epoch 5/50
+Average Loss: 3.7931708882494672
+Patience Counter: 1
+Epoch 6/50
+Average Loss: 3.789413612063338
+Patience Counter: 2
+Epoch 7/50
+Average Loss: 3.789779032148966
+Patience Counter: 3
+Epoch 8/50
+Average Loss: 3.7885976099386447
+Patience Counter: 4
+Epoch 9/50
+Average Loss: 3.7887665265943946
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5179
+[I 2026-10-11 16:27:02,940] Trial 0 finished with value: 0.517869298078205 and parameters: {'num_layers': 3, 'learning_rate': 0.0032670152605608215, 'drop_out_rate': 0.41764562581634096, 'n_head': 5, 'nhead_factor': 5}. Best is trial 0 with value: 0.517869298078205.
+CUDA not available, using CPU
+Running trial 1 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 3.8285045333024934
+Epoch 2/50
+Average Loss: 3.785924658542726
+Epoch 3/50
+Average Loss: 3.789980716821624
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 3.784829244381044
+Epoch 5/50
+Average Loss: 3.786410532346586
+Patience Counter: 1
+Epoch 6/50
+Average Loss: 3.785297387983741
+Patience Counter: 2
+Epoch 7/50
+Average Loss: 3.7856250303547556
+Patience Counter: 3
+Epoch 8/50
+Average Loss: 3.7851212984178124
+Patience Counter: 4
+Epoch 9/50
+Average Loss: 3.7856060818928046
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4666
+[I 2026-10-11 17:11:44,057] Trial 1 finished with value: 0.46655523471635924 and parameters: {'num_layers': 6, 'learning_rate': 0.0006809919708656023, 'drop_out_rate': 0.11984585986130339, 'n_head': 6, 'nhead_factor': 16}. Best is trial 0 with value: 0.517869298078205.
+CUDA not available, using CPU
+Running trial 2 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 4.4427993355727775
+Epoch 2/50
+Average Loss: 4.254168530789817
+Epoch 3/50
+Average Loss: 4.2038228250131375
+Epoch 4/50
+Average Loss: 4.156113894974313
+Epoch 5/50
+Average Loss: 4.11664018398378
+Epoch 6/50
+Average Loss: 4.077244084055831
+Epoch 7/50
+Average Loss: 4.0421400099265865
+Epoch 8/50
+Average Loss: 4.001519322395325
+Epoch 9/50
+Average Loss: 3.963918883626054
+Epoch 10/50
+Average Loss: 3.930230382012158
+Epoch 11/50
+Average Loss: 3.9006701649689095
+Epoch 12/50
+Average Loss: 3.8702240920648343
+Epoch 13/50
+Average Loss: 3.8462762948943348
+Epoch 14/50
+Average Loss: 3.8279287466188756
+Epoch 15/50
+Average Loss: 3.8097758642057094
+Epoch 16/50
+Average Loss: 3.802555651199527
+Epoch 17/50
+Average Loss: 3.791584948214089
+Epoch 18/50
+Average Loss: 3.786753256146501
+Epoch 19/50
+Average Loss: 3.781782260755213
+Epoch 20/50
+Average Loss: 3.7806479436595266
+Epoch 21/50
+Average Loss: 3.7766891485307275
+Epoch 22/50
+Average Loss: 3.7766549354646264
+Epoch 23/50
+Average Loss: 3.775077470918981
+Epoch 24/50
+Average Loss: 3.7702720223403556
+Epoch 25/50
+Average Loss: 3.771972484704925
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 3.775091081130795
+Patience Counter: 2
+Epoch 27/50
+Average Loss: 3.7752091361255182
+Patience Counter: 3
+Epoch 28/50
+Average Loss: 3.7704192341827767
+Patience Counter: 4
+Epoch 29/50
+Average Loss: 3.7740268678199955
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4456
+[I 2026-10-11 17:53:10,241] Trial 2 finished with value: 0.44561431534131823 and parameters: {'num_layers': 3, 'learning_rate': 5.5100129867845635e-05, 'drop_out_rate': 0.25300575781340234, 'n_head': 1, 'nhead_factor': 13}. Best is trial 0 with value: 0.517869298078205.
+CUDA not available, using CPU
+Running trial 3 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 3.9646813200741278
+Epoch 2/50
+Average Loss: 3.787889788790447
+Epoch 3/50
+Average Loss: 3.74679952423747
+Epoch 4/50
+Average Loss: 3.680166575966812
+Epoch 5/50
+Average Loss: 3.6539227497286912
+Epoch 6/50
+Average Loss: 3.6307876400831267
+Epoch 7/50
+Average Loss: 3.6064790923420977
+Epoch 8/50
+Average Loss: 3.6026980237263007
+Epoch 9/50
+Average Loss: 3.506553062578527
+Epoch 10/50
+Average Loss: 3.463856281303778
+Epoch 11/50
+Average Loss: 3.456265940898802
+Epoch 12/50
+Average Loss: 3.427663660630947
+Epoch 13/50
+Average Loss: 3.4224103340288488
+Epoch 14/50
+Average Loss: 3.4055828815553246
+Epoch 15/50
+Average Loss: 3.3977973751905486
+Epoch 16/50
+Average Loss: 3.383472326325207
+Epoch 17/50
+Average Loss: 3.3637129504506182
+Epoch 18/50
+Average Loss: 3.334146839816396
+Epoch 19/50
+Average Loss: 3.307544446573025
+Epoch 20/50
+Average Loss: 3.3099960263182475
+Patience Counter: 1
+Epoch 21/50
+Average Loss: 3.2854958598206685
+Epoch 22/50
+Average Loss: 3.2798188808487683
+Epoch 23/50
+Average Loss: 3.280030384296324
+Patience Counter: 1
+Epoch 24/50
+Average Loss: 3.2732596193871846
+Epoch 25/50
+Average Loss: 3.267664412172829
+Epoch 26/50
+Average Loss: 3.2629783386137428
+Epoch 27/50
+Average Loss: 3.252656209759596
+Epoch 28/50
+Average Loss: 3.25150764860758
+Epoch 29/50
+Average Loss: 3.247355109307824
+Epoch 30/50
+Average Loss: 3.250854079316302
+Patience Counter: 1
+Epoch 31/50
+Average Loss: 3.2421786290843313
+Epoch 32/50
+Average Loss: 3.2421058329140267
+Epoch 33/50
+Average Loss: 3.2440388842326837
+Patience Counter: 1
+Epoch 34/50
+Average Loss: 3.230385812317453
+Epoch 35/50
+Average Loss: 3.2298301051302656
+Epoch 36/50
+Average Loss: 3.2276120360304668
+Epoch 37/50
+Average Loss: 3.221844568485167
+Epoch 38/50
+Average Loss: 3.2099190863167366
+Epoch 39/50
+Average Loss: 3.225399159803623
+Patience Counter: 1
+Epoch 40/50
+Average Loss: 3.2074013744912495
+Epoch 41/50
+Average Loss: 3.207576007377811
+Patience Counter: 1
+Epoch 42/50
+Average Loss: 3.198054938781552
+Epoch 43/50
+Average Loss: 3.2105504332519157
+Patience Counter: 1
+Epoch 44/50
+Average Loss: 3.2053467558651434
+Patience Counter: 2
+Epoch 45/50
+Average Loss: 3.19384204469076
+Epoch 46/50
+Average Loss: 3.186107702371551
+Epoch 47/50
+Average Loss: 3.1930487359442363
+Patience Counter: 1
+Epoch 48/50
+Average Loss: 3.1893626625944926
+Patience Counter: 2
+Epoch 49/50
+Average Loss: 3.182728633648012
+Epoch 50/50
+Average Loss: 3.1870471384467147
+Patience Counter: 1
+C-index: 0.7475
+[I 2026-10-11 20:39:57,066] Trial 3 finished with value: 0.7475084782776393 and parameters: {'num_layers': 5, 'learning_rate': 0.00018626426582575632, 'drop_out_rate': 0.3339435694896648, 'n_head': 8, 'nhead_factor': 4}. Best is trial 3 with value: 0.7475084782776393.
+CUDA not available, using CPU
+Running trial 4 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 4.523124677378957
+Epoch 2/50
+Average Loss: 4.416665711053988
+Epoch 3/50
+Average Loss: 4.364159682901894
+Epoch 4/50
+Average Loss: 4.3069406427988195
+Epoch 5/50
+Average Loss: 4.24425041966322
+Epoch 6/50
+Average Loss: 4.181355563605704
+Epoch 7/50
+Average Loss: 4.118319709126542
+Epoch 8/50
+Average Loss: 4.051069021224976
+Epoch 9/50
+Average Loss: 3.990132163210613
+Epoch 10/50
+Average Loss: 3.9331653612415964
+Epoch 11/50
+Average Loss: 3.889617655335403
+Epoch 12/50
+Average Loss: 3.843658656608768
+Epoch 13/50
+Average Loss: 3.8144852330045
+Epoch 14/50
+Average Loss: 3.7954651291777446
+Epoch 15/50
+Average Loss: 3.7854683748105677
+Epoch 16/50
+Average Loss: 3.775891077227709
+Epoch 17/50
+Average Loss: 3.774661666009484
+Epoch 18/50
+Average Loss: 3.7712495007166047
+Epoch 19/50
+Average Loss: 3.7737309176747393
+Patience Counter: 1
+Epoch 20/50
+Average Loss: 3.775758874125597
+Patience Counter: 2
+Epoch 21/50
+Average Loss: 3.771890012229361
+Patience Counter: 3
+Epoch 22/50
+Average Loss: 3.7713350261129985
+Patience Counter: 4
+Epoch 23/50
+Average Loss: 3.7709727316367916
+Epoch 24/50
+Average Loss: 3.7698448780106335
+Epoch 25/50
+Average Loss: 3.7649637082727945
+Epoch 26/50
+Average Loss: 3.765515900239712
+Patience Counter: 1
+Epoch 27/50
+Average Loss: 3.756898565990169
+Epoch 28/50
+Average Loss: 3.754917406454319
+Epoch 29/50
+Average Loss: 3.74807891903854
+Epoch 30/50
+Average Loss: 3.7342180798693403
+Epoch 31/50
+Average Loss: 3.7203786402213863
+Epoch 32/50
+Average Loss: 3.712869455174702
+Epoch 33/50
+Average Loss: 3.697594093113411
+Epoch 34/50
+Average Loss: 3.674476088547125
+Epoch 35/50
+Average Loss: 3.647051206449183
+Epoch 36/50
+Average Loss: 3.6235971276353047
+Epoch 37/50
+Average Loss: 3.6039728449612127
+Epoch 38/50
+Average Loss: 3.562073358675329
+Epoch 39/50
+Average Loss: 3.5340046039441737
+Epoch 40/50
+Average Loss: 3.4999859594717257
+Epoch 41/50
+Average Loss: 3.4688132855950333
+Epoch 42/50
+Average Loss: 3.431136230143105
+Epoch 43/50
+Average Loss: 3.408171246691448
+Epoch 44/50
+Average Loss: 3.386291844088857
+Epoch 45/50
+Average Loss: 3.3506908038767373
+Epoch 46/50
+Average Loss: 3.329148949646368
+Epoch 47/50
+Average Loss: 3.313726500767033
+Epoch 48/50
+Average Loss: 3.2915432453155518
+Epoch 49/50
+Average Loss: 3.2804788961643125
+Epoch 50/50
+Average Loss: 3.2526125791596203
+C-index: 0.6666
+[I 2026-10-11 21:32:49,864] Trial 4 finished with value: 0.6666197289314438 and parameters: {'num_layers': 2, 'learning_rate': 0.0001693740172973075, 'drop_out_rate': 0.17329630308535787, 'n_head': 1, 'nhead_factor': 5}. Best is trial 3 with value: 0.7475084782776393.
+CUDA not available, using CPU
+Running trial 5 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 4.662428233681656
+Epoch 2/50
+Average Loss: 4.6141895782656785
+Epoch 3/50
+Average Loss: 4.5974128362609115
+Epoch 4/50
+Average Loss: 4.587556088842997
+Epoch 5/50
+Average Loss: 4.583045279107442
+Epoch 6/50
+Average Loss: 4.573877288074028
+Epoch 7/50
+Average Loss: 4.566186172206227
+Epoch 8/50
+Average Loss: 4.5599162927488
+Epoch 9/50
+Average Loss: 4.552217855686095
+Epoch 10/50
+Average Loss: 4.547865972286317
+Epoch 11/50
+Average Loss: 4.540900701429786
+Epoch 12/50
+Average Loss: 4.532353017388321
+Epoch 13/50
+Average Loss: 4.526007396418874
+Epoch 14/50
+Average Loss: 4.518436344658456
+Epoch 15/50
+Average Loss: 4.509761757966949
+Epoch 16/50
+Average Loss: 4.500548223169838
+Epoch 17/50
+Average Loss: 4.492601778449082
+Epoch 18/50
+Average Loss: 4.485755088852673
+Epoch 19/50
+Average Loss: 4.478939696056087
+Epoch 20/50
+Average Loss: 4.472577211333484
+Epoch 21/50
+Average Loss: 4.461802529125679
+Epoch 22/50
+Average Loss: 4.4539059313332166
+Epoch 23/50
+Average Loss: 4.443993795208815
+Epoch 24/50
+Average Loss: 4.436289886148964
+Epoch 25/50
+Average Loss: 4.427697978368619
+Epoch 26/50
+Average Loss: 4.420805210020484
+Epoch 27/50
+Average Loss: 4.40863617455087
+Epoch 28/50
+Average Loss: 4.400329217678163
+Epoch 29/50
+Average Loss: 4.392339322625137
+Epoch 30/50
+Average Loss: 4.381715326774411
+Epoch 31/50
+Average Loss: 4.3711457659558555
+Epoch 32/50
+Average Loss: 4.360254421466735
+Epoch 33/50
+Average Loss: 4.350199565654847
+Epoch 34/50
+Average Loss: 4.342377816758504
+Epoch 35/50
+Average Loss: 4.330509540511341
+Epoch 36/50
+Average Loss: 4.320008324413765
+Epoch 37/50
+Average Loss: 4.309897236707734
+Epoch 38/50
+Average Loss: 4.297373783297655
+Epoch 39/50
+Average Loss: 4.28901081550412
+Epoch 40/50
+Average Loss: 4.277575135231018
+Epoch 41/50
+Average Loss: 4.267426595455262
+Epoch 42/50
+Average Loss: 4.257498517269042
+Epoch 43/50
+Average Loss: 4.244926609644076
+Epoch 44/50
+Average Loss: 4.23285723604807
+Epoch 45/50
+Average Loss: 4.222898195429546
+Epoch 46/50
+Average Loss: 4.209533816430627
+Epoch 47/50
+Average Loss: 4.19687510990515
+Epoch 48/50
+Average Loss: 4.188474460345943
+Epoch 49/50
+Average Loss: 4.175362677108951
+Epoch 50/50
+Average Loss: 4.164400013481698
+C-index: 0.4834
+[I 2026-10-11 23:18:12,840] Trial 5 finished with value: 0.483385031077171 and parameters: {'num_layers': 4, 'learning_rate': 4.451731664370076e-05, 'drop_out_rate': 0.15084030291592165, 'n_head': 4, 'nhead_factor': 1}. Best is trial 3 with value: 0.7475084782776393.
+CUDA not available, using CPU
+Running trial 6 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 4.526097629128433
+Epoch 2/50
+Average Loss: 4.26848273160981
+Epoch 3/50
+Average Loss: 4.2027718846390885
+Epoch 4/50
+Average Loss: 4.1687298111799285
+Epoch 5/50
+Average Loss: 4.14592762981973
+Epoch 6/50
+Average Loss: 4.123453692692082
+Epoch 7/50
+Average Loss: 4.091804437521027
+Epoch 8/50
+Average Loss: 4.060716064964852
+Epoch 9/50
+Average Loss: 4.038213360600356
+Epoch 10/50
+Average Loss: 4.015283488645786
+Epoch 11/50
+Average Loss: 3.999317855369754
+Epoch 12/50
+Average Loss: 3.977832038228105
+Epoch 13/50
+Average Loss: 3.9594672162358355
+Epoch 14/50
+Average Loss: 3.946457554654377
+Epoch 15/50
+Average Loss: 3.925978198284056
+Epoch 16/50
+Average Loss: 3.9098283663028623
+Epoch 17/50
+Average Loss: 3.8954747973418815
+Epoch 18/50
+Average Loss: 3.8819506342818095
+Epoch 19/50
+Average Loss: 3.8644778205127253
+Epoch 20/50
+Average Loss: 3.854965105289366
+Epoch 21/50
+Average Loss: 3.8465749054420284
+Epoch 22/50
+Average Loss: 3.837003649734869
+Epoch 23/50
+Average Loss: 3.8261255142165393
+Epoch 24/50
+Average Loss: 3.817511680649548
+Epoch 25/50
+Average Loss: 3.810491797400684
+Epoch 26/50
+Average Loss: 3.8053725201909137
+Epoch 27/50
+Average Loss: 3.798835542143845
+Epoch 28/50
+Average Loss: 3.7966119138205925
+Epoch 29/50
+Average Loss: 3.7920832837500225
+Epoch 30/50
+Average Loss: 3.78793888557248
+Epoch 31/50
+Average Loss: 3.7851729945438666
+Epoch 32/50
+Average Loss: 3.786133879568519
+Patience Counter: 1
+Epoch 33/50
+Average Loss: 3.780968256113006
+Epoch 34/50
+Average Loss: 3.781888095343985
+Patience Counter: 1
+Epoch 35/50
+Average Loss: 3.778435483211424
+Epoch 36/50
+Average Loss: 3.778863168344265
+Patience Counter: 1
+Epoch 37/50
+Average Loss: 3.776137122293798
+Epoch 38/50
+Average Loss: 3.7735835342872432
+Epoch 39/50
+Average Loss: 3.7728092990270476
+Epoch 40/50
+Average Loss: 3.7783353067025907
+Patience Counter: 1
+Epoch 41/50
+Average Loss: 3.773919774264824
+Patience Counter: 2
+Epoch 42/50
+Average Loss: 3.7696903188054156
+Epoch 43/50
+Average Loss: 3.770952922541921
+Patience Counter: 1
+Epoch 44/50
+Average Loss: 3.76906964837051
+Epoch 45/50
+Average Loss: 3.765312087245104
+Epoch 46/50
+Average Loss: 3.767641262310307
+Patience Counter: 1
+Epoch 47/50
+Average Loss: 3.7625320975373433
+Epoch 48/50
+Average Loss: 3.7655083958695577
+Patience Counter: 1
+Epoch 49/50
+Average Loss: 3.764575231366041
+Patience Counter: 2
+Epoch 50/50
+Average Loss: 3.76043506657205
+C-index: 0.6127
+[I 2026-10-12 01:48:56,804] Trial 6 finished with value: 0.6127073279162132 and parameters: {'num_layers': 5, 'learning_rate': 1.3144048609319469e-05, 'drop_out_rate': 0.3365819068494219, 'n_head': 5, 'nhead_factor': 6}. Best is trial 3 with value: 0.7475084782776393.
+CUDA not available, using CPU
+Running trial 7 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 4.5560281741909865
+Epoch 2/50
+Average Loss: 4.320422323738656
+Epoch 3/50
+Average Loss: 4.196154213533169
+Epoch 4/50
+Average Loss: 4.013641549319756
+Epoch 5/50
+Average Loss: 3.968583098271998
+Epoch 6/50
+Average Loss: 3.9327282789276867
+Epoch 7/50
+Average Loss: 3.901551784538641
+Epoch 8/50
+Average Loss: 3.874119264323537
+Epoch 9/50
+Average Loss: 3.8541977405548096
+Epoch 10/50
+Average Loss: 3.833370162219536
+Epoch 11/50
+Average Loss: 3.8203348473804755
+Epoch 12/50
+Average Loss: 3.8098131301926403
+Epoch 13/50
+Average Loss: 3.796049996120174
+Epoch 14/50
+Average Loss: 3.7864387006294438
+Epoch 15/50
+Average Loss: 3.7760921018879587
+Epoch 16/50
+Average Loss: 3.762403049120089
+Epoch 17/50
+Average Loss: 3.7125911538193868
+Epoch 18/50
+Average Loss: 3.652689549981094
+Epoch 19/50
+Average Loss: 3.61291279153126
+Epoch 20/50
+Average Loss: 3.584993708424452
+Epoch 21/50
+Average Loss: 3.55070506944889
+Epoch 22/50
+Average Loss: 3.5327977552646543
+Epoch 23/50
+Average Loss: 3.5209892697450593
+Epoch 24/50
+Average Loss: 3.503117351997189
+Epoch 25/50
+Average Loss: 3.507944208819692
+Patience Counter: 1
+Epoch 26/50
+Average Loss: 3.4880770183191068
+Epoch 27/50
+Average Loss: 3.4756082761578444
+Epoch 28/50
+Average Loss: 3.460220630575971
+Epoch 29/50
+Average Loss: 3.4652430226163164
+Patience Counter: 1
+Epoch 30/50
+Average Loss: 3.4513094774106654
+Epoch 31/50
+Average Loss: 3.4414513779849543
+Epoch 32/50
+Average Loss: 3.429953676898305
+Epoch 33/50
+Average Loss: 3.4257578646264424
+Epoch 34/50
+Average Loss: 3.4229630842441465
+Epoch 35/50
+Average Loss: 3.429985421459849
+Patience Counter: 1
+Epoch 36/50
+Average Loss: 3.4204305294083386
+Epoch 37/50
+Average Loss: 3.4153704090816217
+Epoch 38/50
+Average Loss: 3.406615713747536
+Epoch 39/50
+Average Loss: 3.406409385727673
+Epoch 40/50
+Average Loss: 3.4017604269632478
+Epoch 41/50
+Average Loss: 3.3960172199621432
+Epoch 42/50
+Average Loss: 3.3982429097338422
+Patience Counter: 1
+Epoch 43/50
+Average Loss: 3.3911772879158577
+Epoch 44/50
+Average Loss: 3.38529896736145
+Epoch 45/50
+Average Loss: 3.3884878507474574
+Patience Counter: 1
+Epoch 46/50
+Average Loss: 3.3752295244030837
+Epoch 47/50
+Average Loss: 3.3811461227696116
+Patience Counter: 1
+Epoch 48/50
+Average Loss: 3.3782197469618263
+Patience Counter: 2
+Epoch 49/50
+Average Loss: 3.371743507501556
+Epoch 50/50
+Average Loss: 3.377237311223658
+Patience Counter: 1
+C-index: 0.5537
+[I 2026-10-12 03:14:16,588] Trial 7 finished with value: 0.553669244837453 and parameters: {'num_layers': 3, 'learning_rate': 3.319734510405346e-05, 'drop_out_rate': 0.15453146579860855, 'n_head': 2, 'nhead_factor': 9}. Best is trial 3 with value: 0.7475084782776393.
+CUDA not available, using CPU
+Running trial 8 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 4.472369996512809
+Epoch 2/50
+Average Loss: 4.1505694796399375
+Epoch 3/50
+Average Loss: 3.9477644693560716
+Epoch 4/50
+Average Loss: 3.8165614634025387
+Epoch 5/50
+Average Loss: 3.7891292979077593
+Epoch 6/50
+Average Loss: 3.7867539568645197
+Epoch 7/50
+Average Loss: 3.7874174001740246
+Patience Counter: 1
+Epoch 8/50
+Average Loss: 3.787163077331171
+Patience Counter: 2
+Epoch 9/50
+Average Loss: 3.786383329368219
+Epoch 10/50
+Average Loss: 3.787781165867317
+Patience Counter: 1
+Epoch 11/50
+Average Loss: 3.7852707316235796
+Epoch 12/50
+Average Loss: 3.786354637727505
+Patience Counter: 1
+Epoch 13/50
+Average Loss: 3.7868977378054365
+Patience Counter: 2
+Epoch 14/50
+Average Loss: 3.784291726786916
+Epoch 15/50
+Average Loss: 3.7858951353445285
+Patience Counter: 1
+Epoch 16/50
+Average Loss: 3.7862645096895173
+Patience Counter: 2
+Epoch 17/50
+Average Loss: 3.7865977461745097
+Patience Counter: 3
+Epoch 18/50
+Average Loss: 3.7857053047273217
+Patience Counter: 4
+Epoch 19/50
+Average Loss: 3.785039509215006
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.4957
+[I 2026-10-12 04:21:31,580] Trial 8 finished with value: 0.495659908866458 and parameters: {'num_layers': 5, 'learning_rate': 0.0002966067909718582, 'drop_out_rate': 0.19837238393167267, 'n_head': 6, 'nhead_factor': 2}. Best is trial 3 with value: 0.7475084782776393.
+CUDA not available, using CPU
+Running trial 9 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device cpu
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+Average Loss: 3.853645548587892
+Epoch 2/50
+Average Loss: 3.782346745816673
+Epoch 3/50
+Average Loss: 3.7862975393853535
+Patience Counter: 1
+Epoch 4/50
+Average Loss: 3.788763098600434
+Patience Counter: 2
+Epoch 5/50
+Average Loss: 3.7858594016331
+Patience Counter: 3
+Epoch 6/50
+Average Loss: 3.7881315743050923
+Patience Counter: 4
+Epoch 7/50
+Average Loss: 3.7893817599226787
+Patience Counter: 5
+Early stopping triggered
+C-index: 0.5821
+[I 2026-10-12 04:56:51,231] Trial 9 finished with value: 0.5820728377187095 and parameters: {'num_layers': 6, 'learning_rate': 0.000628563306166774, 'drop_out_rate': 0.2739604083347626, 'n_head': 7, 'nhead_factor': 10}. Best is trial 3 with value: 0.7475084782776393.
+Number of finished trials:  10
+Best trial:
+Best hyperparameters: {'num_layers': 5, 'learning_rate': 0.00018626426582575632, 'drop_out_rate': 0.3339435694896648, 'n_head': 8, 'nhead_factor': 4}
+model summary
+HazardTransformer(
+  (input_embedding): Linear(in_features=40, out_features=32, bias=True)
+  (time_encoder): Sequential(
+    (0): Linear(in_features=1, out_features=16, bias=True)
+    (1): ReLU()
+    (2): Linear(in_features=16, out_features=32, bias=True)
+  )
+  (pos_encoder): PositionalEncoding()
+  (transformer_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0-4): 5 x TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=32, out_features=32, bias=True)
+        )
+        (linear1): Linear(in_features=32, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.3339435694896648, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=32, bias=True)
+        (norm1): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((32,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.3339435694896648, inplace=False)
+        (dropout2): Dropout(p=0.3339435694896648, inplace=False)
+      )
+    )
+  )
+  (hazard_decoders): ModuleList(
+    (0): Sequential(
+      (0): Linear(in_features=32, out_features=16, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=16, out_features=1, bias=True)
+    )
+  )
+)
+C-index: 0.7504
+Integrated Brier Score Test: 0.489
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Mean time-dependent AUC (patient-level, supported follow-up below 730 days): 0.8493
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 5221567 lab-event rows -> 20864 patients; event rate 0.0948 (row-level) vs 0.9145 (patient-level, 19081 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 1284004 lab-event rows -> 5216 patients; event rate 0.0962 (row-level) vs 0.9145 (patient-level, 4770 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 4904.2 days. Horizons used: [730, 1825]
+Training-set max follow-up: 5049.0 days; IPCW evaluation capped at 5049.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 5208/5216 patients have one (8 excluded, no measured eGFR); selected from 72235/1284004 rows with a real eGFR measurement.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+
+Patient-level alignment check (Gap 5a):
+  OK   Hazard Transformer: aligned to 5216 patient-level terminal outcomes (4296 durations differ by up to 0.999306 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Hazard Transformer: c_index=0.7306 brier=0.22821 (native) auc=0.8493
+    fitted-conversion Brier for the same model/window: 0.19114 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.28983
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 5216 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Hazard Transformer   0.7306 [0.7236, 0.7375]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Hazard Transformer   0.2282 [0.2244, 0.2321]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Hazard Transformer   0.8493 [0.8378, 0.8562]  (n=1000)
+
+Paired differences vs. best model by C-index (Hazard Transformer), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 5208/5216 patients with finite predictions for every available model and measured eGFR; 8 excluded from ALL strategies.
+Treat-all net benefit (5208 patients): {0.05: 0.696, 0.1: 0.67911, 0.15: 0.66023, 0.2: 0.639, 0.25: 0.61493, 0.3: 0.58743, 0.4: 0.51867, 0.5: 0.4224}
+  (for contrast, the superseded row-level treat-all over 1284004 lab rows: {0.05: 0.05102, 0.1: -0.0017, 0.15: -0.06063, 0.2: -0.12692, 0.25: -0.20204, 0.3: -0.2879, 0.4: -0.50255, 0.5: -0.80306})
+eGFR<30 referral rule (5208 patients): flags 1255 (0.241), TP rate 0.18287, FP rate 0.05811
+  net benefit across the model thresholds: {0.05: 0.17981, 0.1: 0.17641, 0.15: 0.17262, 0.2: 0.16834, 0.25: 0.1635, 0.3: 0.15797, 0.4: 0.14413, 0.5: 0.12476}
+eGFR<45 referral rule (5208 patients): flags 2584 (0.4962), TP rate 0.36541, FP rate 0.13075
+  net benefit across the model thresholds: {0.05: 0.35853, 0.1: 0.35088, 0.15: 0.34234, 0.2: 0.33272, 0.25: 0.32183, 0.3: 0.30938, 0.4: 0.27825, 0.5: 0.23466}
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 730 events=679 predicted=1.0000 observed(KM)=0.7703
+  n= 616 events=549 predicted=1.0000 observed(KM)=0.6687
+  n= 796 events=732 predicted=1.0000 observed(KM)=0.676
+  n=1365 events=1236 predicted=1.0000 observed(KM)=0.7044
+  n=1140 events=1040 predicted=1.0000 observed(KM)=0.7034
+  n= 430 events=398 predicted=1.0000 observed(KM)=0.7289
+  n= 139 events=136 predicted=1.0000 observed(KM)=0.88
+Integrated Brier score (0-730d): 0.22821 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66023  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.639  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61493  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58743  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51867  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.4224  treat_all=0.4224  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 5208/5216 patients with finite predictions for every available model and measured eGFR; 8 excluded from ALL strategies.
+Treat-all net benefit (5208 patients): {0.05: 0.84402, 0.1: 0.83536, 0.15: 0.82567, 0.2: 0.81478, 0.25: 0.80243, 0.3: 0.78832, 0.4: 0.75304, 0.5: 0.70364}
+  (for contrast, the superseded row-level treat-all over 1284004 lab rows: {0.05: 0.10168, 0.1: 0.05177, 0.15: -0.00401, 0.2: -0.06676, 0.25: -0.13788, 0.3: -0.21915, 0.4: -0.42235, 0.5: -0.70682})
+eGFR<30 referral rule (5208 patients): flags 1255 (0.241), TP rate 0.21319, FP rate 0.02779
+  net benefit across the model thresholds: {0.05: 0.21172, 0.1: 0.2101, 0.15: 0.20828, 0.2: 0.20624, 0.25: 0.20392, 0.3: 0.20128, 0.4: 0.19466, 0.5: 0.1854}
+eGFR<45 referral rule (5208 patients): flags 2584 (0.4962), TP rate 0.43243, FP rate 0.06373
+  net benefit across the model thresholds: {0.05: 0.42907, 0.1: 0.42535, 0.15: 0.42118, 0.2: 0.4165, 0.25: 0.41118, 0.3: 0.40511, 0.4: 0.38994, 0.5: 0.3687}
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 522 events=475 predicted=0.1498 observed(KM)=0.6899
+  n= 522 events=482 predicted=0.2427 observed(KM)=0.7333
+  n= 521 events=467 predicted=0.3617 observed(KM)=0.7332
+  n= 522 events=457 predicted=0.5718 observed(KM)=0.8106
+  n= 521 events=443 predicted=0.7926 observed(KM)=0.8151
+  n= 522 events=453 predicted=0.9351 observed(KM)=0.8719
+  n= 521 events=476 predicted=0.9911 observed(KM)=0.9331
+  n= 522 events=494 predicted=0.9999 observed(KM)=0.9762
+  n= 521 events=508 predicted=1.0000 observed(KM)=0.9803
+  n= 522 events=515 predicted=1.0000 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.20107 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83055  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.7988  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.75111  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.70912  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.67088  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.60805  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.56424  treat_all=0.70364  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_clinical_validity_report.txt
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/c_index_comparison.png
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/brier_comparison.png
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/auc_comparison.png
+COMPLETE

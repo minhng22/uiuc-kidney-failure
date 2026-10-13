@@ -1,0 +1,105 @@
+SUBGROUP PERFORMANCE ANALYSIS REPORT
+================================================================================
+Generated on: 2026-10-12 09:11:50
+Repetition: 3
+Scenario: twenty_features_heterogeneous
+Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
+
+This reports model performance WITHIN demographic groups. It is not a fairness
+evaluation: no fairness criterion is defined or tested here, and a between-group
+difference in these numbers has causes (group size, event rate, follow-up length,
+measurement density, coding practice) that these numbers cannot separate.
+
+Age groups are bins of anchor_age — the patient's age in their MIMIC anchor year,
+NOT their age at the prediction landmark, which the exported scenario data does not
+carry enough information to derive. Race is collapsed from admissions.csv ethnicity
+and keeps an explicit unknown/not-recorded group. See
+pkgs/data_analysis/patient_metadata.py for both rules and why they differ from
+demographics.py's.
+================================================================================
+
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 5221567 lab-event rows -> 20864 patients, 19081 events (patient-level event rate 0.9145)
+test: 1284004 lab-event rows -> 5216 patients, 4770 events (patient-level event rate 0.9145)
+IPCW censoring reference: the full training cohort (20864 patients), not a per-group one; evaluation capped at 5049.0 days (training follow-up 5049.0 days).
+
+Patient metadata join:
+  5216 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.391 y, p90 5.589 y, max 13.427 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    4955/5216 patients have a recorded race; 261 retained as unknown; 177 have more than one recorded value across admissions; 512 admission rows carry declined/unobtainable/unknown.
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  18-45                    n=524   events=507   event_rate=0.9676
+  46-65                    n=1660  events=1575  event_rate=0.9488
+  66-85                    n=2319  events=2072  event_rate=0.8935
+  >85                      n=713   events=616   event_rate=0.8640
+
+--- Sex as recorded in patients.csv ---
+  F                        n=2239  events=2042  event_rate=0.9120
+  M                        n=2977  events=2728  event_rate=0.9164
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  AMERICAN INDIAN/ALASKA NATIVE n=16    events=15    event_rate=0.9375   [metrics not computed: needs >= 20 patients and >= 5 events]
+  ASIAN                    n=146   events=139   event_rate=0.9521
+  BLACK                    n=756   events=699   event_rate=0.9246
+  HISPANIC/LATINO          n=202   events=194   event_rate=0.9604
+  MULTIPLE RACE/ETHNICITY  n=3     events=3     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER n=6     events=5     event_rate=0.8333   [metrics not computed: needs >= 20 patients and >= 5 events]
+  OTHER                    n=155   events=142   event_rate=0.9161
+  PORTUGUESE               n=13    events=12    event_rate=0.9231   [metrics not computed: needs >= 20 patients and >= 5 events]
+  SOUTH AMERICAN           n=3     events=3     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  UNKNOWN/NOT RECORDED     n=261   events=243   event_rate=0.9310
+  WHITE                    n=3655  events=3315  event_rate=0.9070
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+  [18-45] n=524 events=507
+    RNN-Surv             c_index=0.5172 [0.4845, 0.5468]  brier=0.5303 [0.5031, 0.559] [native]  auc=0.5293 [0.479, 0.5717]
+
+  [46-65] n=1660 events=1575
+    RNN-Surv             c_index=0.518 [0.5011, 0.5347]  brier=0.4666 [0.4491, 0.4835] [native]  auc=0.5348 [0.5081, 0.5599]
+
+  [66-85] n=2319 events=2072
+    RNN-Surv             c_index=0.5226 [0.5082, 0.5372]  brier=0.4611 [0.4463, 0.4752] [native]  auc=0.5253 [0.5026, 0.5473]
+
+  [>85] n=713 events=616
+    RNN-Surv             c_index=0.5186 [0.4922, 0.5459]  brier=0.5354 [0.5112, 0.5613] [native]  auc=0.5079 [0.4685, 0.5472]
+
+=== Sex as recorded in patients.csv ===
+
+  [F] n=2239 events=2042
+    RNN-Surv             c_index=0.5194 [0.5041, 0.5343]  brier=0.4605 [0.445, 0.4755] [native]  auc=0.5257 [0.5034, 0.5465]
+
+  [M] n=2977 events=2728
+    RNN-Surv             c_index=0.518 [0.5051, 0.5313]  brier=0.4946 [0.4812, 0.5067] [native]  auc=0.5238 [0.5039, 0.5426]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [ASIAN] n=146 events=139
+    RNN-Surv             c_index=0.5251 [0.4675, 0.5821]  brier=0.5269 [0.4738, 0.5763] [native]  auc=0.5119 [0.4278, 0.5938]
+
+  [BLACK] n=756 events=699
+    RNN-Surv             c_index=0.5096 [0.4842, 0.5347]  brier=0.4021 [0.375, 0.4269] [native]  auc=0.5175 [0.4764, 0.5553]
+
+  [HISPANIC/LATINO] n=202 events=194
+    RNN-Surv             c_index=0.5067 [0.4582, 0.557]  brier=0.4415 [0.391, 0.49] [native]  auc=0.5081 [0.4377, 0.5782]
+
+  [OTHER] n=155 events=142
+    RNN-Surv             c_index=0.4905 [0.4332, 0.5505]  brier=0.5404 [0.4864, 0.595] [native]  auc=0.469 [0.3865, 0.5598]
+
+  [UNKNOWN/NOT RECORDED] n=261 events=243
+    RNN-Surv             c_index=0.5276 [0.4789, 0.5738]  brier=0.7296 [0.7012, 0.7563] [native]  auc=0.6226 [0.5442, 0.698]
+
+  [WHITE] n=3655 events=3315
+    RNN-Surv             c_index=0.5202 [0.5086, 0.5317]  brier=0.4758 [0.4649, 0.4875] [native]  auc=0.526 [0.5081, 0.543]

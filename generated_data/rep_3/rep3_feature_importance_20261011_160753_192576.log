@@ -1,0 +1,15 @@
+rep3 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/minhnguyen/Documents/uiuc-kidney-failure/pkgs/scripts/run_experiments.py", line 354, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/minhnguyen/Documents/uiuc-kidney-failure/pkgs/scripts/run_experiments.py", line 333, in main
+    return run_worker(args)
+           ^^^^^^^^^^^^^^^^
+  File "/Users/minhnguyen/Documents/uiuc-kidney-failure/pkgs/scripts/run_experiments.py", line 240, in run_worker
+    from pkgs.data_analysis.feature_importance_analysis import FeatureImportanceAnalyzer
+  File "/Users/minhnguyen/Documents/uiuc-kidney-failure/pkgs/data_analysis/feature_importance_analysis.py", line 57, in <module>
+    import shap
+ModuleNotFoundError: No module named 'shap'
