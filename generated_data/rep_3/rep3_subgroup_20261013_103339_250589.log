@@ -1,0 +1,273 @@
+rep3 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - FOUR_FEATURES
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 9363 lab-event rows -> 1079 patients, 812 events (patient-level event rate 0.7525)
+test: 2304 lab-event rows -> 270 patients, 203 events (patient-level event rate 0.7519)
+IPCW censoring reference: the full training cohort (1079 patients), not a per-group one; evaluation capped at 4333.0 days (training follow-up 4333.0 days).
+
+Patient metadata join:
+  270 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.021 y, p90 4.349 y, max 10.068 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    269/270 patients have a recorded race; 1 retained as unknown; 15 have more than one recorded value across admissions; 15 admission rows carry declined/unobtainable/unknown.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  18-45                    n=27    events=25    event_rate=0.9259
+  46-65                    n=103   events=79    event_rate=0.7670
+  66-85                    n=129   events=93    event_rate=0.7209
+  >85                      n=11    events=6     event_rate=0.5455   [metrics not computed: needs >= 20 patients and >= 5 events]
+
+--- Sex as recorded in patients.csv ---
+  F                        n=113   events=90    event_rate=0.7965
+  M                        n=157   events=113   event_rate=0.7197
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  ASIAN                    n=19    events=16    event_rate=0.8421   [metrics not computed: needs >= 20 patients and >= 5 events]
+  BLACK                    n=70    events=56    event_rate=0.8000
+  HISPANIC/LATINO          n=22    events=14    event_rate=0.6364
+  MULTIPLE RACE/ETHNICITY  n=1     events=0     event_rate=0.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  OTHER                    n=2     events=2     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  SOUTH AMERICAN           n=1     events=1     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  UNKNOWN/NOT RECORDED     n=1     events=1     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  WHITE                    n=154   events=113   event_rate=0.7338
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+  [18-45] n=27 events=25
+    DeepSurv             c_index=0.3936 [0.2167, 0.5804]  brier=0.2533 [0.2255, 0.2798] [fitted-conversion]  auc=0.3876 [0.1644, 0.6014]
+
+  [46-65] n=103 events=79
+    DeepSurv             c_index=0.5648 [0.4792, 0.6393]  brier=0.2586 [0.2379, 0.2777] [fitted-conversion]  auc=0.5707 [0.4518, 0.6717]
+
+  [66-85] n=129 events=93
+    DeepSurv             c_index=0.5421 [0.4732, 0.6167]  brier=0.235 [0.2136, 0.2531] [fitted-conversion]  auc=0.5456 [0.4468, 0.6439]
+
+=== Sex as recorded in patients.csv ===
+
+  [F] n=113 events=90
+    DeepSurv             c_index=0.5357 [0.4615, 0.608]  brier=0.251 [0.2303, 0.2707] [fitted-conversion]  auc=0.5323 [0.4272, 0.6301]
+
+  [M] n=157 events=113
+    DeepSurv             c_index=0.5281 [0.4554, 0.5899]  brier=0.2366 [0.2174, 0.2539] [fitted-conversion]  auc=0.533 [0.4399, 0.6163]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [BLACK] n=70 events=56
+    DeepSurv             c_index=0.5879 [0.4924, 0.6771]  brier=0.2578 [0.2355, 0.2798] [fitted-conversion]  auc=0.5837 [0.456, 0.7062]
+
+  [HISPANIC/LATINO] n=22 events=14
+    DeepSurv             c_index=0.4494 [0.2721, 0.633]  brier=0.2113 [0.1606, 0.2598] [fitted-conversion]  auc=0.4152 [0.1873, 0.6825]
+
+  [WHITE] n=154 events=113
+    DeepSurv             c_index=0.5095 [0.4461, 0.5766]  brier=0.2338 [0.2149, 0.2512] [fitted-conversion]  auc=0.5232 [0.4365, 0.6158]
+Subgroup report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_subgroup_performance_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - EIGHT_FEATURES
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 1498 lab-event rows -> 425 patients, 327 events (patient-level event rate 0.7694)
+test: 416 lab-event rows -> 107 patients, 82 events (patient-level event rate 0.7664)
+IPCW censoring reference: the full training cohort (425 patients), not a per-group one; evaluation capped at 3164.4 days (training follow-up 3164.4 days).
+
+Patient metadata join:
+  107 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.002 y, p90 2.023 y, max 6.949 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    107/107 patients have a recorded race; 0 retained as unknown; 10 have more than one recorded value across admissions; 3 admission rows carry declined/unobtainable/unknown.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  18-45                    n=18    events=15    event_rate=0.8333   [metrics not computed: needs >= 20 patients and >= 5 events]
+  46-65                    n=41    events=33    event_rate=0.8049
+  66-85                    n=40    events=31    event_rate=0.7750
+  >85                      n=8     events=3     event_rate=0.3750   [metrics not computed: needs >= 20 patients and >= 5 events]
+
+--- Sex as recorded in patients.csv ---
+  F                        n=50    events=38    event_rate=0.7600
+  M                        n=57    events=44    event_rate=0.7719
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  ASIAN                    n=6     events=5     event_rate=0.8333   [metrics not computed: needs >= 20 patients and >= 5 events]
+  BLACK                    n=29    events=25    event_rate=0.8621
+  HISPANIC/LATINO          n=5     events=4     event_rate=0.8000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  OTHER                    n=4     events=3     event_rate=0.7500   [metrics not computed: needs >= 20 patients and >= 5 events]
+  PORTUGUESE               n=1     events=1     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  WHITE                    n=62    events=44    event_rate=0.7097
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+  [46-65] n=41 events=33
+    DeepSurv             c_index=0.5255 [0.3991, 0.659]  brier=0.3471 [0.2179, 0.4754] [fitted-conversion]  auc=0.4804 [0.3174, 0.6524]
+
+  [66-85] n=40 events=31
+    DeepSurv             c_index=0.4804 [0.349, 0.6141]  brier=0.1321 [0.0841, 0.2278] [fitted-conversion]  auc=0.3566 [0.2114, 0.5826]
+
+=== Sex as recorded in patients.csv ===
+
+  [F] n=50 events=38
+    DeepSurv             c_index=0.5311 [0.4165, 0.6398]  brier=0.2389 [0.1446, 0.3501] [fitted-conversion]  auc=0.4542 [0.2804, 0.6168]
+
+  [M] n=57 events=44
+    DeepSurv             c_index=0.4919 [0.378, 0.5995]  brier=0.2231 [0.1372, 0.3186] [fitted-conversion]  auc=0.4424 [0.2872, 0.5918]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [BLACK] n=29 events=25
+    DeepSurv             c_index=0.5387 [0.3909, 0.6875]  brier=0.2021 [0.1115, 0.3478] [fitted-conversion]  auc=0.4315 [0.2539, 0.6433]
+
+  [WHITE] n=62 events=44
+    DeepSurv             c_index=0.5455 [0.4395, 0.6592]  brier=0.2268 [0.1354, 0.3255] [fitted-conversion]  auc=0.4788 [0.3319, 0.6409]
+Subgroup report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_subgroup_performance_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+================================================================================
+SUBGROUP PERFORMANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Subgroup PERFORMANCE, not a fairness evaluation — see this module's docstring.
+
+train: 5221567 lab-event rows -> 20864 patients, 19081 events (patient-level event rate 0.9145)
+test: 1284004 lab-event rows -> 5216 patients, 4770 events (patient-level event rate 0.9145)
+IPCW censoring reference: the full training cohort (20864 patients), not a per-group one; evaluation capped at 5049.0 days (training follow-up 5049.0 days).
+
+Patient metadata join:
+  5216 held-out patients; 0 with no patients.csv row
+  Age variable — anchor_age from patients.csv — the patient's age in their MIMIC anchor year, NOT their age at the prediction landmark; the exported scenario CSVs carry no absolute timestamp, so landmark age is not derivable here
+  Time from each patient's first lab record to their prediction landmark: median 0.391 y, p90 5.589 y, max 13.427 y — the landmark can sit this far from the anchor year the age is measured at.
+  Race — most frequently recorded race across the patient's admissions, ties broken by earliest admission; patients with no recorded value are kept as UNKNOWN/NOT RECORDED
+    4955/5216 patients have a recorded race; 261 retained as unknown; 177 have more than one recorded value across admissions; 512 admission rows carry declined/unobtainable/unknown.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5221567 rows/20864 subjects -> 20864 rows; test 1284004 rows/5216 subjects -> 5216 rows; holdout 1620519 rows/6521 subjects -> 6521 rows
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5221567 rows/20864 subjects -> 20864 rows; test 1284004 rows/5216 subjects -> 5216 rows; holdout 1620519 rows/6521 subjects -> 6521 rows
+
+Group composition (patients / events / event proportion):
+
+--- Age group (anchor_age bins — see patient_metadata: NOT landmark age) ---
+  18-45                    n=524   events=507   event_rate=0.9676
+  46-65                    n=1660  events=1575  event_rate=0.9488
+  66-85                    n=2319  events=2072  event_rate=0.8935
+  >85                      n=713   events=616   event_rate=0.8640
+
+--- Sex as recorded in patients.csv ---
+  F                        n=2239  events=2042  event_rate=0.9120
+  M                        n=2977  events=2728  event_rate=0.9164
+
+--- Race (collapsed from admissions.csv ethnicity; unknown retained) ---
+  AMERICAN INDIAN/ALASKA NATIVE n=16    events=15    event_rate=0.9375   [metrics not computed: needs >= 20 patients and >= 5 events]
+  ASIAN                    n=146   events=139   event_rate=0.9521
+  BLACK                    n=756   events=699   event_rate=0.9246
+  HISPANIC/LATINO          n=202   events=194   event_rate=0.9604
+  MULTIPLE RACE/ETHNICITY  n=3     events=3     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER n=6     events=5     event_rate=0.8333   [metrics not computed: needs >= 20 patients and >= 5 events]
+  OTHER                    n=155   events=142   event_rate=0.9161
+  PORTUGUESE               n=13    events=12    event_rate=0.9231   [metrics not computed: needs >= 20 patients and >= 5 events]
+  SOUTH AMERICAN           n=3     events=3     event_rate=1.0000   [metrics not computed: needs >= 20 patients and >= 5 events]
+  UNKNOWN/NOT RECORDED     n=261   events=243   event_rate=0.9310
+  WHITE                    n=3655  events=3315  event_rate=0.9070
+
+Per-group performance, 1000 within-group bootstrap resamples, 95% percentile intervals:
+  C-index and mean time-dependent AUC: higher is better. Integrated Brier (0-730d): lower is better.
+
+=== Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
+
+  [18-45] n=524 events=507
+    DeepSurv             c_index=0.5635 [0.5362, 0.5922]  brier=0.2297 [0.2231, 0.2366] [fitted-conversion]  auc=0.617 [0.5716, 0.6561]
+
+  [46-65] n=1660 events=1575
+    DeepSurv             c_index=0.5421 [0.5252, 0.5577]  brier=0.2411 [0.2366, 0.2462] [fitted-conversion]  auc=0.5711 [0.5459, 0.5959]
+
+  [66-85] n=2319 events=2072
+    DeepSurv             c_index=0.5244 [0.5094, 0.5378]  brier=0.2323 [0.2281, 0.2364] [fitted-conversion]  auc=0.5426 [0.5194, 0.5625]
+
+  [>85] n=713 events=616
+    DeepSurv             c_index=0.5172 [0.4905, 0.5445]  brier=0.2029 [0.1958, 0.21] [fitted-conversion]  auc=0.5179 [0.4811, 0.5566]
+
+=== Sex as recorded in patients.csv ===
+
+  [F] n=2239 events=2042
+    DeepSurv             c_index=0.5332 [0.519, 0.5467]  brier=0.2344 [0.2299, 0.2386] [fitted-conversion]  auc=0.5549 [0.5332, 0.5758]
+
+  [M] n=2977 events=2728
+    DeepSurv             c_index=0.534 [0.5226, 0.5466]  brier=0.2281 [0.2247, 0.2314] [fitted-conversion]  auc=0.5574 [0.5386, 0.5766]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [ASIAN] n=146 events=139
+    DeepSurv             c_index=0.5128 [0.4611, 0.5685]  brier=0.2289 [0.2159, 0.242] [fitted-conversion]  auc=0.5108 [0.427, 0.593]
+
+  [BLACK] n=756 events=699
+    DeepSurv             c_index=0.5263 [0.501, 0.5515]  brier=0.2513 [0.2443, 0.259] [fitted-conversion]  auc=0.5559 [0.5173, 0.5933]
+
+  [HISPANIC/LATINO] n=202 events=194
+    DeepSurv             c_index=0.5099 [0.4618, 0.5506]  brier=0.2527 [0.2393, 0.2662] [fitted-conversion]  auc=0.5382 [0.4579, 0.6053]
+
+  [OTHER] n=155 events=142
+    DeepSurv             c_index=0.5422 [0.4841, 0.5999]  brier=0.2186 [0.2049, 0.2319] [fitted-conversion]  auc=0.5721 [0.4927, 0.6583]
+
+  [UNKNOWN/NOT RECORDED] n=261 events=243
+    DeepSurv             c_index=0.5498 [0.5058, 0.5949]  brier=0.1745 [0.1663, 0.1838] [fitted-conversion]  auc=0.567 [0.4937, 0.6406]
+
+  [WHITE] n=3655 events=3315
+    DeepSurv             c_index=0.5305 [0.5192, 0.5418]  brier=0.2298 [0.2265, 0.2331] [fitted-conversion]  auc=0.5496 [0.5326, 0.5665]
+Subgroup report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_subgroup_performance_report.txt
+COMPLETE

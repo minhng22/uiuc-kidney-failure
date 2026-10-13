@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 09:40:32
+Generated on: 2026-10-13 10:47:41
 Repetition: 3
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -60,23 +60,23 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [46-65] n=41 events=33
-    Survival SVM         c_index=0.5036 [0.36, 0.6479]  brier=0.5258 [0.3899, 0.6594] [fitted-conversion]  auc=0.5212 [0.3423, 0.698]
+    DeepSurv             c_index=0.5255 [0.3991, 0.659]  brier=0.3471 [0.2179, 0.4754] [fitted-conversion]  auc=0.4804 [0.3174, 0.6524]
 
   [66-85] n=40 events=31
-    Survival SVM         c_index=0.4526 [0.3159, 0.5922]  brier=0.5092 [0.3797, 0.6429] [fitted-conversion]  auc=0.555 [0.386, 0.7608]
+    DeepSurv             c_index=0.4804 [0.349, 0.6141]  brier=0.1321 [0.0841, 0.2278] [fitted-conversion]  auc=0.3566 [0.2114, 0.5826]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=50 events=38
-    Survival SVM         c_index=0.4259 [0.3099, 0.5465]  brier=0.6266 [0.5011, 0.7532] [fitted-conversion]  auc=0.4562 [0.2945, 0.6343]
+    DeepSurv             c_index=0.5311 [0.4165, 0.6398]  brier=0.2389 [0.1446, 0.3501] [fitted-conversion]  auc=0.4542 [0.2804, 0.6168]
 
   [M] n=57 events=44
-    Survival SVM         c_index=0.5259 [0.3893, 0.6416]  brier=0.4649 [0.3482, 0.5823] [fitted-conversion]  auc=0.5361 [0.3556, 0.6903]
+    DeepSurv             c_index=0.4919 [0.378, 0.5995]  brier=0.2231 [0.1372, 0.3186] [fitted-conversion]  auc=0.4424 [0.2872, 0.5918]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [BLACK] n=29 events=25
-    Survival SVM         c_index=0.4167 [0.2618, 0.5854]  brier=0.5613 [0.3813, 0.7079] [fitted-conversion]  auc=0.4564 [0.2949, 0.6578]
+    DeepSurv             c_index=0.5387 [0.3909, 0.6875]  brier=0.2021 [0.1115, 0.3478] [fitted-conversion]  auc=0.4315 [0.2539, 0.6433]
 
   [WHITE] n=62 events=44
-    Survival SVM         c_index=0.5116 [0.4031, 0.6237]  brier=0.5078 [0.4029, 0.6191] [fitted-conversion]  auc=0.5097 [0.3485, 0.6833]
+    DeepSurv             c_index=0.5455 [0.4395, 0.6592]  brier=0.2268 [0.1354, 0.3255] [fitted-conversion]  auc=0.4788 [0.3319, 0.6409]

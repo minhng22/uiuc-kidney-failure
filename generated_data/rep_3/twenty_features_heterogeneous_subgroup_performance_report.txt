@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 09:45:44
+Generated on: 2026-10-13 10:53:26
 Repetition: 3
 Scenario: twenty_features_heterogeneous
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -65,41 +65,41 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [18-45] n=524 events=507
-    Survival SVM         c_index=0.5542 [0.5241, 0.5853]  brier=0.2295 [0.2215, 0.2374] [fitted-conversion]  auc=0.6124 [0.5653, 0.6578]
+    DeepSurv             c_index=0.5635 [0.5362, 0.5922]  brier=0.2297 [0.2231, 0.2366] [fitted-conversion]  auc=0.617 [0.5716, 0.6561]
 
   [46-65] n=1660 events=1575
-    Survival SVM         c_index=0.5296 [0.5133, 0.5459]  brier=0.2433 [0.2386, 0.2488] [fitted-conversion]  auc=0.5629 [0.5373, 0.5886]
+    DeepSurv             c_index=0.5421 [0.5252, 0.5577]  brier=0.2411 [0.2366, 0.2462] [fitted-conversion]  auc=0.5711 [0.5459, 0.5959]
 
   [66-85] n=2319 events=2072
-    Survival SVM         c_index=0.513 [0.4973, 0.5271]  brier=0.2347 [0.23, 0.2393] [fitted-conversion]  auc=0.534 [0.5128, 0.5574]
+    DeepSurv             c_index=0.5244 [0.5094, 0.5378]  brier=0.2323 [0.2281, 0.2364] [fitted-conversion]  auc=0.5426 [0.5194, 0.5625]
 
   [>85] n=713 events=616
-    Survival SVM         c_index=0.5064 [0.4788, 0.5344]  brier=0.2079 [0.1997, 0.2156] [fitted-conversion]  auc=0.5336 [0.4941, 0.5734]
+    DeepSurv             c_index=0.5172 [0.4905, 0.5445]  brier=0.2029 [0.1958, 0.21] [fitted-conversion]  auc=0.5179 [0.4811, 0.5566]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=2239 events=2042
-    Survival SVM         c_index=0.5178 [0.5031, 0.5324]  brier=0.2369 [0.2324, 0.2415] [fitted-conversion]  auc=0.5432 [0.521, 0.5657]
+    DeepSurv             c_index=0.5332 [0.519, 0.5467]  brier=0.2344 [0.2299, 0.2386] [fitted-conversion]  auc=0.5549 [0.5332, 0.5758]
 
   [M] n=2977 events=2728
-    Survival SVM         c_index=0.5251 [0.5125, 0.5379]  brier=0.2306 [0.2268, 0.2342] [fitted-conversion]  auc=0.5567 [0.5379, 0.5759]
+    DeepSurv             c_index=0.534 [0.5226, 0.5466]  brier=0.2281 [0.2247, 0.2314] [fitted-conversion]  auc=0.5574 [0.5386, 0.5766]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [ASIAN] n=146 events=139
-    Survival SVM         c_index=0.5018 [0.4481, 0.5584]  brier=0.2332 [0.2178, 0.2473] [fitted-conversion]  auc=0.5189 [0.4359, 0.6019]
+    DeepSurv             c_index=0.5128 [0.4611, 0.5685]  brier=0.2289 [0.2159, 0.242] [fitted-conversion]  auc=0.5108 [0.427, 0.593]
 
   [BLACK] n=756 events=699
-    Survival SVM         c_index=0.5116 [0.4873, 0.5336]  brier=0.2527 [0.2453, 0.2608] [fitted-conversion]  auc=0.5347 [0.4975, 0.5712]
+    DeepSurv             c_index=0.5263 [0.501, 0.5515]  brier=0.2513 [0.2443, 0.259] [fitted-conversion]  auc=0.5559 [0.5173, 0.5933]
 
   [HISPANIC/LATINO] n=202 events=194
-    Survival SVM         c_index=0.526 [0.477, 0.5708]  brier=0.2525 [0.2379, 0.2683] [fitted-conversion]  auc=0.5498 [0.4746, 0.6178]
+    DeepSurv             c_index=0.5099 [0.4618, 0.5506]  brier=0.2527 [0.2393, 0.2662] [fitted-conversion]  auc=0.5382 [0.4579, 0.6053]
 
   [OTHER] n=155 events=142
-    Survival SVM         c_index=0.5341 [0.4771, 0.5907]  brier=0.2182 [0.202, 0.2349] [fitted-conversion]  auc=0.5672 [0.4896, 0.6486]
+    DeepSurv             c_index=0.5422 [0.4841, 0.5999]  brier=0.2186 [0.2049, 0.2319] [fitted-conversion]  auc=0.5721 [0.4927, 0.6583]
 
   [UNKNOWN/NOT RECORDED] n=261 events=243
-    Survival SVM         c_index=0.4936 [0.4463, 0.5381]  brier=0.1667 [0.1567, 0.1775] [fitted-conversion]  auc=0.5854 [0.5069, 0.6645]
+    DeepSurv             c_index=0.5498 [0.5058, 0.5949]  brier=0.1745 [0.1663, 0.1838] [fitted-conversion]  auc=0.567 [0.4937, 0.6406]
 
   [WHITE] n=3655 events=3315
-    Survival SVM         c_index=0.5149 [0.5032, 0.5269]  brier=0.2334 [0.2297, 0.237] [fitted-conversion]  auc=0.5386 [0.5212, 0.5568]
+    DeepSurv             c_index=0.5305 [0.5192, 0.5418]  brier=0.2298 [0.2265, 0.2331] [fitted-conversion]  auc=0.5496 [0.5326, 0.5665]
