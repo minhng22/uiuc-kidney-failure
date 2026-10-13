@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 04:58:28
+Generated on: 2026-10-13 09:56:18
 Repetition: 5
 Scenario: four_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -62,26 +62,26 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [18-45] n=26 events=21
-    Hazard Transformer   c_index=0.5709 [0.3893, 0.7356]  brier=0.3103 [0.2094, 0.4098] [native]  auc=0.5796 [0.3569, 0.7827]
+    Survival SVM         c_index=0.4291 [0.2817, 0.5704]  brier=0.2922 [0.2366, 0.3459] [fitted-conversion]  auc=0.4237 [0.216, 0.6321]
 
   [46-65] n=103 events=82
-    Hazard Transformer   c_index=0.572 [0.495, 0.6447]  brier=0.2568 [0.2112, 0.306] [native]  auc=0.6428 [0.5371, 0.7448]
+    Survival SVM         c_index=0.5094 [0.4337, 0.5873]  brier=0.2452 [0.2223, 0.2686] [fitted-conversion]  auc=0.526 [0.4217, 0.6321]
 
   [66-85] n=123 events=89
-    Hazard Transformer   c_index=0.6515 [0.5837, 0.7149]  brier=0.2841 [0.2357, 0.3329] [native]  auc=0.7166 [0.6317, 0.7974]
+    Survival SVM         c_index=0.6008 [0.5327, 0.6719]  brier=0.2374 [0.2133, 0.2597] [fitted-conversion]  auc=0.6127 [0.5182, 0.7107]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=113 events=90
-    Hazard Transformer   c_index=0.6412 [0.5768, 0.6961]  brier=0.2677 [0.2223, 0.3148] [native]  auc=0.7264 [0.6317, 0.8039]
+    Survival SVM         c_index=0.5567 [0.478, 0.6378]  brier=0.2502 [0.2297, 0.2708] [fitted-conversion]  auc=0.5679 [0.461, 0.675]
 
   [M] n=157 events=113
-    Hazard Transformer   c_index=0.5552 [0.4873, 0.6203]  brier=0.2766 [0.2317, 0.3187] [native]  auc=0.5889 [0.5026, 0.6681]
+    Survival SVM         c_index=0.5586 [0.4946, 0.6219]  brier=0.2394 [0.2162, 0.2611] [fitted-conversion]  auc=0.5712 [0.4828, 0.6607]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [BLACK] n=67 events=54
-    Hazard Transformer   c_index=0.5816 [0.4868, 0.6738]  brier=0.2713 [0.2114, 0.3409] [native]  auc=0.6122 [0.4781, 0.7399]
+    Survival SVM         c_index=0.5236 [0.4335, 0.6224]  brier=0.2516 [0.2221, 0.283] [fitted-conversion]  auc=0.5018 [0.3694, 0.6239]
 
   [WHITE] n=169 events=124
-    Hazard Transformer   c_index=0.5771 [0.5184, 0.6309]  brier=0.2742 [0.2384, 0.3178] [native]  auc=0.6357 [0.5581, 0.7135]
+    Survival SVM         c_index=0.5638 [0.5062, 0.6255]  brier=0.2413 [0.2238, 0.2599] [fitted-conversion]  auc=0.5753 [0.4953, 0.6567]

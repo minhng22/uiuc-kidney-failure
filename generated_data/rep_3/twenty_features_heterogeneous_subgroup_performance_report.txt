@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-12 09:11:50
+Generated on: 2026-10-13 09:45:44
 Repetition: 3
 Scenario: twenty_features_heterogeneous
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -65,41 +65,41 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [18-45] n=524 events=507
-    RNN-Surv             c_index=0.5172 [0.4845, 0.5468]  brier=0.5303 [0.5031, 0.559] [native]  auc=0.5293 [0.479, 0.5717]
+    Survival SVM         c_index=0.5542 [0.5241, 0.5853]  brier=0.2295 [0.2215, 0.2374] [fitted-conversion]  auc=0.6124 [0.5653, 0.6578]
 
   [46-65] n=1660 events=1575
-    RNN-Surv             c_index=0.518 [0.5011, 0.5347]  brier=0.4666 [0.4491, 0.4835] [native]  auc=0.5348 [0.5081, 0.5599]
+    Survival SVM         c_index=0.5296 [0.5133, 0.5459]  brier=0.2433 [0.2386, 0.2488] [fitted-conversion]  auc=0.5629 [0.5373, 0.5886]
 
   [66-85] n=2319 events=2072
-    RNN-Surv             c_index=0.5226 [0.5082, 0.5372]  brier=0.4611 [0.4463, 0.4752] [native]  auc=0.5253 [0.5026, 0.5473]
+    Survival SVM         c_index=0.513 [0.4973, 0.5271]  brier=0.2347 [0.23, 0.2393] [fitted-conversion]  auc=0.534 [0.5128, 0.5574]
 
   [>85] n=713 events=616
-    RNN-Surv             c_index=0.5186 [0.4922, 0.5459]  brier=0.5354 [0.5112, 0.5613] [native]  auc=0.5079 [0.4685, 0.5472]
+    Survival SVM         c_index=0.5064 [0.4788, 0.5344]  brier=0.2079 [0.1997, 0.2156] [fitted-conversion]  auc=0.5336 [0.4941, 0.5734]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=2239 events=2042
-    RNN-Surv             c_index=0.5194 [0.5041, 0.5343]  brier=0.4605 [0.445, 0.4755] [native]  auc=0.5257 [0.5034, 0.5465]
+    Survival SVM         c_index=0.5178 [0.5031, 0.5324]  brier=0.2369 [0.2324, 0.2415] [fitted-conversion]  auc=0.5432 [0.521, 0.5657]
 
   [M] n=2977 events=2728
-    RNN-Surv             c_index=0.518 [0.5051, 0.5313]  brier=0.4946 [0.4812, 0.5067] [native]  auc=0.5238 [0.5039, 0.5426]
+    Survival SVM         c_index=0.5251 [0.5125, 0.5379]  brier=0.2306 [0.2268, 0.2342] [fitted-conversion]  auc=0.5567 [0.5379, 0.5759]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [ASIAN] n=146 events=139
-    RNN-Surv             c_index=0.5251 [0.4675, 0.5821]  brier=0.5269 [0.4738, 0.5763] [native]  auc=0.5119 [0.4278, 0.5938]
+    Survival SVM         c_index=0.5018 [0.4481, 0.5584]  brier=0.2332 [0.2178, 0.2473] [fitted-conversion]  auc=0.5189 [0.4359, 0.6019]
 
   [BLACK] n=756 events=699
-    RNN-Surv             c_index=0.5096 [0.4842, 0.5347]  brier=0.4021 [0.375, 0.4269] [native]  auc=0.5175 [0.4764, 0.5553]
+    Survival SVM         c_index=0.5116 [0.4873, 0.5336]  brier=0.2527 [0.2453, 0.2608] [fitted-conversion]  auc=0.5347 [0.4975, 0.5712]
 
   [HISPANIC/LATINO] n=202 events=194
-    RNN-Surv             c_index=0.5067 [0.4582, 0.557]  brier=0.4415 [0.391, 0.49] [native]  auc=0.5081 [0.4377, 0.5782]
+    Survival SVM         c_index=0.526 [0.477, 0.5708]  brier=0.2525 [0.2379, 0.2683] [fitted-conversion]  auc=0.5498 [0.4746, 0.6178]
 
   [OTHER] n=155 events=142
-    RNN-Surv             c_index=0.4905 [0.4332, 0.5505]  brier=0.5404 [0.4864, 0.595] [native]  auc=0.469 [0.3865, 0.5598]
+    Survival SVM         c_index=0.5341 [0.4771, 0.5907]  brier=0.2182 [0.202, 0.2349] [fitted-conversion]  auc=0.5672 [0.4896, 0.6486]
 
   [UNKNOWN/NOT RECORDED] n=261 events=243
-    RNN-Surv             c_index=0.5276 [0.4789, 0.5738]  brier=0.7296 [0.7012, 0.7563] [native]  auc=0.6226 [0.5442, 0.698]
+    Survival SVM         c_index=0.4936 [0.4463, 0.5381]  brier=0.1667 [0.1567, 0.1775] [fitted-conversion]  auc=0.5854 [0.5069, 0.6645]
 
   [WHITE] n=3655 events=3315
-    RNN-Surv             c_index=0.5202 [0.5086, 0.5317]  brier=0.4758 [0.4649, 0.4875] [native]  auc=0.526 [0.5081, 0.543]
+    Survival SVM         c_index=0.5149 [0.5032, 0.5269]  brier=0.2334 [0.2297, 0.237] [fitted-conversion]  auc=0.5386 [0.5212, 0.5568]

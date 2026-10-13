@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 04:58:50
+Generated on: 2026-10-13 09:47:56
 Repetition: 4
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -61,23 +61,23 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [46-65] n=46 events=40
-    RNN-Surv             c_index=0.6165 [0.4922, 0.7315]  brier=0.3512 [0.3103, 0.3925] [native]  auc=0.6603 [0.4797, 0.8256]
+    Survival SVM         c_index=0.5852 [0.4822, 0.6858]  brier=0.3389 [0.2244, 0.4633] [fitted-conversion]  auc=0.6193 [0.4652, 0.7622]
 
   [66-85] n=42 events=27
-    RNN-Surv             c_index=0.5811 [0.4695, 0.6943]  brier=0.2616 [0.2025, 0.318] [native]  auc=0.5325 [0.2573, 0.7601]
+    Survival SVM         c_index=0.5253 [0.402, 0.6661]  brier=0.1291 [0.0715, 0.222] [fitted-conversion]  auc=0.404 [0.1667, 0.6398]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=48 events=36
-    RNN-Surv             c_index=0.5201 [0.4112, 0.6345]  brier=0.3107 [0.2597, 0.3612] [native]  auc=0.4744 [0.3056, 0.6679]
+    Survival SVM         c_index=0.5512 [0.427, 0.674]  brier=0.2117 [0.1257, 0.3227] [fitted-conversion]  auc=0.5586 [0.3734, 0.7318]
 
   [M] n=59 events=46
-    RNN-Surv             c_index=0.6291 [0.5303, 0.7246]  brier=0.3265 [0.2768, 0.372] [native]  auc=0.6792 [0.5239, 0.8161]
+    Survival SVM         c_index=0.5688 [0.4698, 0.677]  brier=0.2289 [0.1501, 0.3253] [fitted-conversion]  auc=0.5124 [0.3649, 0.6633]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [BLACK] n=23 events=19
-    RNN-Surv             c_index=0.6359 [0.4443, 0.8278]  brier=0.3391 [0.273, 0.399] [native]  auc=0.6762 [0.3923, 0.9353]
+    Survival SVM         c_index=0.6214 [0.4813, 0.7675]  brier=0.2899 [0.1707, 0.4553] [fitted-conversion]  auc=0.5908 [0.3488, 0.7977]
 
   [WHITE] n=69 events=53
-    RNN-Surv             c_index=0.5039 [0.4165, 0.5977]  brier=0.3181 [0.2739, 0.3568] [native]  auc=0.5068 [0.3552, 0.6693]
+    Survival SVM         c_index=0.5149 [0.4196, 0.6152]  brier=0.2065 [0.1326, 0.3021] [fitted-conversion]  auc=0.475 [0.3326, 0.6337]

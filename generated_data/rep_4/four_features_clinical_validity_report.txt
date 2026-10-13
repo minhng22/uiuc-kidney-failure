@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-10-12 09:11:56
+Generated on: 2026-10-13 09:45:49
 Repetition: 4
 Scenario: four_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -22,13 +22,11 @@ Training-set max follow-up: 4112.3 days; IPCW evaluation capped at 4112.3 days (
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2376/2376 rows with a real eGFR measurement.
 
 Patient-level alignment check (Gap 5a):
-  OK   RNN-Surv: aligned to 270 patient-level terminal outcomes
+  OK   Survival SVM: aligned to 270 patient-level terminal outcomes
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
-  RNN-Surv: c_index=0.5617 brier=0.31597 (native) auc=0.5779
-    fitted-conversion Brier for the same model/window: 0.24432 (reported for contrast; the native number above is the one to use)
-    native point Brier at published horizons: 730d=0.31139, 1825d=0.26178
+  Survival SVM: c_index=0.5539 brier=0.24439 (fitted-conversion) auc=0.573
 
 ================================================================================
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
@@ -38,15 +36,15 @@ C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outco
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
-  RNN-Surv             0.5617 [0.5121, 0.6087]  (n=1000)
+  Survival SVM         0.5539 [0.5054, 0.6]  (n=1000)
 
 Integrated Brier — estimate [95% CI]:
-  RNN-Surv             0.316 [0.2867, 0.346]  (n=1000)  (Brier source: native)
+  Survival SVM         0.2444 [0.2297, 0.2604]  (n=1000)  (Brier source: fitted-conversion)
 
 Mean time-dependent AUC — estimate [95% CI]:
-  RNN-Surv             0.5779 [0.507, 0.6389]  (n=1000)
+  Survival SVM         0.573 [0.5055, 0.6332]  (n=1000)
 
-Paired differences vs. best model by C-index (RNN-Surv), same resamples (positive = the listed model is higher):
+Paired differences vs. best model by C-index (Survival SVM), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
@@ -59,29 +57,29 @@ eGFR<30 referral rule (270 patients): flags 67 (0.2481), TP rate 0.15732, FP rat
 eGFR<45 referral rule (270 patients): flags 127 (0.4704), TP rate 0.29548, FP rate 0.17489
   net benefit across the model thresholds: {0.05: 0.28627, 0.1: 0.27604, 0.15: 0.26461, 0.2: 0.25175, 0.25: 0.23718, 0.3: 0.22052, 0.4: 0.17888, 0.5: 0.12058}
 
---- RNN-Surv ---
-Predicted-probability source: native (model output read directly at this horizon)
+--- Survival SVM ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=  27 events= 19 predicted=0.2984 observed(KM)=0.5292
-  n=  27 events= 16 predicted=0.3245 observed(KM)=0.4458
-  n=  27 events= 18 predicted=0.3352 observed(KM)=0.5752
-  n=  27 events= 20 predicted=0.3403 observed(KM)=0.6309
-  n=  27 events= 25 predicted=0.3431 observed(KM)=0.8778
-  n=  27 events= 19 predicted=0.3479 observed(KM)=0.6814
-  n=  27 events= 19 predicted=0.3542 observed(KM)=0.5339
-  n=  27 events= 23 predicted=0.3617 observed(KM)=0.6866
-  n=  27 events= 22 predicted=0.3713 observed(KM)=0.5769
-  n=  27 events= 22 predicted=0.3915 observed(KM)=0.6667
-Integrated Brier score (0-730d): 0.31597 [native]
+  n=  27 events= 16 predicted=0.4528 observed(KM)=0.5397
+  n=  27 events= 20 predicted=0.5170 observed(KM)=0.5976
+  n=  27 events= 19 predicted=0.5496 observed(KM)=0.6255
+  n=  27 events= 19 predicted=0.5756 observed(KM)=0.6337
+  n=  27 events= 20 predicted=0.5916 observed(KM)=0.6523
+  n=  27 events= 21 predicted=0.6105 observed(KM)=0.7873
+  n=  27 events= 18 predicted=0.6317 observed(KM)=0.5612
+  n=  27 events= 24 predicted=0.6456 observed(KM)=0.5654
+  n=  27 events= 24 predicted=0.6667 observed(KM)=0.7038
+  n=  27 events= 22 predicted=0.7088 observed(KM)=0.5767
+Integrated Brier score (0-730d): 0.24439 [fitted-conversion]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.60007  treat_all=0.60007  treat_none=0.0
   pt=0.10  model=0.57785  treat_all=0.57785  treat_none=0.0
   pt=0.15  model=0.55302  treat_all=0.55302  treat_none=0.0
   pt=0.20  model=0.52508  treat_all=0.52508  treat_none=0.0
-  pt=0.25  model=0.48413  treat_all=0.49342  treat_none=0.0
-  pt=0.30  model=0.43976  treat_all=0.45723  treat_none=0.0
-  pt=0.40  model=0.0037  treat_all=0.36677  treat_none=0.0
-  pt=0.50  model=0.0  treat_all=0.24013  treat_none=0.0
+  pt=0.25  model=0.49342  treat_all=0.49342  treat_none=0.0
+  pt=0.30  model=0.45723  treat_all=0.45723  treat_none=0.0
+  pt=0.40  model=0.35916  treat_all=0.36677  treat_none=0.0
+  pt=0.50  model=0.23221  treat_all=0.24013  treat_none=0.0
 
 === Horizon: 1825 days ===
 DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
@@ -92,20 +90,20 @@ eGFR<30 referral rule (270 patients): flags 67 (0.2481), TP rate 0.21355, FP rat
 eGFR<45 referral rule (270 patients): flags 127 (0.4704), TP rate 0.37655, FP rate 0.09382
   net benefit across the model thresholds: {0.05: 0.37161, 0.1: 0.36612, 0.15: 0.35999, 0.2: 0.35309, 0.25: 0.34528, 0.3: 0.33634, 0.4: 0.314, 0.5: 0.28273}
 
---- RNN-Surv ---
-Predicted-probability source: native (model output read directly at this horizon)
+--- Survival SVM ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=  27 events= 19 predicted=0.4517 observed(KM)=0.8655
-  n=  27 events= 15 predicted=0.4674 observed(KM)=0.6218
-  n=  27 events= 19 predicted=0.4745 observed(KM)=0.73
-  n=  27 events= 20 predicted=0.4788 observed(KM)=0.821
-  n=  27 events= 25 predicted=0.4801 observed(KM)=0.8836
-  n=  27 events= 20 predicted=0.4829 observed(KM)=0.9428
-  n=  27 events= 17 predicted=0.4874 observed(KM)=0.7945
-  n=  27 events= 25 predicted=0.4917 observed(KM)=0.9506
-  n=  27 events= 22 predicted=0.4981 observed(KM)=0.8656
-  n=  27 events= 21 predicted=0.5119 observed(KM)=0.865
-Integrated Brier score (0-1825d): 0.30613 [native]
+  n=  27 events= 16 predicted=0.6778 observed(KM)=0.6712
+  n=  27 events= 20 predicted=0.7465 observed(KM)=0.9329
+  n=  27 events= 19 predicted=0.7779 observed(KM)=0.6879
+  n=  27 events= 19 predicted=0.8014 observed(KM)=1.0
+  n=  27 events= 20 predicted=0.8153 observed(KM)=0.9227
+  n=  27 events= 21 predicted=0.8311 observed(KM)=0.8405
+  n=  27 events= 18 predicted=0.8480 observed(KM)=0.6343
+  n=  27 events= 24 predicted=0.8586 observed(KM)=0.8841
+  n=  27 events= 24 predicted=0.8741 observed(KM)=0.9013
+  n=  27 events= 22 predicted=0.9020 observed(KM)=0.8791
+Integrated Brier score (0-1825d): 0.21096 [fitted-conversion]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.82687  treat_all=0.82687  treat_none=0.0
   pt=0.10  model=0.81725  treat_all=0.81725  treat_none=0.0
@@ -114,6 +112,6 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.25  model=0.78071  treat_all=0.78071  treat_none=0.0
   pt=0.30  model=0.76504  treat_all=0.76504  treat_none=0.0
   pt=0.40  model=0.72588  treat_all=0.72588  treat_none=0.0
-  pt=0.50  model=0.08452  treat_all=0.67106  treat_none=0.0
+  pt=0.50  model=0.67106  treat_all=0.67106  treat_none=0.0
 Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_4/four_features_calibration_plot.png
 Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_4/four_features_decision_curve_plot.png

@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 04:58:36
+Generated on: 2026-10-13 09:56:27
 Repetition: 5
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -61,23 +61,23 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [46-65] n=41 events=34
-    Hazard Transformer   c_index=0.5633 [0.4208, 0.6817]  brier=0.2684 [0.2172, 0.3244] [native]  auc=0.7464 [0.5843, 0.8807]
+    Survival SVM         c_index=0.5413 [0.3787, 0.7008]  brier=0.1981 [0.1097, 0.3018] [fitted-conversion]  auc=0.5935 [0.392, 0.7756]
 
   [66-85] n=49 events=35
-    Hazard Transformer   c_index=0.4226 [0.3154, 0.5267]  brier=0.2406 [0.1958, 0.2919] [native]  auc=0.374 [0.1955, 0.5649]
+    Survival SVM         c_index=0.5171 [0.4009, 0.6301]  brier=0.1486 [0.0948, 0.2151] [fitted-conversion]  auc=0.5114 [0.292, 0.7174]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=41 events=36
-    Hazard Transformer   c_index=0.507 [0.3908, 0.6079]  brier=0.2999 [0.266, 0.3432] [native]  auc=0.4986 [0.2719, 0.7015]
+    Survival SVM         c_index=0.4288 [0.2991, 0.5535]  brier=0.1546 [0.0883, 0.2557] [fitted-conversion]  auc=0.4729 [0.2449, 0.7066]
 
   [M] n=66 events=46
-    Hazard Transformer   c_index=0.4713 [0.3677, 0.5691]  brier=0.2166 [0.1747, 0.2604] [native]  auc=0.4854 [0.3539, 0.6311]
+    Survival SVM         c_index=0.4857 [0.3898, 0.5905]  brier=0.181 [0.1183, 0.2478] [fitted-conversion]  auc=0.4359 [0.2828, 0.6116]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [BLACK] n=24 events=22
-    Hazard Transformer   c_index=0.5462 [0.4154, 0.6626]  brier=0.2994 [0.2359, 0.3732] [native]  auc=0.5755 [0.3718, 0.7725]
+    Survival SVM         c_index=0.4874 [0.3177, 0.6655]  brier=0.2474 [0.1505, 0.3619] [fitted-conversion]  auc=0.5158 [0.2756, 0.7409]
 
   [WHITE] n=66 events=48
-    Hazard Transformer   c_index=0.4829 [0.3767, 0.5776]  brier=0.2246 [0.1929, 0.2621] [native]  auc=0.4687 [0.3135, 0.637]
+    Survival SVM         c_index=0.5358 [0.4339, 0.6447]  brier=0.1373 [0.0928, 0.1981] [fitted-conversion]  auc=0.495 [0.2936, 0.7338]
