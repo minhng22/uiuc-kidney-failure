@@ -1,0 +1,880 @@
+rep3 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 9363 lab-event rows -> 1079 patients; event rate 0.1149 (row-level) vs 0.7525 (patient-level, 812 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 2304 lab-event rows -> 270 patients; event rate 0.1280 (row-level) vs 0.7519 (patient-level, 203 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 3677.3 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4333.0 days; IPCW evaluation capped at 4333.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2304/2304 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_srf_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.1s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_srf_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.1s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+
+Patient-level alignment check (Gap 5a):
+  OK   Survival RF: aligned to 270 patient-level terminal outcomes
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Survival RF: c_index=0.5355 brier=0.239 (native) auc=0.537
+    fitted-conversion Brier for the same model/window: 0.24843 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.22977, 1825d=0.13232
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Survival RF          0.5355 [0.4873, 0.5868]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Survival RF          0.239 [0.2234, 0.2554]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Survival RF          0.537 [0.4689, 0.6039]  (n=1000)
+
+Paired differences vs. best model by C-index (Survival RF), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.634, 0.1: 0.61367, 0.15: 0.59094, 0.2: 0.56538, 0.25: 0.5364, 0.3: 0.50329, 0.4: 0.4205, 0.5: 0.3046}
+  (for contrast, the superseded row-level treat-all over 2304 lab rows: {0.05: 0.10363, 0.1: 0.05383, 0.15: -0.00183, 0.2: -0.06444, 0.25: -0.1354, 0.3: -0.2165, 0.4: -0.41926, 0.5: -0.70311})
+eGFR<30 referral rule (270 patients): flags 76 (0.2815), TP rate 0.18509, FP rate 0.09639
+  net benefit across the model thresholds: {0.05: 0.18001, 0.1: 0.17438, 0.15: 0.16808, 0.2: 0.16099, 0.25: 0.15295, 0.3: 0.14377, 0.4: 0.12082, 0.5: 0.08869}
+eGFR<45 referral rule (270 patients): flags 151 (0.5593), TP rate 0.36516, FP rate 0.1941
+  net benefit across the model thresholds: {0.05: 0.35494, 0.1: 0.34359, 0.15: 0.3309, 0.2: 0.31663, 0.25: 0.30045, 0.3: 0.28197, 0.4: 0.23575, 0.5: 0.17105}
+
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 18 predicted=0.5063 observed(KM)=0.6857
+  n=  27 events= 16 predicted=0.5415 observed(KM)=0.5411
+  n=  27 events= 18 predicted=0.5666 observed(KM)=0.5991
+  n=  27 events= 16 predicted=0.5877 observed(KM)=0.5483
+  n=  27 events= 25 predicted=0.6097 observed(KM)=0.7516
+  n=  27 events= 21 predicted=0.6351 observed(KM)=0.5917
+  n=  27 events= 19 predicted=0.6568 observed(KM)=0.4791
+  n=  27 events= 23 predicted=0.6743 observed(KM)=0.6501
+  n=  27 events= 24 predicted=0.6973 observed(KM)=0.7222
+  n=  27 events= 23 predicted=0.7295 observed(KM)=0.9097
+Integrated Brier score (0-730d): 0.239 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.634  treat_all=0.634  treat_none=0.0
+  pt=0.10  model=0.61367  treat_all=0.61367  treat_none=0.0
+  pt=0.15  model=0.59094  treat_all=0.59094  treat_none=0.0
+  pt=0.20  model=0.56538  treat_all=0.56538  treat_none=0.0
+  pt=0.25  model=0.5364  treat_all=0.5364  treat_none=0.0
+  pt=0.30  model=0.50329  treat_all=0.50329  treat_none=0.0
+  pt=0.40  model=0.4205  treat_all=0.4205  treat_none=0.0
+  pt=0.50  model=0.28681  treat_all=0.3046  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.83696, 0.1: 0.8279, 0.15: 0.81778, 0.2: 0.80639, 0.25: 0.79349, 0.3: 0.77873, 0.4: 0.74186, 0.5: 0.69023}
+  (for contrast, the superseded row-level treat-all over 2304 lab rows: {0.05: 0.23547, 0.1: 0.19299, 0.15: 0.14552, 0.2: 0.09212, 0.25: 0.03159, 0.3: -0.03758, 0.4: -0.21051, 0.5: -0.45261})
+eGFR<30 referral rule (270 patients): flags 76 (0.2815), TP rate 0.24993, FP rate 0.03155
+  net benefit across the model thresholds: {0.05: 0.24827, 0.1: 0.24643, 0.15: 0.24437, 0.2: 0.24205, 0.25: 0.23942, 0.3: 0.23641, 0.4: 0.2289, 0.5: 0.21839}
+eGFR<45 referral rule (270 patients): flags 151 (0.5593), TP rate 0.47999, FP rate 0.07927
+  net benefit across the model thresholds: {0.05: 0.47582, 0.1: 0.47119, 0.15: 0.466, 0.2: 0.46018, 0.25: 0.45357, 0.3: 0.44602, 0.4: 0.42715, 0.5: 0.40073}
+
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 17 predicted=0.7202 observed(KM)=0.7121
+  n=  27 events= 17 predicted=0.7672 observed(KM)=0.7632
+  n=  27 events= 16 predicted=0.7872 observed(KM)=0.6516
+  n=  27 events= 20 predicted=0.8073 observed(KM)=0.8617
+  n=  27 events= 20 predicted=0.8244 observed(KM)=0.9256
+  n=  27 events= 23 predicted=0.8402 observed(KM)=1.0
+  n=  27 events= 23 predicted=0.8582 observed(KM)=0.697
+  n=  27 events= 25 predicted=0.8711 observed(KM)=0.9471
+  n=  27 events= 21 predicted=0.8813 observed(KM)=0.921
+  n=  27 events= 21 predicted=0.9030 observed(KM)=0.9205
+Integrated Brier score (0-1825d): 0.20326 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.83696  treat_all=0.83696  treat_none=0.0
+  pt=0.10  model=0.8279  treat_all=0.8279  treat_none=0.0
+  pt=0.15  model=0.81778  treat_all=0.81778  treat_none=0.0
+  pt=0.20  model=0.80639  treat_all=0.80639  treat_none=0.0
+  pt=0.25  model=0.79349  treat_all=0.79349  treat_none=0.0
+  pt=0.30  model=0.77873  treat_all=0.77873  treat_none=0.0
+  pt=0.40  model=0.74186  treat_all=0.74186  treat_none=0.0
+  pt=0.50  model=0.69023  treat_all=0.69023  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_clinical_validity_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 1498 lab-event rows -> 425 patients; event rate 0.3284 (row-level) vs 0.7694 (patient-level, 327 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 416 lab-event rows -> 107 patients; event rate 0.2740 (row-level) vs 0.7664 (patient-level, 82 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 2538.3 days. Horizons used: [730, 1825]
+Training-set max follow-up: 3164.4 days; IPCW evaluation capped at 3164.4 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 107/107 patients have one (0 excluded, no measured eGFR); selected from 416/416 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_srf_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_srf_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+
+Patient-level alignment check (Gap 5a):
+  OK   Survival RF: aligned to 107 patient-level terminal outcomes
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Survival RF: c_index=0.5022 brier=0.24153 (native) auc=0.4836
+    fitted-conversion Brier for the same model/window: 0.26112 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.18917, 1825d=0.05883
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 107 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Survival RF          0.5022 [0.4159, 0.5782]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Survival RF          0.2415 [0.1746, 0.322]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Survival RF          0.4836 [0.3718, 0.5954]  (n=1000)
+
+Paired differences vs. best model by C-index (Survival RF), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.75332, 0.1: 0.73961, 0.15: 0.7243, 0.2: 0.70707, 0.25: 0.68754, 0.3: 0.66522, 0.4: 0.60942, 0.5: 0.5313}
+  (for contrast, the superseded row-level treat-all over 416 lab rows: {0.05: 0.36892, 0.1: 0.33386, 0.15: 0.29468, 0.2: 0.2506, 0.25: 0.20064, 0.3: 0.14354, 0.4: 0.0008, 0.5: -0.19905})
+eGFR<30 referral rule (107 patients): flags 35 (0.3271), TP rate 0.23043, FP rate 0.09668
+  net benefit across the model thresholds: {0.05: 0.22534, 0.1: 0.21968, 0.15: 0.21337, 0.2: 0.20626, 0.25: 0.1982, 0.3: 0.18899, 0.4: 0.16597, 0.5: 0.13375}
+eGFR<45 referral rule (107 patients): flags 58 (0.5421), TP rate 0.43236, FP rate 0.10969
+  net benefit across the model thresholds: {0.05: 0.42659, 0.1: 0.42018, 0.15: 0.41301, 0.2: 0.40494, 0.25: 0.3958, 0.3: 0.38535, 0.4: 0.35924, 0.5: 0.32267}
+
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  6 predicted=0.7177 observed(KM)=0.5636
+  n=  11 events= 10 predicted=0.7812 observed(KM)=0.8636
+  n=  10 events=  7 predicted=0.7998 observed(KM)=0.75
+  n=  11 events=  6 predicted=0.8181 observed(KM)=0.4545
+  n=  11 events=  8 predicted=0.8330 observed(KM)=0.6932
+  n=  10 events=  7 predicted=0.8456 observed(KM)=0.625
+  n=  11 events=  9 predicted=0.8697 observed(KM)=0.697
+  n=  10 events=  9 predicted=0.9053 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.9318 observed(KM)=0.697
+  n=  11 events= 11 predicted=0.9580 observed(KM)=0.9091
+Integrated Brier score (0-730d): 0.24153 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.75332  treat_all=0.75332  treat_none=0.0
+  pt=0.10  model=0.73961  treat_all=0.73961  treat_none=0.0
+  pt=0.15  model=0.7243  treat_all=0.7243  treat_none=0.0
+  pt=0.20  model=0.70707  treat_all=0.70707  treat_none=0.0
+  pt=0.25  model=0.68754  treat_all=0.68754  treat_none=0.0
+  pt=0.30  model=0.66522  treat_all=0.66522  treat_none=0.0
+  pt=0.40  model=0.60942  treat_all=0.60942  treat_none=0.0
+  pt=0.50  model=0.5313  treat_all=0.5313  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.93023, 0.1: 0.92636, 0.15: 0.92202, 0.2: 0.91715, 0.25: 0.91163, 0.3: 0.90531, 0.4: 0.88953, 0.5: 0.86744}
+  (for contrast, the superseded row-level treat-all over 416 lab rows: {0.05: 0.71744, 0.1: 0.70174, 0.15: 0.6842, 0.2: 0.66446, 0.25: 0.64209, 0.3: 0.61653, 0.4: 0.55261, 0.5: 0.46314})
+eGFR<30 referral rule (107 patients): flags 35 (0.3271), TP rate 0.27876, FP rate 0.04834
+  net benefit across the model thresholds: {0.05: 0.27622, 0.1: 0.27339, 0.15: 0.27023, 0.2: 0.26668, 0.25: 0.26265, 0.3: 0.25805, 0.4: 0.24654, 0.5: 0.23043}
+eGFR<45 referral rule (107 patients): flags 58 (0.5421), TP rate 0.48721, FP rate 0.05485
+  net benefit across the model thresholds: {0.05: 0.48432, 0.1: 0.48112, 0.15: 0.47753, 0.2: 0.4735, 0.25: 0.46893, 0.3: 0.4637, 0.4: 0.45065, 0.5: 0.43236}
+
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  6 predicted=0.7725 observed(KM)=0.4697
+  n=  11 events=  8 predicted=0.8523 observed(KM)=1.0
+  n=  10 events=  9 predicted=0.8702 observed(KM)=1.0
+  n=  11 events=  5 predicted=0.8854 observed(KM)=0.4886
+  n=  11 events=  9 predicted=0.8980 observed(KM)=1.0
+  n=  10 events=  7 predicted=0.9108 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.9254 observed(KM)=0.8485
+  n=  10 events=  8 predicted=0.9417 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9586 observed(KM)=1.0
+  n=  11 events= 11 predicted=0.9775 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.16349 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.93023  treat_all=0.93023  treat_none=0.0
+  pt=0.10  model=0.92636  treat_all=0.92636  treat_none=0.0
+  pt=0.15  model=0.92202  treat_all=0.92202  treat_none=0.0
+  pt=0.20  model=0.91715  treat_all=0.91715  treat_none=0.0
+  pt=0.25  model=0.91163  treat_all=0.91163  treat_none=0.0
+  pt=0.30  model=0.90531  treat_all=0.90531  treat_none=0.0
+  pt=0.40  model=0.88953  treat_all=0.88953  treat_none=0.0
+  pt=0.50  model=0.86744  treat_all=0.86744  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_clinical_validity_report.txt
+TRAIN twenty_features_heterogeneous/srf: missing artifact /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_srf_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5221567 rows/20864 subjects -> 20864 rows; test 1284004 rows/5216 subjects -> 5216 rows; holdout 1620519 rows/6521 subjects -> 6521 rows
+No existing model found. Training model. Current time 2026-10-13 13:12:21.181098:
+
+X shape: (20864, 40)
+Fitting 5 folds for each of 36 candidates, totalling 180 fits
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 50
+building tree 2 of 50
+building tree 3 of 50
+building tree 4 of 50
+building tree 5 of 50
+building tree 6 of 50
+building tree 7 of 50
+building tree 8 of 50
+building tree 9 of 50
+building tree 10 of 50
+building tree 11 of 50
+building tree 12 of 50
+building tree 13 of 50
+building tree 14 of 50
+building tree 15 of 50
+building tree 16 of 50
+building tree 17 of 50
+building tree 18 of 50
+building tree 19 of 50
+building tree 20 of 50
+building tree 21 of 50
+building tree 22 of 50
+building tree 23 of 50
+building tree 24 of 50
+building tree 25 of 50
+building tree 26 of 50
+building tree 27 of 50
+building tree 28 of 50
+building tree 29 of 50
+building tree 30 of 50
+building tree 31 of 50
+building tree 32 of 50
+building tree 33 of 50
+building tree 34 of 50
+building tree 35 of 50
+building tree 36 of 50
+building tree 37 of 50
+building tree 38 of 50
+building tree 39 of 50[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   13.9s
+
+building tree 40 of 50
+building tree 41 of 50
+building tree 42 of 50
+building tree 43 of 50
+building tree 44 of 50
+building tree 45 of 50
+building tree 46 of 50
+building tree 47 of 50
+building tree 48 of 50
+building tree 49 of 50
+building tree 50 of 50
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   18.5s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.3s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    5.7s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=50; total time=  24.2s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 50building tree 2 of 50
+
+building tree 3 of 50
+building tree 4 of 50
+building tree 5 of 50
+building tree 6 of 50
+building tree 7 of 50
+building tree 8 of 50
+building tree 9 of 50
+building tree 10 of 50
+building tree 11 of 50
+building tree 12 of 50
+building tree 13 of 50
+building tree 14 of 50
+building tree 15 of 50
+building tree 16 of 50
+building tree 17 of 50
+building tree 18 of 50
+building tree 19 of 50
+building tree 20 of 50
+building tree 21 of 50
+building tree 22 of 50
+building tree 23 of 50
+building tree 24 of 50
+building tree 25 of 50
+building tree 26 of 50
+building tree 27 of 50
+building tree 28 of 50
+building tree 29 of 50
+building tree 30 of 50
+building tree 31 of 50
+building tree 32 of 50
+building tree 33 of 50
+building tree 34 of 50
+building tree 35 of 50
+building tree 36 of 50
+building tree 37 of 50
+building tree 38 of 50
+building tree 39 of 50[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   11.8s
+
+building tree 40 of 50
+building tree 41 of 50
+building tree 42 of 50
+building tree 43 of 50
+building tree 44 of 50
+building tree 45 of 50
+building tree 46 of 50
+building tree 47 of 50
+building tree 48 of 50
+building tree 49 of 50
+building tree 50 of 50
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   15.6s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.0s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    5.2s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=50; total time=  20.8s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 50building tree 2 of 50
+
+building tree 3 of 50
+building tree 4 of 50
+building tree 5 of 50
+building tree 6 of 50
+building tree 7 of 50
+building tree 8 of 50
+building tree 9 of 50
+building tree 10 of 50
+building tree 11 of 50
+building tree 12 of 50
+building tree 13 of 50
+building tree 14 of 50
+building tree 15 of 50
+building tree 16 of 50
+building tree 17 of 50
+building tree 18 of 50
+building tree 19 of 50
+building tree 20 of 50
+building tree 21 of 50
+building tree 22 of 50
+building tree 23 of 50
+building tree 24 of 50
+building tree 25 of 50
+building tree 26 of 50
+building tree 27 of 50
+building tree 28 of 50
+building tree 29 of 50
+building tree 30 of 50
+building tree 31 of 50
+building tree 32 of 50
+building tree 33 of 50
+building tree 34 of 50
+building tree 35 of 50
+building tree 36 of 50
+building tree 37 of 50
+building tree 38 of 50
+building tree 39 of 50[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   12.9s
+
+building tree 40 of 50
+building tree 41 of 50
+building tree 42 of 50
+building tree 43 of 50
+building tree 44 of 50
+building tree 45 of 50
+building tree 46 of 50
+building tree 47 of 50
+building tree 48 of 50
+building tree 49 of 50
+building tree 50 of 50
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   17.4s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.5s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    5.8s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=50; total time=  23.3s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 50building tree 2 of 50
+
+building tree 3 of 50
+building tree 4 of 50
+building tree 5 of 50
+building tree 6 of 50
+building tree 7 of 50
+building tree 8 of 50
+building tree 9 of 50
+building tree 10 of 50
+building tree 11 of 50
+building tree 12 of 50
+building tree 13 of 50
+building tree 14 of 50
+building tree 15 of 50
+building tree 16 of 50
+building tree 17 of 50
+building tree 18 of 50
+building tree 19 of 50
+building tree 20 of 50
+building tree 21 of 50
+building tree 22 of 50
+building tree 23 of 50
+building tree 24 of 50
+building tree 25 of 50
+building tree 26 of 50
+building tree 27 of 50
+building tree 28 of 50
+building tree 29 of 50
+building tree 30 of 50
+building tree 31 of 50
+building tree 32 of 50
+building tree 33 of 50
+building tree 34 of 50
+building tree 35 of 50
+building tree 36 of 50
+building tree 37 of 50
+building tree 38 of 50
+building tree 39 of 50[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   13.0s
+
+building tree 40 of 50
+building tree 41 of 50
+building tree 42 of 50
+building tree 43 of 50
+building tree 44 of 50
+building tree 45 of 50
+building tree 46 of 50
+building tree 47 of 50
+building tree 48 of 50
+building tree 49 of 50
+building tree 50 of 50
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   17.7s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.5s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    5.8s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=50; total time=  23.5s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 50building tree 2 of 50
+
+building tree 3 of 50
+building tree 4 of 50
+building tree 5 of 50
+building tree 6 of 50
+building tree 7 of 50
+building tree 8 of 50
+building tree 9 of 50
+building tree 10 of 50
+building tree 11 of 50
+building tree 12 of 50
+building tree 13 of 50
+building tree 14 of 50
+building tree 15 of 50
+building tree 16 of 50
+building tree 17 of 50
+building tree 18 of 50
+building tree 19 of 50
+building tree 20 of 50
+building tree 21 of 50
+building tree 22 of 50
+building tree 23 of 50
+building tree 24 of 50
+building tree 25 of 50
+building tree 26 of 50
+building tree 27 of 50
+building tree 28 of 50
+building tree 29 of 50
+building tree 30 of 50
+building tree 31 of 50
+building tree 32 of 50
+building tree 33 of 50
+building tree 34 of 50
+building tree 35 of 50
+building tree 36 of 50
+building tree 37 of 50
+building tree 38 of 50
+building tree 39 of 50[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   12.4s
+
+building tree 40 of 50
+building tree 41 of 50
+building tree 42 of 50
+building tree 43 of 50
+building tree 44 of 50
+building tree 45 of 50
+building tree 46 of 50
+building tree 47 of 50
+building tree 48 of 50
+building tree 49 of 50
+building tree 50 of 50
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:   17.5s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.7s
+[Parallel(n_jobs=2)]: Done  50 out of  50 | elapsed:    6.2s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=50; total time=  23.7s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 100building tree 2 of 100
+
+building tree 3 of 100
+building tree 4 of 100
+building tree 5 of 100
+building tree 6 of 100
+building tree 7 of 100
+building tree 8 of 100
+building tree 9 of 100
+building tree 10 of 100
+building tree 11 of 100
+building tree 12 of 100
+building tree 13 of 100
+building tree 14 of 100
+building tree 15 of 100
+building tree 16 of 100
+building tree 17 of 100
+building tree 18 of 100
+building tree 19 of 100
+building tree 20 of 100
+building tree 21 of 100
+building tree 22 of 100
+building tree 23 of 100
+building tree 24 of 100
+building tree 25 of 100
+building tree 26 of 100
+building tree 27 of 100
+building tree 28 of 100
+building tree 29 of 100
+building tree 30 of 100
+building tree 31 of 100
+building tree 32 of 100
+building tree 33 of 100
+building tree 34 of 100
+building tree 35 of 100
+building tree 36 of 100
+building tree 37 of 100
+building tree 38 of 100
+building tree 39 of 100
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   12.8s
+building tree 40 of 100
+building tree 41 of 100
+building tree 42 of 100
+building tree 43 of 100
+building tree 44 of 100
+building tree 45 of 100
+building tree 46 of 100
+building tree 47 of 100
+building tree 48 of 100
+building tree 49 of 100
+building tree 50 of 100
+building tree 51 of 100
+building tree 52 of 100
+building tree 53 of 100
+building tree 54 of 100
+building tree 55 of 100
+building tree 56 of 100
+building tree 57 of 100
+building tree 58 of 100
+building tree 59 of 100
+building tree 60 of 100
+building tree 61 of 100
+building tree 62 of 100
+building tree 63 of 100
+building tree 64 of 100
+building tree 65 of 100
+building tree 66 of 100
+building tree 67 of 100
+building tree 68 of 100
+building tree 69 of 100
+building tree 70 of 100
+building tree 71 of 100
+building tree 72 of 100
+building tree 73 of 100
+building tree 74 of 100
+building tree 75 of 100
+building tree 76 of 100
+building tree 77 of 100
+building tree 78 of 100
+building tree 79 of 100
+building tree 80 of 100
+building tree 81 of 100
+building tree 82 of 100
+building tree 83 of 100
+building tree 84 of 100
+building tree 85 of 100
+building tree 86 of 100
+building tree 87 of 100
+building tree 88 of 100
+building tree 89 of 100
+building tree 90 of 100
+building tree 91 of 100
+building tree 92 of 100
+building tree 93 of 100
+building tree 94 of 100
+building tree 95 of 100
+building tree 96 of 100
+building tree 97 of 100
+building tree 98 of 100
+building tree 99 of 100
+building tree 100 of 100
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:   33.9s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.5s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:   11.5s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=100; total time=  45.4s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 100
+building tree 2 of 100
+building tree 3 of 100
+building tree 4 of 100
+building tree 5 of 100
+building tree 6 of 100
+building tree 7 of 100
+building tree 8 of 100
+building tree 9 of 100
+building tree 10 of 100
+building tree 11 of 100
+building tree 12 of 100
+building tree 13 of 100
+building tree 14 of 100
+building tree 15 of 100
+building tree 16 of 100
+building tree 17 of 100
+building tree 18 of 100
+building tree 19 of 100
+building tree 20 of 100
+building tree 21 of 100
+building tree 22 of 100
+building tree 23 of 100
+building tree 24 of 100
+building tree 25 of 100
+building tree 26 of 100
+building tree 27 of 100
+building tree 28 of 100
+building tree 29 of 100
+building tree 30 of 100
+building tree 31 of 100
+building tree 32 of 100
+building tree 33 of 100
+building tree 34 of 100
+building tree 35 of 100
+building tree 36 of 100
+building tree 37 of 100
+building tree 38 of 100
+building tree 39 of 100[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   12.1s
+
+building tree 40 of 100
+building tree 41 of 100
+building tree 42 of 100
+building tree 43 of 100
+building tree 44 of 100
+building tree 45 of 100
+building tree 46 of 100
+building tree 47 of 100
+building tree 48 of 100
+building tree 49 of 100
+building tree 50 of 100
+building tree 51 of 100
+building tree 52 of 100
+building tree 53 of 100
+building tree 54 of 100
+building tree 55 of 100
+building tree 56 of 100
+building tree 57 of 100
+building tree 58 of 100
+building tree 59 of 100
+building tree 60 of 100
+building tree 61 of 100
+building tree 62 of 100
+building tree 63 of 100
+building tree 64 of 100
+building tree 65 of 100
+building tree 66 of 100
+building tree 67 of 100
+building tree 68 of 100
+building tree 69 of 100
+building tree 70 of 100
+building tree 71 of 100
+building tree 72 of 100
+building tree 73 of 100
+building tree 74 of 100
+building tree 75 of 100
+building tree 76 of 100
+building tree 77 of 100
+building tree 78 of 100
+building tree 79 of 100
+building tree 80 of 100
+building tree 81 of 100
+building tree 82 of 100
+building tree 83 of 100
+building tree 84 of 100
+building tree 85 of 100
+building tree 86 of 100
+building tree 87 of 100
+building tree 88 of 100
+building tree 89 of 100
+building tree 90 of 100
+building tree 91 of 100
+building tree 92 of 100
+building tree 93 of 100
+building tree 94 of 100
+building tree 95 of 100
+building tree 96 of 100
+building tree 97 of 100
+building tree 98 of 100
+building tree 99 of 100
+building tree 100 of 100
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:   32.5s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    4.2s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:   11.2s finished
+[CV] END max_depth=None, min_samples_split=2, n_estimators=100; total time=  43.7s
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+building tree 1 of 100building tree 2 of 100
+
+building tree 3 of 100
+building tree 4 of 100
+building tree 5 of 100
+building tree 6 of 100
+building tree 7 of 100
+building tree 8 of 100
+building tree 9 of 100
+building tree 10 of 100
+building tree 11 of 100
+building tree 12 of 100
+building tree 13 of 100
+building tree 14 of 100
+building tree 15 of 100
+building tree 16 of 100
+building tree 17 of 100
+building tree 18 of 100
+building tree 19 of 100
+building tree 20 of 100
+building tree 21 of 100
+building tree 22 of 100
+building tree 23 of 100
+building tree 24 of 100
+building tree 25 of 100
+building tree 26 of 100
+building tree 27 of 100
+building tree 28 of 100
+building tree 29 of 100
+building tree 30 of 100
+building tree 31 of 100
+building tree 32 of 100
+building tree 33 of 100
+building tree 34 of 100
+building tree 35 of 100
+building tree 36 of 100
+building tree 37 of 100
+building tree 38 of 100
+building tree 39 of 100[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:   11.8s
+
+building tree 40 of 100
+building tree 41 of 100
+building tree 42 of 100
+building tree 43 of 100
+building tree 44 of 100
+building tree 45 of 100
+building tree 46 of 100
+building tree 47 of 100
+building tree 48 of 100
+building tree 49 of 100
+building tree 50 of 100
+building tree 51 of 100
+building tree 52 of 100
+building tree 53 of 100
+building tree 54 of 100
+building tree 55 of 100
+building tree 56 of 100
+building tree 57 of 100
+building tree 58 of 100
+building tree 59 of 100
+building tree 60 of 100
+building tree 61 of 100
+building tree 62 of 100
+building tree 63 of 100
+building tree 64 of 100
+building tree 65 of 100
+building tree 66 of 100
+building tree 67 of 100
+building tree 68 of 100
+building tree 69 of 100
+building tree 70 of 100
+building tree 71 of 100
+building tree 72 of 100
+building tree 73 of 100
+building tree 74 of 100
+building tree 75 of 100
+building tree 76 of 100
+building tree 77 of 100
+building tree 78 of 100
+building tree 79 of 100
+building tree 80 of 100
+building tree 81 of 100
+building tree 82 of 100
+building tree 83 of 100
+building tree 84 of 100
+building tree 85 of 100
