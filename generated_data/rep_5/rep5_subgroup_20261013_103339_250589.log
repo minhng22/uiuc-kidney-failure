@@ -246,3 +246,26 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
     DeepSurv             c_index=0.5232 [0.5079, 0.5376]  brier=0.2374 [0.2333, 0.2414] [fitted-conversion]  auc=0.5233 [0.4997, 0.546]
 
   [M] n=2980 events=2726
+    DeepSurv             c_index=0.5212 [0.5089, 0.5334]  brier=0.2292 [0.2259, 0.2328] [fitted-conversion]  auc=0.5151 [0.4965, 0.534]
+
+=== Race (collapsed from admissions.csv ethnicity; unknown retained) ===
+
+  [ASIAN] n=152 events=143
+    DeepSurv             c_index=0.5396 [0.4855, 0.5961]  brier=0.2354 [0.2201, 0.2503] [fitted-conversion]  auc=0.5538 [0.4735, 0.6348]
+
+  [BLACK] n=762 events=709
+    DeepSurv             c_index=0.5323 [0.5079, 0.5582]  brier=0.2533 [0.2463, 0.2601] [fitted-conversion]  auc=0.5269 [0.4875, 0.5661]
+
+  [HISPANIC/LATINO] n=195 events=185
+    DeepSurv             c_index=0.5156 [0.4694, 0.5619]  brier=0.2535 [0.2407, 0.2666] [fitted-conversion]  auc=0.5306 [0.4566, 0.5991]
+
+  [OTHER] n=145 events=135
+    DeepSurv             c_index=0.5294 [0.471, 0.5856]  brier=0.2168 [0.2041, 0.2297] [fitted-conversion]  auc=0.5232 [0.4401, 0.6035]
+
+  [UNKNOWN/NOT RECORDED] n=299 events=275
+    DeepSurv             c_index=0.5566 [0.5153, 0.5977]  brier=0.177 [0.1697, 0.1833] [fitted-conversion]  auc=0.5465 [0.4688, 0.6216]
+
+  [WHITE] n=3634 events=3296
+    DeepSurv             c_index=0.5186 [0.5071, 0.5296]  brier=0.2324 [0.2292, 0.2354] [fitted-conversion]  auc=0.5145 [0.4973, 0.5308]
+Subgroup report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_subgroup_performance_report.txt
+COMPLETE
