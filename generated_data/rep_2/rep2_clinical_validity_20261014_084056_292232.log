@@ -250,3 +250,678 @@ BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentil
 Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
 C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Weibull AFT          0.5574 [0.5078, 0.6056]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Weibull AFT          0.2536 [0.2301, 0.2793]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Weibull AFT          0.5721 [0.5061, 0.6379]  (n=1000)
+
+Paired differences vs. best model by C-index (Weibull AFT), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.58822, 0.1: 0.56534, 0.15: 0.53977, 0.2: 0.51101, 0.25: 0.47841, 0.3: 0.44115, 0.4: 0.34801, 0.5: 0.21762}
+  (for contrast, the superseded row-level treat-all over 2287 lab rows: {0.05: 0.07402, 0.1: 0.02258, 0.15: -0.03492, 0.2: -0.0996, 0.25: -0.17291, 0.3: -0.25669, 0.4: -0.46614, 0.5: -0.75936})
+eGFR<30 referral rule (270 patients): flags 84 (0.3111), TP rate 0.23479, FP rate 0.07632
+  net benefit across the model thresholds: {0.05: 0.23077, 0.1: 0.22631, 0.15: 0.22132, 0.2: 0.21571, 0.25: 0.20935, 0.3: 0.20208, 0.4: 0.18391, 0.5: 0.15847}
+eGFR<45 referral rule (270 patients): flags 152 (0.563), TP rate 0.39003, FP rate 0.17293
+  net benefit across the model thresholds: {0.05: 0.38093, 0.1: 0.37081, 0.15: 0.35951, 0.2: 0.34679, 0.25: 0.33238, 0.3: 0.31591, 0.4: 0.27474, 0.5: 0.21709}
+
+--- Weibull AFT ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 15 predicted=0.7210 observed(KM)=0.3762
+  n=  27 events= 16 predicted=0.7267 observed(KM)=0.5709
+  n=  27 events= 20 predicted=0.7290 observed(KM)=0.7306
+  n=  27 events= 19 predicted=0.7312 observed(KM)=0.6245
+  n=  27 events= 22 predicted=0.7333 observed(KM)=0.6198
+  n=  27 events= 21 predicted=0.7350 observed(KM)=0.637
+  n=  27 events= 26 predicted=0.7371 observed(KM)=0.6429
+  n=  27 events= 20 predicted=0.7387 observed(KM)=0.6781
+  n=  27 events= 22 predicted=0.7418 observed(KM)=0.569
+  n=  27 events= 22 predicted=0.7488 observed(KM)=0.6473
+Integrated Brier score (0-730d): 0.25356 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.58822  treat_all=0.58822  treat_none=0.0
+  pt=0.10  model=0.56534  treat_all=0.56534  treat_none=0.0
+  pt=0.15  model=0.53977  treat_all=0.53977  treat_none=0.0
+  pt=0.20  model=0.51101  treat_all=0.51101  treat_none=0.0
+  pt=0.25  model=0.47841  treat_all=0.47841  treat_none=0.0
+  pt=0.30  model=0.44115  treat_all=0.44115  treat_none=0.0
+  pt=0.40  model=0.34801  treat_all=0.34801  treat_none=0.0
+  pt=0.50  model=0.21762  treat_all=0.21762  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.82847, 0.1: 0.81894, 0.15: 0.80829, 0.2: 0.7963, 0.25: 0.78273, 0.3: 0.76721, 0.4: 0.72841, 0.5: 0.67409}
+  (for contrast, the superseded row-level treat-all over 2287 lab rows: {0.05: 0.20133, 0.1: 0.15696, 0.15: 0.10737, 0.2: 0.05158, 0.25: -0.01164, 0.3: -0.08391, 0.4: -0.26456, 0.5: -0.51747})
+eGFR<30 referral rule (270 patients): flags 84 (0.3111), TP rate 0.27113, FP rate 0.03998
+  net benefit across the model thresholds: {0.05: 0.26903, 0.1: 0.26669, 0.15: 0.26408, 0.2: 0.26114, 0.25: 0.25781, 0.3: 0.254, 0.4: 0.24448, 0.5: 0.23116}
+eGFR<45 referral rule (270 patients): flags 152 (0.563), TP rate 0.48965, FP rate 0.07331
+  net benefit across the model thresholds: {0.05: 0.4858, 0.1: 0.48151, 0.15: 0.47672, 0.2: 0.47133, 0.25: 0.46522, 0.3: 0.45824, 0.4: 0.44078, 0.5: 0.41634}
+
+--- Weibull AFT ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 15 predicted=0.7856 observed(KM)=0.5633
+  n=  27 events= 16 predicted=0.7909 observed(KM)=0.6935
+  n=  27 events= 20 predicted=0.7930 observed(KM)=0.9327
+  n=  27 events= 19 predicted=0.7951 observed(KM)=0.8713
+  n=  27 events= 22 predicted=0.7969 observed(KM)=0.8099
+  n=  27 events= 21 predicted=0.7985 observed(KM)=0.879
+  n=  27 events= 26 predicted=0.8004 observed(KM)=0.9206
+  n=  27 events= 20 predicted=0.8019 observed(KM)=0.9195
+  n=  27 events= 22 predicted=0.8048 observed(KM)=0.9138
+  n=  27 events= 22 predicted=0.8111 observed(KM)=0.7648
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+Integrated Brier score (0-1825d): 0.21924 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.82847  treat_all=0.82847  treat_none=0.0
+  pt=0.10  model=0.81894  treat_all=0.81894  treat_none=0.0
+  pt=0.15  model=0.80829  treat_all=0.80829  treat_none=0.0
+  pt=0.20  model=0.7963  treat_all=0.7963  treat_none=0.0
+  pt=0.25  model=0.78273  treat_all=0.78273  treat_none=0.0
+  pt=0.30  model=0.76721  treat_all=0.76721  treat_none=0.0
+  pt=0.40  model=0.72841  treat_all=0.72841  treat_none=0.0
+  pt=0.50  model=0.67409  treat_all=0.67409  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_clinical_validity_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 472 and train 1584
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 473 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 1584 lab-event rows -> 425 patients; event rate 0.3056 (row-level) vs 0.7694 (patient-level, 327 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 472 lab-event rows -> 107 patients; event rate 0.2648 (row-level) vs 0.7664 (patient-level, 82 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 2652.6 days. Horizons used: [730, 1825]
+Training-set max follow-up: 3164.4 days; IPCW evaluation capped at 3164.4 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 107/107 patients have one (0 excluded, no measured eGFR); selected from 472/472 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 472 and train 1584
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 473 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1584 rows/425 subjects -> 425 rows; test 472 rows/107 subjects -> 107 rows; holdout 473 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 472 and train 1584
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 473 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1584 rows/425 subjects -> 425 rows; test 472 rows/107 subjects -> 107 rows; holdout 473 rows/134 subjects -> 134 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   Weibull AFT: aligned to 107 patient-level terminal outcomes (29 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Weibull AFT: c_index=0.5251 brier=0.18913 (native) auc=0.5686
+    fitted-conversion Brier for the same model/window: 0.1888 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.16343, 1825d=0.11336
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 107 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Weibull AFT          0.5251 [0.4543, 0.6045]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Weibull AFT          0.1891 [0.1223, 0.2667]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Weibull AFT          0.5686 [0.4517, 0.6886]  (n=1000)
+
+Paired differences vs. best model by C-index (Weibull AFT), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.7907, 0.1: 0.77907, 0.15: 0.76608, 0.2: 0.75146, 0.25: 0.73489, 0.3: 0.71595, 0.4: 0.66861, 0.5: 0.60233}
+  (for contrast, the superseded row-level treat-all over 472 lab rows: {0.05: 0.29058, 0.1: 0.25117, 0.15: 0.20712, 0.2: 0.15757, 0.25: 0.1014, 0.3: 0.03722, 0.4: -0.12324, 0.5: -0.34789})
+eGFR<30 referral rule (107 patients): flags 32 (0.2991), TP rate 0.25109, FP rate 0.04798
+  net benefit across the model thresholds: {0.05: 0.24857, 0.1: 0.24576, 0.15: 0.24262, 0.2: 0.2391, 0.25: 0.2351, 0.3: 0.23053, 0.4: 0.21911, 0.5: 0.20312}
+eGFR<45 referral rule (107 patients): flags 48 (0.4486), TP rate 0.39986, FP rate 0.04874
+  net benefit across the model thresholds: {0.05: 0.3973, 0.1: 0.39445, 0.15: 0.39126, 0.2: 0.38768, 0.25: 0.38362, 0.3: 0.37897, 0.4: 0.36737, 0.5: 0.35112}
+
+--- Weibull AFT ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  8 predicted=0.8557 observed(KM)=0.8182
+  n=  11 events=  7 predicted=0.8844 observed(KM)=0.5455
+  n=  10 events=  8 predicted=0.8881 observed(KM)=0.625
+  n=  11 events=  8 predicted=0.8903 observed(KM)=0.8182
+  n=  11 events=  8 predicted=0.8931 observed(KM)=0.8466
+  n=  10 events= 10 predicted=0.8959 observed(KM)=1.0
+  n=  11 events=  8 predicted=0.8983 observed(KM)=0.6883
+  n=  10 events=  6 predicted=0.9013 observed(KM)=0.5
+  n=  11 events=  8 predicted=0.9047 observed(KM)=1.0
+  n=  11 events= 11 predicted=0.9109 observed(KM)=0.9091
+Integrated Brier score (0-730d): 0.18913 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.7907  treat_all=0.7907  treat_none=0.0
+  pt=0.10  model=0.77907  treat_all=0.77907  treat_none=0.0
+  pt=0.15  model=0.76608  treat_all=0.76608  treat_none=0.0
+  pt=0.20  model=0.75146  treat_all=0.75146  treat_none=0.0
+  pt=0.25  model=0.73489  treat_all=0.73489  treat_none=0.0
+  pt=0.30  model=0.71595  treat_all=0.71595  treat_none=0.0
+  pt=0.40  model=0.66861  treat_all=0.66861  treat_none=0.0
+  pt=0.50  model=0.60233  treat_all=0.60233  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.88698, 0.1: 0.8807, 0.15: 0.87368, 0.2: 0.86579, 0.25: 0.85684, 0.3: 0.84661, 0.4: 0.82105, 0.5: 0.78526}
+  (for contrast, the superseded row-level treat-all over 472 lab rows: {0.05: 0.38659, 0.1: 0.35252, 0.15: 0.31443, 0.2: 0.27158, 0.25: 0.22302, 0.3: 0.16752, 0.4: 0.02877, 0.5: -0.16547})
+eGFR<30 referral rule (107 patients): flags 32 (0.2991), TP rate 0.29907, FP rate 0.0
+  net benefit across the model thresholds: {0.05: 0.29907, 0.1: 0.29907, 0.15: 0.29907, 0.2: 0.29907, 0.25: 0.29907, 0.3: 0.29907, 0.4: 0.29907, 0.5: 0.29907}
+eGFR<45 referral rule (107 patients): flags 48 (0.4486), TP rate 0.4486, FP rate 0.0
+  net benefit across the model thresholds: {0.05: 0.4486, 0.1: 0.4486, 0.15: 0.4486, 0.2: 0.4486, 0.25: 0.4486, 0.3: 0.4486, 0.4: 0.4486, 0.5: 0.4486}
+
+--- Weibull AFT ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  8 predicted=0.8976 observed(KM)=0.8182
+  n=  11 events=  7 predicted=0.9219 observed(KM)=0.5455
+  n=  10 events=  8 predicted=0.9249 observed(KM)=0.8125
+  n=  11 events=  8 predicted=0.9266 observed(KM)=0.8182
+  n=  11 events=  8 predicted=0.9288 observed(KM)=1.0
+  n=  10 events= 10 predicted=0.9310 observed(KM)=1.0
+  n=  11 events=  8 predicted=0.9328 observed(KM)=0.6883
+  n=  10 events=  6 predicted=0.9352 observed(KM)=1.0
+  n=  11 events=  8 predicted=0.9379 observed(KM)=1.0
+  n=  11 events= 11 predicted=0.9426 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.1603 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.88698  treat_all=0.88698  treat_none=0.0
+  pt=0.10  model=0.8807  treat_all=0.8807  treat_none=0.0
+  pt=0.15  model=0.87368  treat_all=0.87368  treat_none=0.0
+  pt=0.20  model=0.86579  treat_all=0.86579  treat_none=0.0
+  pt=0.25  model=0.85684  treat_all=0.85684  treat_none=0.0
+  pt=0.30  model=0.84661  treat_all=0.84661  treat_none=0.0
+  pt=0.40  model=0.82105  treat_all=0.82105  treat_none=0.0
+  pt=0.50  model=0.78526  treat_all=0.78526  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_clinical_validity_report.txt
+TRAIN twenty_features_heterogeneous/weibul: missing artifact /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5169093 rows/20864 subjects -> 20864 rows; test 1310644 rows/5216 subjects -> 5216 rows; holdout 1646353 rows/6521 subjects -> 6521 rows
+Fitting model:
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/autograd/tracer.py:48: RuntimeWarning: overflow encountered in matmul
+  return f_raw(*args, **kwargs)
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/numpy/linalg/_linalg.py:3437: RuntimeWarning: overflow encountered in matmul
+  return _core_matmul(x1, x2)
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/__init__.py:2086: ApproximationWarning: The Hessian was not invertible. We will instead approximate it using the pseudo-inverse.
+
+It's advisable to not trust the variances reported, and to be suspicious of the fitted parameters too.
+
+Some ways to possible ways fix this:
+
+0. Are there any lifelines warnings outputted during the `fit`?
+1. Does a particularly large variable need to be centered to 0?
+2. Inspect your DataFrame: does everything look as expected? Do you need to add/drop a constant (intercept) column?
+3. Is there high-collinearity in the dataset? Try using the variance inflation factor (VIF) to find redundant variables.
+4. Trying adding a small penalizer (or changing it, if already present). Example: `WeibullAFTFitter(penalizer=0.01).fit(...)`.
+5. Are there any extreme outliers? Try modeling them or dropping them to see if it helps convergence.
+
+  warnings.warn(warning_text, exceptions.ApproximationWarning)
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/__init__.py:2097: StatisticalWarning: The diagonal of the variance_matrix_ has negative values. This could be a problem with WeibullAFTFitter's fit to the data.
+
+It's advisable to not trust the variances reported, and to be suspicious of the fitted parameters too.
+
+  warnings.warn(warning_text, exceptions.StatisticalWarning)
+Evaluate on test data
+C-index: 0.5282
+Integrated Brier Score Test: 0.425
+Mean time-dependent AUC (patient-level, supported follow-up below 730 days): 0.5460
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 5169093 lab-event rows -> 20864 patients; event rate 0.0955 (row-level) vs 0.9145 (patient-level, 19081 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 1310644 lab-event rows -> 5216 patients; event rate 0.0934 (row-level) vs 0.9145 (patient-level, 4770 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 5049.0 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4904.2 days; IPCW evaluation capped at 4904.2 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 5205/5216 patients have one (11 excluded, no measured eGFR); selected from 73781/1310644 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5169093 rows/20864 subjects -> 20864 rows; test 1310644 rows/5216 subjects -> 5216 rows; holdout 1646353 rows/6521 subjects -> 6521 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5169093 rows/20864 subjects -> 20864 rows; test 1310644 rows/5216 subjects -> 5216 rows; holdout 1646353 rows/6521 subjects -> 6521 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   Weibull AFT: aligned to 5216 patient-level terminal outcomes (866 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+  Weibull AFT: c_index=0.5282 brier=0.24852 (native) auc=0.546
+    fitted-conversion Brier for the same model/window: 0.23464 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.21569, 1825d=0.12967
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 5216 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Weibull AFT          0.5282 [0.5187, 0.5384]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Weibull AFT          0.2485 [0.2433, 0.2538]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Weibull AFT          0.546 [0.5312, 0.5614]  (n=1000)
+
+Paired differences vs. best model by C-index (Weibull AFT), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 5205/5216 patients with finite predictions for every available model and measured eGFR; 11 excluded from ALL strategies.
+Treat-all net benefit (5205 patients): {0.05: 0.6821, 0.1: 0.66444, 0.15: 0.6447, 0.2: 0.6225, 0.25: 0.59733, 0.3: 0.56857, 0.4: 0.49666, 0.5: 0.39599}
+  (for contrast, the superseded row-level treat-all over 1310644 lab rows: {0.05: 0.04625, 0.1: -0.00674, 0.15: -0.06596, 0.2: -0.13258, 0.25: -0.20809, 0.3: -0.29438, 0.4: -0.51011, 0.5: -0.81213})
+eGFR<30 referral rule (5205 patients): flags 1239 (0.238), TP rate 0.17812, FP rate 0.05992
+  net benefit across the model thresholds: {0.05: 0.17497, 0.1: 0.17147, 0.15: 0.16755, 0.2: 0.16315, 0.25: 0.15815, 0.3: 0.15245, 0.4: 0.13818, 0.5: 0.11821}
+eGFR<45 referral rule (5205 patients): flags 2605 (0.5005), TP rate 0.36407, FP rate 0.13641
+  net benefit across the model thresholds: {0.05: 0.35689, 0.1: 0.34892, 0.15: 0.34, 0.2: 0.32997, 0.25: 0.3186, 0.3: 0.30561, 0.4: 0.27313, 0.5: 0.22767}
+
+--- Weibull AFT ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 530 events=429 predicted=0.7275 observed(KM)=0.6302
+  n= 528 events=474 predicted=0.7599 observed(KM)=0.6805
+  n= 518 events=496 predicted=0.7655 observed(KM)=0.6802
+  n= 511 events=492 predicted=0.7657 observed(KM)=0.6915
+  n= 550 events=508 predicted=0.7724 observed(KM)=0.7027
+  n= 610 events=547 predicted=0.7767 observed(KM)=0.6784
+  n= 429 events=387 predicted=0.7780 observed(KM)=0.7109
+  n= 526 events=471 predicted=0.7791 observed(KM)=0.6748
+  n= 513 events=482 predicted=0.7810 observed(KM)=0.7188
+  n= 501 events=484 predicted=0.7868 observed(KM)=0.8226
+Integrated Brier score (0-730d): 0.24852 [native]
+  (1 test patients administratively censored at the training-set max follow-up)
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.6821  treat_all=0.6821  treat_none=0.0
+  pt=0.10  model=0.66444  treat_all=0.66444  treat_none=0.0
+  pt=0.15  model=0.6447  treat_all=0.6447  treat_none=0.0
+  pt=0.20  model=0.6225  treat_all=0.6225  treat_none=0.0
+  pt=0.25  model=0.59733  treat_all=0.59733  treat_none=0.0
+  pt=0.30  model=0.56857  treat_all=0.56857  treat_none=0.0
+  pt=0.40  model=0.49666  treat_all=0.49666  treat_none=0.0
+  pt=0.50  model=0.39599  treat_all=0.39599  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 5205/5216 patients with finite predictions for every available model and measured eGFR; 11 excluded from ALL strategies.
+Treat-all net benefit (5205 patients): {0.05: 0.84028, 0.1: 0.83141, 0.15: 0.82149, 0.2: 0.81033, 0.25: 0.79769, 0.3: 0.78324, 0.4: 0.74711, 0.5: 0.69653}
+  (for contrast, the superseded row-level treat-all over 1310644 lab rows: {0.05: 0.10391, 0.1: 0.05413, 0.15: -0.00151, 0.2: -0.06411, 0.25: -0.13505, 0.3: -0.21612, 0.4: -0.41881, 0.5: -0.70257})
+eGFR<30 referral rule (5205 patients): flags 1239 (0.238), TP rate 0.20867, FP rate 0.02937
+  net benefit across the model thresholds: {0.05: 0.20712, 0.1: 0.20541, 0.15: 0.20349, 0.2: 0.20133, 0.25: 0.19888, 0.3: 0.19608, 0.4: 0.18909, 0.5: 0.1793}
+eGFR<45 referral rule (5205 patients): flags 2605 (0.5005), TP rate 0.43397, FP rate 0.06651
+  net benefit across the model thresholds: {0.05: 0.43047, 0.1: 0.42658, 0.15: 0.42224, 0.2: 0.41735, 0.25: 0.41181, 0.3: 0.40547, 0.4: 0.38964, 0.5: 0.36747}
+
+--- Weibull AFT ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 530 events=429 predicted=0.8025 observed(KM)=0.7891
+  n= 528 events=474 predicted=0.8316 observed(KM)=0.8416
+  n= 518 events=496 predicted=0.8366 observed(KM)=0.8657
+  n= 511 events=492 predicted=0.8367 observed(KM)=0.8635
+  n= 550 events=508 predicted=0.8426 observed(KM)=0.8492
+  n= 610 events=547 predicted=0.8463 observed(KM)=0.84
+  n= 429 events=387 predicted=0.8474 observed(KM)=0.8208
+  n= 526 events=471 predicted=0.8484 observed(KM)=0.8282
+  n= 513 events=482 predicted=0.8500 observed(KM)=0.8605
+  n= 501 events=484 predicted=0.8549 observed(KM)=0.9176
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+Integrated Brier score (0-1825d): 0.20185 [native]
+  (1 test patients administratively censored at the training-set max follow-up)
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84028  treat_all=0.84028  treat_none=0.0
+  pt=0.10  model=0.83141  treat_all=0.83141  treat_none=0.0
+  pt=0.15  model=0.82149  treat_all=0.82149  treat_none=0.0
+  pt=0.20  model=0.81033  treat_all=0.81033  treat_none=0.0
+  pt=0.25  model=0.79769  treat_all=0.79769  treat_none=0.0
+  pt=0.30  model=0.78324  treat_all=0.78324  treat_none=0.0
+  pt=0.40  model=0.74711  treat_all=0.74711  treat_none=0.0
+  pt=0.50  model=0.69653  treat_all=0.69653  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_clinical_validity_report.txt
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/c_index_comparison.png
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/brier_comparison.png
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/auc_comparison.png
+COMPLETE

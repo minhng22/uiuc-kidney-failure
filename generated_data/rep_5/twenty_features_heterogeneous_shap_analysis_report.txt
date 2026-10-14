@@ -1,9 +1,9 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-14 01:34:55
+Generated on: 2026-10-14 09:00:44
 Repetition: 5
 Scenario: twenty_features_heterogeneous
-Models analyzed: gbsa
+Models analyzed: weibul
 ================================================================================
 
 ================================================================================
@@ -60,46 +60,46 @@ FEATURE OVERVIEW:
 ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
 ------------------------------------------------------------
 
-Analyzing GBSA model...
-  GBSA Feature Importance:
-    egfr: 0.0656
-    egfr_missing: 0.0000
-    potassium: 0.0190
-    potassium_missing: 0.0031
-    urea_nitrogen: 0.0158
-    urea_nitrogen_missing: 0.0022
-    sodium: 0.0000
-    sodium_missing: 0.0000
-    chloride: 0.0117
-    chloride_missing: 0.0000
-    bicarbonate: 0.0000
-    bicarbonate_missing: 0.0000
-    anion_gap: 0.1364
-    anion_gap_missing: 0.0000
-    hematocrit: 0.0753
-    hematocrit_missing: 0.0000
-    platelet_count: 0.0227
-    platelet_count_missing: 0.0000
-    hemoglobin: 0.0284
-    hemoglobin_missing: 0.0000
-    wbc: 0.0076
-    wbc_missing: 0.0000
-    mchc: 0.0000
-    mchc_missing: 0.0000
-    mch: 0.0000
-    mch_missing: 0.0000
+Analyzing WEIBUL model...
+  WEIBUL Feature Importance:
+    egfr: 0.0033
+    egfr_missing: 0.2784
+    potassium: 0.0267
+    potassium_missing: 0.1793
+    urea_nitrogen: 0.0031
+    urea_nitrogen_missing: 0.4415
+    sodium: 0.0002
+    sodium_missing: 0.0269
+    chloride: 0.0007
+    chloride_missing: 0.0946
+    bicarbonate: 0.0032
+    bicarbonate_missing: 0.2595
+    anion_gap: 0.0532
+    anion_gap_missing: 0.8695
+    hematocrit: 0.0054
+    hematocrit_missing: 0.1523
+    platelet_count: 0.0004
+    platelet_count_missing: 0.0435
+    hemoglobin: 0.0430
+    hemoglobin_missing: 0.3384
+    wbc: 0.0099
+    wbc_missing: 0.3509
+    mchc: 0.0065
+    mchc_missing: 0.2177
+    mch: 4.8995
+    mch_missing: 2.0395
     rbc: 0.0000
-    rbc_missing: 0.0000
-    mcv: 0.0000
-    mcv_missing: 0.0000
-    rdw: 0.0851
-    rdw_missing: 0.0000
-    glucose: 0.0564
-    glucose_missing: 0.0000
-    calcium: 0.1018
-    calcium_missing: 0.0000
-    magnesium: 0.0453
-    magnesium_missing: 0.0000
-    phosphate: 0.3237
-    phosphate_missing: 0.0000
+    rbc_missing: 2.0395
+    mcv: 0.0108
+    mcv_missing: 0.9175
+    rdw: 0.0063
+    rdw_missing: 0.1180
+    glucose: 0.0001
+    glucose_missing: 0.0261
+    calcium: 0.0412
+    calcium_missing: 0.3813
+    magnesium: 0.0647
+    magnesium_missing: 0.1516
+    phosphate: 0.0381
+    phosphate_missing: 0.0580
 Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_all_models_feature_importance.png

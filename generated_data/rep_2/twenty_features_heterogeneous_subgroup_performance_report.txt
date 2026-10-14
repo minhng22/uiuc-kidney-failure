@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 23:47:50
+Generated on: 2026-10-14 08:47:00
 Repetition: 2
 Scenario: twenty_features_heterogeneous
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -65,41 +65,41 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [18-45] n=506 events=498
-    GBSA                 c_index=0.5258 [0.4982, 0.5564]  brier=0.2466 [0.2392, 0.2548] [native]  auc=0.5374 [0.4939, 0.5859]
+    Weibull AFT          c_index=0.5431 [0.5132, 0.5728]  brier=0.2578 [0.2423, 0.2729] [native]  auc=0.5756 [0.5305, 0.6214]
 
   [46-65] n=1687 events=1609
-    GBSA                 c_index=0.5184 [0.5023, 0.5344]  brier=0.2461 [0.2417, 0.2504] [native]  auc=0.5234 [0.4963, 0.5481]
+    Weibull AFT          c_index=0.5301 [0.5138, 0.5466]  brier=0.2683 [0.2597, 0.2769] [native]  auc=0.5492 [0.5237, 0.5728]
 
   [66-85] n=2301 events=2045
-    GBSA                 c_index=0.5412 [0.5272, 0.5569]  brier=0.2302 [0.2259, 0.2345] [native]  auc=0.5484 [0.5275, 0.5717]
+    Weibull AFT          c_index=0.529 [0.5137, 0.5434]  brier=0.2461 [0.2383, 0.2536] [native]  auc=0.5458 [0.5229, 0.5669]
 
   [>85] n=722 events=618
-    GBSA                 c_index=0.5183 [0.4926, 0.5459]  brier=0.2067 [0.1995, 0.2141] [native]  auc=0.5087 [0.4667, 0.5468]
+    Weibull AFT          c_index=0.5125 [0.4865, 0.539]  brier=0.2037 [0.1909, 0.2164] [native]  auc=0.5245 [0.4871, 0.5636]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=2214 events=2025
-    GBSA                 c_index=0.5265 [0.5121, 0.5405]  brier=0.2372 [0.233, 0.2411] [native]  auc=0.5333 [0.5115, 0.5565]
+    Weibull AFT          c_index=0.529 [0.5141, 0.544]  brier=0.2559 [0.2481, 0.2634] [native]  auc=0.5501 [0.5277, 0.573]
 
   [M] n=3002 events=2745
-    GBSA                 c_index=0.5306 [0.5179, 0.5429]  brier=0.2311 [0.2276, 0.2344] [native]  auc=0.5339 [0.514, 0.553]
+    Weibull AFT          c_index=0.528 [0.5158, 0.5407]  brier=0.2431 [0.2369, 0.2494] [native]  auc=0.5432 [0.5241, 0.5616]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [ASIAN] n=149 events=138
-    GBSA                 c_index=0.5713 [0.5129, 0.6286]  brier=0.2206 [0.2063, 0.235] [native]  auc=0.5978 [0.5133, 0.6764]
+    Weibull AFT          c_index=0.5234 [0.4645, 0.5799]  brier=0.236 [0.2104, 0.2633] [native]  auc=0.5445 [0.4625, 0.6251]
 
   [BLACK] n=754 events=707
-    GBSA                 c_index=0.5136 [0.4902, 0.5371]  brier=0.2586 [0.2514, 0.2653] [native]  auc=0.519 [0.4804, 0.5574]
+    Weibull AFT          c_index=0.5152 [0.491, 0.5408]  brier=0.3013 [0.2877, 0.3142] [native]  auc=0.5324 [0.4941, 0.5731]
 
   [HISPANIC/LATINO] n=201 events=195
-    GBSA                 c_index=0.5249 [0.4779, 0.5733]  brier=0.2609 [0.249, 0.2734] [native]  auc=0.5141 [0.4409, 0.5901]
+    Weibull AFT          c_index=0.5385 [0.4882, 0.5856]  brier=0.2967 [0.2719, 0.3222] [native]  auc=0.5499 [0.4732, 0.6187]
 
   [OTHER] n=170 events=151
-    GBSA                 c_index=0.4992 [0.44, 0.5593]  brier=0.223 [0.2096, 0.2367] [native]  auc=0.5012 [0.4168, 0.5881]
+    Weibull AFT          c_index=0.5639 [0.5098, 0.6185]  brier=0.2236 [0.1988, 0.2492] [native]  auc=0.6137 [0.5361, 0.6906]
 
   [UNKNOWN/NOT RECORDED] n=296 events=277
-    GBSA                 c_index=0.5636 [0.52, 0.606]  brier=0.1812 [0.1731, 0.1896] [native]  auc=0.6291 [0.5486, 0.7048]
+    Weibull AFT          c_index=0.5332 [0.4903, 0.5774]  brier=0.1148 [0.1069, 0.1245] [native]  auc=0.5624 [0.4702, 0.648]
 
   [WHITE] n=3601 events=3257
-    GBSA                 c_index=0.5287 [0.5176, 0.5395]  brier=0.2323 [0.2291, 0.2355] [native]  auc=0.5304 [0.5127, 0.547]
+    Weibull AFT          c_index=0.523 [0.5121, 0.5355]  brier=0.2475 [0.2418, 0.2532] [native]  auc=0.5345 [0.5171, 0.5528]

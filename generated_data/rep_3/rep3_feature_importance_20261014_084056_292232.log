@@ -1,0 +1,181 @@
+rep3 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - FOUR_FEATURES SCENARIO
+================================================================================
+
+Training samples: 9363
+Test samples: 2304
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=63.922, std=15.601
+  gender: mean=0.574, std=0.495
+  egfr: mean=60.701, std=34.238
+  uacr: mean=506.301, std=1223.451
+
+ANALYZING ALL MODELS FOR FOUR_FEATURES
+------------------------------------------------------------
+
+Analyzing WEIBUL model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_weibul_model.dill
+  WEIBUL Feature Importance:
+    age: 0.0058
+    gender: 0.0773
+    egfr: 0.0047
+    uacr: 0.0000
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_all_models_feature_importance.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_shap_analysis_report.txt
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - EIGHT_FEATURES SCENARIO
+================================================================================
+
+Training samples: 1498
+Test samples: 416
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=63.373, std=14.854
+  gender: mean=0.563, std=0.496
+  egfr: mean=50.336, std=32.802
+  uacr: mean=621.403, std=1417.073
+  calcium: mean=8.658, std=1.078
+  phosphate: mean=3.839, std=1.546
+  bicarbonate: mean=22.903, std=5.075
+  serum_albumin: mean=3.315, std=0.730
+
+ANALYZING ALL MODELS FOR EIGHT_FEATURES
+------------------------------------------------------------
+
+Analyzing WEIBUL model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_weibul_model.dill
+  WEIBUL Feature Importance:
+    age: 0.0029
+    gender: 0.0718
+    egfr: 0.0037
+    uacr: 0.0000
+    calcium: 0.1181
+    phosphate: 0.0069
+    bicarbonate: 0.0445
+    serum_albumin: 0.0575
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_all_models_feature_importance.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_shap_analysis_report.txt
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS SCENARIO
+================================================================================
+
+Training samples: 5221567
+Test samples: 1284004
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'wbc', 'wbc_missing', 'mchc', 'mchc_missing', 'mch', 'mch_missing', 'rbc', 'rbc_missing', 'mcv', 'mcv_missing', 'rdw', 'rdw_missing', 'glucose', 'glucose_missing', 'calcium', 'calcium_missing', 'magnesium', 'magnesium_missing', 'phosphate', 'phosphate_missing', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  egfr: mean=3.849, std=17.350
+  egfr_missing: mean=0.944, std=0.230 (missing_flag rate=94.4%)
+  potassium: mean=0.228, std=0.967
+  potassium_missing: mean=0.946, std=0.225 (missing_flag rate=94.6%)
+  urea_nitrogen: mean=1.350, std=6.935
+  urea_nitrogen_missing: mean=0.945, std=0.227 (missing_flag rate=94.5%)
+  sodium: mean=7.334, std=31.016
+  sodium_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  chloride: mean=5.361, std=22.803
+  chloride_missing: mean=0.947, std=0.223 (missing_flag rate=94.7%)
+  bicarbonate: mean=1.291, std=5.685
+  bicarbonate_missing: mean=0.950, std=0.219 (missing_flag rate=95.0%)
+  anion_gap: mean=0.717, std=3.214
+  anion_gap_missing: mean=0.950, std=0.218 (missing_flag rate=95.0%)
+  hematocrit: mean=1.858, std=7.800
+  hematocrit_missing: mean=0.944, std=0.229 (missing_flag rate=94.4%)
+  platelet_count: mean=12.084, std=58.945
+  platelet_count_missing: mean=0.946, std=0.226 (missing_flag rate=94.6%)
+  hemoglobin: mean=0.590, std=2.535
+  hemoglobin_missing: mean=0.947, std=0.225 (missing_flag rate=94.7%)
+  wbc: mean=0.466, std=3.242
+  wbc_missing: mean=0.946, std=0.225 (missing_flag rate=94.6%)
+  mchc: mean=1.747, std=7.400
+  mchc_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  mch: mean=1.593, std=6.769
+  mch_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  rbc: mean=0.196, std=0.848
+  rbc_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  mcv: mean=4.830, std=20.502
+  mcv_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  rdw: mean=0.811, std=3.470
+  rdw_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  glucose: mean=5.919, std=31.297
+  glucose_missing: mean=0.956, std=0.206 (missing_flag rate=95.6%)
+  calcium: mean=0.319, std=1.654
+  calcium_missing: mean=0.964, std=0.186 (missing_flag rate=96.4%)
+  magnesium: mean=0.069, std=0.370
+  magnesium_missing: mean=0.966, std=0.182 (missing_flag rate=96.6%)
+  phosphate: mean=0.118, std=0.662
+  phosphate_missing: mean=0.966, std=0.180 (missing_flag rate=96.6%)
+
+ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
+------------------------------------------------------------
+
+Analyzing WEIBUL model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1284004 and train 5221567
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1620519 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5221567 rows/20864 subjects -> 20864 rows; test 1284004 rows/5216 subjects -> 5216 rows; holdout 1620519 rows/6521 subjects -> 6521 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_weibul_model.dill
+  WEIBUL Feature Importance:
+    egfr: 0.0052
+    egfr_missing: 0.3558
+    potassium: 0.0178
+    potassium_missing: 0.1280
+    urea_nitrogen: 0.0005
+    urea_nitrogen_missing: 0.2788
+    sodium: 0.0003
+    sodium_missing: 0.0711
+    chloride: 0.0004
+    chloride_missing: 0.0497
+    bicarbonate: 0.0240
+    bicarbonate_missing: 0.4318
+    anion_gap: 0.0545
+    anion_gap_missing: 0.8622
+    hematocrit: 0.0059
+    hematocrit_missing: 0.1636
+    platelet_count: 0.0003
+    platelet_count_missing: 0.0095
+    hemoglobin: 0.0406
+    hemoglobin_missing: 0.3227
+    wbc: 0.0073
+    wbc_missing: 0.4064
+    mchc: 0.0000
+    mchc_missing: 1.8723
+    mch: 4.9095
+    mch_missing: 1.8723
+    rbc: 0.0000
+    rbc_missing: 1.8723
+    mcv: 0.0011
+    mcv_missing: 0.1182
+    rdw: 0.0066
+    rdw_missing: 0.1221
+    glucose: 0.0000
+    glucose_missing: 0.0215
+    calcium: 0.0430
+    calcium_missing: 0.4062
+    magnesium: 0.0550
+    magnesium_missing: 0.1393
+    phosphate: 0.0351
+    phosphate_missing: 0.0586
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_all_models_feature_importance.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_shap_analysis_report.txt
+COMPLETE

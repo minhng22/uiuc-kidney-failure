@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 23:43:38
+Generated on: 2026-10-14 08:42:45
 Repetition: 2
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -61,20 +61,20 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [46-65] n=49 events=40
-    GBSA                 c_index=0.5466 [0.4384, 0.6515]  brier=0.2433 [0.1412, 0.35] [native]  auc=0.5267 [0.3701, 0.6841]
+    Weibull AFT          c_index=0.5813 [0.4682, 0.6995]  brier=0.2359 [0.1259, 0.3534] [native]  auc=0.6114 [0.4466, 0.7729]
 
   [66-85] n=37 events=24
-    GBSA                 c_index=0.4817 [0.3238, 0.6245]  brier=0.1688 [0.0787, 0.2856] [native]  auc=0.5124 [0.3073, 0.7312]
+    Weibull AFT          c_index=0.4575 [0.303, 0.6101]  brier=0.1596 [0.0643, 0.2854] [native]  auc=0.5422 [0.34, 0.7885]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=47 events=37
-    GBSA                 c_index=0.6171 [0.5046, 0.732]  brier=0.1692 [0.0981, 0.2703] [native]  auc=0.639 [0.4829, 0.8118]
+    Weibull AFT          c_index=0.5838 [0.4734, 0.6897]  brier=0.1615 [0.0818, 0.2709] [native]  auc=0.6735 [0.4879, 0.8593]
 
   [M] n=60 events=45
-    GBSA                 c_index=0.4752 [0.3647, 0.5789]  brier=0.2218 [0.1298, 0.3263] [native]  auc=0.4424 [0.2926, 0.5976]
+    Weibull AFT          c_index=0.485 [0.377, 0.6004]  brier=0.2107 [0.1138, 0.323] [native]  auc=0.5021 [0.3308, 0.6678]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [WHITE] n=66 events=48
-    GBSA                 c_index=0.5459 [0.433, 0.6481]  brier=0.1848 [0.1105, 0.2754] [native]  auc=0.5976 [0.4385, 0.7568]
+    Weibull AFT          c_index=0.5152 [0.4017, 0.622]  brier=0.1834 [0.106, 0.2824] [native]  auc=0.6098 [0.4396, 0.774]
