@@ -19,3 +19,11 @@ Log: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_4/rep4_s
 rep4/subgroup: exit 0
 /opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/bin/python -u -m pkgs.scripts.run_experiments analyze --reps 5 --scenarios four_features eight_features twenty_features_heterogeneous --worker --models rnnsurv --analyses clinical_validity
 Log: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/rep5_clinical_validity_20261011_160753_192576.log
+rep5/clinical_validity: exit 0
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/bin/python -u -m pkgs.scripts.run_experiments analyze --reps 5 --scenarios four_features eight_features twenty_features_heterogeneous --worker --models rnnsurv --analyses feature_importance
+Log: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/rep5_feature_importance_20261011_160753_192576.log
+rep5/feature_importance: exit 0
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/bin/python -u -m pkgs.scripts.run_experiments analyze --reps 5 --scenarios four_features eight_features twenty_features_heterogeneous --worker --models rnnsurv --analyses subgroup
+Log: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/rep5_subgroup_20261011_160753_192576.log
+rep5/subgroup: exit 0
+Failed tasks: rep3/feature_importance, rep4/feature_importance

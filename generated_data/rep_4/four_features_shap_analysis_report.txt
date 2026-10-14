@@ -1,9 +1,9 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-04 14:42:58
+Generated on: 2026-10-13 16:07:47
 Repetition: 4
 Scenario: four_features
-Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
+Models analyzed: srf
 ================================================================================
 
 ================================================================================
@@ -24,73 +24,10 @@ FEATURE OVERVIEW:
 ANALYZING ALL MODELS FOR FOUR_FEATURES
 ------------------------------------------------------------
 
-Analyzing COX model...
-  COX Feature Importance:
-    age: 0.0007 (coeff=-0.0007, HR=0.999)
-    gender: 0.0004 (coeff=0.0004, HR=1.000)
-    egfr: 0.0014 (coeff=-0.0014, HR=0.999)
-    uacr: 0.0000 (coeff=0.0000, HR=1.000)
-
-Analyzing DDH model...
-  DDH Feature Importance:
-    age: 0.2150
-    gender: 0.2654
-    egfr: 0.2843
-    uacr: 0.2353
-
-Analyzing HAZARD_TRANSFORMER model...
-  HAZARD_TRANSFORMER Feature Importance:
-    age: 0.2474
-    gender: 0.3800
-    egfr: 0.2519
-    uacr: 0.1207
-
-Analyzing LOGISTIC_HAZARD model...
-  LOGISTIC_HAZARD Feature Importance:
-    age: 0.1846
-    gender: 0.2692
-    egfr: 0.2302
-    uacr: 0.3160
-
-Analyzing RNN_SURV model...
-  RNN_SURV Feature Importance:
-    age: 0.2954
-    gender: 0.2122
-    egfr: 0.2755
-    uacr: 0.2168
-
-Analyzing DEEPSURV model...
-  DEEPSURV Feature Importance:
-    age: 0.2657
-    gender: 0.2457
-    egfr: 0.2418
-    uacr: 0.2467
-
-Analyzing GBSA model...
-  GBSA Feature Importance:
-    age: 0.2241
-    gender: 0.0222
-    egfr: 0.4182
-    uacr: 0.3355
-
 Analyzing SRF model...
   SRF Feature Importance:
     age: 0.0508
     gender: 0.0065
     egfr: 0.0301
     uacr: 0.0177
-
-Analyzing SURVIVAL_SVM model...
-  SURVIVAL_SVM Feature Importance:
-    age: 0.0033
-    gender: 0.0075
-    egfr: 0.0023
-    uacr: 0.0000
-
-Analyzing WEIBUL model...
-  WEIBUL Feature Importance:
-    age: 0.0046
-    gender: 0.0228
-    egfr: 0.0045
-    uacr: 0.0000
-Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_4/four_features_all_models_feature_importance.png
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_4/four_features_all_models_feature_importance.png

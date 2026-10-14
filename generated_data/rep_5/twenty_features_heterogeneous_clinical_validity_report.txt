@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-10-13 11:10:37
+Generated on: 2026-10-13 17:28:18
 Repetition: 5
 Scenario: twenty_features_heterogeneous
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -22,11 +22,13 @@ Training-set max follow-up: 4904.2 days; IPCW evaluation capped at 4904.2 days (
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 5202/5216 patients have one (14 excluded, no measured eGFR); selected from 71547/1263551 rows with a real eGFR measurement.
 
 Patient-level alignment check (Gap 5a):
-  OK   DeepSurv: aligned to 5216 patient-level terminal outcomes
+  OK   Survival RF: aligned to 5216 patient-level terminal outcomes
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
-  DeepSurv: c_index=0.5223 brier=0.23271 (fitted-conversion) auc=0.5189
+  Survival RF: c_index=0.5304 brier=0.23227 (native) auc=0.5386
+    fitted-conversion Brier for the same model/window: 0.23228 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.20683, 1825d=0.1238
 
 ================================================================================
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 5216 test patients, 95% percentile intervals (Gap 3)
@@ -36,15 +38,15 @@ C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outco
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
-  DeepSurv             0.5223 [0.5125, 0.5314]  (n=1000)
+  Survival RF          0.5304 [0.5208, 0.539]  (n=1000)
 
 Integrated Brier — estimate [95% CI]:
-  DeepSurv             0.2327 [0.2302, 0.2353]  (n=1000)  (Brier source: fitted-conversion)
+  Survival RF          0.2323 [0.2296, 0.235]  (n=1000)  (Brier source: native)
 
 Mean time-dependent AUC — estimate [95% CI]:
-  DeepSurv             0.5189 [0.5042, 0.5329]  (n=1000)
+  Survival RF          0.5386 [0.5235, 0.5523]  (n=1000)
 
-Paired differences vs. best model by C-index (DeepSurv), same resamples (positive = the listed model is higher):
+Paired differences vs. best model by C-index (Survival RF), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
@@ -57,29 +59,29 @@ eGFR<30 referral rule (5202 patients): flags 1251 (0.2405), TP rate 0.18549, FP 
 eGFR<45 referral rule (5202 patients): flags 2520 (0.4844), TP rate 0.36044, FP rate 0.12399
   net benefit across the model thresholds: {0.05: 0.35391, 0.1: 0.34666, 0.15: 0.33856, 0.2: 0.32944, 0.25: 0.31911, 0.3: 0.3073, 0.4: 0.27778, 0.5: 0.23645}
 
---- DeepSurv ---
-Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n= 524 events=421 predicted=0.6451 observed(KM)=0.6477
-  n= 522 events=465 predicted=0.6883 observed(KM)=0.7145
-  n= 610 events=549 predicted=0.6977 observed(KM)=0.7081
-  n= 487 events=427 predicted=0.7004 observed(KM)=0.6977
-  n= 531 events=482 predicted=0.7044 observed(KM)=0.7001
-  n= 458 events=440 predicted=0.7114 observed(KM)=0.7363
-  n= 538 events=516 predicted=0.7133 observed(KM)=0.6889
-  n= 504 events=483 predicted=0.7137 observed(KM)=0.6826
-  n= 537 events=498 predicted=0.7197 observed(KM)=0.6797
-  n= 505 events=489 predicted=0.7573 observed(KM)=0.8059
-Integrated Brier score (0-730d): 0.23271 [fitted-conversion]
+  n= 543 events=433 predicted=0.6676 observed(KM)=0.6374
+  n= 508 events=486 predicted=0.7034 observed(KM)=0.7297
+  n= 960 events=853 predicted=0.7061 observed(KM)=0.6952
+  n=  76 events= 67 predicted=0.7065 observed(KM)=0.6896
+  n= 686 events=643 predicted=0.7069 observed(KM)=0.6624
+  n= 448 events=424 predicted=0.7073 observed(KM)=0.7178
+  n= 575 events=525 predicted=0.7076 observed(KM)=0.7243
+  n= 417 events=382 predicted=0.7087 observed(KM)=0.728
+  n= 491 events=462 predicted=0.7196 observed(KM)=0.6857
+  n= 512 events=495 predicted=0.7660 observed(KM)=0.8025
+Integrated Brier score (0-730d): 0.23227 [native]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.68993  treat_all=0.68993  treat_none=0.0
   pt=0.10  model=0.67271  treat_all=0.67271  treat_none=0.0
   pt=0.15  model=0.65345  treat_all=0.65345  treat_none=0.0
   pt=0.20  model=0.63179  treat_all=0.63179  treat_none=0.0
-  pt=0.25  model=0.60705  treat_all=0.60725  treat_none=0.0
-  pt=0.30  model=0.57885  treat_all=0.57919  treat_none=0.0
-  pt=0.40  model=0.50891  treat_all=0.50906  treat_none=0.0
-  pt=0.50  model=0.41127  treat_all=0.41087  treat_none=0.0
+  pt=0.25  model=0.60725  treat_all=0.60725  treat_none=0.0
+  pt=0.30  model=0.57919  treat_all=0.57919  treat_none=0.0
+  pt=0.40  model=0.50898  treat_all=0.50906  treat_none=0.0
+  pt=0.50  model=0.41132  treat_all=0.41087  treat_none=0.0
 
 === Horizon: 1825 days ===
 DCA common cohort: 5202/5216 patients with finite predictions for every available model and measured eGFR; 14 excluded from ALL strategies.
@@ -90,20 +92,19 @@ eGFR<30 referral rule (5202 patients): flags 1251 (0.2405), TP rate 0.21171, FP 
 eGFR<45 referral rule (5202 patients): flags 2520 (0.4844), TP rate 0.42065, FP rate 0.06378
   net benefit across the model thresholds: {0.05: 0.41729, 0.1: 0.41356, 0.15: 0.4094, 0.2: 0.40471, 0.25: 0.39939, 0.3: 0.39332, 0.4: 0.37813, 0.5: 0.35687}
 
---- DeepSurv ---
-Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n= 524 events=421 predicted=0.8002 observed(KM)=0.7899
-  n= 522 events=465 predicted=0.8387 observed(KM)=0.8445
-  n= 610 events=549 predicted=0.8464 observed(KM)=0.8537
-  n= 487 events=427 predicted=0.8485 observed(KM)=0.8241
-  n= 531 events=482 predicted=0.8517 observed(KM)=0.8619
-  n= 458 events=440 predicted=0.8571 observed(KM)=0.8804
-  n= 538 events=516 predicted=0.8586 observed(KM)=0.8678
-  n= 504 events=483 predicted=0.8590 observed(KM)=0.8406
-  n= 537 events=498 predicted=0.8635 observed(KM)=0.83
-  n= 505 events=489 predicted=0.8909 observed(KM)=0.9195
-Integrated Brier score (0-1825d): 0.19196 [fitted-conversion]
+  n= 522 events=409 predicted=0.8089 observed(KM)=0.7693
+  n=1118 events=998 predicted=0.8511 observed(KM)=0.8465
+  n= 578 events=512 predicted=0.8527 observed(KM)=0.8381
+  n= 428 events=397 predicted=0.8533 observed(KM)=0.8722
+  n= 494 events=470 predicted=0.8550 observed(KM)=0.8467
+  n= 789 events=757 predicted=0.8570 observed(KM)=0.8538
+  n= 529 events=500 predicted=0.8576 observed(KM)=0.8753
+  n= 246 events=233 predicted=0.8637 observed(KM)=0.866
+  n= 512 events=494 predicted=0.8870 observed(KM)=0.9086
+Integrated Brier score (0-1825d): 0.19158 [native]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.84436  treat_all=0.84436  treat_none=0.0
   pt=0.10  model=0.83572  treat_all=0.83572  treat_none=0.0
@@ -111,7 +112,7 @@ Decision curve analysis (net benefit by risk threshold):
   pt=0.20  model=0.81518  treat_all=0.81518  treat_none=0.0
   pt=0.25  model=0.80286  treat_all=0.80286  treat_none=0.0
   pt=0.30  model=0.78878  treat_all=0.78878  treat_none=0.0
-  pt=0.40  model=0.75314  treat_all=0.75358  treat_none=0.0
-  pt=0.50  model=0.70387  treat_all=0.70429  treat_none=0.0
+  pt=0.40  model=0.75358  treat_all=0.75358  treat_none=0.0
+  pt=0.50  model=0.70414  treat_all=0.70429  treat_none=0.0
 Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_calibration_plot.png
 Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_decision_curve_plot.png

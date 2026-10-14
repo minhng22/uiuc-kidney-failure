@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 10:47:41
+Generated on: 2026-10-13 14:48:44
 Repetition: 3
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -60,23 +60,23 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [46-65] n=41 events=33
-    DeepSurv             c_index=0.5255 [0.3991, 0.659]  brier=0.3471 [0.2179, 0.4754] [fitted-conversion]  auc=0.4804 [0.3174, 0.6524]
+    Survival RF          c_index=0.3697 [0.2477, 0.488]  brier=0.3829 [0.244, 0.5222] [native]  auc=0.3215 [0.1829, 0.4872]
 
   [66-85] n=40 events=31
-    DeepSurv             c_index=0.4804 [0.349, 0.6141]  brier=0.1321 [0.0841, 0.2278] [fitted-conversion]  auc=0.3566 [0.2114, 0.5826]
+    Survival RF          c_index=0.6324 [0.4833, 0.7679]  brier=0.125 [0.0789, 0.2089] [native]  auc=0.6798 [0.4812, 0.8576]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=50 events=38
-    DeepSurv             c_index=0.5311 [0.4165, 0.6398]  brier=0.2389 [0.1446, 0.3501] [fitted-conversion]  auc=0.4542 [0.2804, 0.6168]
+    Survival RF          c_index=0.5391 [0.4183, 0.6516]  brier=0.2377 [0.1492, 0.3405] [native]  auc=0.5246 [0.3768, 0.6718]
 
   [M] n=57 events=44
-    DeepSurv             c_index=0.4919 [0.378, 0.5995]  brier=0.2231 [0.1372, 0.3186] [fitted-conversion]  auc=0.4424 [0.2872, 0.5918]
+    Survival RF          c_index=0.4604 [0.3515, 0.5806]  brier=0.2449 [0.1476, 0.3521] [native]  auc=0.4528 [0.3093, 0.6118]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [BLACK] n=29 events=25
-    DeepSurv             c_index=0.5387 [0.3909, 0.6875]  brier=0.2021 [0.1115, 0.3478] [fitted-conversion]  auc=0.4315 [0.2539, 0.6433]
+    Survival RF          c_index=0.5357 [0.3813, 0.689]  brier=0.2164 [0.1191, 0.3774] [native]  auc=0.5391 [0.288, 0.7628]
 
   [WHITE] n=62 events=44
-    DeepSurv             c_index=0.5455 [0.4395, 0.6592]  brier=0.2268 [0.1354, 0.3255] [fitted-conversion]  auc=0.4788 [0.3319, 0.6409]
+    Survival RF          c_index=0.463 [0.3443, 0.5734]  brier=0.2363 [0.1401, 0.3433] [native]  auc=0.485 [0.3293, 0.6329]
