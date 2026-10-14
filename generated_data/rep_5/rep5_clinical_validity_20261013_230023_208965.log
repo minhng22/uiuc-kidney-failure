@@ -1,0 +1,448 @@
+rep5 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3018 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 9474 lab-event rows -> 1079 patients; event rate 0.1177 (row-level) vs 0.7525 (patient-level, 812 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 2051 lab-event rows -> 270 patients; event rate 0.1326 (row-level) vs 0.7519 (patient-level, 203 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 3659.6 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4333.0 days; IPCW evaluation capped at 4333.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2051/2051 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3018 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9474 rows/1079 subjects -> 1079 rows; test 2051 rows/270 subjects -> 270 rows; holdout 3018 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2051 and train 9474
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3018 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9474 rows/1079 subjects -> 1079 rows; test 2051 rows/270 subjects -> 270 rows; holdout 3018 rows/338 subjects -> 338 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   GBSA: aligned to 270 patient-level terminal outcomes
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  GBSA: c_index=0.5519 brier=0.24885 (native) auc=0.5526
+    fitted-conversion Brier for the same model/window: 0.24409 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.23329, 1825d=0.10514
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  GBSA                 0.5519 [0.504, 0.5965]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  GBSA                 0.2488 [0.2284, 0.2704]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  GBSA                 0.5526 [0.4886, 0.6179]  (n=1000)
+
+Paired differences vs. best model by C-index (GBSA), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.64162, 0.1: 0.62171, 0.15: 0.59946, 0.2: 0.57442, 0.25: 0.54605, 0.3: 0.51363, 0.4: 0.43257, 0.5: 0.31908}
+  (for contrast, the superseded row-level treat-all over 2051 lab rows: {0.05: 0.11273, 0.1: 0.06344, 0.15: 0.00835, 0.2: -0.05363, 0.25: -0.12387, 0.3: -0.20415, 0.4: -0.40484, 0.5: -0.68581})
+eGFR<30 referral rule (270 patients): flags 82 (0.3037), TP rate 0.21526, FP rate 0.08844
+  net benefit across the model thresholds: {0.05: 0.21061, 0.1: 0.20544, 0.15: 0.19966, 0.2: 0.19315, 0.25: 0.18578, 0.3: 0.17736, 0.4: 0.1563, 0.5: 0.12682}
+eGFR<45 referral rule (270 patients): flags 156 (0.5778), TP rate 0.40238, FP rate 0.1754
+  net benefit across the model thresholds: {0.05: 0.39315, 0.1: 0.38289, 0.15: 0.37143, 0.2: 0.35853, 0.25: 0.34391, 0.3: 0.32721, 0.4: 0.28545, 0.5: 0.22698}
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 16 predicted=0.4464 observed(KM)=0.6109
+  n=  27 events= 17 predicted=0.5248 observed(KM)=0.5171
+  n=  27 events= 20 predicted=0.5593 observed(KM)=0.6553
+  n=  27 events= 18 predicted=0.5770 observed(KM)=0.682
+  n=  27 events= 21 predicted=0.6008 observed(KM)=0.6271
+  n=  27 events= 24 predicted=0.6211 observed(KM)=0.8051
+  n=  27 events= 21 predicted=0.6513 observed(KM)=0.5556
+  n=  27 events= 20 predicted=0.6865 observed(KM)=0.6051
+  n=  27 events= 21 predicted=0.7643 observed(KM)=0.7699
+  n=  27 events= 25 predicted=0.8636 observed(KM)=0.746
+Integrated Brier score (0-730d): 0.24885 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.64162  treat_all=0.64162  treat_none=0.0
+  pt=0.10  model=0.62171  treat_all=0.62171  treat_none=0.0
+  pt=0.15  model=0.59946  treat_all=0.59946  treat_none=0.0
+  pt=0.20  model=0.57442  treat_all=0.57442  treat_none=0.0
+  pt=0.25  model=0.54605  treat_all=0.54605  treat_none=0.0
+  pt=0.30  model=0.51363  treat_all=0.51363  treat_none=0.0
+  pt=0.40  model=0.41593  treat_all=0.43257  treat_none=0.0
+  pt=0.50  model=0.29939  treat_all=0.31908  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.83887, 0.1: 0.82991, 0.15: 0.81991, 0.2: 0.80865, 0.25: 0.7959, 0.3: 0.78132, 0.4: 0.74487, 0.5: 0.69384}
+  (for contrast, the superseded row-level treat-all over 2051 lab rows: {0.05: 0.23597, 0.1: 0.19352, 0.15: 0.14608, 0.2: 0.09271, 0.25: 0.03222, 0.3: -0.0369, 0.4: -0.20972, 0.5: -0.45167})
+eGFR<30 referral rule (270 patients): flags 82 (0.3037), TP rate 0.26243, FP rate 0.04127
+  net benefit across the model thresholds: {0.05: 0.26026, 0.1: 0.25785, 0.15: 0.25515, 0.2: 0.25211, 0.25: 0.24867, 0.3: 0.24474, 0.4: 0.23492, 0.5: 0.22116}
+eGFR<45 referral rule (270 patients): flags 156 (0.5778), TP rate 0.48796, FP rate 0.08982
+  net benefit across the model thresholds: {0.05: 0.48323, 0.1: 0.47798, 0.15: 0.47211, 0.2: 0.46551, 0.25: 0.45802, 0.3: 0.44947, 0.4: 0.42808, 0.5: 0.39815}
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 16 predicted=0.6935 observed(KM)=0.8784
+  n=  27 events= 17 predicted=0.7771 observed(KM)=0.8345
+  n=  27 events= 20 predicted=0.8087 observed(KM)=0.8621
+  n=  27 events= 18 predicted=0.8239 observed(KM)=0.7615
+  n=  27 events= 21 predicted=0.8433 observed(KM)=0.7903
+  n=  27 events= 24 predicted=0.8590 observed(KM)=0.922
+  n=  27 events= 21 predicted=0.8807 observed(KM)=0.7222
+  n=  27 events= 20 predicted=0.9036 observed(KM)=0.9097
+  n=  27 events= 21 predicted=0.9452 observed(KM)=0.862
+  n=  27 events= 25 predicted=0.9805 observed(KM)=0.9153
+Integrated Brier score (0-1825d): 0.20092 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.83887  treat_all=0.83887  treat_none=0.0
+  pt=0.10  model=0.82991  treat_all=0.82991  treat_none=0.0
+  pt=0.15  model=0.81991  treat_all=0.81991  treat_none=0.0
+  pt=0.20  model=0.80865  treat_all=0.80865  treat_none=0.0
+  pt=0.25  model=0.7959  treat_all=0.7959  treat_none=0.0
+  pt=0.30  model=0.78132  treat_all=0.78132  treat_none=0.0
+  pt=0.40  model=0.74487  treat_all=0.74487  treat_none=0.0
+  pt=0.50  model=0.69384  treat_all=0.69384  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/four_features_clinical_validity_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 305 and train 1752
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 472 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 1752 lab-event rows -> 425 patients; event rate 0.2711 (row-level) vs 0.7694 (patient-level, 327 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 305 lab-event rows -> 107 patients; event rate 0.4131 (row-level) vs 0.7664 (patient-level, 82 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 2118.1 days. Horizons used: [730, 1825]
+Training-set max follow-up: 2891.9 days; IPCW evaluation capped at 2891.9 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 107/107 patients have one (0 excluded, no measured eGFR); selected from 305/305 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 305 and train 1752
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 472 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1752 rows/425 subjects -> 425 rows; test 305 rows/107 subjects -> 107 rows; holdout 472 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 305 and train 1752
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 472 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1752 rows/425 subjects -> 425 rows; test 305 rows/107 subjects -> 107 rows; holdout 472 rows/134 subjects -> 134 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   GBSA: aligned to 107 patient-level terminal outcomes
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  GBSA: c_index=0.5011 brier=0.15243 (native) auc=0.5512
+    fitted-conversion Brier for the same model/window: 0.1542 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.1183, 1825d=0.03291
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 107 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  GBSA                 0.5011 [0.4225, 0.5768]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  GBSA                 0.1524 [0.104, 0.2069]  (n=998)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  GBSA                 0.5512 [0.4349, 0.6595]  (n=998)
+
+Paired differences vs. best model by C-index (GBSA), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.85361, 0.1: 0.84548, 0.15: 0.83639, 0.2: 0.82616, 0.25: 0.81457, 0.3: 0.80133, 0.4: 0.76822, 0.5: 0.72186}
+  (for contrast, the superseded row-level treat-all over 305 lab rows: {0.05: 0.66258, 0.1: 0.64383, 0.15: 0.62288, 0.2: 0.59931, 0.25: 0.5726, 0.3: 0.54207, 0.4: 0.46575, 0.5: 0.35889})
+eGFR<30 referral rule (107 patients): flags 33 (0.3084), TP rate 0.26122, FP rate 0.04719
+  net benefit across the model thresholds: {0.05: 0.25874, 0.1: 0.25598, 0.15: 0.2529, 0.2: 0.24943, 0.25: 0.24549, 0.3: 0.241, 0.4: 0.22977, 0.5: 0.21404}
+eGFR<45 referral rule (107 patients): flags 46 (0.4299), TP rate 0.38637, FP rate 0.04354
+  net benefit across the model thresholds: {0.05: 0.38408, 0.1: 0.38153, 0.15: 0.37869, 0.2: 0.37549, 0.25: 0.37186, 0.3: 0.36771, 0.4: 0.35735, 0.5: 0.34283}
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  9 predicted=0.7166 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.7881 observed(KM)=1.0
+  n=  10 events=  8 predicted=0.8254 observed(KM)=0.625
+  n=  11 events=  8 predicted=0.8359 observed(KM)=0.7879
+  n=  11 events=  6 predicted=0.8483 observed(KM)=0.7614
+  n=  10 events=  9 predicted=0.8560 observed(KM)=0.7333
+  n=  11 events=  9 predicted=0.8637 observed(KM)=0.8182
+  n=  10 events=  9 predicted=0.8784 observed(KM)=0.9
+  n=  11 events=  7 predicted=0.9010 observed(KM)=0.7306
+  n=  11 events=  8 predicted=0.9321 observed(KM)=1.0
+Integrated Brier score (0-730d): 0.15243 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.85361  treat_all=0.85361  treat_none=0.0
+  pt=0.10  model=0.84548  treat_all=0.84548  treat_none=0.0
+  pt=0.15  model=0.83639  treat_all=0.83639  treat_none=0.0
+  pt=0.20  model=0.82616  treat_all=0.82616  treat_none=0.0
+  pt=0.25  model=0.81457  treat_all=0.81457  treat_none=0.0
+  pt=0.30  model=0.80133  treat_all=0.80133  treat_none=0.0
+  pt=0.40  model=0.76822  treat_all=0.76822  treat_none=0.0
+  pt=0.50  model=0.72186  treat_all=0.72186  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.97212, 0.1: 0.97057, 0.15: 0.96884, 0.2: 0.96689, 0.25: 0.96468, 0.3: 0.96216, 0.4: 0.95585, 0.5: 0.94702}
+  (for contrast, the superseded row-level treat-all over 305 lab rows: {0.05: 0.84011, 0.1: 0.83123, 0.15: 0.8213, 0.2: 0.81013, 0.25: 0.79748, 0.3: 0.78301, 0.4: 0.74685, 0.5: 0.69621})
+eGFR<30 referral rule (107 patients): flags 33 (0.3084), TP rate 0.26122, FP rate 0.04719
+  net benefit across the model thresholds: {0.05: 0.25874, 0.1: 0.25598, 0.15: 0.2529, 0.2: 0.24943, 0.25: 0.24549, 0.3: 0.241, 0.4: 0.22977, 0.5: 0.21404}
+eGFR<45 referral rule (107 patients): flags 46 (0.4299), TP rate 0.38637, FP rate 0.04354
+  net benefit across the model thresholds: {0.05: 0.38408, 0.1: 0.38153, 0.15: 0.37869, 0.2: 0.37549, 0.25: 0.37186, 0.3: 0.36771, 0.4: 0.35735, 0.5: 0.34283}
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  9 predicted=0.8500 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.9058 observed(KM)=1.0
+  n=  10 events=  8 predicted=0.9299 observed(KM)=1.0
+  n=  11 events=  8 predicted=0.9363 observed(KM)=1.0
+  n=  11 events=  6 predicted=0.9435 observed(KM)=0.7614
+  n=  10 events=  9 predicted=0.9478 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.9520 observed(KM)=0.8182
+  n=  10 events=  9 predicted=0.9596 observed(KM)=0.9
+  n=  11 events=  7 predicted=0.9704 observed(KM)=0.7306
+  n=  11 events=  8 predicted=0.9832 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.10105 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.97212  treat_all=0.97212  treat_none=0.0
+  pt=0.10  model=0.97057  treat_all=0.97057  treat_none=0.0
+  pt=0.15  model=0.96884  treat_all=0.96884  treat_none=0.0
+  pt=0.20  model=0.96689  treat_all=0.96689  treat_none=0.0
+  pt=0.25  model=0.96468  treat_all=0.96468  treat_none=0.0
+  pt=0.30  model=0.96216  treat_all=0.96216  treat_none=0.0
+  pt=0.40  model=0.95585  treat_all=0.95585  treat_none=0.0
+  pt=0.50  model=0.94702  treat_all=0.94702  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/eight_features_clinical_validity_report.txt
+TRAIN twenty_features_heterogeneous/gbsa: missing artifact /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1263551 and train 5215860
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646679 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5215860 rows/20864 subjects -> 20864 rows; test 1263551 rows/5216 subjects -> 5216 rows; holdout 1646679 rows/6521 subjects -> 6521 rows
+No existing model found. Starting hyperparameter tuning...
+X shape: (20864, 40)
+GridSearchCV n_jobs=32
+Starting hyperparameter tuning...
+Fitting 5 folds for each of 8 candidates, totalling 40 fits
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time= 8.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time= 8.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=100; total time= 8.6min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time= 8.8min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time= 8.9min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=100; total time= 9.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time= 9.1min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time= 6.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time= 6.7min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=100; total time= 6.8min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.2min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.2min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.3min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.3min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=20.4min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=20.6min
+[CV] END learning_rate=0.01, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.7min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.8min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.9min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=20.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=20.9min
+[CV] END learning_rate=0.01, max_depth=5, min_samples_split=2, n_estimators=300; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=21.1min
+[CV] END learning_rate=0.1, max_depth=3, min_samples_split=2, n_estimators=300; total time=21.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=16.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=16.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=16.0min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=16.2min
+[CV] END learning_rate=0.1, max_depth=5, min_samples_split=2, n_estimators=300; total time=16.2min
+Best parameters found:
+{'learning_rate': 0.1, 'max_depth': 3, 'min_samples_split': 2, 'n_estimators': 100}
+X shape: (5216, 40)
+Concordance Index Test: 0.525
+Integrated Brier Score Test: 0.253
+Mean time-dependent AUC (patient-level, supported follow-up below 730 days): 0.5237
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1263551 and train 5215860
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646679 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 5215860 lab-event rows -> 20864 patients; event rate 0.0948 (row-level) vs 0.9145 (patient-level, 19081 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 1263551 lab-event rows -> 5216 patients; event rate 0.0980 (row-level) vs 0.9145 (patient-level, 4770 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 4630.9 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4904.2 days; IPCW evaluation capped at 4904.2 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 5202/5216 patients have one (14 excluded, no measured eGFR); selected from 71547/1263551 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1263551 and train 5215860
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646679 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5215860 rows/20864 subjects -> 20864 rows; test 1263551 rows/5216 subjects -> 5216 rows; holdout 1646679 rows/6521 subjects -> 6521 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_gbsa_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1263551 and train 5215860
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646679 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): train 5215860 rows/20864 subjects -> 20864 rows; test 1263551 rows/5216 subjects -> 5216 rows; holdout 1646679 rows/6521 subjects -> 6521 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   GBSA: aligned to 5216 patient-level terminal outcomes
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  GBSA: c_index=0.525 brier=0.23258 (native) auc=0.5237
+    fitted-conversion Brier for the same model/window: 0.23254 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.20713, 1825d=0.12392
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 5216 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  GBSA                 0.525 [0.5151, 0.5338]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  GBSA                 0.2326 [0.2299, 0.2353]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  GBSA                 0.5237 [0.5094, 0.5378]  (n=1000)
+
+Paired differences vs. best model by C-index (GBSA), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 5202/5216 patients with finite predictions for every available model and measured eGFR; 14 excluded from ALL strategies.
+Treat-all net benefit (5202 patients): {0.05: 0.68993, 0.1: 0.67271, 0.15: 0.65345, 0.2: 0.63179, 0.25: 0.60725, 0.3: 0.57919, 0.4: 0.50906, 0.5: 0.41087}
+  (for contrast, the superseded row-level treat-all over 1263551 lab rows: {0.05: 0.05306, 0.1: 0.00045, 0.15: -0.05834, 0.2: -0.12449, 0.25: -0.19946, 0.3: -0.28513, 0.4: -0.49932, 0.5: -0.79919})
+eGFR<30 referral rule (5202 patients): flags 1251 (0.2405), TP rate 0.18549, FP rate 0.055
+  net benefit across the model thresholds: {0.05: 0.18259, 0.1: 0.17938, 0.15: 0.17578, 0.2: 0.17174, 0.25: 0.16716, 0.3: 0.16192, 0.4: 0.14882, 0.5: 0.13049}
+eGFR<45 referral rule (5202 patients): flags 2520 (0.4844), TP rate 0.36044, FP rate 0.12399
+  net benefit across the model thresholds: {0.05: 0.35391, 0.1: 0.34666, 0.15: 0.33856, 0.2: 0.32944, 0.25: 0.31911, 0.3: 0.3073, 0.4: 0.27778, 0.5: 0.23645}
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 570 events=452 predicted=0.6374 observed(KM)=0.6366
+  n= 808 events=722 predicted=0.6922 observed(KM)=0.7087
+  n= 727 events=664 predicted=0.6977 observed(KM)=0.719
+  n= 789 events=710 predicted=0.6997 observed(KM)=0.7079
+  n= 432 events=408 predicted=0.7051 observed(KM)=0.6728
+  n= 643 events=617 predicted=0.7101 observed(KM)=0.6924
+  n= 240 events=235 predicted=0.7131 observed(KM)=0.7433
+  n= 573 events=541 predicted=0.7336 observed(KM)=0.697
+  n= 434 events=421 predicted=0.8005 observed(KM)=0.807
+Integrated Brier score (0-730d): 0.23258 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.68993  treat_all=0.68993  treat_none=0.0
+  pt=0.10  model=0.67271  treat_all=0.67271  treat_none=0.0
+  pt=0.15  model=0.65345  treat_all=0.65345  treat_none=0.0
+  pt=0.20  model=0.63179  treat_all=0.63179  treat_none=0.0
+  pt=0.25  model=0.60725  treat_all=0.60725  treat_none=0.0
+  pt=0.30  model=0.57919  treat_all=0.57919  treat_none=0.0
+  pt=0.40  model=0.50925  treat_all=0.50906  treat_none=0.0
+  pt=0.50  model=0.41178  treat_all=0.41087  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 5202/5216 patients with finite predictions for every available model and measured eGFR; 14 excluded from ALL strategies.
+Treat-all net benefit (5202 patients): {0.05: 0.84436, 0.1: 0.83572, 0.15: 0.82605, 0.2: 0.81518, 0.25: 0.80286, 0.3: 0.78878, 0.4: 0.75358, 0.5: 0.70429}
+  (for contrast, the superseded row-level treat-all over 1263551 lab rows: {0.05: 0.10835, 0.1: 0.05882, 0.15: 0.00345, 0.2: -0.05883, 0.25: -0.12942, 0.3: -0.21009, 0.4: -0.41178, 0.5: -0.69413})
+eGFR<30 referral rule (5202 patients): flags 1251 (0.2405), TP rate 0.21171, FP rate 0.02878
+  net benefit across the model thresholds: {0.05: 0.21019, 0.1: 0.20851, 0.15: 0.20663, 0.2: 0.20451, 0.25: 0.20211, 0.3: 0.19937, 0.4: 0.19252, 0.5: 0.18293}
+eGFR<45 referral rule (5202 patients): flags 2520 (0.4844), TP rate 0.42065, FP rate 0.06378
+  net benefit across the model thresholds: {0.05: 0.41729, 0.1: 0.41356, 0.15: 0.4094, 0.2: 0.40471, 0.25: 0.39939, 0.3: 0.39332, 0.4: 0.37813, 0.5: 0.35687}
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 570 events=452 predicted=0.7944 observed(KM)=0.7787
+  n= 808 events=722 predicted=0.8427 observed(KM)=0.8451
+  n= 727 events=664 predicted=0.8471 observed(KM)=0.8584
+  n= 789 events=710 predicted=0.8487 observed(KM)=0.8542
+  n= 432 events=408 predicted=0.8530 observed(KM)=0.8281
+  n= 643 events=617 predicted=0.8569 observed(KM)=0.8658
+  n= 240 events=235 predicted=0.8592 observed(KM)=0.9086
+  n= 573 events=541 predicted=0.8745 observed(KM)=0.8329
+  n= 434 events=421 predicted=0.9189 observed(KM)=0.9317
+Integrated Brier score (0-1825d): 0.1918 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84436  treat_all=0.84436  treat_none=0.0
+  pt=0.10  model=0.83572  treat_all=0.83572  treat_none=0.0
+  pt=0.15  model=0.82605  treat_all=0.82605  treat_none=0.0
+  pt=0.20  model=0.81518  treat_all=0.81518  treat_none=0.0
+  pt=0.25  model=0.80286  treat_all=0.80286  treat_none=0.0
+  pt=0.30  model=0.78878  treat_all=0.78878  treat_none=0.0
+  pt=0.40  model=0.75358  treat_all=0.75358  treat_none=0.0
+  pt=0.50  model=0.70406  treat_all=0.70429  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/twenty_features_heterogeneous_clinical_validity_report.txt
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/c_index_comparison.png
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/brier_comparison.png
+Metrics comparison chart saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_5/auc_comparison.png
+COMPLETE

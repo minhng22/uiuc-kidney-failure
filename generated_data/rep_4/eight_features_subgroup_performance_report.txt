@@ -1,6 +1,6 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 16:15:35
+Generated on: 2026-10-14 00:59:24
 Repetition: 4
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -61,23 +61,23 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 === Age group (anchor_age bins — see patient_metadata: NOT landmark age) ===
 
   [46-65] n=46 events=40
-    Survival RF          c_index=0.6674 [0.5532, 0.7816]  brier=0.3425 [0.2214, 0.473] [native]  auc=0.6764 [0.5103, 0.8285]
+    GBSA                 c_index=0.613 [0.486, 0.7278]  brier=0.3666 [0.2299, 0.5126] [native]  auc=0.623 [0.4526, 0.7818]
 
   [66-85] n=42 events=27
-    Survival RF          c_index=0.527 [0.3708, 0.6839]  brier=0.1347 [0.0697, 0.2417] [native]  auc=0.5263 [0.2866, 0.7435]
+    GBSA                 c_index=0.5473 [0.399, 0.7032]  brier=0.1229 [0.0612, 0.2301] [native]  auc=0.5598 [0.3334, 0.7706]
 
 === Sex as recorded in patients.csv ===
 
   [F] n=48 events=36
-    Survival RF          c_index=0.6099 [0.5, 0.7199]  brier=0.2234 [0.1266, 0.3474] [native]  auc=0.569 [0.4091, 0.7333]
+    GBSA                 c_index=0.6064 [0.4661, 0.731]  brier=0.2377 [0.1317, 0.3742] [native]  auc=0.499 [0.3261, 0.6644]
 
   [M] n=59 events=46
-    Survival RF          c_index=0.5696 [0.4674, 0.6741]  brier=0.2263 [0.1483, 0.3248] [native]  auc=0.6182 [0.4717, 0.7563]
+    GBSA                 c_index=0.5866 [0.4767, 0.6943]  brier=0.2251 [0.1411, 0.3275] [native]  auc=0.6504 [0.5028, 0.7883]
 
 === Race (collapsed from admissions.csv ethnicity; unknown retained) ===
 
   [BLACK] n=23 events=19
-    Survival RF          c_index=0.5583 [0.3802, 0.7264]  brier=0.2993 [0.1724, 0.4663] [native]  auc=0.7042 [0.5273, 0.8904]
+    GBSA                 c_index=0.5388 [0.3384, 0.7102]  brier=0.3204 [0.1722, 0.5105] [native]  auc=0.6523 [0.4641, 0.8728]
 
   [WHITE] n=69 events=53
-    Survival RF          c_index=0.5757 [0.4754, 0.6795]  brier=0.2079 [0.1257, 0.3115] [native]  auc=0.5668 [0.415, 0.7153]
+    GBSA                 c_index=0.5945 [0.4922, 0.7012]  brier=0.2088 [0.1238, 0.3178] [native]  auc=0.5874 [0.4416, 0.7291]

@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-10-13 14:56:55
+Generated on: 2026-10-14 00:26:31
 Repetition: 4
 Scenario: eight_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -22,13 +22,13 @@ Training-set max follow-up: 2891.9 days; IPCW evaluation capped at 2891.9 days (
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 107/107 patients have one (0 excluded, no measured eGFR); selected from 411/411 rows with a real eGFR measurement.
 
 Patient-level alignment check (Gap 5a):
-  OK   Survival RF: aligned to 107 patient-level terminal outcomes
+  OK   GBSA: aligned to 107 patient-level terminal outcomes
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
-  Survival RF: c_index=0.579 brier=0.22496 (native) auc=0.6011
-    fitted-conversion Brier for the same model/window: 0.23311 (reported for contrast; the native number above is the one to use)
-    native point Brier at published horizons: 730d=0.1709, 1825d=0.08157
+  GBSA: c_index=0.5857 brier=0.23073 (native) auc=0.5929
+    fitted-conversion Brier for the same model/window: 0.23029 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.16673, 1825d=0.07976
 
 ================================================================================
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 107 test patients, 95% percentile intervals (Gap 3)
@@ -38,15 +38,15 @@ C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outco
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
-  Survival RF          0.579 [0.4952, 0.6499]  (n=1000)
+  GBSA                 0.5857 [0.5046, 0.6596]  (n=1000)
 
 Integrated Brier — estimate [95% CI]:
-  Survival RF          0.225 [0.16, 0.296]  (n=1000)  (Brier source: native)
+  GBSA                 0.2307 [0.1617, 0.3055]  (n=1000)  (Brier source: native)
 
 Mean time-dependent AUC — estimate [95% CI]:
-  Survival RF          0.6011 [0.4835, 0.7091]  (n=1000)
+  GBSA                 0.5929 [0.4789, 0.7052]  (n=1000)
 
-Paired differences vs. best model by C-index (Survival RF), same resamples (positive = the listed model is higher):
+Paired differences vs. best model by C-index (GBSA), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
@@ -59,20 +59,20 @@ eGFR<30 referral rule (107 patients): flags 33 (0.3084), TP rate 0.2696, FP rate
 eGFR<45 referral rule (107 patients): flags 55 (0.514), TP rate 0.45111, FP rate 0.06291
   net benefit across the model thresholds: {0.05: 0.44779, 0.1: 0.44411, 0.15: 0.44, 0.2: 0.43538, 0.25: 0.43013, 0.3: 0.42414, 0.4: 0.40916, 0.5: 0.38819}
 
---- Survival RF ---
+--- GBSA ---
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=  11 events=  4 predicted=0.7489 observed(KM)=1.0
-  n=  11 events= 10 predicted=0.7778 observed(KM)=0.8961
-  n=  10 events=  6 predicted=0.7931 observed(KM)=0.82
-  n=  11 events= 10 predicted=0.8098 observed(KM)=0.6727
-  n=  11 events=  7 predicted=0.8293 observed(KM)=0.6182
-  n=  10 events=  9 predicted=0.8523 observed(KM)=0.88
-  n=  11 events=  7 predicted=0.8769 observed(KM)=0.6364
-  n=  10 events=  9 predicted=0.8944 observed(KM)=1.0
-  n=  11 events=  9 predicted=0.9070 observed(KM)=0.8615
-  n=  11 events= 11 predicted=0.9332 observed(KM)=0.8182
-Integrated Brier score (0-730d): 0.22496 [native]
+  n=  11 events=  8 predicted=0.7439 observed(KM)=0.7172
+  n=  11 events=  8 predicted=0.8101 observed(KM)=0.7545
+  n=  10 events=  4 predicted=0.8353 observed(KM)=0.4514
+  n=  11 events=  8 predicted=0.8520 observed(KM)=0.5909
+  n=  11 events=  9 predicted=0.8666 observed(KM)=1.0
+  n=  10 events=  7 predicted=0.8848 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.9051 observed(KM)=0.7273
+  n=  10 events=  9 predicted=0.9193 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9340 observed(KM)=0.8961
+  n=  11 events= 10 predicted=0.9529 observed(KM)=0.8182
+Integrated Brier score (0-730d): 0.23073 [native]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.8011  treat_all=0.8011  treat_none=0.0
   pt=0.10  model=0.79005  treat_all=0.79005  treat_none=0.0
@@ -92,20 +92,20 @@ eGFR<30 referral rule (107 patients): flags 33 (0.3084), TP rate 0.289, FP rate 
 eGFR<45 referral rule (107 patients): flags 55 (0.514), TP rate 0.49829, FP rate 0.01573
   net benefit across the model thresholds: {0.05: 0.49746, 0.1: 0.49654, 0.15: 0.49551, 0.2: 0.49436, 0.25: 0.49305, 0.3: 0.49155, 0.4: 0.4878, 0.5: 0.48256}
 
---- Survival RF ---
+--- GBSA ---
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=  11 events=  5 predicted=0.8477 observed(KM)=1.0
-  n=  11 events=  9 predicted=0.8898 observed(KM)=1.0
-  n=  10 events=  9 predicted=0.8993 observed(KM)=0.8875
-  n=  11 events=  8 predicted=0.9115 observed(KM)=0.8338
-  n=  11 events=  7 predicted=0.9201 observed(KM)=1.0
-  n=  10 events=  8 predicted=0.9301 observed(KM)=1.0
-  n=  11 events=  8 predicted=0.9411 observed(KM)=1.0
-  n=  10 events=  7 predicted=0.9488 observed(KM)=1.0
-  n=  11 events= 10 predicted=0.9622 observed(KM)=1.0
-  n=  11 events= 11 predicted=0.9756 observed(KM)=0.9091
-Integrated Brier score (0-1825d): 0.15727 [native]
+  n=  11 events=  8 predicted=0.8808 observed(KM)=0.8586
+  n=  11 events=  8 predicted=0.9262 observed(KM)=1.0
+  n=  10 events=  4 predicted=0.9410 observed(KM)=0.4514
+  n=  11 events=  8 predicted=0.9501 observed(KM)=0.7955
+  n=  11 events=  9 predicted=0.9576 observed(KM)=1.0
+  n=  10 events=  7 predicted=0.9663 observed(KM)=1.0
+  n=  11 events=  9 predicted=0.9752 observed(KM)=1.0
+  n=  10 events=  9 predicted=0.9807 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9859 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9915 observed(KM)=0.8182
+Integrated Brier score (0-1825d): 0.15803 [native]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.9284  treat_all=0.9284  treat_none=0.0
   pt=0.10  model=0.92442  treat_all=0.92442  treat_none=0.0

@@ -1,0 +1,252 @@
+rep2 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2287 and train 9173
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3083 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 9173 lab-event rows -> 1079 patients; event rate 0.1207 (row-level) vs 0.7525 (patient-level, 812 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 2287 lab-event rows -> 270 patients; event rate 0.1194 (row-level) vs 0.7519 (patient-level, 203 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 4216.4 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4333.0 days; IPCW evaluation capped at 4333.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2287/2287 rows with a real eGFR measurement.
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2287 and train 9173
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3083 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9173 rows/1079 subjects -> 1079 rows; test 2287 rows/270 subjects -> 270 rows; holdout 3083 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_weibul_model.dill
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2287 and train 9173
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3083 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9173 rows/1079 subjects -> 1079 rows; test 2287 rows/270 subjects -> 270 rows; holdout 3083 rows/338 subjects -> 338 rows
+
+Patient-level alignment check (Gap 5a):
+  OK   Weibull AFT: aligned to 270 patient-level terminal outcomes (69 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: overflow encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+/opt/homebrew/Caskroom/miniconda/base/envs/uiuckidney/lib/python3.12/site-packages/lifelines/fitters/weibull_aft_fitter.py:99: RuntimeWarning: invalid value encountered in matmul
+  log_lambda_ = Xs["lambda_"] @ lambda_params
+  Weibull AFT: c_index=0.5574 brier=0.25356 (native) auc=0.5721
+    fitted-conversion Brier for the same model/window: 0.23865 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.24639, 1825d=0.13046
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.

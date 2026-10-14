@@ -1,9 +1,9 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-13 16:15:10
+Generated on: 2026-10-14 00:59:01
 Repetition: 4
 Scenario: twenty_features_heterogeneous
-Models analyzed: srf
+Models analyzed: gbsa
 ================================================================================
 
 ================================================================================
@@ -60,30 +60,30 @@ FEATURE OVERVIEW:
 ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
 ------------------------------------------------------------
 
-Analyzing SRF model...
-  SRF Feature Importance:
-    egfr: 0.0000
-    egfr_missing: 0.0001
-    potassium: 0.0009
-    potassium_missing: 0.0000
-    urea_nitrogen: 0.0000
-    urea_nitrogen_missing: 0.0000
-    sodium: 0.0001
+Analyzing GBSA model...
+  GBSA Feature Importance:
+    egfr: 0.0807
+    egfr_missing: 0.0000
+    potassium: 0.0213
+    potassium_missing: 0.0050
+    urea_nitrogen: 0.0078
+    urea_nitrogen_missing: 0.0012
+    sodium: 0.0075
     sodium_missing: 0.0000
-    chloride: 0.0007
+    chloride: 0.0109
     chloride_missing: 0.0000
     bicarbonate: 0.0000
     bicarbonate_missing: 0.0000
-    anion_gap: 0.0000
+    anion_gap: 0.1142
     anion_gap_missing: 0.0000
-    hematocrit: 0.0000
+    hematocrit: 0.0601
     hematocrit_missing: 0.0000
-    platelet_count: 0.0000
+    platelet_count: 0.0093
     platelet_count_missing: 0.0000
-    hemoglobin: 0.0002
+    hemoglobin: 0.0283
     hemoglobin_missing: 0.0000
-    wbc: 0.0000
-    wbc_missing: 0.0002
+    wbc: 0.0061
+    wbc_missing: 0.0000
     mchc: 0.0000
     mchc_missing: 0.0000
     mch: 0.0000
@@ -92,14 +92,14 @@ Analyzing SRF model...
     rbc_missing: 0.0000
     mcv: 0.0000
     mcv_missing: 0.0000
-    rdw: 0.0008
-    rdw_missing: 0.0049
-    glucose: 0.0026
+    rdw: 0.1138
+    rdw_missing: 0.0000
+    glucose: 0.0215
     glucose_missing: 0.0000
-    calcium: 0.0009
-    calcium_missing: 0.0003
-    magnesium: 0.0025
-    magnesium_missing: 0.0005
-    phosphate: 0.0189
-    phosphate_missing: 0.0044
+    calcium: 0.1025
+    calcium_missing: 0.0005
+    magnesium: 0.0434
+    magnesium_missing: 0.0000
+    phosphate: 0.3603
+    phosphate_missing: 0.0054
 Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_4/twenty_features_heterogeneous_all_models_feature_importance.png
