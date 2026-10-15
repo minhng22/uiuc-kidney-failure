@@ -250,7 +250,7 @@ def c_idx(model: DynamicDeepHit, dataset: DynamicDeepHitDataset, device, test=Fa
 
 # Update the run function to use the device
 def run(scenario_name: ExperimentScenario, external_validation=False):
-    device = get_device()
+    device = get_device(use_mps=True)
     df, df_test, data_external = get_train_test_external_data(scenario_name)
     if external_validation:
         # Evaluate on the internal holdout instead of the test set; training is unchanged.

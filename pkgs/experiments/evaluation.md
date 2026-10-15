@@ -11,5 +11,5 @@ See params in pkgs/scripts/run_experiments.py
 To run this script in the background, do:
 
 ```bash
-nohup python -u -m pkgs.scripts.run_experiments analyze --reps 2 3 4 5 --models dynamic_deephit > generated_data/run_experiments_rep_2345_dynamic_deephit.log 2>&1 < /dev/null &
+nohup python -u -m pkgs.scripts.run_experiments analyze --reps 2 --models dynamic_deephit > generated_data/run_experiments_rep_2_dynamic_deephit.log 2>&1 < /dev/null &
 ```

@@ -384,7 +384,7 @@ def load_pkl_and_dill_model(model_path):
     with open(model_path, 'rb') as f:
         return dill.load(f)
 
-def get_device():
+def get_device(use_mps=True):
     """
     Picks a GPU with enough free memory headroom to avoid CUDA OOM, tie-broken
     by lowest current utilization.gpu%. Queried fresh via `nvidia-smi` on
@@ -392,8 +392,9 @@ def get_device():
     load-balanced pick rather than colliding on a single fixed or
     randomly-chosen GPU. GPU 0 is excluded, matching this function's prior
     behavior (random.randint(1, 7)). Falls back to a random GPU in 1-7 if
-    nvidia-smi is unavailable or its output can't be parsed, and to CPU if
-    CUDA itself isn't available.
+    nvidia-smi is unavailable or its output can't be parsed. If CUDA itself
+    isn't available, uses Apple MPS when `use_mls` is set and MPS is
+    available (e.g. on a Mac), otherwise CPU.
 
     Free memory is the primary sort key (not utilization) because a GPU can
     sit at 0% utilization while another tenant's process holds most of its
@@ -415,6 +416,9 @@ def get_device():
     TIE_BUCKET_MIB = 5000  # candidates within this many MiB of each other are shuffled, not deterministically ordered
 
     if not torch.cuda.is_available():
+        if use_mps and torch.backends.mps.is_available():
+            print("CUDA not available, using Apple MPS")
+            return torch.device("mps")
         print("CUDA not available, using CPU")
         return torch.device("cpu")
 

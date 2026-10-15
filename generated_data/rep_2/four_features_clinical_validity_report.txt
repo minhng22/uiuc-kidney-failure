@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-10-14 08:41:02
+Generated on: 2026-10-14 16:22:04
 Repetition: 2
 Scenario: four_features
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -22,13 +22,13 @@ Training-set max follow-up: 4333.0 days; IPCW evaluation capped at 4333.0 days (
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2287/2287 rows with a real eGFR measurement.
 
 Patient-level alignment check (Gap 5a):
-  OK   Weibull AFT: aligned to 270 patient-level terminal outcomes (69 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   Dynamic DeepHit: aligned to 270 patient-level terminal outcomes (199 durations differ by up to 0.996528 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
-  Weibull AFT: c_index=0.5574 brier=0.25356 (native) auc=0.5721
-    fitted-conversion Brier for the same model/window: 0.23865 (reported for contrast; the native number above is the one to use)
-    native point Brier at published horizons: 730d=0.24639, 1825d=0.13046
+  Dynamic DeepHit: c_index=0.8622 brier=0.10425 (native) auc=0.9649
+    fitted-conversion Brier for the same model/window: 0.14977 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.13473, 1825d=0.11483
 
 ================================================================================
 BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
@@ -38,15 +38,15 @@ C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outco
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
-  Weibull AFT          0.5574 [0.5078, 0.6056]  (n=1000)
+  Dynamic DeepHit      0.8622 [0.833, 0.8848]  (n=1000)
 
 Integrated Brier — estimate [95% CI]:
-  Weibull AFT          0.2536 [0.2301, 0.2793]  (n=1000)  (Brier source: native)
+  Dynamic DeepHit      0.1042 [0.0893, 0.1221]  (n=1000)  (Brier source: native)
 
 Mean time-dependent AUC — estimate [95% CI]:
-  Weibull AFT          0.5721 [0.5061, 0.6379]  (n=1000)
+  Dynamic DeepHit      0.9649 [0.9453, 0.9766]  (n=1000)
 
-Paired differences vs. best model by C-index (Weibull AFT), same resamples (positive = the listed model is higher):
+Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
@@ -59,29 +59,29 @@ eGFR<30 referral rule (270 patients): flags 84 (0.3111), TP rate 0.23479, FP rat
 eGFR<45 referral rule (270 patients): flags 152 (0.563), TP rate 0.39003, FP rate 0.17293
   net benefit across the model thresholds: {0.05: 0.38093, 0.1: 0.37081, 0.15: 0.35951, 0.2: 0.34679, 0.25: 0.33238, 0.3: 0.31591, 0.4: 0.27474, 0.5: 0.21709}
 
---- Weibull AFT ---
+--- Dynamic DeepHit ---
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=  27 events= 15 predicted=0.7210 observed(KM)=0.3762
-  n=  27 events= 16 predicted=0.7267 observed(KM)=0.5709
-  n=  27 events= 20 predicted=0.7290 observed(KM)=0.7306
-  n=  27 events= 19 predicted=0.7312 observed(KM)=0.6245
-  n=  27 events= 22 predicted=0.7333 observed(KM)=0.6198
-  n=  27 events= 21 predicted=0.7350 observed(KM)=0.637
-  n=  27 events= 26 predicted=0.7371 observed(KM)=0.6429
-  n=  27 events= 20 predicted=0.7387 observed(KM)=0.6781
-  n=  27 events= 22 predicted=0.7418 observed(KM)=0.569
-  n=  27 events= 22 predicted=0.7488 observed(KM)=0.6473
-Integrated Brier score (0-730d): 0.25356 [native]
+  n=  27 events= 13 predicted=0.2140 observed(KM)=0.0938
+  n=  27 events= 15 predicted=0.3028 observed(KM)=0.3734
+  n=  27 events= 14 predicted=0.4065 observed(KM)=0.3505
+  n=  27 events= 21 predicted=0.5069 observed(KM)=0.3389
+  n=  27 events= 25 predicted=0.5339 observed(KM)=0.4667
+  n=  27 events= 21 predicted=0.6981 observed(KM)=0.7486
+  n=  27 events= 21 predicted=0.8811 observed(KM)=0.8756
+  n=  27 events= 26 predicted=0.9419 observed(KM)=1.0
+  n=  27 events= 21 predicted=0.9468 observed(KM)=1.0
+  n=  27 events= 26 predicted=0.9485 observed(KM)=0.963
+Integrated Brier score (0-730d): 0.10425 [native]
 Decision curve analysis (net benefit by risk threshold):
-  pt=0.05  model=0.58822  treat_all=0.58822  treat_none=0.0
-  pt=0.10  model=0.56534  treat_all=0.56534  treat_none=0.0
-  pt=0.15  model=0.53977  treat_all=0.53977  treat_none=0.0
-  pt=0.20  model=0.51101  treat_all=0.51101  treat_none=0.0
-  pt=0.25  model=0.47841  treat_all=0.47841  treat_none=0.0
-  pt=0.30  model=0.44115  treat_all=0.44115  treat_none=0.0
-  pt=0.40  model=0.34801  treat_all=0.34801  treat_none=0.0
-  pt=0.50  model=0.21762  treat_all=0.21762  treat_none=0.0
+  pt=0.05  model=0.58894  treat_all=0.58822  treat_none=0.0
+  pt=0.10  model=0.5673  treat_all=0.56534  treat_none=0.0
+  pt=0.15  model=0.54189  treat_all=0.53977  treat_none=0.0
+  pt=0.20  model=0.51532  treat_all=0.51101  treat_none=0.0
+  pt=0.25  model=0.49527  treat_all=0.47841  treat_none=0.0
+  pt=0.30  model=0.46314  treat_all=0.44115  treat_none=0.0
+  pt=0.40  model=0.41751  treat_all=0.34801  treat_none=0.0
+  pt=0.50  model=0.38398  treat_all=0.21762  treat_none=0.0
 
 === Horizon: 1825 days ===
 DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
@@ -92,28 +92,28 @@ eGFR<30 referral rule (270 patients): flags 84 (0.3111), TP rate 0.27113, FP rat
 eGFR<45 referral rule (270 patients): flags 152 (0.563), TP rate 0.48965, FP rate 0.07331
   net benefit across the model thresholds: {0.05: 0.4858, 0.1: 0.48151, 0.15: 0.47672, 0.2: 0.47133, 0.25: 0.46522, 0.3: 0.45824, 0.4: 0.44078, 0.5: 0.41634}
 
---- Weibull AFT ---
+--- Dynamic DeepHit ---
 Predicted-probability source: native (model output read directly at this horizon)
 Calibration (predicted risk decile vs. KM-observed risk):
-  n=  27 events= 15 predicted=0.7856 observed(KM)=0.5633
-  n=  27 events= 16 predicted=0.7909 observed(KM)=0.6935
-  n=  27 events= 20 predicted=0.7930 observed(KM)=0.9327
-  n=  27 events= 19 predicted=0.7951 observed(KM)=0.8713
-  n=  27 events= 22 predicted=0.7969 observed(KM)=0.8099
-  n=  27 events= 21 predicted=0.7985 observed(KM)=0.879
-  n=  27 events= 26 predicted=0.8004 observed(KM)=0.9206
-  n=  27 events= 20 predicted=0.8019 observed(KM)=0.9195
-  n=  27 events= 22 predicted=0.8048 observed(KM)=0.9138
-  n=  27 events= 22 predicted=0.8111 observed(KM)=0.7648
-Integrated Brier score (0-1825d): 0.21924 [native]
+  n=  27 events= 14 predicted=0.4943 observed(KM)=0.7269
+  n=  27 events= 12 predicted=0.6327 observed(KM)=0.5249
+  n=  27 events= 18 predicted=0.7301 observed(KM)=0.6773
+  n=  27 events= 22 predicted=0.7873 observed(KM)=0.8112
+  n=  27 events= 22 predicted=0.8346 observed(KM)=0.7779
+  n=  27 events= 21 predicted=0.9195 observed(KM)=0.94
+  n=  27 events= 21 predicted=0.9709 observed(KM)=0.876
+  n=  27 events= 26 predicted=0.9866 observed(KM)=1.0
+  n=  27 events= 21 predicted=0.9878 observed(KM)=1.0
+  n=  27 events= 26 predicted=0.9882 observed(KM)=0.963
+Integrated Brier score (0-1825d): 0.12821 [native]
 Decision curve analysis (net benefit by risk threshold):
   pt=0.05  model=0.82847  treat_all=0.82847  treat_none=0.0
-  pt=0.10  model=0.81894  treat_all=0.81894  treat_none=0.0
-  pt=0.15  model=0.80829  treat_all=0.80829  treat_none=0.0
-  pt=0.20  model=0.7963  treat_all=0.7963  treat_none=0.0
-  pt=0.25  model=0.78273  treat_all=0.78273  treat_none=0.0
-  pt=0.30  model=0.76721  treat_all=0.76721  treat_none=0.0
-  pt=0.40  model=0.72841  treat_all=0.72841  treat_none=0.0
-  pt=0.50  model=0.67409  treat_all=0.67409  treat_none=0.0
+  pt=0.10  model=0.8197  treat_all=0.81894  treat_none=0.0
+  pt=0.15  model=0.8086  treat_all=0.80829  treat_none=0.0
+  pt=0.20  model=0.7971  treat_all=0.7963  treat_none=0.0
+  pt=0.25  model=0.78189  treat_all=0.78273  treat_none=0.0
+  pt=0.30  model=0.76711  treat_all=0.76721  treat_none=0.0
+  pt=0.40  model=0.72836  treat_all=0.72841  treat_none=0.0
+  pt=0.50  model=0.67303  treat_all=0.67409  treat_none=0.0
 Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_calibration_plot.png
 Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_decision_curve_plot.png
