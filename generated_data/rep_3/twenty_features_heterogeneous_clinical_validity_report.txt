@@ -1,6 +1,6 @@
 CLINICAL VALIDITY ANALYSIS REPORT (calibration + decision-curve analysis)
 ================================================================================
-Generated on: 2026-10-14 08:48:12
+Generated on: 2026-10-15 14:50:42
 Repetition: 3
 Scenario: twenty_features_heterogeneous
 Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
@@ -22,10 +22,38 @@ Training-set max follow-up: 5049.0 days; IPCW evaluation capped at 5049.0 days (
 eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 5208/5216 patients have one (8 excluded, no measured eGFR); selected from 72235/1284004 rows with a real eGFR measurement.
 
 Patient-level alignment check (Gap 5a):
+  OK   Cox: aligned to 5216 patient-level terminal outcomes
+  OK   Hazard Transformer: aligned to 5216 patient-level terminal outcomes (4296 durations differ by up to 0.999306 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   Logistic Hazard: aligned to 5216 patient-level terminal outcomes (2625 durations differ by up to 0.000238715 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+  OK   RNN-Surv: aligned to 5216 patient-level terminal outcomes
+  OK   DeepSurv: aligned to 5216 patient-level terminal outcomes
+  OK   GBSA: aligned to 5216 patient-level terminal outcomes
+  OK   Survival RF: aligned to 5216 patient-level terminal outcomes
+  OK   Survival SVM: aligned to 5216 patient-level terminal outcomes
   OK   Weibull AFT: aligned to 5216 patient-level terminal outcomes (910 durations differ by up to 1e-05 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
 
 Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
   Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Cox: c_index=0.4726 brier=0.41942 (native) auc=0.4568
+    fitted-conversion Brier for the same model/window: 0.2522 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.28983, 1825d=0.14924
+  Hazard Transformer: c_index=0.7306 brier=0.22821 (native) auc=0.8493
+    fitted-conversion Brier for the same model/window: 0.19114 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.28983
+  Logistic Hazard: c_index=0.5355 brier=0.23484 (native) auc=0.5596
+    fitted-conversion Brier for the same model/window: 0.2308 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.204, 1825d=0.12583
+  RNN-Surv: c_index=0.5181 brier=0.47996 (native) auc=0.5242
+    fitted-conversion Brier for the same model/window: 0.23754 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.5748, 1825d=0.60681
+  DeepSurv: c_index=0.5333 brier=0.23083 (fitted-conversion) auc=0.5559
+  GBSA: c_index=0.5341 brier=0.23101 (native) auc=0.5434
+    fitted-conversion Brier for the same model/window: 0.23114 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.2041, 1825d=0.12605
+  Survival RF: c_index=0.5354 brier=0.23115 (native) auc=0.5494
+    fitted-conversion Brier for the same model/window: 0.23113 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.20434, 1825d=0.12595
+  Survival SVM: c_index=0.5216 brier=0.23327 (fitted-conversion) auc=0.5504
   Weibull AFT: c_index=0.5339 brier=0.24415 (native) auc=0.5563
     fitted-conversion Brier for the same model/window: 0.23228 (reported for contrast; the native number above is the one to use)
     native point Brier at published horizons: 730d=0.20837, 1825d=0.12653
@@ -38,16 +66,48 @@ C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outco
 Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
 
 C-index — estimate [95% CI]:
+  Cox                  0.4726 [0.464, 0.4827]  (n=1000)
+  Hazard Transformer   0.7306 [0.7236, 0.7375]  (n=1000)
+  Logistic Hazard      0.5355 [0.5258, 0.5439]  (n=1000)
+  RNN-Surv             0.5181 [0.5089, 0.528]  (n=1000)
+  DeepSurv             0.5333 [0.5234, 0.5416]  (n=1000)
+  GBSA                 0.5341 [0.5247, 0.5434]  (n=1000)
+  Survival RF          0.5354 [0.5263, 0.5442]  (n=1000)
+  Survival SVM         0.5216 [0.5109, 0.5312]  (n=1000)
   Weibull AFT          0.5339 [0.5239, 0.5425]  (n=1000)
 
 Integrated Brier — estimate [95% CI]:
+  Cox                  0.4194 [0.4061, 0.4322]  (n=1000)  (Brier source: native)
+  Hazard Transformer   0.2282 [0.2244, 0.2321]  (n=1000)  (Brier source: native)
+  Logistic Hazard      0.2348 [0.2323, 0.2374]  (n=1000)  (Brier source: native)
+  RNN-Surv             0.48 [0.4691, 0.4905]  (n=1000)  (Brier source: native)
+  DeepSurv             0.2308 [0.2282, 0.2337]  (n=1000)  (Brier source: fitted-conversion)
+  GBSA                 0.231 [0.2283, 0.2337]  (n=1000)  (Brier source: native)
+  Survival RF          0.2311 [0.2284, 0.2339]  (n=1000)  (Brier source: native)
+  Survival SVM         0.2333 [0.2305, 0.2365]  (n=1000)  (Brier source: fitted-conversion)
   Weibull AFT          0.2442 [0.239, 0.2493]  (n=1000)  (Brier source: native)
 
 Mean time-dependent AUC — estimate [95% CI]:
+  Cox                  0.4568 [0.4442, 0.4723]  (n=1000)
+  Hazard Transformer   0.8493 [0.8378, 0.8562]  (n=1000)
+  Logistic Hazard      0.5596 [0.5441, 0.5725]  (n=1000)
+  RNN-Surv             0.5242 [0.5097, 0.5383]  (n=1000)
+  DeepSurv             0.5559 [0.5403, 0.5683]  (n=1000)
+  GBSA                 0.5434 [0.5289, 0.5568]  (n=1000)
+  Survival RF          0.5494 [0.5347, 0.5627]  (n=1000)
+  Survival SVM         0.5504 [0.5342, 0.5649]  (n=1000)
   Weibull AFT          0.5563 [0.5406, 0.5687]  (n=1000)
 
-Paired differences vs. best model by C-index (Weibull AFT), same resamples (positive = the listed model is higher):
+Paired differences vs. best model by C-index (Hazard Transformer), same resamples (positive = the listed model is higher):
   C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  Cox                  C-index: -0.2580 [-0.2700, -0.2457]*   Brier: +0.1910 [+0.1791, +0.2037]*   AUC: -0.3899 [-0.4077, -0.3721]*
+  Logistic Hazard      C-index: -0.1954 [-0.2075, -0.1842]*   Brier: +0.0066 [+0.0034, +0.0098]*   AUC: -0.2884 [-0.3059, -0.2724]*
+  RNN-Surv             C-index: -0.2124 [-0.2229, -0.2014]*   Brier: +0.2519 [+0.2396, +0.2638]*   AUC: -0.3234 [-0.3389, -0.3081]*
+  DeepSurv             C-index: -0.1976 [-0.2093, -0.1865]*   Brier: +0.0026 [-0.0006, +0.0059]    AUC: -0.2922 [-0.3099, -0.2770]*
+  GBSA                 C-index: -0.1966 [-0.2077, -0.1863]*   Brier: +0.0028 [-0.0005, +0.0060]    AUC: -0.3043 [-0.3198, -0.2886]*
+  Survival RF          C-index: -0.1953 [-0.2064, -0.1847]*   Brier: +0.0029 [-0.0004, +0.0061]    AUC: -0.2985 [-0.3150, -0.2832]*
+  Survival SVM         C-index: -0.2094 [-0.2212, -0.1974]*   Brier: +0.0051 [+0.0014, +0.0088]*   AUC: -0.2975 [-0.3146, -0.2806]*
+  Weibull AFT          C-index: -0.1970 [-0.2092, -0.1858]*   Brier: +0.0159 [+0.0111, +0.0207]*   AUC: -0.2918 [-0.3094, -0.2753]*
   * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
 
 === Horizon: 730 days ===
@@ -58,6 +118,195 @@ eGFR<30 referral rule (5208 patients): flags 1255 (0.241), TP rate 0.18287, FP r
   net benefit across the model thresholds: {0.05: 0.17981, 0.1: 0.17641, 0.15: 0.17262, 0.2: 0.16834, 0.25: 0.1635, 0.3: 0.15797, 0.4: 0.14413, 0.5: 0.12476}
 eGFR<45 referral rule (5208 patients): flags 2584 (0.4962), TP rate 0.36541, FP rate 0.13075
   net benefit across the model thresholds: {0.05: 0.35853, 0.1: 0.35088, 0.15: 0.34234, 0.2: 0.33272, 0.25: 0.32183, 0.3: 0.30938, 0.4: 0.27825, 0.5: 0.23466}
+
+--- Cox ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 528 events=506 predicted=1.0000 observed(KM)=0.7874
+  n= 564 events=519 predicted=1.0000 observed(KM)=0.7288
+  n= 476 events=445 predicted=1.0000 observed(KM)=0.7206
+  n= 616 events=548 predicted=1.0000 observed(KM)=0.694
+  n= 461 events=424 predicted=1.0000 observed(KM)=0.7176
+  n= 486 events=456 predicted=1.0000 observed(KM)=0.7045
+  n= 527 events=505 predicted=1.0000 observed(KM)=0.672
+  n= 516 events=485 predicted=1.0000 observed(KM)=0.7184
+  n= 520 events=461 predicted=1.0000 observed(KM)=0.6896
+  n= 522 events=421 predicted=1.0000 observed(KM)=0.6827
+Integrated Brier score (0-730d): 0.41942 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66023  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.639  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61493  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58743  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51867  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.4224  treat_all=0.4224  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 730 events=679 predicted=1.0000 observed(KM)=0.7703
+  n= 616 events=549 predicted=1.0000 observed(KM)=0.6687
+  n= 796 events=732 predicted=1.0000 observed(KM)=0.676
+  n=1365 events=1236 predicted=1.0000 observed(KM)=0.7044
+  n=1140 events=1040 predicted=1.0000 observed(KM)=0.7034
+  n= 430 events=398 predicted=1.0000 observed(KM)=0.7289
+  n= 139 events=136 predicted=1.0000 observed(KM)=0.88
+Integrated Brier score (0-730d): 0.22821 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66023  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.639  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61493  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58743  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51867  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.4224  treat_all=0.4224  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 526 events=409 predicted=0.6340 observed(KM)=0.6054
+  n= 577 events=517 predicted=0.6930 observed(KM)=0.6999
+  n= 546 events=484 predicted=0.7009 observed(KM)=0.7142
+  n= 449 events=411 predicted=0.7035 observed(KM)=0.7093
+  n= 510 events=482 predicted=0.7054 observed(KM)=0.7098
+  n= 526 events=501 predicted=0.7100 observed(KM)=0.6924
+  n= 530 events=498 predicted=0.7124 observed(KM)=0.6997
+  n= 515 events=484 predicted=0.7133 observed(KM)=0.734
+  n= 539 events=509 predicted=0.7195 observed(KM)=0.7401
+  n= 498 events=475 predicted=0.7657 observed(KM)=0.8103
+Integrated Brier score (0-730d): 0.23484 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66023  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.639  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61474  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58742  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51919  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.42384  treat_all=0.4224  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 615 events=554 predicted=0.0783 observed(KM)=0.7083
+  n= 434 events=382 predicted=0.0811 observed(KM)=0.6848
+  n= 563 events=511 predicted=0.0846 observed(KM)=0.735
+  n= 475 events=415 predicted=0.0894 observed(KM)=0.7062
+  n= 530 events=482 predicted=0.0928 observed(KM)=0.694
+  n= 570 events=512 predicted=0.0983 observed(KM)=0.6896
+  n= 468 events=433 predicted=0.1082 observed(KM)=0.7066
+  n= 520 events=491 predicted=0.1164 observed(KM)=0.6736
+  n= 519 events=491 predicted=0.1234 observed(KM)=0.7266
+  n= 522 events=499 predicted=0.1606 observed(KM)=0.7864
+Integrated Brier score (0-730d): 0.47996 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.69583  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.29069  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.0494  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.00274  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.0  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=0.4224  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 532 events=416 predicted=0.6089 observed(KM)=0.6153
+  n=1709 events=1613 predicted=0.6783 observed(KM)=0.7071
+  n= 401 events=370 predicted=0.6909 observed(KM)=0.6862
+  n= 583 events=528 predicted=0.7032 observed(KM)=0.7048
+  n= 477 events=427 predicted=0.7198 observed(KM)=0.7234
+  n= 537 events=498 predicted=0.7362 observed(KM)=0.7058
+  n= 467 events=430 predicted=0.7549 observed(KM)=0.7536
+  n= 510 events=488 predicted=0.7930 observed(KM)=0.8049
+Integrated Brier score (0-730d): 0.23083 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66004  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.63881  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61489  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58752  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51952  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.42384  treat_all=0.4224  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 527 events=413 predicted=0.6307 observed(KM)=0.6129
+  n= 550 events=497 predicted=0.6863 observed(KM)=0.7117
+  n=1002 events=913 predicted=0.6942 observed(KM)=0.7027
+  n= 104 events= 95 predicted=0.7001 observed(KM)=0.7001
+  n= 518 events=489 predicted=0.7015 observed(KM)=0.7353
+  n= 684 events=634 predicted=0.7084 observed(KM)=0.7016
+  n= 329 events=302 predicted=0.7105 observed(KM)=0.7352
+  n= 604 events=581 predicted=0.7119 observed(KM)=0.6883
+  n= 389 events=364 predicted=0.7257 observed(KM)=0.7452
+  n= 509 events=482 predicted=0.7947 observed(KM)=0.8035
+Integrated Brier score (0-730d): 0.23101 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66023  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.639  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61493  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58743  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51927  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.4233  treat_all=0.4224  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 529 events=412 predicted=0.6654 observed(KM)=0.6043
+  n= 674 events=629 predicted=0.7041 observed(KM)=0.7039
+  n= 796 events=740 predicted=0.7058 observed(KM)=0.7278
+  n= 385 events=340 predicted=0.7062 observed(KM)=0.6718
+  n= 429 events=408 predicted=0.7064 observed(KM)=0.6846
+  n= 359 events=328 predicted=0.7068 observed(KM)=0.7387
+  n= 605 events=570 predicted=0.7071 observed(KM)=0.7175
+  n= 464 events=426 predicted=0.7078 observed(KM)=0.7202
+  n= 464 events=430 predicted=0.7126 observed(KM)=0.7337
+  n= 511 events=487 predicted=0.7689 observed(KM)=0.8
+Integrated Brier score (0-730d): 0.23115 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66023  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.639  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61493  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58743  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51867  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.42312  treat_all=0.4224  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 530 events=487 predicted=0.5643 observed(KM)=0.6601
+  n= 535 events=509 predicted=0.5915 observed(KM)=0.6944
+  n= 500 events=471 predicted=0.5930 observed(KM)=0.7296
+  n= 565 events=507 predicted=0.6756 observed(KM)=0.6801
+  n= 538 events=476 predicted=0.7131 observed(KM)=0.6948
+  n= 582 events=501 predicted=0.7281 observed(KM)=0.6567
+  n= 423 events=384 predicted=0.7395 observed(KM)=0.7311
+  n= 504 events=462 predicted=0.7512 observed(KM)=0.7259
+  n= 534 events=499 predicted=0.7718 observed(KM)=0.7511
+  n= 505 events=474 predicted=0.8358 observed(KM)=0.8052
+Integrated Brier score (0-730d): 0.23327 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.696  treat_all=0.696  treat_none=0.0
+  pt=0.10  model=0.67911  treat_all=0.67911  treat_none=0.0
+  pt=0.15  model=0.66003  treat_all=0.66023  treat_none=0.0
+  pt=0.20  model=0.6384  treat_all=0.639  treat_none=0.0
+  pt=0.25  model=0.61442  treat_all=0.61493  treat_none=0.0
+  pt=0.30  model=0.58678  treat_all=0.58743  treat_none=0.0
+  pt=0.40  model=0.51856  treat_all=0.51867  treat_none=0.0
+  pt=0.50  model=0.42327  treat_all=0.4224  treat_none=0.0
 
 --- Weibull AFT ---
 Predicted-probability source: native (model output read directly at this horizon)
@@ -91,6 +340,194 @@ eGFR<30 referral rule (5208 patients): flags 1255 (0.241), TP rate 0.21319, FP r
   net benefit across the model thresholds: {0.05: 0.21172, 0.1: 0.2101, 0.15: 0.20828, 0.2: 0.20624, 0.25: 0.20392, 0.3: 0.20128, 0.4: 0.19466, 0.5: 0.1854}
 eGFR<45 referral rule (5208 patients): flags 2584 (0.4962), TP rate 0.43243, FP rate 0.06373
   net benefit across the model thresholds: {0.05: 0.42907, 0.1: 0.42535, 0.15: 0.42118, 0.2: 0.4165, 0.25: 0.41118, 0.3: 0.40511, 0.4: 0.38994, 0.5: 0.3687}
+
+--- Cox ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  NOTE: predicted risk is the same (1.0) for every patient at this horizon — this model draws no distinction between patients here; the decile split below is an arbitrary rank tie-break, not a real risk gradient.
+  n= 528 events=506 predicted=1.0000 observed(KM)=0.8806
+  n= 564 events=519 predicted=1.0000 observed(KM)=0.8487
+  n= 476 events=445 predicted=1.0000 observed(KM)=0.839
+  n= 616 events=548 predicted=1.0000 observed(KM)=0.8469
+  n= 461 events=424 predicted=1.0000 observed(KM)=0.8648
+  n= 635 events=600 predicted=1.0000 observed(KM)=0.8466
+  n=1936 events=1728 predicted=1.0000 observed(KM)=0.8494
+Integrated Brier score (0-1825d): 0.29386 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83536  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.82567  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.81478  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.80243  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.78832  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.75304  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.70364  treat_all=0.70364  treat_none=0.0
+
+--- Hazard Transformer ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 522 events=475 predicted=0.1498 observed(KM)=0.6899
+  n= 522 events=482 predicted=0.2427 observed(KM)=0.7333
+  n= 521 events=467 predicted=0.3617 observed(KM)=0.7332
+  n= 522 events=457 predicted=0.5718 observed(KM)=0.8106
+  n= 521 events=443 predicted=0.7926 observed(KM)=0.8151
+  n= 522 events=453 predicted=0.9351 observed(KM)=0.8719
+  n= 521 events=476 predicted=0.9911 observed(KM)=0.9331
+  n= 522 events=494 predicted=0.9999 observed(KM)=0.9762
+  n= 521 events=508 predicted=1.0000 observed(KM)=0.9803
+  n= 522 events=515 predicted=1.0000 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.20107 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83055  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.7988  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.75111  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.70912  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.67088  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.60805  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.56424  treat_all=0.70364  treat_none=0.0
+
+--- Logistic Hazard ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 524 events=413 predicted=0.7746 observed(KM)=0.7596
+  n= 583 events=500 predicted=0.8376 observed(KM)=0.8406
+  n= 563 events=511 predicted=0.8449 observed(KM)=0.8524
+  n= 474 events=440 predicted=0.8477 observed(KM)=0.8456
+  n= 481 events=440 predicted=0.8516 observed(KM)=0.8502
+  n= 512 events=481 predicted=0.8569 observed(KM)=0.8546
+  n= 514 events=501 predicted=0.8689 observed(KM)=0.8724
+  n= 534 events=507 predicted=0.8730 observed(KM)=0.8525
+  n= 521 events=491 predicted=0.8738 observed(KM)=0.8876
+  n= 510 events=486 predicted=0.8948 observed(KM)=0.8952
+Integrated Brier score (0-1825d): 0.19166 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83536  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.82567  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.81478  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.80243  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.78813  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.75335  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.7043  treat_all=0.70364  treat_none=0.0
+
+--- RNN-Surv ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 526 events=470 predicted=0.1276 observed(KM)=0.8351
+  n= 532 events=475 predicted=0.1311 observed(KM)=0.8482
+  n= 616 events=555 predicted=0.1363 observed(KM)=0.8605
+  n= 507 events=459 predicted=0.1429 observed(KM)=0.8419
+  n= 427 events=380 predicted=0.1470 observed(KM)=0.8379
+  n= 537 events=476 predicted=0.1521 observed(KM)=0.8424
+  n= 507 events=467 predicted=0.1646 observed(KM)=0.8437
+  n= 521 events=492 predicted=0.1778 observed(KM)=0.8495
+  n= 546 events=520 predicted=0.1888 observed(KM)=0.8639
+  n= 497 events=476 predicted=0.2245 observed(KM)=0.892
+Integrated Brier score (0-1825d): 0.55189 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84405  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83521  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.38371  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.08697  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.00685  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.0  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.0  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.0  treat_all=0.70364  treat_none=0.0
+
+--- DeepSurv ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 532 events=416 predicted=0.7691 observed(KM)=0.7671
+  n=1709 events=1613 predicted=0.8315 observed(KM)=0.8652
+  n= 401 events=370 predicted=0.8418 observed(KM)=0.8527
+  n= 583 events=528 predicted=0.8516 observed(KM)=0.8477
+  n= 477 events=427 predicted=0.8644 observed(KM)=0.8443
+  n= 537 events=498 predicted=0.8767 observed(KM)=0.8399
+  n= 467 events=430 predicted=0.8901 observed(KM)=0.8675
+  n= 510 events=488 predicted=0.9152 observed(KM)=0.8946
+Integrated Brier score (0-1825d): 0.19032 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83536  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.82567  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.81478  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.80224  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.78813  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.7533  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.7043  treat_all=0.70364  treat_none=0.0
+
+--- GBSA ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 527 events=413 predicted=0.7894 observed(KM)=0.7634
+  n= 550 events=497 predicted=0.8390 observed(KM)=0.8486
+  n=1002 events=913 predicted=0.8453 observed(KM)=0.8443
+  n= 104 events= 95 predicted=0.8500 observed(KM)=0.8215
+  n= 518 events=489 predicted=0.8511 observed(KM)=0.8853
+  n= 684 events=634 predicted=0.8566 observed(KM)=0.8546
+  n= 329 events=302 predicted=0.8582 observed(KM)=0.8543
+  n= 604 events=581 predicted=0.8593 observed(KM)=0.8593
+  n= 389 events=364 predicted=0.8697 observed(KM)=0.8617
+  n= 509 events=482 predicted=0.9165 observed(KM)=0.9014
+Integrated Brier score (0-1825d): 0.19021 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83536  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.82567  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.81478  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.80243  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.78832  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.75304  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.70348  treat_all=0.70364  treat_none=0.0
+
+--- Survival RF ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 523 events=404 predicted=0.8073 observed(KM)=0.7492
+  n= 820 events=726 predicted=0.8524 observed(KM)=0.8505
+  n= 400 events=376 predicted=0.8536 observed(KM)=0.8381
+  n= 356 events=325 predicted=0.8537 observed(KM)=0.8477
+  n= 610 events=562 predicted=0.8544 observed(KM)=0.8578
+  n= 450 events=421 predicted=0.8555 observed(KM)=0.8434
+  n= 534 events=504 predicted=0.8561 observed(KM)=0.8882
+  n= 542 events=519 predicted=0.8567 observed(KM)=0.8566
+  n= 462 events=440 predicted=0.8583 observed(KM)=0.8676
+  n= 519 events=493 predicted=0.8886 observed(KM)=0.9037
+Integrated Brier score (0-1825d): 0.19024 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83536  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.82567  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.81478  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.80243  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.78832  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.75304  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.70364  treat_all=0.70364  treat_none=0.0
+
+--- Survival SVM ---
+Predicted-probability source: approximate (per-model calibrated baseline-hazard extrapolation — see module docstring)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n= 530 events=487 predicted=0.7268 observed(KM)=0.831
+  n= 535 events=509 predicted=0.7555 observed(KM)=0.8584
+  n= 500 events=471 predicted=0.7570 observed(KM)=0.8787
+  n= 565 events=507 predicted=0.8293 observed(KM)=0.8306
+  n= 538 events=476 predicted=0.8598 observed(KM)=0.8356
+  n= 582 events=501 predicted=0.8711 observed(KM)=0.8232
+  n= 423 events=384 predicted=0.8796 observed(KM)=0.8423
+  n= 504 events=462 predicted=0.8880 observed(KM)=0.8486
+  n= 534 events=499 predicted=0.9022 observed(KM)=0.8598
+  n= 505 events=474 predicted=0.9406 observed(KM)=0.9148
+Integrated Brier score (0-1825d): 0.19373 [fitted-conversion]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.84402  treat_all=0.84402  treat_none=0.0
+  pt=0.10  model=0.83536  treat_all=0.83536  treat_none=0.0
+  pt=0.15  model=0.82567  treat_all=0.82567  treat_none=0.0
+  pt=0.20  model=0.81478  treat_all=0.81478  treat_none=0.0
+  pt=0.25  model=0.80223  treat_all=0.80243  treat_none=0.0
+  pt=0.30  model=0.78773  treat_all=0.78832  treat_none=0.0
+  pt=0.40  model=0.75256  treat_all=0.75304  treat_none=0.0
+  pt=0.50  model=0.70318  treat_all=0.70364  treat_none=0.0
 
 --- Weibull AFT ---
 Predicted-probability source: native (model output read directly at this horizon)

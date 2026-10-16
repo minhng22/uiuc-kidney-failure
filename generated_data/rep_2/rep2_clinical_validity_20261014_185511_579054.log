@@ -1,0 +1,1190 @@
+rep2 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2287 and train 9173
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3083 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - FOUR_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 9173 lab-event rows -> 1079 patients; event rate 0.1207 (row-level) vs 0.7525 (patient-level, 812 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 2287 lab-event rows -> 270 patients; event rate 0.1194 (row-level) vs 0.7519 (patient-level, 203 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 4216.4 days. Horizons used: [730, 1825]
+Training-set max follow-up: 4333.0 days; IPCW evaluation capped at 4333.0 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 270/270 patients have one (0 excluded, no measured eGFR); selected from 2287/2287 rows with a real eGFR measurement.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2287 and train 9173
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3083 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_external_validation_data.csv
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2287 and train 9173
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 3083 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_external_validation_data.csv
+
+Patient-level alignment check (Gap 5a):
+  OK   Dynamic DeepHit: aligned to 270 patient-level terminal outcomes (199 durations differ by up to 0.996528 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Dynamic DeepHit: c_index=0.8622 brier=0.10425 (native) auc=0.9649
+    fitted-conversion Brier for the same model/window: 0.14977 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.13473, 1825d=0.11483
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 270 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Dynamic DeepHit      0.8622 [0.833, 0.8848]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Dynamic DeepHit      0.1042 [0.0893, 0.1221]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Dynamic DeepHit      0.9649 [0.9453, 0.9766]  (n=1000)
+
+Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.58822, 0.1: 0.56534, 0.15: 0.53977, 0.2: 0.51101, 0.25: 0.47841, 0.3: 0.44115, 0.4: 0.34801, 0.5: 0.21762}
+  (for contrast, the superseded row-level treat-all over 2287 lab rows: {0.05: 0.07402, 0.1: 0.02258, 0.15: -0.03492, 0.2: -0.0996, 0.25: -0.17291, 0.3: -0.25669, 0.4: -0.46614, 0.5: -0.75936})
+eGFR<30 referral rule (270 patients): flags 84 (0.3111), TP rate 0.23479, FP rate 0.07632
+  net benefit across the model thresholds: {0.05: 0.23077, 0.1: 0.22631, 0.15: 0.22132, 0.2: 0.21571, 0.25: 0.20935, 0.3: 0.20208, 0.4: 0.18391, 0.5: 0.15847}
+eGFR<45 referral rule (270 patients): flags 152 (0.563), TP rate 0.39003, FP rate 0.17293
+  net benefit across the model thresholds: {0.05: 0.38093, 0.1: 0.37081, 0.15: 0.35951, 0.2: 0.34679, 0.25: 0.33238, 0.3: 0.31591, 0.4: 0.27474, 0.5: 0.21709}
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 13 predicted=0.2140 observed(KM)=0.0938
+  n=  27 events= 15 predicted=0.3028 observed(KM)=0.3734
+  n=  27 events= 14 predicted=0.4065 observed(KM)=0.3505
+  n=  27 events= 21 predicted=0.5069 observed(KM)=0.3389
+  n=  27 events= 25 predicted=0.5339 observed(KM)=0.4667
+  n=  27 events= 21 predicted=0.6981 observed(KM)=0.7486
+  n=  27 events= 21 predicted=0.8811 observed(KM)=0.8756
+  n=  27 events= 26 predicted=0.9419 observed(KM)=1.0
+  n=  27 events= 21 predicted=0.9468 observed(KM)=1.0
+  n=  27 events= 26 predicted=0.9485 observed(KM)=0.963
+Integrated Brier score (0-730d): 0.10425 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.58894  treat_all=0.58822  treat_none=0.0
+  pt=0.10  model=0.5673  treat_all=0.56534  treat_none=0.0
+  pt=0.15  model=0.54189  treat_all=0.53977  treat_none=0.0
+  pt=0.20  model=0.51532  treat_all=0.51101  treat_none=0.0
+  pt=0.25  model=0.49527  treat_all=0.47841  treat_none=0.0
+  pt=0.30  model=0.46314  treat_all=0.44115  treat_none=0.0
+  pt=0.40  model=0.41751  treat_all=0.34801  treat_none=0.0
+  pt=0.50  model=0.38398  treat_all=0.21762  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 270/270 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (270 patients): {0.05: 0.82847, 0.1: 0.81894, 0.15: 0.80829, 0.2: 0.7963, 0.25: 0.78273, 0.3: 0.76721, 0.4: 0.72841, 0.5: 0.67409}
+  (for contrast, the superseded row-level treat-all over 2287 lab rows: {0.05: 0.20133, 0.1: 0.15696, 0.15: 0.10737, 0.2: 0.05158, 0.25: -0.01164, 0.3: -0.08391, 0.4: -0.26456, 0.5: -0.51747})
+eGFR<30 referral rule (270 patients): flags 84 (0.3111), TP rate 0.27113, FP rate 0.03998
+  net benefit across the model thresholds: {0.05: 0.26903, 0.1: 0.26669, 0.15: 0.26408, 0.2: 0.26114, 0.25: 0.25781, 0.3: 0.254, 0.4: 0.24448, 0.5: 0.23116}
+eGFR<45 referral rule (270 patients): flags 152 (0.563), TP rate 0.48965, FP rate 0.07331
+  net benefit across the model thresholds: {0.05: 0.4858, 0.1: 0.48151, 0.15: 0.47672, 0.2: 0.47133, 0.25: 0.46522, 0.3: 0.45824, 0.4: 0.44078, 0.5: 0.41634}
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  27 events= 14 predicted=0.4943 observed(KM)=0.7269
+  n=  27 events= 12 predicted=0.6327 observed(KM)=0.5249
+  n=  27 events= 18 predicted=0.7301 observed(KM)=0.6773
+  n=  27 events= 22 predicted=0.7873 observed(KM)=0.8112
+  n=  27 events= 22 predicted=0.8346 observed(KM)=0.7779
+  n=  27 events= 21 predicted=0.9195 observed(KM)=0.94
+  n=  27 events= 21 predicted=0.9709 observed(KM)=0.876
+  n=  27 events= 26 predicted=0.9866 observed(KM)=1.0
+  n=  27 events= 21 predicted=0.9878 observed(KM)=1.0
+  n=  27 events= 26 predicted=0.9882 observed(KM)=0.963
+Integrated Brier score (0-1825d): 0.12821 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.82847  treat_all=0.82847  treat_none=0.0
+  pt=0.10  model=0.8197  treat_all=0.81894  treat_none=0.0
+  pt=0.15  model=0.8086  treat_all=0.80829  treat_none=0.0
+  pt=0.20  model=0.7971  treat_all=0.7963  treat_none=0.0
+  pt=0.25  model=0.78189  treat_all=0.78273  treat_none=0.0
+  pt=0.30  model=0.76711  treat_all=0.76721  treat_none=0.0
+  pt=0.40  model=0.72836  treat_all=0.72841  treat_none=0.0
+  pt=0.50  model=0.67303  treat_all=0.67409  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/four_features_clinical_validity_report.txt
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 472 and train 1584
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 473 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_external_validation_data.csv
+================================================================================
+CLINICAL VALIDITY ANALYSIS - EIGHT_FEATURES
+================================================================================
+Evaluation unit: one terminal outcome per patient (Gap 5a/5c/5d).
+  train: 1584 lab-event rows -> 425 patients; event rate 0.3056 (row-level) vs 0.7694 (patient-level, 327 events)
+  train: patient uniqueness and terminal-outcome consistency verified.
+  test: 472 lab-event rows -> 107 patients; event rate 0.2648 (row-level) vs 0.7664 (patient-level, 82 events)
+  test: patient uniqueness and terminal-outcome consistency verified.
+Max test follow-up: 2652.6 days. Horizons used: [730, 1825]
+Training-set max follow-up: 3164.4 days; IPCW evaluation capped at 3164.4 days (censoring distribution support). Test patients followed past the cap are administratively censored there.
+
+eGFR-threshold referral rule: one decision per patient from the most recent measured eGFR at or before the landmark — 107/107 patients have one (0 excluded, no measured eGFR); selected from 472/472 rows with a real eGFR measurement.
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 472 and train 1584
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 473 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_external_validation_data.csv
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 472 and train 1584
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 473 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_external_validation_data.csv
+
+Patient-level alignment check (Gap 5a):
+  OK   Dynamic DeepHit: aligned to 107 patient-level terminal outcomes (78 durations differ by up to 0.998611 d — this model's own time handling (day-bin flooring, or a zero-duration floor); scored against the canonical outcomes)
+
+Discrimination metrics (C-index / integrated Brier / mean time-dependent AUC, 0-730d):
+  Brier source: 'native' = the model's own survival curve; 'fitted-conversion' = its risk scores pushed through a Breslow baseline fitted from its own training scores, i.e. the model PLUS that conversion (Gap 5b).
+  Dynamic DeepHit: c_index=0.7613 brier=0.13489 (native) auc=0.8765
+    fitted-conversion Brier for the same model/window: 0.14762 (reported for contrast; the native number above is the one to use)
+    native point Brier at published horizons: 730d=0.12192, 1825d=0.12105
+
+================================================================================
+BOOTSTRAP UNCERTAINTY — 1000 resamples of the 107 test patients, 95% percentile intervals (Gap 3)
+================================================================================
+Only test patients are resampled; the training-set censoring reference is held fixed (see pkgs/data_analysis/bootstrap_ci.py for why).
+C-index resamples retain full follow-up; IBS/AUC alone use the IPCW-capped outcomes. Numerically constant rankings are withheld from points, intervals and paired differences.
+Bootstrap AUC uses a 25-point grid over 0-729d rather than the per-day grid of the point estimate — see bootstrap_ci.py.
+
+C-index — estimate [95% CI]:
+  Dynamic DeepHit      0.7613 [0.6995, 0.8167]  (n=1000)
+
+Integrated Brier — estimate [95% CI]:
+  Dynamic DeepHit      0.1349 [0.0917, 0.1887]  (n=1000)  (Brier source: native)
+
+Mean time-dependent AUC — estimate [95% CI]:
+  Dynamic DeepHit      0.8765 [0.7808, 0.9557]  (n=1000)
+
+Paired differences vs. best model by C-index (Dynamic DeepHit), same resamples (positive = the listed model is higher):
+  C-index and AUC: higher is better. Integrated Brier: LOWER is better, so a negative difference favours the listed model.
+  * interval excludes 0. These are 95% percentile intervals on paired differences, not multiplicity-controlled tests across the model set.
+
+=== Horizon: 730 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.7907, 0.1: 0.77907, 0.15: 0.76608, 0.2: 0.75146, 0.25: 0.73489, 0.3: 0.71595, 0.4: 0.66861, 0.5: 0.60233}
+  (for contrast, the superseded row-level treat-all over 472 lab rows: {0.05: 0.29058, 0.1: 0.25117, 0.15: 0.20712, 0.2: 0.15757, 0.25: 0.1014, 0.3: 0.03722, 0.4: -0.12324, 0.5: -0.34789})
+eGFR<30 referral rule (107 patients): flags 32 (0.2991), TP rate 0.25109, FP rate 0.04798
+  net benefit across the model thresholds: {0.05: 0.24857, 0.1: 0.24576, 0.15: 0.24262, 0.2: 0.2391, 0.25: 0.2351, 0.3: 0.23053, 0.4: 0.21911, 0.5: 0.20312}
+eGFR<45 referral rule (107 patients): flags 48 (0.4486), TP rate 0.39986, FP rate 0.04874
+  net benefit across the model thresholds: {0.05: 0.3973, 0.1: 0.39445, 0.15: 0.39126, 0.2: 0.38768, 0.25: 0.38362, 0.3: 0.37897, 0.4: 0.36737, 0.5: 0.35112}
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  6 predicted=0.2324 observed(KM)=0.3939
+  n=  11 events=  8 predicted=0.5558 observed(KM)=0.5739
+  n=  10 events=  7 predicted=0.6369 observed(KM)=0.6667
+  n=  11 events=  8 predicted=0.7163 observed(KM)=0.7818
+  n=  11 events=  7 predicted=0.8114 observed(KM)=0.7273
+  n=  10 events=  6 predicted=0.8629 observed(KM)=0.6
+  n=  11 events= 10 predicted=0.8864 observed(KM)=1.0
+  n=  10 events= 10 predicted=0.9015 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9091 observed(KM)=0.9091
+  n=  11 events= 10 predicted=0.9175 observed(KM)=1.0
+Integrated Brier score (0-730d): 0.13489 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.77939  treat_all=0.7907  treat_none=0.0
+  pt=0.10  model=0.76869  treat_all=0.77907  treat_none=0.0
+  pt=0.15  model=0.74565  treat_all=0.76608  treat_none=0.0
+  pt=0.20  model=0.74095  treat_all=0.75146  treat_none=0.0
+  pt=0.25  model=0.72741  treat_all=0.73489  treat_none=0.0
+  pt=0.30  model=0.72359  treat_all=0.71595  treat_none=0.0
+  pt=0.40  model=0.68842  treat_all=0.66861  treat_none=0.0
+  pt=0.50  model=0.65006  treat_all=0.60233  treat_none=0.0
+
+=== Horizon: 1825 days ===
+DCA common cohort: 107/107 patients with finite predictions for every available model and measured eGFR; 0 excluded from ALL strategies.
+Treat-all net benefit (107 patients): {0.05: 0.88698, 0.1: 0.8807, 0.15: 0.87368, 0.2: 0.86579, 0.25: 0.85684, 0.3: 0.84661, 0.4: 0.82105, 0.5: 0.78526}
+  (for contrast, the superseded row-level treat-all over 472 lab rows: {0.05: 0.38659, 0.1: 0.35252, 0.15: 0.31443, 0.2: 0.27158, 0.25: 0.22302, 0.3: 0.16752, 0.4: 0.02877, 0.5: -0.16547})
+eGFR<30 referral rule (107 patients): flags 32 (0.2991), TP rate 0.29907, FP rate 0.0
+  net benefit across the model thresholds: {0.05: 0.29907, 0.1: 0.29907, 0.15: 0.29907, 0.2: 0.29907, 0.25: 0.29907, 0.3: 0.29907, 0.4: 0.29907, 0.5: 0.29907}
+eGFR<45 referral rule (107 patients): flags 48 (0.4486), TP rate 0.4486, FP rate 0.0
+  net benefit across the model thresholds: {0.05: 0.4486, 0.1: 0.4486, 0.15: 0.4486, 0.2: 0.4486, 0.25: 0.4486, 0.3: 0.4486, 0.4: 0.4486, 0.5: 0.4486}
+
+--- Dynamic DeepHit ---
+Predicted-probability source: native (model output read directly at this horizon)
+Calibration (predicted risk decile vs. KM-observed risk):
+  n=  11 events=  6 predicted=0.4050 observed(KM)=0.596
+  n=  11 events=  9 predicted=0.7883 observed(KM)=1.0
+  n=  10 events=  7 predicted=0.8141 observed(KM)=1.0
+  n=  11 events=  6 predicted=0.8323 observed(KM)=0.4545
+  n=  11 events=  8 predicted=0.8435 observed(KM)=0.7955
+  n=  10 events=  6 predicted=0.8644 observed(KM)=0.6
+  n=  11 events= 10 predicted=0.8868 observed(KM)=1.0
+  n=  10 events= 10 predicted=0.9017 observed(KM)=1.0
+  n=  11 events= 10 predicted=0.9092 observed(KM)=0.9091
+  n=  11 events= 10 predicted=0.9176 observed(KM)=1.0
+Integrated Brier score (0-1825d): 0.12237 [native]
+Decision curve analysis (net benefit by risk threshold):
+  pt=0.05  model=0.88698  treat_all=0.88698  treat_none=0.0
+  pt=0.10  model=0.86355  treat_all=0.8807  treat_none=0.0
+  pt=0.15  model=0.85717  treat_all=0.87368  treat_none=0.0
+  pt=0.20  model=0.85  treat_all=0.86579  treat_none=0.0
+  pt=0.25  model=0.84187  treat_all=0.85684  treat_none=0.0
+  pt=0.30  model=0.83258  treat_all=0.84661  treat_none=0.0
+  pt=0.40  model=0.77478  treat_all=0.82105  treat_none=0.0
+  pt=0.50  model=0.76579  treat_all=0.78526  treat_none=0.0
+Calibration plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_calibration_plot.png
+Decision curve plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_decision_curve_plot.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/eight_features_clinical_validity_report.txt
+TRAIN twenty_features_heterogeneous/dynamic_deephit: missing artifact /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_ddh_model.pt
+CUDA not available, using Apple MPS
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+Running Optuna hyperparameter optimization
+[I 2026-10-14 18:55:24,936] A new study created in memory with name: no-name-e69ae972-f3a4-49b1-ba2a-a124ee5745a2
+CUDA not available, using Apple MPS
+Running trial 0 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device mps
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.2808901082518642
+Epoch 2/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.949546578014555
+Epoch 3/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.887190143160659
+Epoch 4/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.867153432197366
+Epoch 5/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8473143743042566
+Epoch 6/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8373746264017432
+Epoch 7/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8301904196022478
+Epoch 8/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8229837745793758
+Epoch 9/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8167386334732267
+Epoch 10/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.812197212792613
+Epoch 11/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8092424044031308
+Epoch 12/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8041757334229405
+Epoch 13/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.8008292035822488
+Epoch 14/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.797147687181739
+Epoch 15/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7959888884626283
+Epoch 16/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7924837786361483
+Epoch 17/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7905384132101492
+Epoch 18/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7899400839593513
+Epoch 19/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7849432728224737
+Epoch 20/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7853657321695902
+Patience Counter: 1
+Epoch 21/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.782157512804482
+Epoch 22/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7802001005667119
+Epoch 23/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7801870632391035
+Epoch 24/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7769671419829678
+Epoch 25/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.775333846365016
+Epoch 26/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7741117055979243
+Epoch 27/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7725438723352058
+Epoch 28/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7713308129573893
+Epoch 29/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7699170097068775
+Epoch 30/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7678227443819396
+Epoch 31/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.766066809739072
+Epoch 32/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7656867510519145
+Epoch 33/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.764155953391198
+Epoch 34/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7632424966689269
+Epoch 35/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7635460130276124
+Patience Counter: 1
+Epoch 36/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.76388548433415
+Patience Counter: 2
+Epoch 37/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7635056360916126
+Patience Counter: 3
+Epoch 38/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7597517745077975
+Epoch 39/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7586927481589874
+Epoch 40/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7585051950135846
+Epoch 41/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7559978339386864
+Epoch 42/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7551732454563211
+Epoch 43/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7552874806834144
+Patience Counter: 1
+Epoch 44/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7536786721527942
+Epoch 45/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7519772557393174
+Epoch 46/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7500397664911909
+Epoch 47/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7492148760089115
+Epoch 48/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7465286393838426
+Epoch 49/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.7492550340898199
+Patience Counter: 1
+Epoch 50/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 240])
+fc_output shape: torch.Size([16, 8729, 120])
+context shape: torch.Size([16, 120])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 71])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 1.746615462873611
+Patience Counter: 2
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), T shape: torch.Size([16, 1]), E shape: torch.Size([16, 1]) cif shape: (16, 5475)
+Processing subject 0 with time 0 and event True cif at t_j: [0.99410266]
+all_E shape: (20864,) first 10 values: [ True  True  True  True  True  True  True  True  True  True]
+all_R shape: (20864,) first 10 values: [0.99410266 0.18494667 0.65995514 0.40890938 0.6500831  0.44219297
+ 0.3902227  0.9945252  0.7757403  0.9938041 ]
+all_T shape: (20864,) first 10 values: [   0   68  549 1601  513  609 1700    0 1465    0]
+Global test C-index (scikit-survival): 0.656 number of concordant pairs: 117445054
+Global test C-index: 0.656
+No existing model, saving current model
+[I 2026-10-15 13:45:45,106] Trial 0 finished with value: 0.6558876705147234 and parameters: {'num_layer': 2, 'hidden_dim_0': 120, 'hidden_dim_1': 71, 'learning_rate': 3.641534583638858e-05, 'drop_out_rate': 0.36078381032811374, 'llh_loss': 0.24625383760203395}. Best is trial 0 with value: 0.6558876705147234.
+CUDA not available, using Apple MPS
+Running trial 1 for ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS on device mps
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_test_data.csv
+Number of patients: test 5216 and train 20864
+Number of records: test 1310644 and train 5169093
+External validation data (ExperimentScenario.TWENTY_FEATURES_HETEROGENEOUS): 6521 patients, 1646353 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_2/twenty_features_heterogeneous_external_validation_data.csv
+Epoch 1/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 3.370141539288445
+Epoch 2/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 3.1049025920819653
+Epoch 3/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 3.064082505787077
+Epoch 4/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 3.041746497245654
+Epoch 5/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 3.0226243013984586
+Epoch 6/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 3.005302531313311
+Epoch 7/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.9926063856281386
+Epoch 8/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.975989264030398
+Epoch 9/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.9623370528038295
+Epoch 10/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.9427992914534786
+Epoch 11/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.924418327632857
+Epoch 12/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.900985851701052
+Epoch 13/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.8784139084121203
+Epoch 14/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.8598342659466107
+Epoch 15/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.8430358151351016
+Epoch 16/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.8243376523987647
+Epoch 17/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.809173703467919
+Epoch 18/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.7903730701083784
+Epoch 19/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.7721854525109744
+Epoch 20/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.759792362711181
+Epoch 21/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.745334998687352
+Epoch 22/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.727018941582346
+Epoch 23/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.7099594908075098
+Epoch 24/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])
+Average Loss: 2.6956737994050686
+Epoch 25/50
+features shape: torch.Size([16, 8729, 40]), mask shape: torch.Size([16, 8729]), time_to_event shape: torch.Size([16, 1]), event_indicator shape: torch.Size([16, 1]), time_to_events shape: torch.Size([16, 8729]), event_indicators shape: torch.Size([16, 8729]), sequence lengths shape: torch.Size([16, 1])
+x shape: torch.Size([16, 8729, 40])
+mask shape: torch.Size([16, 8729])
+lstm_output shape: torch.Size([16, 8729, 184])
+fc_output shape: torch.Size([16, 8729, 92])
+context shape: torch.Size([16, 92])
+attention_weights shape: torch.Size([16, 8729, 1])
+x shape after cause_specific_fc: torch.Size([16, 100])
+pmf_preds shape: [torch.Size([16, 5475])]
+res shape: torch.Size([16, 1, 5475])

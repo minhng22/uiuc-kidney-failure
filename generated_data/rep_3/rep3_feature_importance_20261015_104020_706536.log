@@ -1,0 +1,416 @@
+rep3 analyze: four_features, eight_features, twenty_features_heterogeneous; output=/Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - FOUR_FEATURES SCENARIO
+================================================================================
+
+Training samples: 9363
+Test samples: 2304
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=63.922, std=15.601
+  gender: mean=0.574, std=0.495
+  egfr: mean=60.701, std=34.238
+  uacr: mean=506.301, std=1223.451
+
+ANALYZING ALL MODELS FOR FOUR_FEATURES
+------------------------------------------------------------
+
+Analyzing COX model...
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_cox_model.dill
+  COX Feature Importance:
+    age: 0.0006 (coeff=-0.0006, HR=0.999)
+    gender: 0.0007 (coeff=-0.0007, HR=0.999)
+    egfr: 0.0015 (coeff=-0.0015, HR=0.998)
+    uacr: 0.0000 (coeff=0.0000, HR=1.000)
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    age: 0.0949
+    gender: 0.5057
+    egfr: 0.1803
+    uacr: 0.2192
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    age: 0.0987
+    gender: 0.3204
+    egfr: 0.0996
+    uacr: 0.4813
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    age: 0.4126
+    gender: 0.2073
+    egfr: 0.2870
+    uacr: 0.0931
+
+Analyzing DEEPSURV model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+  DEEPSURV Feature Importance:
+    age: 0.2536
+    gender: 0.2218
+    egfr: 0.2085
+    uacr: 0.3161
+
+Analyzing GBSA model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_gbsa_model.dill
+  GBSA Feature Importance:
+    age: 0.3010
+    gender: 0.0005
+    egfr: 0.3531
+    uacr: 0.3454
+
+Analyzing SRF model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_srf_model.dill
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+  SRF Feature Importance:
+    age: 0.0313
+    gender: 0.0000
+    egfr: 0.0206
+    uacr: 0.0399
+
+Analyzing SURVIVAL_SVM model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_survival_svm_model.dill
+  SURVIVAL_SVM Feature Importance:
+    age: 0.0048
+    gender: 0.0242
+    egfr: 0.0034
+    uacr: 0.0000
+
+Analyzing WEIBUL model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_test_data.csv
+Number of patients: test 270 and train 1079
+Number of records: test 2304 and train 9363
+External validation data (ExperimentScenario.FOUR_FEATURES): 338 patients, 2876 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.FOUR_FEATURES): train 9363 rows/1079 subjects -> 1079 rows; test 2304 rows/270 subjects -> 270 rows; holdout 2876 rows/338 subjects -> 338 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_weibul_model.dill
+  WEIBUL Feature Importance:
+    age: 0.0058
+    gender: 0.0773
+    egfr: 0.0047
+    uacr: 0.0000
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_all_models_feature_importance.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/four_features_shap_analysis_report.txt
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - EIGHT_FEATURES SCENARIO
+================================================================================
+
+Training samples: 1498
+Test samples: 416
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'age', 'gender', 'egfr', 'uacr', 'calcium', 'phosphate', 'bicarbonate', 'serum_albumin', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  age: mean=63.373, std=14.854
+  gender: mean=0.563, std=0.496
+  egfr: mean=50.336, std=32.802
+  uacr: mean=621.403, std=1417.073
+  calcium: mean=8.658, std=1.078
+  phosphate: mean=3.839, std=1.546
+  bicarbonate: mean=22.903, std=5.075
+  serum_albumin: mean=3.315, std=0.730
+
+ANALYZING ALL MODELS FOR EIGHT_FEATURES
+------------------------------------------------------------
+
+Analyzing COX model...
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_cox_model.dill
+  COX Feature Importance:
+    age: 0.0019 (coeff=-0.0019, HR=0.998)
+    gender: 0.0059 (coeff=-0.0059, HR=0.994)
+    egfr: 0.0021 (coeff=-0.0021, HR=0.998)
+    uacr: 0.0000 (coeff=-0.0000, HR=1.000)
+    calcium: 0.0354 (coeff=-0.0354, HR=0.965)
+    phosphate: 0.0306 (coeff=0.0306, HR=1.031)
+    bicarbonate: 0.0197 (coeff=-0.0197, HR=0.980)
+    serum_albumin: 0.0483 (coeff=-0.0483, HR=0.953)
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    age: 0.2193
+    gender: 0.0708
+    egfr: 0.2450
+    uacr: 0.2494
+    calcium: 0.0160
+    phosphate: 0.0845
+    bicarbonate: 0.0838
+    serum_albumin: 0.0312
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    age: 0.1676
+    gender: 0.0936
+    egfr: 0.1518
+    uacr: 0.0722
+    calcium: 0.1641
+    phosphate: 0.1381
+    bicarbonate: 0.0899
+    serum_albumin: 0.1227
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    age: 0.0796
+    gender: 0.0763
+    egfr: 0.0939
+    uacr: 0.2137
+    calcium: 0.1326
+    phosphate: 0.0655
+    bicarbonate: 0.1754
+    serum_albumin: 0.1630
+
+Analyzing DEEPSURV model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+  DEEPSURV Feature Importance:
+    age: 0.1102
+    gender: 0.1430
+    egfr: 0.1347
+    uacr: 0.1027
+    calcium: 0.1380
+    phosphate: 0.1089
+    bicarbonate: 0.1257
+    serum_albumin: 0.1369
+
+Analyzing GBSA model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_gbsa_model.dill
+  GBSA Feature Importance:
+    age: 0.1157
+    gender: 0.0000
+    egfr: 0.2426
+    uacr: 0.1714
+    calcium: 0.1433
+    phosphate: 0.0910
+    bicarbonate: 0.2046
+    serum_albumin: 0.0315
+
+Analyzing SRF model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_srf_model.dill
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+[Parallel(n_jobs=2)]: Using backend ThreadingBackend with 2 concurrent workers.
+[Parallel(n_jobs=2)]: Done  37 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=2)]: Done 100 out of 100 | elapsed:    0.0s finished
+  SRF Feature Importance:
+    age: 0.0000
+    gender: 0.0000
+    egfr: 0.0013
+    uacr: 0.0102
+    calcium: 0.0000
+    phosphate: 0.0000
+    bicarbonate: 0.0000
+    serum_albumin: 0.0067
+
+Analyzing SURVIVAL_SVM model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_survival_svm_model.dill
+  SURVIVAL_SVM Feature Importance:
+    age: 0.0000
+    gender: 0.0000
+    egfr: 0.0000
+    uacr: 0.0000
+    calcium: 0.0000
+    phosphate: 0.0000
+    bicarbonate: 0.0000
+    serum_albumin: 0.0000
+
+Analyzing WEIBUL model...
+Train data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_train_data.csv
+Test data path /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_test_data.csv
+Number of patients: test 107 and train 425
+Number of records: test 416 and train 1498
+External validation data (ExperimentScenario.EIGHT_FEATURES): 134 patients, 615 records -- /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_external_validation_data.csv
+get_last_observation_data(ExperimentScenario.EIGHT_FEATURES): train 1498 rows/425 subjects -> 425 rows; test 416 rows/107 subjects -> 107 rows; holdout 615 rows/134 subjects -> 134 rows
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_weibul_model.dill
+  WEIBUL Feature Importance:
+    age: 0.0029
+    gender: 0.0718
+    egfr: 0.0037
+    uacr: 0.0000
+    calcium: 0.1181
+    phosphate: 0.0069
+    bicarbonate: 0.0445
+    serum_albumin: 0.0575
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_all_models_feature_importance.png
+Scenario report saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/eight_features_shap_analysis_report.txt
+================================================================================
+FEATURE IMPORTANCE ANALYSIS - TWENTY_FEATURES_HETEROGENEOUS SCENARIO
+================================================================================
+
+Training samples: 5221567
+Test samples: 1284004
+Features: ['Unnamed: 0', 'subject_id', 'duration_in_days', 'start', 'stop', 'egfr', 'egfr_missing', 'potassium', 'potassium_missing', 'urea_nitrogen', 'urea_nitrogen_missing', 'sodium', 'sodium_missing', 'chloride', 'chloride_missing', 'bicarbonate', 'bicarbonate_missing', 'anion_gap', 'anion_gap_missing', 'hematocrit', 'hematocrit_missing', 'platelet_count', 'platelet_count_missing', 'hemoglobin', 'hemoglobin_missing', 'wbc', 'wbc_missing', 'mchc', 'mchc_missing', 'mch', 'mch_missing', 'rbc', 'rbc_missing', 'mcv', 'mcv_missing', 'rdw', 'rdw_missing', 'glucose', 'glucose_missing', 'calcium', 'calcium_missing', 'magnesium', 'magnesium_missing', 'phosphate', 'phosphate_missing', 'has_esrd']
+
+FEATURE OVERVIEW:
+----------------------------------------
+  egfr: mean=3.849, std=17.350
+  egfr_missing: mean=0.944, std=0.230 (missing_flag rate=94.4%)
+  potassium: mean=0.228, std=0.967
+  potassium_missing: mean=0.946, std=0.225 (missing_flag rate=94.6%)
+  urea_nitrogen: mean=1.350, std=6.935
+  urea_nitrogen_missing: mean=0.945, std=0.227 (missing_flag rate=94.5%)
+  sodium: mean=7.334, std=31.016
+  sodium_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  chloride: mean=5.361, std=22.803
+  chloride_missing: mean=0.947, std=0.223 (missing_flag rate=94.7%)
+  bicarbonate: mean=1.291, std=5.685
+  bicarbonate_missing: mean=0.950, std=0.219 (missing_flag rate=95.0%)
+  anion_gap: mean=0.717, std=3.214
+  anion_gap_missing: mean=0.950, std=0.218 (missing_flag rate=95.0%)
+  hematocrit: mean=1.858, std=7.800
+  hematocrit_missing: mean=0.944, std=0.229 (missing_flag rate=94.4%)
+  platelet_count: mean=12.084, std=58.945
+  platelet_count_missing: mean=0.946, std=0.226 (missing_flag rate=94.6%)
+  hemoglobin: mean=0.590, std=2.535
+  hemoglobin_missing: mean=0.947, std=0.225 (missing_flag rate=94.7%)
+  wbc: mean=0.466, std=3.242
+  wbc_missing: mean=0.946, std=0.225 (missing_flag rate=94.6%)
+  mchc: mean=1.747, std=7.400
+  mchc_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  mch: mean=1.593, std=6.769
+  mch_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  rbc: mean=0.196, std=0.848
+  rbc_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  mcv: mean=4.830, std=20.502
+  mcv_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  rdw: mean=0.811, std=3.470
+  rdw_missing: mean=0.947, std=0.224 (missing_flag rate=94.7%)
+  glucose: mean=5.919, std=31.297
+  glucose_missing: mean=0.956, std=0.206 (missing_flag rate=95.6%)
+  calcium: mean=0.319, std=1.654
+  calcium_missing: mean=0.964, std=0.186 (missing_flag rate=96.4%)
+  magnesium: mean=0.069, std=0.370
+  magnesium_missing: mean=0.966, std=0.182 (missing_flag rate=96.6%)
+  phosphate: mean=0.118, std=0.662
+  phosphate_missing: mean=0.966, std=0.180 (missing_flag rate=96.6%)
+
+ANALYZING ALL MODELS FOR TWENTY_FEATURES_HETEROGENEOUS
+------------------------------------------------------------
+
+Analyzing COX model...
+Loading model from /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_3/twenty_features_heterogeneous_cox_model.dill
+  COX Feature Importance:
+    egfr: 0.0000 (coeff=0.0000, HR=1.000)
+    egfr_missing: 0.0259 (coeff=-0.0259, HR=0.974)
+    potassium: 0.0173 (coeff=0.0173, HR=1.017)
+    potassium_missing: 0.0707 (coeff=-0.0707, HR=0.932)
+    urea_nitrogen: 0.0023 (coeff=0.0023, HR=1.002)
+    urea_nitrogen_missing: 0.0379 (coeff=-0.0379, HR=0.963)
+    sodium: 0.0005 (coeff=0.0005, HR=1.001)
+    sodium_missing: 0.0738 (coeff=-0.0738, HR=0.929)
+    chloride: 0.0004 (coeff=0.0004, HR=1.000)
+    chloride_missing: 0.0425 (coeff=-0.0425, HR=0.958)
+    bicarbonate: 0.0026 (coeff=0.0026, HR=1.003)
+    bicarbonate_missing: 0.0814 (coeff=-0.0814, HR=0.922)
+    anion_gap: 0.0007 (coeff=0.0007, HR=1.001)
+    anion_gap_missing: 0.0003 (coeff=0.0003, HR=1.000)
+    hematocrit: 0.0011 (coeff=0.0011, HR=1.001)
+    hematocrit_missing: 0.0390 (coeff=-0.0390, HR=0.962)
+    platelet_count: 0.0001 (coeff=0.0001, HR=1.000)
+    platelet_count_missing: 0.0454 (coeff=-0.0454, HR=0.956)
+    hemoglobin: 0.0053 (coeff=0.0053, HR=1.005)
+    hemoglobin_missing: 0.0636 (coeff=-0.0636, HR=0.938)
+    wbc: 0.0041 (coeff=0.0041, HR=1.004)
+    wbc_missing: 0.0657 (coeff=-0.0657, HR=0.936)
+    mchc: 0.0021 (coeff=0.0021, HR=1.002)
+    mchc_missing: 0.0692 (coeff=-0.0692, HR=0.933)
+    mch: 0.0023 (coeff=0.0023, HR=1.002)
+    mch_missing: 0.0693 (coeff=-0.0693, HR=0.933)
+    rbc: 0.0175 (coeff=0.0175, HR=1.018)
+    rbc_missing: 0.0692 (coeff=-0.0692, HR=0.933)
+    mcv: 0.0008 (coeff=0.0008, HR=1.001)
+    mcv_missing: 0.0692 (coeff=-0.0692, HR=0.933)
+    rdw: 0.0119 (coeff=-0.0119, HR=0.988)
+    rdw_missing: 0.2028 (coeff=0.2028, HR=1.225)
+    glucose: 0.0016 (coeff=-0.0016, HR=0.998)
+    glucose_missing: 0.3257 (coeff=0.3257, HR=1.385)
+    calcium: 0.0129 (coeff=-0.0129, HR=0.987)
+    calcium_missing: 0.0989 (coeff=0.0989, HR=1.104)
+    magnesium: 0.0107 (coeff=-0.0107, HR=0.989)
+    magnesium_missing: 0.0217 (coeff=0.0217, HR=1.022)
+    phosphate: 0.0993 (coeff=-0.0993, HR=0.905)
+    phosphate_missing: 0.4104 (coeff=0.4104, HR=1.507)
+
+Analyzing HAZARD_TRANSFORMER model...

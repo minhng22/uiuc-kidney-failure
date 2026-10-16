@@ -1,9 +1,9 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-04 19:25:21
+Generated on: 2026-10-15 12:56:29
 Repetition: 1
 Scenario: eight_features
-Models analyzed: cox, ddh, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
+Models analyzed: cox, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
 ================================================================================
 
 ================================================================================
@@ -39,38 +39,27 @@ Analyzing COX model...
     bicarbonate: 0.0241 (coeff=-0.0241, HR=0.976)
     serum_albumin: 0.0347 (coeff=-0.0347, HR=0.966)
 
-Analyzing DDH model...
-  DDH Feature Importance:
-    age: 0.1299
-    gender: 0.1423
-    egfr: 0.1095
-    uacr: 0.1318
-    calcium: 0.1432
-    phosphate: 0.1282
-    bicarbonate: 0.1103
-    serum_albumin: 0.1048
-
 Analyzing HAZARD_TRANSFORMER model...
   HAZARD_TRANSFORMER Feature Importance:
-    age: 0.0849
-    gender: 0.4108
-    egfr: 0.0281
-    uacr: 0.1789
-    calcium: 0.0497
-    phosphate: 0.0307
-    bicarbonate: 0.0603
-    serum_albumin: 0.1566
+    age: 0.0843
+    gender: 0.3976
+    egfr: 0.0350
+    uacr: 0.1802
+    calcium: 0.0536
+    phosphate: 0.0327
+    bicarbonate: 0.0714
+    serum_albumin: 0.1451
 
 Analyzing LOGISTIC_HAZARD model...
   LOGISTIC_HAZARD Feature Importance:
-    age: 0.1062
-    gender: 0.1430
-    egfr: 0.1203
-    uacr: 0.0925
-    calcium: 0.1442
-    phosphate: 0.1521
-    bicarbonate: 0.1024
-    serum_albumin: 0.1394
+    age: 0.1081
+    gender: 0.1565
+    egfr: 0.1062
+    uacr: 0.0968
+    calcium: 0.1462
+    phosphate: 0.1437
+    bicarbonate: 0.1180
+    serum_albumin: 0.1245
 
 Analyzing RNN_SURV model...
   RNN_SURV Feature Importance:
@@ -85,14 +74,14 @@ Analyzing RNN_SURV model...
 
 Analyzing DEEPSURV model...
   DEEPSURV Feature Importance:
-    age: 0.1015
-    gender: 0.1163
-    egfr: 0.1256
-    uacr: 0.1319
-    calcium: 0.1304
-    phosphate: 0.1473
-    bicarbonate: 0.1351
-    serum_albumin: 0.1119
+    age: 0.0940
+    gender: 0.1326
+    egfr: 0.1126
+    uacr: 0.1281
+    calcium: 0.1335
+    phosphate: 0.1444
+    bicarbonate: 0.1247
+    serum_albumin: 0.1300
 
 Analyzing GBSA model...
   GBSA Feature Importance:
@@ -137,4 +126,4 @@ Analyzing WEIBUL model...
     phosphate: 0.0050
     bicarbonate: 0.0426
     serum_albumin: 0.0277
-Consolidated feature importance plot saved to: /home/minhn2/uiuc-kidney-failure/generated_data/rep_1/eight_features_all_models_feature_importance.png
+Consolidated feature importance plot saved to: /Users/minhnguyen/Documents/uiuc-kidney-failure/generated_data/rep_1/eight_features_all_models_feature_importance.png

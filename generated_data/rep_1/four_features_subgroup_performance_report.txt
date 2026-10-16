@@ -1,8 +1,9 @@
 SUBGROUP PERFORMANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-04 19:49:36
+Generated on: 2026-10-15 13:00:24
 Repetition: 1
 Scenario: four_features
+Evaluation split: test (16% of the patient pool; Logistic Hazard also uses it as validation data during tuning)
 
 This reports model performance WITHIN demographic groups. It is not a fairness
 evaluation: no fairness criterion is defined or tested here, and a between-group
@@ -60,7 +61,6 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [18-45] n=26 events=20
     Cox                  c_index=0.5356 [0.3724, 0.7153]  brier=0.2527 [0.1851, 0.329] [native]  auc=0.5309 [0.3052, 0.756]
-    Dynamic DeepHit      c_index=0.839 [0.7216, 0.9355]  brier=0.1631 [0.079, 0.2525] [native]  auc=0.9265 [0.8056, 0.9922]
     Hazard Transformer   c_index=0.3858 [0.2461, 0.5168]  brier=0.3008 [0.1785, 0.4407] [native]  auc=0.4012 [0.2114, 0.5805]
     Logistic Hazard      c_index=0.7715 [0.6277, 0.9207]  brier=0.2388 [0.1619, 0.3207] [native]  auc=0.8074 [0.6409, 0.9698]
     RNN-Surv             c_index=0.5112 [0.3502, 0.7035]  brier=0.4649 [0.3147, 0.6151] [native]  auc=0.4973 [0.2738, 0.7412]
@@ -73,7 +73,6 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [46-65] n=116 events=92
     Cox                  c_index=0.5112 [0.4394, 0.5885]  brier=0.2501 [0.2197, 0.2839] [native]  auc=0.5006 [0.4053, 0.6027]
-    Dynamic DeepHit      c_index=0.8628 [0.8159, 0.9017]  brier=0.1276 [0.0928, 0.1636] [native]  auc=0.9507 [0.9155, 0.9714]
     Hazard Transformer   c_index=0.5512 [0.475, 0.6247]  brier=0.2878 [0.2333, 0.3496] [native]  auc=0.5855 [0.4862, 0.6806]
     Logistic Hazard      c_index=0.5168 [0.4492, 0.5886]  brier=0.2678 [0.2312, 0.3084] [native]  auc=0.5351 [0.4313, 0.6384]
     RNN-Surv             c_index=0.5217 [0.447, 0.598]  brier=0.4764 [0.4043, 0.542] [native]  auc=0.4892 [0.3896, 0.5885]
@@ -86,7 +85,6 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [66-85] n=111 events=80
     Cox                  c_index=0.5835 [0.5088, 0.658]  brier=0.2517 [0.214, 0.2866] [native]  auc=0.5835 [0.4872, 0.6857]
-    Dynamic DeepHit      c_index=0.8324 [0.7801, 0.8805]  brier=0.1731 [0.1287, 0.2239] [native]  auc=0.925 [0.874, 0.9605]
     Hazard Transformer   c_index=0.6278 [0.5549, 0.6939]  brier=0.3029 [0.237, 0.3632] [native]  auc=0.685 [0.5836, 0.7757]
     Logistic Hazard      c_index=0.5773 [0.5069, 0.6523]  brier=0.2586 [0.2141, 0.3012] [native]  auc=0.557 [0.4603, 0.6664]
     RNN-Surv             c_index=0.6058 [0.5317, 0.674]  brier=0.3932 [0.3263, 0.4641] [native]  auc=0.6007 [0.4933, 0.6977]
@@ -101,10 +99,9 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [F] n=109 events=84
     Cox                  c_index=0.5876 [0.5072, 0.6665]  brier=0.2717 [0.2375, 0.3102] [native]  auc=0.5895 [0.4828, 0.6966]
-    Dynamic DeepHit      c_index=0.8415 [0.7874, 0.8898]  brier=0.1407 [0.0962, 0.1857] [native]  auc=0.948 [0.9054, 0.9735]
     Hazard Transformer   c_index=0.5769 [0.4997, 0.6501]  brier=0.3312 [0.2741, 0.3989] [native]  auc=0.6158 [0.5141, 0.7111]
     Logistic Hazard      c_index=0.5676 [0.4936, 0.6429]  brier=0.2843 [0.2437, 0.3316] [native]  auc=0.5741 [0.469, 0.6791]
-    RNN-Surv             c_index=0.5569 [0.4767, 0.6363]  brier=0.3989 [0.3278, 0.4627] [native]  auc=0.5503 [0.4414, 0.6585]
+    RNN-Surv             c_index=0.5567 [0.4767, 0.6362]  brier=0.3989 [0.3278, 0.4627] [native]  auc=0.55 [0.4409, 0.6581]
     DeepSurv             c_index=0.59 [0.5137, 0.6599]  brier=0.25 [0.2299, 0.2704] [fitted-conversion]  auc=0.6027 [0.4969, 0.7073]
     GBSA                 c_index=0.567 [0.4794, 0.6509]  brier=0.2552 [0.2347, 0.2749] [native]  auc=0.5643 [0.4455, 0.6721]
     Survival RF          c_index=0.5979 [0.5202, 0.6724]  brier=0.2485 [0.2283, 0.2679] [native]  auc=0.6153 [0.5152, 0.7182]
@@ -114,7 +111,6 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [M] n=161 events=119
     Cox                  c_index=0.535 [0.4747, 0.598]  brier=0.2347 [0.2068, 0.2623] [native]  auc=0.5353 [0.4537, 0.6189]
-    Dynamic DeepHit      c_index=0.8577 [0.8208, 0.8933]  brier=0.1556 [0.1197, 0.1938] [native]  auc=0.9347 [0.8985, 0.9587]
     Hazard Transformer   c_index=0.5771 [0.5087, 0.6406]  brier=0.2701 [0.2207, 0.3178] [native]  auc=0.6168 [0.5215, 0.6976]
     Logistic Hazard      c_index=0.5554 [0.4937, 0.6179]  brier=0.2434 [0.2091, 0.277] [native]  auc=0.5465 [0.4604, 0.6347]
     RNN-Surv             c_index=0.5508 [0.4905, 0.6091]  brier=0.454 [0.3947, 0.5154] [native]  auc=0.5346 [0.4493, 0.611]
@@ -129,7 +125,6 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [BLACK] n=64 events=54
     Cox                  c_index=0.5291 [0.4334, 0.6235]  brier=0.2537 [0.2094, 0.2987] [native]  auc=0.4565 [0.3208, 0.5876]
-    Dynamic DeepHit      c_index=0.8624 [0.791, 0.9171]  brier=0.1541 [0.0951, 0.2151] [native]  auc=0.9476 [0.893, 0.9796]
     Hazard Transformer   c_index=0.6376 [0.5579, 0.7215]  brier=0.2895 [0.2115, 0.372] [native]  auc=0.6534 [0.5287, 0.7767]
     Logistic Hazard      c_index=0.56 [0.4641, 0.654]  brier=0.2687 [0.2139, 0.3239] [native]  auc=0.5462 [0.4036, 0.6809]
     RNN-Surv             c_index=0.5158 [0.4187, 0.6094]  brier=0.4733 [0.3795, 0.5616] [native]  auc=0.4612 [0.3321, 0.6011]
@@ -142,7 +137,6 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [HISPANIC/LATINO] n=21 events=15
     Cox                  c_index=0.45 [0.2866, 0.6252]  brier=0.2861 [0.1939, 0.3738] [native]  auc=0.4872 [0.2633, 0.7377]
-    Dynamic DeepHit      c_index=0.8938 [0.7724, 0.9805]  brier=0.1114 [0.042, 0.1988] [native]  auc=0.949 [0.8361, 1.0]
     Hazard Transformer   c_index=0.4562 [0.2644, 0.6508]  brier=0.3538 [0.1815, 0.4986] [native]  auc=0.4723 [0.2334, 0.7417]
     Logistic Hazard      c_index=0.55 [0.3286, 0.762]  brier=0.3069 [0.1968, 0.425] [native]  auc=0.5627 [0.3105, 0.8062]
     RNN-Surv             c_index=0.4969 [0.2678, 0.7154]  brier=0.4193 [0.2482, 0.6196] [native]  auc=0.4855 [0.2253, 0.7494]
@@ -155,10 +149,9 @@ Per-group performance, 1000 within-group bootstrap resamples, 95% percentile int
 
   [WHITE] n=162 events=120
     Cox                  c_index=0.5744 [0.5084, 0.6373]  brier=0.2481 [0.219, 0.2762] [native]  auc=0.5932 [0.503, 0.676]
-    Dynamic DeepHit      c_index=0.8423 [0.7973, 0.8797]  brier=0.1564 [0.1194, 0.194] [native]  auc=0.9344 [0.8959, 0.9571]
     Hazard Transformer   c_index=0.5808 [0.5102, 0.645]  brier=0.2955 [0.2473, 0.3452] [native]  auc=0.628 [0.5393, 0.7096]
     Logistic Hazard      c_index=0.5732 [0.5071, 0.6358]  brier=0.2562 [0.2214, 0.2911] [native]  auc=0.5915 [0.5006, 0.6817]
-    RNN-Surv             c_index=0.543 [0.4766, 0.6048]  brier=0.4231 [0.361, 0.4828] [native]  auc=0.5479 [0.4541, 0.6347]
+    RNN-Surv             c_index=0.5429 [0.4764, 0.6048]  brier=0.4231 [0.361, 0.4828] [native]  auc=0.5477 [0.4539, 0.6346]
     DeepSurv             c_index=0.4985 [0.4359, 0.5608]  brier=0.2445 [0.2278, 0.2617] [fitted-conversion]  auc=0.4794 [0.3963, 0.5635]
     GBSA                 c_index=0.5552 [0.4798, 0.6199]  brier=0.2434 [0.2258, 0.2611] [native]  auc=0.5598 [0.4611, 0.6493]
     Survival RF          c_index=0.5696 [0.5008, 0.6314]  brier=0.2368 [0.2192, 0.2547] [native]  auc=0.5908 [0.5038, 0.673]

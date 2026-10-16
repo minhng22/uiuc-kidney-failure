@@ -1,9 +1,9 @@
 FEATURE IMPORTANCE ANALYSIS REPORT
 ================================================================================
-Generated on: 2026-10-14 08:48:14
+Generated on: 2026-10-15 14:51:03
 Repetition: 3
 Scenario: four_features
-Models analyzed: weibul
+Models analyzed: cox, hazard_transformer, logistic_hazard, rnn_surv, deepsurv, gbsa, srf, survival_svm, weibul
 ================================================================================
 
 ================================================================================
@@ -23,6 +23,62 @@ FEATURE OVERVIEW:
 
 ANALYZING ALL MODELS FOR FOUR_FEATURES
 ------------------------------------------------------------
+
+Analyzing COX model...
+  COX Feature Importance:
+    age: 0.0006 (coeff=-0.0006, HR=0.999)
+    gender: 0.0007 (coeff=-0.0007, HR=0.999)
+    egfr: 0.0015 (coeff=-0.0015, HR=0.998)
+    uacr: 0.0000 (coeff=0.0000, HR=1.000)
+
+Analyzing HAZARD_TRANSFORMER model...
+  HAZARD_TRANSFORMER Feature Importance:
+    age: 0.0949
+    gender: 0.5057
+    egfr: 0.1803
+    uacr: 0.2192
+
+Analyzing LOGISTIC_HAZARD model...
+  LOGISTIC_HAZARD Feature Importance:
+    age: 0.0987
+    gender: 0.3204
+    egfr: 0.0996
+    uacr: 0.4813
+
+Analyzing RNN_SURV model...
+  RNN_SURV Feature Importance:
+    age: 0.4126
+    gender: 0.2073
+    egfr: 0.2870
+    uacr: 0.0931
+
+Analyzing DEEPSURV model...
+  DEEPSURV Feature Importance:
+    age: 0.2536
+    gender: 0.2218
+    egfr: 0.2085
+    uacr: 0.3161
+
+Analyzing GBSA model...
+  GBSA Feature Importance:
+    age: 0.3010
+    gender: 0.0005
+    egfr: 0.3531
+    uacr: 0.3454
+
+Analyzing SRF model...
+  SRF Feature Importance:
+    age: 0.0313
+    gender: 0.0000
+    egfr: 0.0206
+    uacr: 0.0399
+
+Analyzing SURVIVAL_SVM model...
+  SURVIVAL_SVM Feature Importance:
+    age: 0.0048
+    gender: 0.0242
+    egfr: 0.0034
+    uacr: 0.0000
 
 Analyzing WEIBUL model...
   WEIBUL Feature Importance:
